@@ -3,8 +3,9 @@
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I developed that website with custom features but used weewx as the backend archive. It was a good fit to port the site to a weewx skin.
 
 Features include:
-* Real-time streaming updates on the front page of the webpage without neededing to reload the website.
-* Forecast data updated every hour without needing to reload the website.
+* Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required)
+* Forecast data updated every hour without needing to reload the website. (a free DarkSky API key required)
+* Information on your closest Earthquake updated automatically every 3 hours
 * Observation graphs without needing to reload the website.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
