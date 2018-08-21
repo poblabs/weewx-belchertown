@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+    <head >
+        <meta charset="UTF-8" />
+        <title>$station.location Weather Conditions</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <meta name="description" content="Weather conditions for $station.location as observed by a personal weather station and the weewx weather software"/>
+        <meta name="robots" content="noodp"/>
+        <link rel="canonical" href="$station.station_url/" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="$station.location Weather Conditions" />
+        <meta property="og:description" content="Weather conditions for $station.location as observed by a personal weather station and the weewx weather software" />
+        <meta property="og:url" content="$station.station_url/" />
+        <meta property="og:site_name" content="$station.location Weather Conditions" />
+
+        <link rel='dns-prefetch' href='//code.highcharts.com' />
+        <link rel='dns-prefetch' href='//fonts.googleapis.com' />
+        <link rel='dns-prefetch' href='//maxcdn.bootstrapcdn.com' />
+        <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+
+        <link rel="alternate" type="application/rss+xml" title="$station.location Weather Conditions &raquo; Feed" href="$station.station_url/feed/" />
+
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
+        <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css?ver=4.7.4' type='text/css' media='all' />
+        <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
+        <link rel='stylesheet' href='$station.station_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' />
+        
+        <!--[if lt IE 9]>
+        <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
+        <![endif]-->
+        <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+        <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
+        #if $page == "home" and $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+        <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+        #end if
+        #if $page == "home" or $page == "graphs"
+        <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
+        <script type='text/javascript' src='$station.station_url/js/highcharts-dayplots.js'></script>
+        #end if
+        #if $page == "graphs"
+        <script type='text/javascript' src='$station.station_url/js/highcharts-weekplots.js'></script>
+        <script type='text/javascript' src='$station.station_url/js/highcharts-monthplots.js'></script>
+        <script type='text/javascript' src='$station.station_url/js/highcharts-yearplots.js'></script>
+        #end if
+        
+        <link rel='shortlink' href='$station.station_url/' />
+                
+        <link rel="icon" href="$station.station_url/favicon.ico" />
+
+    </head>
+    
+    <body class="home page-template-default page page-id-2 full-width-content" itemscope itemtype="https://schema.org/WebPage">
+
+        <div class="site-container">
+            <header class="site-header">
+                <div class="wrap">
+                    <div class="title-area">
+                        <p class="site-title" itemprop="headline">
+                            <a href="$station.station_url/">
+                                #if $Extras.has_key("logo_image") and $Extras.logo_image != ''
+                                <img src="$Extras.logo_image" title="$station.location Weather Conditions" alt="$station.location Weather Conditions">
+                                #else if $Extras.has_key("site_title") and $Extras.site_title != ''
+                                $Extras.site_title
+                                #end if
+                            </a>
+                        </p>
+                    </div>
+                    <div class="widget-area header-widget-area">
+                        <section id="nav_menu-2" class="widget widget_nav_menu">
+                            <div class="widget-wrap">
+                                <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
+                                    <ul id="menu-menu" class="menu genesis-nav-menu">
+                                        <!-- class = current-menu-item -->
+                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home"><a href="$station.station_url" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28"><a href="$station.station_url/graphs" itemprop="url"><span itemprop="name">Graphs</span></a></li>
+                                        #end if
+                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-36"><a href="$station.station_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
+                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-38"><a href="$station.station_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
+                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14"><a href="$station.station_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </header>

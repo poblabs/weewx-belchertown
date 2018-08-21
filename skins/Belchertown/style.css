@@ -1,0 +1,2372 @@
+/*
+ CSS file for Belchertown weather website.
+ This website was originally created in WordPress on Genesis WP. 
+ A lot of this CSS here is from the Genesis WP Child Theme.
+ License URI: http://www.gnu.org/licenses/gpl-2.0.html  
+*/
+
+/* ## Baseline Normalize
+--------------------------------------------- */
+/* normalize.css v3.0.1 | MIT License | git.io/normalize */
+
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background:0 0}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background:#ff0;color:#333}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}
+
+/* ## Box Sizing
+--------------------------------------------- */
+
+*,
+input[type="search"] {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing:    border-box;
+	box-sizing:         border-box;
+}
+
+/* ## Float Clearing
+--------------------------------------------- */
+
+.author-box:before,
+.clearfix:before,
+.entry:before,
+.entry-content:before,
+.nav-primary:before,
+.nav-secondary:before,
+.pagination:before,
+.site-container:before,
+.site-footer:before,
+.site-header:before,
+.site-inner:before,
+.wrap:before {
+	content: " ";
+	display: table;
+}
+
+.author-box:after,
+.clearfix:after,
+.entry:after,
+.entry-content:after,
+.nav-primary:after,
+.nav-secondary:after,
+.pagination:after,
+.site-container:after,
+.site-footer:after,
+.site-header:after,
+.site-inner:after,
+.wrap:after {
+	clear: both;
+	content: " ";
+	display: table;
+}
+
+
+/* # Defaults
+---------------------------------------------------------------------------------------------------- */
+
+/* ## Typographical Elements
+--------------------------------------------- */
+
+body {
+	/* background-color: #f5f5f5; */
+	background-color: #fff;
+	color: #333;
+	font-family: Lato, sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	line-height: 1.625;
+	margin: 0;
+}
+
+a,
+button,
+input:focus,
+input[type="button"],
+input[type="reset"],
+input[type="submit"],
+textarea:focus,
+.button {
+	-webkit-transition: all 0.1s ease-in-out;
+	-moz-transition:    all 0.1s ease-in-out;
+	-ms-transition:     all 0.1s ease-in-out;
+	-o-transition:      all 0.1s ease-in-out;
+	transition:         all 0.1s ease-in-out;
+}
+
+::-moz-selection {
+	background-color: #333;
+	color: #fff;
+}
+
+::selection {
+	background-color: #333;
+	color: #fff;
+}
+
+a {
+	color: #e5554e;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #333;
+}
+
+p {
+	margin: 0 0 28px;
+	padding: 0;
+}
+
+ol,
+ul {
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	list-style-type: none;
+}
+
+b,
+strong {
+	font-weight: 700;
+}
+
+blockquote,
+cite,
+em,
+i {
+	font-style: italic;
+}
+
+blockquote {
+	margin: 40px;
+}
+
+blockquote::before {
+	content: "\201C";
+	display: block;
+	font-size: 30px;
+	height: 0;
+	left: -20px;
+	position: relative;
+	top: -10px;
+}
+
+
+/* ## Headings
+--------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: #333;
+	font-family: Lato, sans-serif;
+	font-weight: 400;
+	line-height: 1.2;
+	margin: 0 0 10px;
+}
+
+h1 {
+	font-size: 36px;
+}
+
+h2 {
+	font-size: 30px;
+}
+
+h3 {
+	font-size: 24px;
+}
+
+h4 {
+	font-size: 20px;
+}
+
+h5 {
+	font-size: 18px;
+}
+
+h6 {
+	font-size: 16px;
+}
+
+/* ## Objects
+--------------------------------------------- */
+
+embed,
+iframe,
+img,
+object,
+video {
+	max-width: 100%;
+}
+
+img {
+	height: auto;
+}
+
+/* ## Forms
+--------------------------------------------- */
+
+input,
+select,
+textarea {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	color: #333;
+	font-size: 18px;
+	font-weight: 300;
+	padding: 16px;
+	width: 100%;
+}
+
+input:focus,
+textarea:focus {
+	border: 1px solid #999;
+	outline: none;
+}
+
+input[type="checkbox"],
+input[type="image"],
+input[type="radio"] {
+	width: auto;
+}
+
+::-moz-placeholder {
+	color: #333;
+	font-weight: 300;
+	opacity: 1;
+}
+
+::-webkit-input-placeholder {
+	color: #333;
+	font-weight: 300;
+}
+
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"],
+.button {
+	background-color: #333;
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: 300;
+	padding: 16px 24px;
+	text-transform: uppercase;
+	width: auto;
+}
+
+button:hover,
+input:hover[type="button"],
+input:hover[type="reset"],
+input:hover[type="submit"],
+.button:hover {
+	background-color: #e5554e;
+	color: #fff;
+}
+
+.entry-content .button:hover {
+	color: #fff;
+}
+
+.button {
+	display: inline-block;
+}
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button {
+	display: none;
+}
+
+/* ## Tables
+--------------------------------------------- */
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	line-height: 2;
+	margin-bottom: 40px;
+	width: 100%;
+}
+
+tbody {
+	border-bottom: 1px solid #ddd;
+}
+
+td,
+th {
+	text-align: left;
+}
+
+td {
+	border-top: 1px solid #ddd;
+	padding: 6px 0;
+}
+
+th {
+	font-weight: 400;
+}
+
+
+/* # Structure and Layout
+---------------------------------------------------------------------------------------------------- */
+
+/* ## Site Containers
+--------------------------------------------- */
+
+.site-inner,
+.wrap {
+	margin: 0 auto;
+	max-width: 1200px;
+}
+
+.site-inner {
+	clear: both;
+	/* POB */
+	/* padding-top: 10px; */
+	/* padding-top: 40px; */
+}
+
+/* ## Column Widths and Positions
+--------------------------------------------- */
+
+/* ### Wrapping div for .content and .sidebar-primary */
+
+.content-sidebar-sidebar .content-sidebar-wrap,
+.sidebar-content-sidebar .content-sidebar-wrap,
+.sidebar-sidebar-content .content-sidebar-wrap {
+	width: 980px;
+}
+
+.content-sidebar-sidebar .content-sidebar-wrap {
+	float: left;
+}
+
+.sidebar-content-sidebar .content-sidebar-wrap,
+.sidebar-sidebar-content .content-sidebar-wrap {
+	float: right;
+}
+
+/* ### Content */
+
+.content {
+	/*float: right;*/
+	width: 800px;
+}
+
+.content-sidebar .content,
+.content-sidebar-sidebar .content,
+.sidebar-content-sidebar .content {
+	float: left;
+}
+
+.content-sidebar-sidebar .content,
+.sidebar-content-sidebar .content,
+.sidebar-sidebar-content .content {
+	width: 580px;
+}
+
+.full-width-content .content {
+	width: 100%;
+}
+
+/* ### Primary Sidebar */
+
+.sidebar-primary {
+	float: right;
+	width: 360px;
+}
+
+.sidebar-content .sidebar-primary,
+.sidebar-sidebar-content .sidebar-primary {
+	float: left;
+}
+
+/* ### Secondary Sidebar */
+
+.sidebar-secondary {
+	float: left;
+	width: 180px;
+}
+
+.content-sidebar-sidebar .sidebar-secondary {
+	float: right;
+}
+
+/* ## Column Classes
+--------------------------------------------- */
+/* Link: http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css */
+
+.five-sixths,
+.four-sixths,
+.one-fourth,
+.one-half,
+.one-sixth,
+.one-third,
+.three-fourths,
+.three-sixths,
+.two-fourths,
+.two-sixths,
+.two-thirds {
+	float: left;
+	margin-left: 2.564102564102564%;
+}
+
+.one-half,
+.three-sixths,
+.two-fourths {
+	width: 48.717948717948715%;
+}
+
+.one-third,
+.two-sixths {
+	width: 31.623931623931625%;
+}
+
+.four-sixths,
+.two-thirds {
+	width: 65.81196581196582%;
+}
+
+.one-fourth {
+	width: 23.076923076923077%;
+}
+
+.three-fourths {
+	width: 74.35897435897436%;
+}
+
+.one-sixth {
+	width: 14.52991452991453%;
+}
+
+.five-sixths {
+	width: 82.90598290598291%;
+}
+
+.first {
+	clear: both;
+	margin-left: 0;
+}
+
+
+/* # Common Classes
+---------------------------------------------------------------------------------------------------- */
+
+/* ## Avatar
+--------------------------------------------- */
+
+.avatar {
+	float: left;
+}
+
+.alignleft .avatar,
+.author-box .avatar {
+	margin-right: 24px;
+}
+
+.alignright .avatar {
+	margin-left: 24px;
+}
+
+.comment .avatar {
+	margin: 0 16px 24px 0;
+}
+
+/* ## Genesis
+--------------------------------------------- */
+
+.breadcrumb {
+	margin-bottom: 20px;
+}
+
+.archive-description,
+.author-box {
+	background-color: #fff;
+	font-size: 16px;
+	margin-bottom: 40px;
+	padding: 40px;
+}
+
+.author-box-title {
+	font-size: 16px;
+	margin-bottom: 4px;
+}
+
+.archive-description p:last-child,
+.author-box p:last-child {
+	margin-bottom: 0;
+}
+
+/* ## Search Form
+--------------------------------------------- */
+
+.search-form {
+	overflow: hidden;
+}
+
+.site-header .search-form {
+	float: right;
+	margin-top: 12px;
+}
+
+.entry-content .search-form,
+.site-header .search-form {
+	width: 50%;
+}
+
+.genesis-nav-menu .search input[type="submit"],
+.widget_search input[type="submit"] {
+	border: 0;
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+}
+
+/* ## Titles
+--------------------------------------------- */
+
+.archive-title {
+	font-size: 20px;
+}
+
+.entry-title {
+	font-size: 36px;
+}
+
+.entry-title a,
+.sidebar .widget-title a {
+	color: #333;
+}
+
+.entry-title a:hover {
+	color: #e5554e;
+}
+
+/* ## WordPress
+--------------------------------------------- */
+
+a.aligncenter img {
+	display: block;
+	margin: 0 auto;
+}
+
+a.alignnone {
+	display: inline-block;
+}
+
+.alignleft {
+	float: left;
+	text-align: left;
+}
+
+.alignright {
+	float: right;
+	text-align: right;
+}
+
+a.alignleft,
+a.alignnone,
+a.alignright {
+	max-width: 100%;
+}
+
+img.centered,
+.aligncenter {
+	display: block;
+	margin: 0 auto 24px;
+}
+
+img.alignnone,
+.alignnone {
+	margin-bottom: 12px;
+}
+
+a.alignleft,
+img.alignleft {
+	margin: 0 24px 24px 0;
+}
+
+a.alignright,
+img.alignright {
+	margin: 0 0 24px 24px;
+}
+
+.sticky {
+}
+
+/* # Site Header
+---------------------------------------------------------------------------------------------------- */
+
+.site-header {
+	background-color: #fff;
+	min-height: 75px;
+}
+
+.site-header .wrap {
+	/* padding: 40px 0; */
+	padding: 5px 0px;
+}
+
+/* ## Title Area
+--------------------------------------------- */
+
+.title-area {
+	float: left;
+	/* padding: 10px 0; */
+	width: 330px;
+}
+
+.header-full-width .title-area {
+	width: 100%;
+}
+
+.site-title {
+	font-size: 32px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.site-title a,
+.site-title a:hover {
+	color: #333;
+}
+
+.header-image .site-title > a {
+	background: url('https://belchertownweather.com/images/content/btownwx-logo-slim.png') no-repeat left;
+	float: left;
+	min-height: 80px;
+	width: 100%;
+}
+
+.site-description {
+	font-size: 16px;
+	font-weight: 300;
+	line-height: 1.5;
+}
+
+.site-description,
+.site-title {
+	margin-bottom: 0;
+}
+
+.header-image .site-description,
+.header-image .site-title {
+	display: block;
+	text-indent: -9999px;
+}
+
+/* ## Widget Area
+--------------------------------------------- */
+
+.site-header .widget-area {
+	float: right;
+	text-align: right;
+	width: 800px;
+}
+
+
+/* # Site Navigation
+---------------------------------------------------------------------------------------------------- */
+
+.genesis-nav-menu {
+	clear: both;
+	font-size: 16px;
+	line-height: 1;
+	width: 100%;
+}
+
+.genesis-nav-menu .menu-item {
+	display: inline-block;
+	text-align: left;
+}
+
+.genesis-nav-menu a {
+	color: #333;
+	display: block;
+	padding: 30px 24px;
+}
+
+.genesis-nav-menu a:hover,
+.genesis-nav-menu .current-menu-item > a,
+.genesis-nav-menu .sub-menu .current-menu-item > a:hover {
+	color: #e5554e;
+}
+
+.genesis-nav-menu .sub-menu {
+	left: -9999px;
+	opacity: 0;
+	position: absolute;
+	-webkit-transition: opacity .4s ease-in-out;
+	-moz-transition:    opacity .4s ease-in-out;
+	-ms-transition:     opacity .4s ease-in-out;
+	-o-transition:      opacity .4s ease-in-out;
+	transition:         opacity .4s ease-in-out;
+	width: 200px;
+	z-index: 99;
+}
+
+.genesis-nav-menu .sub-menu a {
+	background-color: #fff;
+	border: 1px solid #eee;
+	border-top: none;
+	font-size: 14px;
+	padding: 20px;
+	position: relative;
+	width: 200px;
+}
+
+.genesis-nav-menu .sub-menu .sub-menu {
+	margin: -55px 0 0 199px;
+}
+
+.genesis-nav-menu .menu-item:hover {
+	position: static;
+}
+
+.genesis-nav-menu .menu-item:hover > .sub-menu {
+	left: auto;
+	opacity: 1;
+}
+
+.genesis-nav-menu > .first > a {
+	padding-left: 0;
+}
+
+.genesis-nav-menu > .last > a {
+	padding-right: 0;
+}
+
+.genesis-nav-menu > .right {
+	color: #fff;
+	float: right;
+	list-style-type: none;
+	padding: 30px 0;
+}
+
+.genesis-nav-menu > .right > a {
+	display: inline;
+	padding: 0;
+}
+
+.genesis-nav-menu > .rss > a {
+	margin-left: 48px;
+}
+
+.genesis-nav-menu > .search {
+	padding: 10px 0 0;
+}
+
+/* ## Site Header Navigation
+--------------------------------------------- */
+
+.site-header .sub-menu {
+	border-top: 1px solid #eee;
+}
+
+.site-header .sub-menu .sub-menu {
+	margin-top: -56px;
+}
+
+.site-header .genesis-nav-menu li li {
+	margin-left: 0;
+}
+
+/* ## Primary Navigation
+--------------------------------------------- */
+
+.nav-primary {
+	background-color: #333;
+}
+
+.nav-primary .genesis-nav-menu a {
+	color: #fff;
+}
+
+.nav-primary .genesis-nav-menu .sub-menu a {
+	color: #333;
+}
+
+.nav-primary .genesis-nav-menu a:hover,
+.nav-primary .genesis-nav-menu .current-menu-item > a,
+.nav-primary .genesis-nav-menu .sub-menu .current-menu-item > a:hover {
+	color: #e5554e;
+}
+
+/* ## Secondary Navigation
+--------------------------------------------- */
+
+.nav-secondary {
+	background-color: #fff;
+}
+
+
+/* # Content Area
+---------------------------------------------------------------------------------------------------- */
+
+/* ## Entries
+--------------------------------------------- */
+
+.entry {
+	margin-bottom: 40px;
+	/* padding: 50px 60px; */
+	padding: 10px;
+}
+
+.content .entry {
+	background-color: #fff;
+}
+
+.entry-content ol,
+.entry-content ul {
+	margin-bottom: 28px;
+	margin-left: 40px;
+}
+
+.entry-content ol > li {
+	list-style-type: decimal;
+}
+
+.entry-content ul > li {
+	list-style-type: disc;
+}
+
+.entry-content ol ol,
+.entry-content ul ul {
+	margin-bottom: 0;
+}
+
+.entry-content code {
+	background-color: #333;
+	color: #ddd;
+}
+
+/* ## Entry Meta
+--------------------------------------------- */
+
+p.entry-meta {
+	font-size: 16px;
+	margin-bottom: 0;
+}
+
+.entry-header .entry-meta {
+	margin-bottom: 24px;
+}
+
+.entry-footer .entry-meta {
+	border-top: 2px solid #f5f5f5;
+	padding-top: 24px;
+}
+
+.entry-categories,
+.entry-tags {
+	display: block;
+}
+
+.entry-comments-link::before {
+	content: "\2014";
+	margin: 0 6px 0 2px;
+}
+
+/* ## Pagination
+--------------------------------------------- */
+
+.pagination {
+	clear: both;
+	margin: 40px 0;
+}
+
+.adjacent-entry-pagination {
+	margin-bottom: 0;
+}
+
+.archive-pagination li {
+	display: inline;
+}
+
+.archive-pagination li a {
+	background-color: #333;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 16px;
+	padding: 8px 12px;
+}
+
+.archive-pagination li a:hover,
+.archive-pagination .active a {
+	background-color: #e5554e;
+}
+
+/* ## Comments
+--------------------------------------------- */
+
+.comment-respond,
+.entry-comments,
+.entry-pings {
+	background-color: #fff;
+	margin-bottom: 40px;
+}
+
+.comment-respond,
+.entry-pings {
+	padding: 40px 40px 16px;
+}
+
+.entry-comments {
+	padding: 40px;
+}
+
+.comment-header {
+	font-size: 16px;
+}
+
+li.comment {
+	background-color: #f5f5f5;
+	border: 2px solid #fff;
+	border-right: none;
+}
+
+.comment-content {
+	clear: both;
+}
+
+.comment-list li {
+	margin-top: 24px;
+	padding: 32px;
+}
+
+.comment-list li li {
+	margin-right: -32px;
+}
+
+.comment-respond input[type="email"],
+.comment-respond input[type="text"],
+.comment-respond input[type="url"] {
+	width: 50%;
+}
+
+.comment-respond label {
+	display: block;
+	margin-right: 12px;
+}
+
+.entry-comments .comment-author {
+	margin-bottom: 0;
+}
+
+.entry-pings .reply {
+	display: none;
+}
+
+.bypostauthor {
+}
+
+.form-allowed-tags {
+	background-color: #f5f5f5;
+	font-size: 16px;
+	padding: 24px;
+}
+
+
+/* # Sidebars
+---------------------------------------------------------------------------------------------------- */
+
+.sidebar {
+	font-size: 16px;
+}
+
+.sidebar li {
+	border-bottom: 1px dotted #ddd;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+}
+
+.sidebar p:last-child,
+.sidebar ul > li:last-child {
+	margin-bottom: 0;
+}
+
+.sidebar .widget {
+	background-color: #fff;
+	margin-bottom: 40px;
+	padding: 40px;
+}
+
+
+/* # Site Footer
+---------------------------------------------------------------------------------------------------- */
+
+.site-footer {
+	background-color: #333;
+	color:#fff;
+	font-size: 16px;
+	line-height: 1;
+	padding: 20px 0;
+	/* text-align: center; */
+}
+
+.site-footer p {
+	margin-bottom: 0;
+}
+
+.site-footer a:hover {
+    color: #e5554e;
+}
+
+
+/* # Media Queries
+---------------------------------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 1200px) {
+
+	.site-inner,
+	.wrap {
+		max-width: 960px;
+	}
+
+	.content-sidebar-sidebar .content-sidebar-wrap,
+	.sidebar-content-sidebar .content-sidebar-wrap,
+	.sidebar-sidebar-content .content-sidebar-wrap {
+		width: 740px;
+	}
+
+	.content,
+	.site-header .widget-area {
+		width: 620px;
+	}
+
+	.sidebar-content-sidebar .content,
+	.sidebar-sidebar-content .content,
+	.content-sidebar-sidebar .content {
+		width: 400px;
+	}
+
+}
+
+/* iPad Landscape */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
+    
+    .wx-stn-info { display:none; }
+    
+    .wx-stn-info-container .col-sm-5 {
+        width: 75%;
+    }
+    
+    .wx-stn-info-container .col-sm-1 {
+        width: 10%;
+    }
+    
+    .temperature-row .toprow-height, .temperature-row .weather-obs-top {
+        min-height: initial !important;
+    }
+    
+    .temperature-row .obs-row { 
+        float:left;
+    }
+    
+    .windrow {
+        float: left;
+        padding: 20px;
+    }
+    
+    .temperature-row .station-observations td {
+        min-width: 138px;
+        max-width: 142px;
+    }
+    
+    .station-observations, .weather-obs-bottom {
+        float:left;
+    }  
+    
+    .radar-map {
+        float: right;
+    }
+    
+    .forecasts .wuforecast {
+        width: 235px;
+    }
+    
+    .eq-stats-row .col-sm-9 {
+        width: 100%;
+    }
+    
+    .eq-stats-row .earthquake-container { 
+        width: 50%;
+        margin-left:24%;
+        border-left: none !important;
+    }
+    
+    .site-container .site-footer {
+        text-align: center;
+    }
+    
+    .site-footer .footerLeft, .site-footer .footerRight {
+        float:none;
+    }
+}
+
+/* Phones */
+@media only screen and (max-width: 960px) {
+
+	.site-inner,
+	.wrap {
+		max-width: 800px;
+	}
+
+	.content,
+	.content-sidebar-sidebar .content,
+	.content-sidebar-sidebar .content-sidebar-wrap,
+	.sidebar-content-sidebar .content,
+	.sidebar-content-sidebar .content-sidebar-wrap,
+	.sidebar-primary,
+	.sidebar-secondary,
+	.sidebar-sidebar-content .content,
+	.sidebar-sidebar-content .content-sidebar-wrap,
+	.site-header .widget-area,
+	.title-area {
+		width: 100%;
+	}
+
+	.site-header .wrap {
+		padding: 20px 5%;
+	}
+
+	.header-image .title-area {
+		background-position: center top;
+	}
+
+	.genesis-nav-menu li,
+	.site-header ul.genesis-nav-menu,
+	.site-header .search-form {
+		float: none;
+	}
+
+	.genesis-nav-menu,
+	.site-description,
+	.site-header .title-area,
+	.site-header .search-form,
+	.site-title {
+		text-align: center;
+	}
+
+	.genesis-nav-menu a,
+	.genesis-nav-menu > .first > a,
+	.genesis-nav-menu > .last > a {
+		padding: 20px 16px;
+	}
+
+	.site-header .search-form {
+		margin: 16px auto;
+	}
+
+	.genesis-nav-menu li.right {
+		display: none;
+	}
+
+}
+
+@media only screen and (max-width: 800px) {
+	/* POB Styles */
+
+	/* Global */
+	
+	body, html { overflow-x:hidden; }
+	body { 
+		padding:5px; 
+		background-color: #fff;
+		font-size: 16px;
+	}
+	
+	.site-header .wrap {
+		padding: 0px;
+	}
+	.title-area {
+		float: none; 
+		width: auto; 
+	}
+	.header-image .site-title > a {
+		width: 100% !important;
+	}
+	
+	.site-header .widget-area {
+		float: none;
+		text-align: auto;
+	}
+	
+	.menu-toggle {
+		margin-top: -7px;
+	}
+	
+	.site-inner,
+	.wrap {
+        /* padding-top:20px; */
+		padding-left: 5%;
+		padding-right: 5%;
+	}
+
+	.archive-description,
+	.author-box,
+	.comment-respond,
+	.entry,
+	.entry-comments,
+	.entry-pings,
+	.sidebar .widget,
+	.site-header {
+		padding: 0;
+	}
+
+	.archive-pagination li a {
+		margin-bottom: 4px;
+	}
+
+	.five-sixths,
+	.four-sixths,
+	.one-fourth,
+	.one-half,
+	.one-sixth,
+	.one-third,
+	.three-fourths,
+	.three-sixths,
+	.two-fourths,
+	.two-sixths,
+	.two-thirds {
+		margin: 0;
+		width: 100%;
+	}
+	
+	.search {
+		display:none;
+	}
+	.author-box-content {
+		width:100%;
+	}
+	.about-author {
+		height:initial !important;
+		padding:5px !important;
+	}
+	.social, .social-right {
+		float: none !important;
+		margin: 0 auto !important;
+		text-align: center;
+		width:100%;
+		padding:20px 0px;
+	}
+	.social i {
+		width:60px !important;
+		height:60px !important;
+		font-size:40px !important;
+		padding-top:15px !important;
+		padding-right:1px !important;
+	}
+
+}
+
+
+/* # POB Custom Styles
+---------------------------------------------------------------------------------------------------- */
+
+/* Responsive Menu
+--------------------------------------------- */
+.responsive-menu-icon {
+	cursor: pointer;
+	display: none;
+}
+
+.responsive-menu-icon::before {
+	content: "\f0c9";
+	display: block;
+	font: normal 30px/1 'FontAwesome';
+	margin: 0 auto;
+	padding: 10px;
+	text-align: center;
+	color: #000;
+}
+
+/* # Media Queries
+---------------------------------------------------------------------------------------------------- */
+@media only screen and (max-width: 768px) {
+
+    .genesis-nav-menu.responsive-menu > .menu-item > .sub-menu,
+	.genesis-nav-menu.responsive-menu {
+		display: none;
+	}
+	
+	.genesis-nav-menu.responsive-menu .menu-item,
+	.responsive-menu-icon {
+		display: block;
+		/* background: #231f20;*/
+		color: white;
+        text-align: center;
+	}
+	
+	.genesis-nav-menu.responsive-menu .menu-item:hover {
+		position: static;
+	}
+	
+	.genesis-nav-menu.responsive-menu .sub-menu .current-menu-item > a:hover,
+	.genesis-nav-menu.responsive-menu li a,
+	.genesis-nav-menu.responsive-menu li a:hover,
+	.genesis-nav-menu.responsive-menu li.current-menu-item > a {
+		background: none;
+		display: block;
+		line-height: 1;
+		padding: 12px 0;
+	}
+	
+	.genesis-nav-menu.responsive-menu .menu-item-has-children {
+		cursor: pointer;
+	}
+	
+	.genesis-nav-menu.responsive-menu .menu-item-has-children > a {
+		margin-right: 60px;
+	}
+	
+	.genesis-nav-menu.responsive-menu > .menu-item-has-children:before {
+		content: "\f347";
+		float: right;
+		font: normal 16px/1 'dashicons';
+		height: 16px;
+		padding: 11px 20px;
+		right: 0;
+		text-align: right;
+		z-index: 9999;
+		/* color: #fff; */
+	}
+	
+	.genesis-nav-menu.responsive-menu .menu-open.menu-item-has-children:before {
+		content: "\f343";
+		/* color: pink; */
+	}
+	
+	.genesis-nav-menu.responsive-menu .sub-menu {
+		left: auto;
+		opacity: 1;
+		position: relative;
+		-moz-transition:    opacity .4s ease-in-out;
+		-ms-transition:     opacity .4s ease-in-out;
+		-o-transition:      opacity .4s ease-in-out;
+		-webkit-transition: opacity .4s ease-in-out;
+		transition:         opacity .4s ease-in-out;
+		width: 100%;
+		z-index: 99;
+	}
+	
+	.genesis-nav-menu.responsive-menu .sub-menu .sub-menu {
+		padding-left: 20px;
+		margin: 0;
+	}
+	
+	.genesis-nav-menu.responsive-menu .sub-menu li a,
+	.genesis-nav-menu.responsive-menu .sub-menu li a:hover {
+		background: none;
+		border: none;
+		box-shadow: none;
+		padding: 12px 0;
+		position: relative;
+		width: 100%;
+	}
+	
+	.genesis-nav-menu.responsive-menu {
+		/* padding-bottom: 16px; */
+	}
+	
+	.nav-primary .genesis-nav-menu.responsive-menu li a {
+		padding-left:10px;
+		/* background: #231f20; */
+		color: white;
+	}
+	
+	.nav-primary .genesis-nav-menu.responsive-menu li a:hover {
+		background: none;
+		color: red;
+	}
+
+}
+
+/* Main */
+
+.clear { clear:both; }
+
+.center { 
+    text-align: center;
+    margin: 0 auto;
+}
+
+.footerLeft { float: left; padding-left:20px; }
+.footerRight { float:right; padding-right: 20px; }
+
+/* Custom wx page */
+
+.weewx table { 
+	margin-bottom:0px;
+	line-height:inherit;
+}
+
+.weewx tbody, .weewx td {
+	border:none;
+	padding:0;
+}
+
+.wx-content { 
+	width:100%; 
+}
+
+.toprow-height {
+	min-height:375px !important;
+}
+
+.border-top {
+	border-top: 1px solid #D7D7D7 !important;
+}
+
+.border-left {
+	border-left: 1px solid #D7D7D7 !important;
+}
+
+.border-right {
+	border-right:1px solid #D7D7D7 !important;
+}
+
+.weather-obs-top {
+	min-height:205px !important;
+}
+
+.updated-wrapper {
+	float:left;
+}
+
+.updated {
+	display: inline-block;
+	margin-bottom:5px;
+}
+
+.onlineMarkerOuter {
+    /* width: 30px; */
+    /* height: 30px; */
+    /* text-align: center; */
+    padding: 6px 0 0 15px;
+    /* display:inline-block; */
+    float: left;
+}
+
+.loadingMarker:before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin: 4px 0 0 -13px;
+    background: #ffbe00;
+    border-color: #ffbe00;
+    border-radius: 50%;
+}
+
+.offlineMarker:before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin: 4px 0 0 -13px;
+    background: #ff0000;
+    border-color: #ff0000;
+    border-radius: 50%;
+}
+
+.onlineMarker:before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin: 4px 0 0 -13px;
+    background: #00bb00;
+    border-color: #00bb00;
+    border-radius: 50%;
+}
+
+.onlineMarker:after {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    margin: -8px 0 0 -25px;
+    border: 1px solid #00bb00;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #00bb00, inset 0 0 4px rgb(56, 111, 169);
+    -webkit-transform: scale(0);
+    -webkit-animation: online 2.5s ease-in-out infinite;
+    animation: online 2.5s ease-in-out infinite;
+}
+
+@-webkit-keyframes online {
+  0%{
+    -webkit-transform:scale(.1);
+    opacity:1;
+  }
+  70%{
+    -webkit-transform:scale(2.5);
+    opacity:0;
+  }
+  100%{
+    opacity:0;
+  }
+}
+
+@keyframes online {
+  0%{
+    transform:scale(.1);
+    opacity:1;
+  }
+  70%{
+    transform:scale(2.5);
+    opacity:0;
+  }
+  100%{
+    opacity:0;
+  }
+}
+
+.wx-header-temperature { 
+    float:left;
+    width:90px;
+    text-align:center;
+    margin:0 auto;
+}
+
+.wx-header-temperature img { 
+    height:50px;
+}
+
+.wx-stn-info-container {
+	width:100%;
+	border-bottom: 1px solid #D7D7D7;
+}
+
+.wx-stn-name {
+	float:left;
+}
+.wx-stn-name h1 { 
+	font-size:32px;
+}
+
+.wx-stn-share, .wx-stn-info {
+	float:right;
+	margin-right:10px;
+}
+
+.wx-stn-share { margin-bottom:10px; }
+
+.wx-stn-share iframe { max-width:initial !important; }
+
+.wx-fb, .wx-share-sep, .wx-twitter {
+    display:inline-block;
+}
+
+.wx-share-sep {
+    margin:0px 5px;
+}
+
+/* Custom styling for the share buttons */
+.fb_iframe_widget span, .twitter-share-button {
+    vertical-align: middle !important;
+}
+
+
+.temperature-row, .forecastrow {
+	border-bottom:1px solid #D7D7D7;
+}
+
+.temp-observation {
+	padding-top:5px;
+}
+
+.current_temp, .current_wind {
+	text-align:center;
+	line-height:1;
+	font-size:14px;
+	padding: 0px !important;
+}
+
+.current-obs-container {
+	text-align:center;
+	padding:0px !important;
+}
+
+.current_obs_top {
+	padding-top:8px !important;
+}
+
+.current-obs-text {
+	font-size:20px;
+}
+
+.current_temp {
+	padding-top:20px !important;
+}
+
+.current_temp .temp {
+	font-size:65px;
+}
+
+.current_temp h1 {
+	font-size:40px;
+}
+
+.tempsup { 
+	top:-1.0em;
+	font-size:50%;
+}
+
+.feelslike {
+	text-align:center;
+	font-size:20px;
+}
+
+.stn-high-low {
+	padding-top: 5px;
+	font-size:15px;
+	line-height: 1.3;
+}
+
+.stn-high-low-table-title {
+	/* padding-bottom:5px !important; */
+}
+
+.stn-high-low-table td {
+	text-align:center;
+}
+
+.windrow {
+    /* margin-top: 25px; */
+    border-top: 1px solid #D7D7D7;
+    padding-top: 20px;
+}
+
+.curwind {
+	margin-top:-10px;
+	line-height: initial;
+}
+
+.current_wind {
+	/* padding:20px 0px 0px 0px !important; */
+	padding:10px 0px 0px 0px !important;
+}
+
+.windspeedtable {
+    padding-top:10px;
+}
+
+.wind-arrow-container {
+	margin-top:-8px;
+	margin-bottom:5px;
+}
+
+.wind-arrow {
+	font-size:50px !important;
+	padding:3px 18px 0px 15px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    background: white;
+	color:#808080;
+    border: 3px solid #808080;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+    transition: -webkit-transform 1s ease-in;
+}
+
+/* https://codepen.io/xixao/pen/OPovyN */
+.compass {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 100%;
+    position: relative;
+    color: #555;
+    border: solid #808080 5px;
+        margin-left: 60px;
+    /* margin-top: -10px; */
+}
+
+.compass:before {
+    font-weight: bold;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    font-size: 14px;
+    top: -2px;
+}
+  
+.direction {
+    height: 100%;
+    width: 100%;
+    display: block;
+    /* background: #f2f6f5; */
+    /* background: -moz-linear-gradient(top, #f2f6f5 0%, #cbd5d6 100%); */
+    /* background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f2f6f5), color-stop(100%, #cbd5d6)); */
+    /* background: -webkit-linear-gradient(top, #f2f6f5 0%, #cbd5d6 100%); */
+    /* background: -o-linear-gradient(top, #f2f6f5 0%, #cbd5d6 100%); */
+    border-radius: 100%;
+}
+
+.direction .curwinddir {
+    font-size: 25px;
+    padding-top: 22px;
+    display: block;
+}
+.direction .curwindeg {
+    font-size: 21px;
+}
+
+.arrow {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    top: 0;
+    transition: -webkit-transform 1s ease-in;
+}
+.arrow:after {
+    content: "";
+    width: 0;
+    height: 0;
+    /* border-left: 5px solid transparent; */
+    /* border-right: 5px solid transparent; */
+    /* border-bottom: 10px solid red; */
+    /* top: -6px; */
+    /* left: 50%; */
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    /* border-bottom: 21px solid red; */
+    border-top: 21px solid red;
+    position: absolute;
+    top: -10px;
+    left: 38px;
+    /* margin-left: -5px; */
+    z-index: 99;
+}
+
+.wind-table td {
+	text-align:center !important;
+}
+
+.windtext {
+	font-size:20px;
+}
+
+.curwindspeed, .curwindgust {
+	font-size:30px;
+}
+
+.mph { 
+	padding-top:10px !important;
+	font-size:18px !important;
+}
+
+.wx-pressure-trend { 
+	color: #808080; 
+	font-size:20px;
+	line-height:1;
+	padding-left:5px;
+}
+
+.barometer-up {
+	transform: rotate(45deg);
+}
+
+.barometer-down {
+	transform: rotate(315deg);
+}
+
+.wx-rainrate-value {
+	padding-left:5px;
+}
+
+.small-almanac {
+	/* padding-top:5px; */
+	border-top:1px solid #D7D7D7;
+    padding:15px;
+}
+
+.sun, .moon {
+	padding:0px !important;
+}
+
+.sunrise-set-image {
+	width:20px;
+	margin-right:5px;
+}
+
+.sun-moon-title {
+	font-size:25px;
+	text-align:left;
+	padding-bottom: 10px;
+}
+
+.moon-container {
+	font-size:15px;
+}
+
+.moon {
+	text-align:right;
+}
+
+.moon-container {
+	color:#808080;
+}
+
+.moon-icon {
+	font-size:20px;
+}
+
+.radar-map {
+	padding:5px 5px 0px 5px !important;
+}
+
+.forecastrow {
+	text-align:center;
+}
+
+.forecast-title {
+	text-align:left;
+	font-size:25px;
+	margin-bottom:5px;
+}
+
+.forecast-subtitle {
+	font-size:14px;
+}
+
+.wuforecast {
+	min-height:250px !important;
+}
+
+.forecast-conditions {
+	min-height:133px;
+    word-wrap:break-word;
+}
+
+.forecast-high, .forecast-low {
+	font-size:20px;
+	font-weight:500;
+}
+
+.forecast-precip, .forecast-wind {
+	font-size:15px;
+}
+
+.snow-precip, .rain-precip {
+	color:#42b5e7;
+}
+
+.rain-no-precip {
+	color:#808080;
+}
+
+.earthquake-container {
+	font-size:18px;
+	text-align:center;
+}
+
+.snapshot-records-text, .eq-title {
+    font-size:24px;
+    text-align:center;
+    margin: 10px 0px;
+}
+
+.stats-title {
+    font-size:20px;
+}
+
+.magnitude {
+	font-size:23px;
+}
+
+.eq-source {
+	font-size:12px;
+}
+
+.wx-graph-front {
+    font-size:25px;
+    padding-top:20px;
+    padding-bottom:20px;
+    text-align:center;
+}
+
+.highcharts-row {
+	border-top:1px solid #D7D7D7;
+	/* margin-top:25px; */
+}
+
+.wx-buttons { 
+    margin:0 auto;
+    text-align:center;
+    margin-top:20px;
+}
+
+.wx-buttons-description {
+    font-size:30px;
+    font-weight:400;
+    text-align:center;
+    padding:10px 0px;
+}
+
+.wx-records-description {
+    margin:25px 0px;
+}
+
+.records table {
+    border:1px solid #D7D7D7;
+}
+
+.records td {
+    padding:0px 10px;
+}
+
+.records .leftborder {
+    border-left: 1px solid #D7D7D7;
+}
+
+.records-header {
+    text-align:center;
+    background:#D7D7D7;
+    color:#000;
+    font-weight:400;
+}
+
+.records-header-alltime {
+    text-align:center;
+    background:#1f3365;
+    color:#fff;
+    font-weight:400;
+}
+
+.wx-year-row {
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.noaa_reports {
+    margin-top:40px;
+    /* padding-top:30px; */
+}
+
+/* .col-sm-1-5 { */
+.wuforecast {
+    position: relative;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+    /* width: 10%; */
+    /* float:left; */
+    display: inline-block;
+    width: 148px;
+}
+
+@media only screen and (max-width: 800px) {
+	
+    .header-image .site-title > a {
+        background-position-x: center;
+        background-position-y: center;
+        margin-bottom: 20px;
+    }
+    
+	.site-footer { text-align:center !important; }
+	.footerLeft { 
+		float:none !important; 
+		display:block;
+		padding:0px !important;
+	}
+	.footerRight { 
+		float:none !important; 
+		display:block;
+		margin-top:10px;
+		padding:0px !important;
+	}
+    
+    .current_obs_top img {
+        float: left;
+        width: 30%;
+        height: auto;
+    }
+    
+    .current_temp {
+        padding-top: 0px !important;
+    }
+    
+    .current_temp .temp {
+        font-size: 55px;
+    }
+	
+	.wx-content {
+		/* padding-top:25px; */
+	}
+    
+    .windrow {
+        padding-top:0px;
+    }
+	
+	.weewx h1 {
+		font-size:27px;
+	}
+    
+	.breadcrumb { 
+		display:none;
+	}
+
+	.border-left {
+		border-left: 0px !important;
+	}
+	
+	.border-right {
+		border-right: 0px !important;
+	}
+	
+	.wx-stn-info-container {
+		text-align:center;
+	}
+	
+	.wx-stn-name {
+		float:none;
+	}
+	
+	.wx-stn-share, .wx-stn-info {
+		display:none;
+		float: none !important;
+		text-align:center;
+	}
+	
+    .updated-wrapper {
+        float:none;
+        margin-bottom:5px;
+    }
+    
+	.updated {
+		display: initial;
+	}
+	
+	.station-observations {
+		/* margin-top:15px; */
+	}
+	
+	.current_obs {
+		padding:10px 0px !important;
+	}
+	
+	.windrow {
+		border-bottom:1px solid #D7D7D7;
+		/* padding-bottom:10px; */
+        padding: 20px 0px;
+	}
+	
+	.wind-table { 
+		/* margin-top:15px !important; */
+	}
+    
+    .wind-table td {
+        padding: 0 5px;
+    }
+    
+    .windspeedtable {
+        /* float:left; */
+        float:right;
+    }
+    
+    .current_wind {
+        /* padding: 10px 0px 0px 0px !important; */
+        padding: 0px !important;
+    }
+    
+    .compass {
+        margin-left: 0px;
+        margin-top: 0px;
+        /* margin: 0 auto; */
+        float: left;
+        /* margin: 0 35px; */
+    }
+	
+    .sun { float: left; }
+    .moon { float: right; }
+	
+	.forecast-subtitle {
+		display: block;
+	}
+	
+	.wuforecast {
+		font-size:28px;
+		padding-bottom:15px;
+        min-height: 170px !important;
+		border-bottom:1px solid #D7D7D7;
+	}
+    	
+	.forecast-condition-text {
+		display:block;
+	}
+	
+	.forecast-high, .forecast-low {
+		/* font-size: 30px; */
+		/* font-weight: 500; */
+	}
+	
+	.forecast-precip, .forecast-wind {
+		font-size: 16px;
+		display:inline-block !important;
+	}
+        
+    .forecast-conditions {
+        min-height: 70px;
+    }
+    
+    .forecast-conditions img {
+        width:30%;
+        height:auto;
+    }
+	
+	.earthquake-container {
+        margin-top: 20px;
+		border-top:1px solid #D7D7D7;
+		padding-bottom:10px;
+	}
+	
+	.stn-quick-stats  {
+		padding-left: 0px !important;
+		padding-right: 0px !important;
+        padding-top: 15px;
+	}
+    
+    .records-table {
+        word-break: break-all;
+    }
+    
+    .records table {
+        table-layout: fixed;
+        width: 100%;
+    }
+	
+	/* Responsive tables from: https://css-tricks.com/responsive-data-tables/ */
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+	/* 	display: block;  */
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { 
+		border: 0px;
+	}
+	
+	td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 50%;
+		/* display:block; POB Added */
+	}
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+	}
+    
+    .col-sm-1-5 {
+        padding-left: 0px;
+        padding-right: 0px;
+        width: 45%;
+        font-size: 18px;
+    }
+    
+    .row {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+}
+
+/* End custom wx page */
+
+/* Custom Raspberry Pi Kiosk Page */
+    
+    body.pi {
+        font-family:initial;
+    }
+    
+    .pi .site-inner, .pi .wrap {
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 0px;
+    }
+    .pi .entry {
+        margin-bottom: 0px;
+    }
+    
+    .pi .col-md-3 { padding: 0px !important; }
+
+    .pi .wx-content {
+        padding-top: 0px;
+    }
+    .pi .updated-wrapper {
+        float: none;
+    }
+
+    .pi .updated {
+        padding-top: 0px;
+        margin-bottom: 0px;
+        font-size:14px;
+        text-align:center;
+    }
+    
+    .pi .obs-group { 
+        line-height: 25px;
+        margin-top: 17px;   
+        /* text-align: center; */
+    }
+    
+    .pi .temp {
+        font-size:40px;
+        font-weight:bold;
+        float:right;
+        margin-top: 11px;
+        margin-right: 0px;
+    }
+    
+    .pi .current-obs-text {
+        text-align:center;
+    }
+    
+    .pi .temp-observation {
+        padding-top: 0px;
+    }
+    
+    .pi .temp-observation img {
+        width:70px;
+        height:auto;
+    }
+    
+    .pi .weather-obs-top {
+        min-height: initial !important;
+    }
+    
+    .pi .current_temp, .pi .current_wind, .pi .current-obs-container, .pi .feelslike, .pi .stn-high-low-table td {
+        text-align: initial;
+    }
+    
+    .pi .current_temp {
+        padding-top: 0px !important;
+    }
+    
+    .pi .tempstats {
+        font-size:16px;
+        line-height:20px;
+        margin-top:13px;
+    }
+    
+    .pi .feelslike { 
+        font-size:16px;
+        text-align:center;
+    }
+     
+    .pi .wind_col { 
+        text-align: center; 
+        padding-top: 5px;
+    }
+    
+    .pi .wind_data { margin-bottom: 8px; }
+    
+    .pi td { display: initial; }
+    
+    .pi .windtext {
+        font-size: initial;
+        display: inline-block;
+        line-height:20px;
+        padding-left: 15px;
+    }
+    
+    .pi .wind-table {
+        margin-top: 0px !important;
+    }
+    
+    .pi .wind-table td {
+        display: table-cell;
+    }
+    
+    .pi .compass {
+        margin-left: 63px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .pi .direction .curwinddir {
+        padding-top: 11px;
+    }
+    
+    .pi .border-left {
+        border-left: 1px solid #D7D7D7 !important;
+    }
+    
+    .pi .temperature-row {
+        border-bottom: 0px;
+    }
+   
+    .pi .station-observations {
+        line-height: 20px;
+		margin-top: 15px;
+	}
+    
+    .pi .small-almanac {
+        border-top: 0px;
+        line-height: 20px;
+        padding: 5px 0px 0px 0px;
+    }
+    
+    .pi .moon-container {
+        margin-top: 5px;
+        line-height: 18px;
+    }    
+    
+    .pi .forecastrow .col-lg-12 {
+        padding: 0;
+    }
+
+    .pi .forecast .weekday {
+        padding-bottom: 10px;
+    }
+    
+    .pi .forecast-conditions img {
+        width: 70%;
+        height: auto;
+    }
+
+    .pi .forecast .wuforecast {
+        width:24% !important;
+        height:100%;
+        border-bottom: 0px;
+        padding:20px 0px 15px;
+    }
+    
+    .pi .forecast-condition-text {
+        height: 70px;
+    }
+    
+    .pi .forecastrow {
+        border-bottom: 0px;
+    }
+    
+    
+    

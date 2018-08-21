@@ -1,0 +1,366 @@
+{
+    "version": "$station.version",
+    "weewxuptime": "$station.uptime",
+    "serveruptime": "$station.os_uptime",
+    "extras": {
+        #if $Extras.has_key('radar_url')
+        "radar_url": "$Extras.radar_url",
+        #end if
+        #if $Extras.has_key('radar_img')
+        "radarimg": "$Extras.radar_img"
+        #end if
+    },
+    "station": {
+        "hardware": "$station.hardware",
+        "location": "$station.location",
+        "latitude": "$station.latitude[1]' $station.latitude[2]",
+        "longitude": "$station.longitude[1]' $station.longitude[2]",
+        "altitude": "$station.altitude"
+    },
+    "current": {
+        "datetime": "$current.dateTime",
+        "outTemp": "$current.outTemp",
+        "outHumidity": "$current.outHumidity",
+        #if $day.appTemp.has_data
+        "appTemp": "$current.appTemp",
+        #end if
+        "windchill": "$current.windchill",
+        "heatindex": "$current.heatindex",
+        "dewpoint": "$current.dewpoint",
+        "barometer": "$current.barometer",
+        "barometer_trend": "$trend.barometer",
+        "windspeed": "$current.windSpeed",
+        "winddir": "$current.windDir",
+        "windGust": "$current.windGust.formatted",
+        "windGustDir": "$current.windGustDir",
+        "windcompass": "$current.windDir.ordinal_compass",
+        #if $day.windrun.has_data
+        "windrun": "$current.windrun",
+        #end if
+        #if $day.extraTemp1.has_data
+        "extraTemp1": "$current.extraTemp1",
+        #end if
+        #if $day.UV.has_data
+        "uv": "$current.UV",
+        #end if
+        #if $day.radiation.has_data
+        "solar_radiation": "$current.radiation",
+        #end if
+        #if $day.ET.has_data and $day.ET.sum.raw > 0.0
+        "et": "$current.ET",
+        #end if    
+        "rainRate": "$current.rainRate",
+        "rain": "$current.rain"
+    },
+    "day": {
+        "outTemp": {
+            "max": "$day.outTemp.max",
+            "maxtime": "$day.outTemp.maxtime",
+            "min": "$day.outTemp.min",
+            "mintime": "$day.outTemp.mintime"
+        },
+        #if $day.appTemp.has_data        
+        "appTemp": {
+            "max": "$day.appTemp.max",
+            "maxtime": "$day.appTemp.maxtime",
+            "min": "$day.appTemp.min",
+            "mintime": "$day.appTemp.mintime"
+        },
+        #end if
+        "heatindex": {
+            "max": "$day.heatindex.max",
+            "maxtime": "$day.heatindex.maxtime"
+        },
+        "windchill": {
+            "max": "$day.windchill.min",
+            "maxtime": "$day.windchill.mintime"
+        },
+        "humidity": {
+            "max": "$day.outHumidity.max",
+            "maxtime": "$day.outHumidity.maxtime",
+            "min": "$day.outHumidity.min",
+            "mintime": "$day.outHumidity.mintime"
+        },
+        "dewpoint": {
+            "max": "$day.dewpoint.max",
+            "maxtime": "$day.dewpoint.maxtime",
+            "min": "$day.dewpoint.min",
+            "mintime": "$day.dewpoint.mintime"
+        },
+        "barometer": {
+            "max": "$day.barometer.max",
+            "maxtime": "$day.barometer.maxtime",
+            "min": "$day.barometer.min",
+            "mintime": "$day.barometer.mintime"
+        },
+        "rain": {
+            "sum": "$day.rain.sum",
+            "max": "$day.rainRate.max",
+            "maxtime": "$day.rainRate.maxtime"
+        },        
+        "wind": {
+            "max": "$day.wind.max",
+            "maxtime": "$day.wind.maxtime",
+            "gustdir": "$day.wind.gustdir",
+            "average": "$day.wind.avg",
+            "rms": "$day.wind.rms",
+            "vectordir": "$day.wind.vecdir",
+            "vectoravg": "$day.wind.vecavg",
+            #if $day.windrun.has_data
+            "windrun_max": "$day.windrun.max",
+            "windrun_maxtime": "$day.windrun.maxtime",
+            "windrun_min": "$day.windrun.min",
+            "windrun_mintime": "$day.windrun.mintime"
+            #end if
+        },
+        "uv": {
+            "max": "$day.UV.max",
+            "maxtime": "$day.UV.maxtime",
+            "min": "$day.UV.min",
+            "mintime": "$day.UV.mintime"
+        },
+        "solar_radiation": {
+            "max": "$day.radiation.max",
+            "maxtime": "$day.radiation.maxtime",
+            "min": "$day.radiation.min",
+            "mintime": "$day.radiation.mintime"
+        }
+    },
+    
+    "week": {
+        "outTemp": {
+            "max": "$week.outTemp.max",
+            "maxtime": "$week.outTemp.maxtime",
+            "min": "$week.outTemp.min",
+            "mintime": "$week.outTemp.mintime"
+        },
+        #if $week.appTemp.has_data
+        "appTemp": {
+            "max": "$week.appTemp.max",
+            "maxtime": "$week.appTemp.maxtime",
+            "min": "$week.appTemp.min",
+            "mintime": "$week.appTemp.mintime"
+        },
+        #end if
+        "heatindex": {
+            "max": "$week.heatindex.max",
+            "maxtime": "$week.heatindex.maxtime"
+        },
+        "windchill": {
+            "max": "$week.windchill.min",
+            "maxtime": "$week.windchill.mintime"
+        },
+        "humidity": {
+            "max": "$week.outHumidity.max",
+            "maxtime": "$week.outHumidity.maxtime",
+            "min": "$week.outHumidity.min",
+            "mintime": "$week.outHumidity.mintime"
+        },
+        "dewpoint": {
+            "max": "$week.dewpoint.max",
+            "maxtime": "$week.dewpoint.maxtime",
+            "min": "$week.dewpoint.min",
+            "mintime": "$week.dewpoint.mintime"
+        },
+        "barometer": {
+            "max": "$week.barometer.max",
+            "maxtime": "$week.barometer.maxtime",
+            "min": "$week.barometer.min",
+            "mintime": "$week.barometer.mintime"
+        },
+        "rain": {
+            "sum": "$week.rain.sum",
+            "max": "$week.rainRate.max",
+            "maxtime": "$week.rainRate.maxtime"
+        },        
+        "wind": {
+            "max": "$week.wind.max",
+            "maxtime": "$week.wind.maxtime",
+            "gustdir": "$week.wind.gustdir",
+            "average": "$week.wind.avg",
+            "rms": "$week.wind.rms",
+            "vectordir": "$week.wind.vecdir",
+            "vectoravg": "$week.wind.vecavg",
+            #if $week.windrun.has_data
+            "windrun_max": "$week.windrun.max",
+            "windrun_maxtime": "$week.windrun.maxtime",
+            "windrun_min": "$week.windrun.min",
+            "windrun_mintime": "$week.windrun.mintime"
+            #end if
+        },
+        "uv": {
+            "max": "$week.UV.max",
+            "maxtime": "$week.UV.maxtime",
+            "min": "$week.UV.min",
+            "mintime": "$week.UV.mintime"
+        },
+        "solar_radiation": {
+            "max": "$week.radiation.max",
+            "maxtime": "$week.radiation.maxtime",
+            "min": "$week.radiation.min",
+            "mintime": "$week.radiation.mintime"
+        }
+    },
+    
+    "month": {
+        "outTemp": {
+            "max": "$month.outTemp.max",
+            "maxtime": "$month.outTemp.maxtime",
+            "min": "$month.outTemp.min",
+            "mintime": "$month.outTemp.mintime"
+        },
+        #if $month.appTemp.has_data
+        "appTemp": {
+            "max": "$month.appTemp.max",
+            "maxtime": "$month.appTemp.maxtime",
+            "min": "$month.appTemp.min",
+            "mintime": "$month.appTemp.mintime"
+        },
+        #end if
+        "heatindex": {
+            "max": "$month.heatindex.max",
+            "maxtime": "$month.heatindex.maxtime"
+        },
+        "windchill": {
+            "max": "$month.windchill.min",
+            "maxtime": "$month.windchill.mintime"
+        },
+        "humidity": {
+            "max": "$month.outHumidity.max",
+            "maxtime": "$month.outHumidity.maxtime",
+            "min": "$month.outHumidity.min",
+            "mintime": "$month.outHumidity.mintime"
+        },
+        "dewpoint": {
+            "max": "$month.dewpoint.max",
+            "maxtime": "$month.dewpoint.maxtime",
+            "min": "$month.dewpoint.min",
+            "mintime": "$month.dewpoint.mintime"
+        },
+        "barometer": {
+            "max": "$month.barometer.max",
+            "maxtime": "$month.barometer.maxtime",
+            "min": "$month.barometer.min",
+            "mintime": "$month.barometer.mintime"
+        },
+        "rain": {
+            "sum": "$month.rain.sum",
+            "max": "$month.rainRate.max",
+            "maxtime": "$month.rainRate.maxtime"
+        },        
+        "wind": {
+            "max": "$month.wind.max",
+            "maxtime": "$month.wind.maxtime",
+            "gustdir": "$month.wind.gustdir",
+            "average": "$month.wind.avg",
+            "rms": "$month.wind.rms",
+            "vectordir": "$month.wind.vecdir",
+            "vectoravg": "$month.wind.vecavg",
+            #if $month.windrun.has_data
+            "windrun_max": "$month.windrun.max",
+            "windrun_maxtime": "$month.windrun.maxtime",
+            "windrun_min": "$month.windrun.min",
+            "windrun_mintime": "$month.windrun.mintime"
+            #end if
+        },
+        "uv": {
+            "max": "$month.UV.max",
+            "maxtime": "$month.UV.maxtime",
+            "min": "$month.UV.min",
+            "mintime": "$month.UV.mintime"
+        },
+        "solar_radiation": {
+            "max": "$month.radiation.max",
+            "maxtime": "$month.radiation.maxtime",
+            "min": "$month.radiation.min",
+            "mintime": "$month.radiation.mintime"
+        }
+    },
+    
+    "year": {
+        "outTemp": {
+            "max": "$year.outTemp.max",
+            "maxtime": "$year.outTemp.maxtime",
+            "min": "$year.outTemp.min",
+            "mintime": "$year.outTemp.mintime"
+        },
+        #if $year.appTemp.has_data
+        "appTemp": {
+            "max": "$year.appTemp.max",
+            "maxtime": "$year.appTemp.maxtime",
+            "min": "$year.appTemp.min",
+            "mintime": "$year.appTemp.mintime"
+        },
+        #end if
+        "heatindex": {
+            "max": "$year.heatindex.max",
+            "maxtime": "$year.heatindex.maxtime"
+        },
+        "windchill": {
+            "max": "$year.windchill.min",
+            "maxtime": "$year.windchill.mintime"
+        },
+        "humidity": {
+            "max": "$year.outHumidity.max",
+            "maxtime": "$year.outHumidity.maxtime",
+            "min": "$year.outHumidity.min",
+            "mintime": "$year.outHumidity.mintime"
+        },
+        "dewpoint": {
+            "max": "$year.dewpoint.max",
+            "maxtime": "$year.dewpoint.maxtime",
+            "min": "$year.dewpoint.min",
+            "mintime": "$year.dewpoint.mintime"
+        },
+        "barometer": {
+            "max": "$year.barometer.max",
+            "maxtime": "$year.barometer.maxtime",
+            "min": "$year.barometer.min",
+            "mintime": "$year.barometer.mintime"
+        },
+        "rain": {
+            "sum": "$year.rain.sum",
+            "max": "$year.rainRate.max",
+            "maxtime": "$year.rainRate.maxtime"
+        },        
+        "wind": {
+            "max": "$year.wind.max",
+            "maxtime": "$year.wind.maxtime",
+            "gustdir": "$year.wind.gustdir",
+            "average": "$year.wind.avg",
+            "rms": "$year.wind.rms",
+            "vectordir": "$year.wind.vecdir",
+            "vectoravg": "$year.wind.vecavg",
+            #if $year.windrun.has_data
+            "windrun_max": "$year.windrun.max",
+            "windrun_maxtime": "$year.windrun.maxtime",
+            "windrun_min": "$year.windrun.min",
+            "windrun_mintime": "$year.windrun.mintime"
+            #end if
+        },
+        "uv": {
+            "max": "$year.UV.max",
+            "maxtime": "$year.UV.maxtime",
+            "min": "$year.UV.min",
+            "mintime": "$year.UV.mintime"
+        },
+        "solar_radiation": {
+            "max": "$year.radiation.max",
+            "maxtime": "$year.radiation.maxtime",
+            "min": "$year.radiation.min",
+            "mintime": "$year.radiation.mintime"
+        }
+    },
+    "almanac": {
+        "sunrise": "$almanac.sunrise",
+        "sunset": "$almanac.sunset",
+        "moon": {
+            "moon_fullness": "$almanac.moon_fullness",
+            "moon_phase": "$almanac.moon_phase"
+        }
+    },
+
+
+    "site": "$station.station_url"
+
+}

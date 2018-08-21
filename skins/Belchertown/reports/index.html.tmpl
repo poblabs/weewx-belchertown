@@ -1,0 +1,106 @@
+#errorCatcher Echo
+#encoding UTF-8
+#set global $page = "reports"
+
+    #include "header.html.tmpl"
+    
+    <script>        
+        jQuery(document).ready(function() {
+            var month = getSearchParams("mo");
+            var year = getSearchParams("yr");
+            if ( ( year !== undefined ) && ( month !== undefined ) ) {
+                url = '$station.station_url/NOAA/NOAA-'+year+'-'+month+'.txt';
+            } else if ( year !== undefined ) {
+                url = '$station.station_url/NOAA/NOAA-'+year+'.txt';
+            } else {
+                url = '$station.station_url/NOAA/$default_noaa_file';
+            }
+            
+            // Load the file into the pre
+            //jQuery('#noaa_contents').load( url );
+            populatePre( url );
+            
+            // Change the direct href link
+            jQuery(".noaa_direct_link").attr( "href", url );
+        });
+
+        // Get the URL Var so we can show the right NOAA file.
+        // Source: https://stackoverflow.com/a/26744533/1177153
+        function getSearchParams(k) {
+            var p={};
+            location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
+            return k?p[k]:p;
+        }
+        
+        // Change the div to the right NOAA file
+        // I normally use PHP for this, but JavaScript seems to work well for the skin
+        // Source: https://stackoverflow.com/a/18933218/1177153
+        function populatePre(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                raw_content = this.responseText;
+                updated_content = raw_content.replace('<sup>','').replace('</sup>','').replace('&deg;','');
+                document.getElementById('noaa_contents').textContent = updated_content;
+            };
+            xhr.open('GET', url);
+            xhr.send();
+        }
+    </script>
+
+    <div class="site-inner">
+        <div class="content-sidebar-wrap">
+            <main class="content">	
+                <article class="weewx reports page type-page status-publish entry" itemscope itemtype="https://schema.org/CreativeWork">
+                    <div class="entry-content" itemprop="text">
+
+                        <div class="wx-stn-info-container">
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    $current_obs_icon
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="wx-stn-name">
+                                        <h1>$Extras.reports_page_header</h1>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5" style="float:right;">
+                                    <div class="wx-stn-info">
+                                        Observations are powered by a <a href="$station.station_url/about" target="_blank">Personal Weather Station</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-1" style="text-align:center;">
+                                    $current.outTemp
+                                </div>
+                                <div class="col-sm-10" style="float:right;">
+                                    <div class="wx-stn-share">
+                                        $social_html
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+
+                        <div class="noaa_reports">
+                            <H1>NOAA Reports</H1>
+                            <div class="row">
+                                <div class="col-sm-12 wx-year-row">
+                                    $noaa_header_html
+                                </div>
+                            </div>
+                            <a href="#" class="noaa_direct_link">Click here</a> to view this report directly, or click on a month or year to change the NOAA report.
+                            <br><br>
+                            <div class="noaa_report_container">
+                                <pre id="noaa_contents"></pre>
+                            </div> <!-- END noaa_report_container -->
+                        </div> <!-- END noaa_reports -->
+
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+
+
+    #include "footer.html.tmpl"

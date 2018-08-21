@@ -1,0 +1,729 @@
+// http://stackoverflow.com/a/14887961/1177153
+var weatherdirection = {
+	0: 'N',
+	90: 'E',
+	180: 'S',
+	270: 'W',
+	360: 'N'
+};
+
+function yearly() {
+
+    Highcharts.setOptions({
+        global: {
+            timezoneOffset: 10 * 60,
+            useUTC: false
+        },
+    });
+
+    var optionsTemp = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'temperatureplot',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Temperature'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            title: {
+            },
+			opposite: false
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 2,
+                marker: {
+                    enabled: false
+                },
+            }
+        },
+		// Define the plot colors in order as they are loaded below
+		//colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		colors: ['#FF0000', '#7cb5ec', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+    var optionsWindchill = {
+        chart: {
+            plotBackgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, '#FCFFC5'],
+                    [1, '#E0E0FF']
+                ]
+            },
+            renderTo: 'windchillplot',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Wind Chill/Heat Index'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            title: {
+            }
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 1,
+                marker: {
+                    enabled: false
+                }
+            }
+        },
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+    var optionsHumidity = {
+        chart: {
+            plotBackgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, '#FCFFC5'],
+                    [1, '#E0E0FF']
+                ]
+            },
+            renderTo: 'humidityplot',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Humidity'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            // startOnTick: true,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            title:  {
+                text: '(%)'
+            }
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 1,
+                marker: {
+                    enabled: false
+                }
+            },
+            series: {
+                color: '#4242B4'
+            }
+        },
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+	var optionsBarometer = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'barometerplot',
+            //spacing: [5, 10, 10, 0],
+            type: 'spline',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Barometer'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+			tickInterval: 0.01, 
+            endOnTick: true,
+            lineColor: '#555',
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            title: {
+            },
+			opposite: false
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 2,
+                marker: {
+                    enabled: false
+                },
+            }
+        },
+		// Define the plot colors in order as they are loaded below
+		colors: ['#BECC00'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+	
+	var optionsWind = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'windplot',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Wind / Gust Speed'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            title: {
+            },
+			opposite: false
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 2,
+                marker: {
+                    enabled: false
+                },
+            }
+        },
+		// Define the plot colors in order as they are loaded below
+		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+    var optionsWindDir = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'winddirplot',
+            spacing: [5, 10, 10, 0],
+            type: 'scatter',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Wind Direction'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+		
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            max: 360,
+            min: 0,
+            minorGridLineWidth: 0,
+            startOnTick: true,
+            tickInterval: 90,
+			opposite: false,
+			showLastLabel: true, 
+            title:  {
+                //text: '(\u00B0)'
+                text: 'Wind Direction'
+            }, 
+			labels: {
+				formatter: function() {
+					var value = weatherdirection[this.value];
+					return value !== 'undefined' ? value : this.value;
+				}
+			}
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 1,
+                marker: {
+                    enabled: true
+                }
+            },
+            series: {
+                marker: {
+                    radius: 2
+                },
+                color: '#4242B4'
+            }
+        },
+		
+		// Define the plot colors in order as they are loaded below
+		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+        tooltip: {
+            enabled: false,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{
+            marker: {
+                lineWidth: 0,
+                lineColor: null, // inherit from series
+                radius: 10
+            }
+        }]
+
+    };
+
+    var optionsRain = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'rainplot',
+            spacing: [5, 10, 10, 0],
+            type: 'area',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Yearly Rainfall'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 86400000,
+            // minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+		
+        yAxis: {
+            endOnTick: true,
+            lineColor: '#555',
+            min: 0,
+            minRange: 0.05,
+            minorGridLineWidth: 1,
+            startOnTick: true,
+            title:  {
+            },
+			opposite: false
+
+        },
+
+        plotOptions: {
+            column: {
+                color: '#72B2C4',
+                borderWidth: 0,
+            },
+            series: {
+                pointPadding: 0,
+                groupPadding: 0,
+                borderWidth: 0
+            }
+        },
+		
+		// Define the plot colors in order as they are loaded below
+		//colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+    var optionsRadiation = {
+        chart: {
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
+            renderTo: 'radiationplot',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
+            zoomType: 'x'
+        },
+
+        title: {
+            text: 'Solar Radiation'
+        },
+
+        legend: {
+            enabled: true
+        },
+
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineColor: '#555',
+            minRange: 900000,
+            minTickInterval: 900000,
+            title: {
+                style: {
+                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            type: 'datetime',
+        },
+
+        yAxis: {
+            startOnTick: true,
+            endOnTick: true,
+            lineColor: '#555',
+            min: 0,
+            minorGridLineWidth: 0,
+			opposite: false,
+            title:  {
+                text: '(W/m\u00B2)'
+            }
+        },
+
+        plotOptions: {
+            line: {
+                lineWidth: 1,
+                marker: {
+                    enabled: false
+                }
+            },
+            series: {
+                color: '#4242B4'
+            }
+        },
+		
+		// Define the plot colors in order as they are loaded below
+		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
+
+
+        tooltip: {
+            enabled: true,
+            dateTimeLabelFormats: {
+                hour: '%e %b %H:%M'
+            }
+        },
+
+        series: [{}]
+
+    };
+
+    jQuery.getJSON('$station.station_url/json/year.json', function(seriesData) {
+        optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
+        optionsTemp.series[1] = seriesData[0].temperatureplot.series.outTempMin;
+        optionsTemp.series[2] = seriesData[0].temperatureplot.series.dewpoint;
+        //optionsTemp.series[2] = seriesData[0].windchillplot.series.windchill;
+        //optionsTemp.series[3] = seriesData[0].windchillplot.series.heatindex;
+        optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
+        //optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
+        //optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
+        //optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
+        //optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
+        //optionsWindchill.yAxis.title.text = seriesData[0].windchillplot.yAxisLabel.text;
+        //optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
+        optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
+        optionsBarometer.yAxis.title.text = seriesData[0].barometerplot.yAxisLabel.text;
+        optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
+        optionsWind.series[1] = seriesData[0].windplot.series.windSpeedAvg;
+        optionsWind.series[2] = seriesData[0].windplot.series.windGust;
+        optionsWind.yAxis.title.text = seriesData[0].windplot.yAxisLabel.text;
+        optionsWindDir.series[0] = seriesData[0].winddirplot.series.windDir;
+        optionsRain.series[0] = seriesData[0].rainplot.series.rain;
+        optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
+        optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
+        //var chart = new Highcharts.Chart(optionsWindchill);
+        //var chart = new Highcharts.Chart(optionsHumidity);
+        var chart = new Highcharts.StockChart(optionsTemp);
+        var chart = new Highcharts.StockChart(optionsBarometer);
+        var chart = new Highcharts.StockChart(optionsWind);
+        var chart = new Highcharts.StockChart(optionsWindDir);
+        var chart = new Highcharts.StockChart(optionsRain);
+        var chart = new Highcharts.StockChart(optionsRadiation);
+    });
+
+};
