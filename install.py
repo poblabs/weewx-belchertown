@@ -72,6 +72,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                      'skins/Belchertown/images/sunset.png',
                      'skins/Belchertown/images/thunderstorm.png',
                      'skins/Belchertown/images/tornado.png',
+                     'skins/Belchertown/images/wind.png',
                      'skins/Belchertown/images/index.html'])
                    ]
             )
