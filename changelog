@@ -1,2 +1,10 @@
+0.2 August 22, 2018
+* Added units to the darksky api url with "auto" units as the default. Auto units automatically selects units based on your geographic location.
+* Added a windy icon by remixing a couple images together.
+* Updated records page units which had some hard coded units by mistake
+* Fixed lowest windchill on the records page
+* Fixed a formatting error with the sunrise and sunset auto-refesh
+
+
 0.1 August 21, 2018
 * Initial implementation
