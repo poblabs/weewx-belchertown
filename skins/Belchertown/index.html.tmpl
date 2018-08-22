@@ -180,8 +180,8 @@
             jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
             
             // Sunrise and Sunset            
-            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss").format("h:mm a"); // Requires moment.js
-            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss").format("h:mm a"); // Requires moment.js
+            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
+            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
             jQuery(".sunrise-value").html( sunrise );
             jQuery(".sunset-value").html( sunset );
             

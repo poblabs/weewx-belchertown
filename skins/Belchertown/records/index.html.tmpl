@@ -78,7 +78,7 @@
                                         <td>Highest Apparent Temperature</td>
                                         <td class="leftborder">$year.appTemp.max</td>
                                         <td>$year.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") &deg;F</td>
+                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") $unit.label.outTemp</td>
                                         <td>$alltime.appTemp.max</td>
                                     </tr>
                                     <tr>
@@ -98,24 +98,24 @@
                                     </tr>  
                                     <tr>
                                         <td>Lowest Wind Chill</td>
-                                        <td class="leftborder">$year.windchill.max</td>
-                                        <td>$year.windchill.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.windchill.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td>$alltime.windchill.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td class="leftborder">$year.windchill.min</td>
+                                        <td>$year.windchill.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td class="leftborder">$alltime.windchill.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td>$alltime.windchill.min</td>
                                     </tr>
                                     <tr>
                                         <td>Largest Daily Temperature Range</td>
-                                        <td class="leftborder">$year_temp_range_max[1] &deg;F</td>
-                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_temp_range_max[0] ) ) #<br>(Min: $year_temp_range_max[2]&deg;F - Max: $year_temp_range_max[3]&deg;F )</td>
-                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_temp_range_max[0] ) ) #<br>(Min: $at_temp_range_max[2]&deg;F - Max: $at_temp_range_max[3]&deg;F )</td>
-                                        <td>$at_temp_range_max[1] &deg;F</td>
+                                        <td class="leftborder">$year_temp_range_max[1] $unit.label.outTemp</td>
+                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_temp_range_max[0] ) ) #<br>(Min: $year_temp_range_max[2] $unit.label.outTemp - Max: $year_temp_range_max[3] $unit.label.outTemp )</td>
+                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_temp_range_max[0] ) ) #<br>(Min: $at_temp_range_max[2] $unit.label.outTemp - Max: $at_temp_range_max[3] $unit.label.outTemp )</td>
+                                        <td>$at_temp_range_max[1] $unit.label.outTemp</td>
                                     </tr>                           
                                     <tr>
                                         <td>Smallest Daily Temperature Range</td>
-                                        <td class="leftborder">$year_temp_range_min[1] &deg;F</td>
-                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_temp_range_min[0] ) ) #<br>(Min: $year_temp_range_min[2]&deg;F - Max: $year_temp_range_min[3]&deg;F )</td>
-                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_temp_range_min[0] ) ) #<br>(Min: $at_temp_range_min[2]&deg;F - Max: $at_temp_range_min[3]&deg;F )</td>
-                                        <td>$at_temp_range_min[1] &deg;F</td>
+                                        <td class="leftborder">$year_temp_range_min[1] $unit.label.outTemp</td>
+                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_temp_range_min[0] ) ) #<br>(Min: $year_temp_range_min[2] $unit.label.outTemp - Max: $year_temp_range_min[3] $unit.label.outTemp )</td>
+                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_temp_range_min[0] ) ) #<br>(Min: $at_temp_range_min[2] $unit.label.outTemp - Max: $at_temp_range_min[3] $unit.label.outTemp )</td>
+                                        <td>$at_temp_range_min[1] $unit.label.outTemp</td>
                                     </tr>
                                     
                                     <tr>
