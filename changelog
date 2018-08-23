@@ -1,3 +1,9 @@
+0.3 August 22, 2018
+* Fixed a bug with the DarkSky URL.
+* Removed an extra pre-requisites check.  
+* Updated the visibility unit check. DarkSky API does not return this in their output, so using a mixture of skin and weewx config settings, hopefully we can determine the unit you want. 
+* Fixed another static unit on the records page.
+
 0.2 August 22, 2018
 * Added units to the darksky api url with "auto" units as the default. Auto units automatically selects units based on your geographic location.
 * Added a windy icon by remixing a couple images together.

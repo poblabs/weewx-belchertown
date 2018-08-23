@@ -276,13 +276,13 @@ class getForecast(SearchList):
         forecast_file = self.generator.skin_dict['HTML_ROOT'] + "/json/darksky_forecast.json"
         forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
         darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
-        darksky_units = self.generator.skin_dict['Extras']['darksky_units']
+        darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
         latitude = self.generator.config_dict['Station']['latitude']
         longitude = self.generator.config_dict['Station']['longitude']
         forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
         forecast_is_stale = False
         
-        forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?%s" % ( darksky_secret_key, latitude, longitude, darksky_units )
+        forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s" % ( darksky_secret_key, latitude, longitude, darksky_units )
         
         # Determine if the file exists and get it's modified time
         if os.path.isfile( forecast_file ):
@@ -319,12 +319,6 @@ class getForecast(SearchList):
         with open( forecast_file, "r" ) as read_file:
             data = json.load( read_file )
         
-        # Check if the pre-requisites have been completed
-        try:
-            station_url = self.generator.config_dict["Station"]["station_url"]
-        except:
-            raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
-
         html_output = ""
         forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
         current_obs_summary = data["currently"]["summary"]
@@ -338,12 +332,23 @@ class getForecast(SearchList):
         speed = converter.group_unit_dict["group_speed"]
         windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][speed] # Example: If US, this should return " mph".
 
-        
         if data["currently"]["icon"] == "partly-cloudy-night":
             current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/partly-cloudy-night.png">'
         else:
             current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/'+data["currently"]["icon"]+'.png">'
-        
+
+        # Try and determine visibility units. DarkSky wants them lower. We set this variable to .lower() right when it's set.
+        if ( darksky_units == "us" ) or ( darksky_units == "uk2" ):
+            visibility_unit = "miles"
+        elif ( darksky_units == "si" ) or ( darksky_units == "ca" ):
+            visibility_unit = "km"
+        elif ( darksky_units == "auto" ):
+            # Get the unit nickname from weewx.conf and determine this way
+            if target_unit_nickname.upper() == "US":
+                visibility_unit = "miles"
+            else:
+                visibility_unit = "km"
+            
         # Loop through each day and generate the forecast row HTML
         for daily_data in data["daily"]["data"]:
             # Setup some variables
@@ -425,6 +430,7 @@ class getForecast(SearchList):
                                    'current_obs_icon': current_obs_icon,
                                    'current_obs_summary': current_obs_summary,
                                    'visibility': visibility,
+                                   'visibility_unit': visibility_unit,
                                    'forecastHTML' : html_output }
         # Return our json data
         return [search_list_extension]
