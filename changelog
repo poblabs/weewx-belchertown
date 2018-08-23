@@ -1,8 +1,15 @@
+0.4 August 23, 2018
+* Better usage of getting the right label from the skin dict. This fixes the wrong windSpeed label in the DarkSky forecast row. Thanks Gary!
+* Changes the way of determining the DarkSky visibility unit label values. Gets the unit from the API output, then sets the label. Fixes the wrong label when using "auto" for DarkSky units.
+* Fixed a barometer rounding bug in the highcharts generator.
+
+
 0.3 August 22, 2018
 * Fixed a bug with the DarkSky URL.
 * Removed an extra pre-requisites check.  
 * Updated the visibility unit check. DarkSky API does not return this in their output, so using a mixture of skin and weewx config settings, hopefully we can determine the unit you want. 
 * Fixed another static unit on the records page.
+
 
 0.2 August 22, 2018
 * Added units to the darksky api url with "auto" units as the default. Auto units automatically selects units based on your geographic location.

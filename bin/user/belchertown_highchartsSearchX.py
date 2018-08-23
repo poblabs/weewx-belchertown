@@ -130,14 +130,15 @@ class highchartsDay(SearchList):
         # Get our barometer vector
         (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer')
         barometer_vt = self.generator.converter.convert(barometer_vt)
-        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[2], "3f")[-2])
-        barometerRound_vt = [round(x,barometerRound) if x is not None else None for x in barometer_vt[0]]
-        time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-        barometer_json = json.dumps(zip(time_ms, barometerRound_vt))
-        #(time_vt, barometer_vt) = archivedb.getSqlVectors('barometer', _start_ts, valid_timespan.stop)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
+        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[1], "1f")[-2])
         # Do the rounding
+        barometerRound_vt = [round(x,barometerRound) if x is not None else None for x in barometer_vt[0]]
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        barometer_json = json.dumps(zip(time_ms, barometerRound_vt))
 
         # Get our wind speed vector
         (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed')
@@ -352,7 +353,7 @@ class highchartsWeek(SearchList):
         barometer_vt = self.generator.converter.convert(barometer_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
-        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[2], "1f")[-2])
+        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[1], "1f")[-2])
         # Do the rounding
         barometerRound_vt =  [roundNone(x,barometerRound) for x in barometer_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
@@ -649,7 +650,7 @@ class highchartsWeek_original_archived(SearchList):
         # Get our barometer vector
         (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer')
         barometer_vt = self.generator.converter.convert(barometer_vt)
-        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[2], "3f")[-2])
+        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[2], "1f")[-2])
         barometerRound_vt = [round(x,barometerRound) if x is not None else None for x in barometer_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         barometer_json = json.dumps(zip(time_ms, barometerRound_vt))

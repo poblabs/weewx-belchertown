@@ -143,12 +143,8 @@ class getAllStats(SearchList):
                                     skin_dict=self.generator.skin_dict )
                                     
         # Get the unit label from the skin dict for speed. 
-        # Insight from https://github.com/weewx/weewx/blob/e4693b025d80196a7c25ef0f015045f53aa8c248/bin/weewx/engine.py#L303
-        target_unit_nickname = self.generator.config_dict['StdConvert']['target_unit']
-        target_unit = weewx.units.unit_constants[target_unit_nickname.upper()]
-        converter = weewx.units.StdUnitConverters[target_unit]
-        speed = converter.group_unit_dict["group_speed"]
-        windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][speed] # Example: If US, this should return " mph".
+        windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
+        windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
         
         # Build the search list with the new values
         search_list_extension = { 'alltime' : all_stats,
@@ -325,29 +321,23 @@ class getForecast(SearchList):
         visibility = data["currently"]["visibility"]
         
         # Get the unit label from the skin dict for speed. 
-        # Insight from https://github.com/weewx/weewx/blob/e4693b025d80196a7c25ef0f015045f53aa8c248/bin/weewx/engine.py#L303
-        target_unit_nickname = self.generator.config_dict['StdConvert']['target_unit']
-        target_unit = weewx.units.unit_constants[target_unit_nickname.upper()]
-        converter = weewx.units.StdUnitConverters[target_unit]
-        speed = converter.group_unit_dict["group_speed"]
-        windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][speed] # Example: If US, this should return " mph".
+        windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
+        windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
 
         if data["currently"]["icon"] == "partly-cloudy-night":
             current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/partly-cloudy-night.png">'
         else:
             current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/'+data["currently"]["icon"]+'.png">'
 
-        # Try and determine visibility units. DarkSky wants them lower. We set this variable to .lower() right when it's set.
-        if ( darksky_units == "us" ) or ( darksky_units == "uk2" ):
+        # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
+        # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
+        # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
+        if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
             visibility_unit = "miles"
-        elif ( darksky_units == "si" ) or ( darksky_units == "ca" ):
+        elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
             visibility_unit = "km"
-        elif ( darksky_units == "auto" ):
-            # Get the unit nickname from weewx.conf and determine this way
-            if target_unit_nickname.upper() == "US":
-                visibility_unit = "miles"
-            else:
-                visibility_unit = "km"
+        else:
+            visibility_unit = ""
             
         # Loop through each day and generate the forecast row HTML
         for daily_data in data["daily"]["data"]:
