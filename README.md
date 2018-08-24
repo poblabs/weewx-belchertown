@@ -49,7 +49,7 @@ To set this up you need to setup the `weewx-mqtt` extension which will publish y
 
 **I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
 
-## MQTT Websockets (optional)
+### MQTT Websockets (optional, but required if you use MQTT for real-time updates)
 
 Your MQTT broker (server) will need to support MQTT websockets in order for the website skin to connect to the MQTT topics. Please make sure your broker has websockets support. 
 
