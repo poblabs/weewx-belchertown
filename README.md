@@ -33,7 +33,7 @@ MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works 
 
 To set this up you need to setup the `weewx-mqtt` extension which will publish your weather data to a broker (server). I recommend version 0.18rc1 or later [(you can find 0.18rc1 here)](https://groups.google.com/d/msg/weewx-user/d4s-d0Vcrgk/tDqR9_28BwAJ) since it will publish your weather data on every LOOP and ARCHIVE. Once a LOOP is received from your weewx driver, it'll automatically publish that data which will update your website in real time. Once ARCHIVE is recevied, your website will reload the forecast data, earthquake data and graphs automatically. 
 
-**Installing the MQTT extension**: To install weewx-mqtt, place the Python extension file in your [bin/user](http://www.weewx.com/docs/usersguide.htm#Where_to_find_things) folder. Add `user.mqtt.MQTT` to the `restful_services` variable in weewx.conf, then configure MQTT by adding this section to your weewx.conf's `[StdRESTFul]` section. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Remove the tls section if your broker is not using SSL/TLS.
+**Installing the MQTT extension**: To install weewx-mqtt, (if you manually downloaded 0.18rc1, you will need to rename the file to `mqtt.py`) place the Python file in your [bin/user](http://www.weewx.com/docs/usersguide.htm#Where_to_find_things) folder. Add `user.mqtt.MQTT` to the `restful_services` variable in weewx.conf, then configure MQTT by adding this section to your weewx.conf's `[StdRESTFul]` section. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Remove the tls section if your broker is not using SSL/TLS.
 
 ```
     [[MQTT]]
