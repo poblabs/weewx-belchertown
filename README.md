@@ -57,10 +57,10 @@ Your MQTT broker (server) will need to support MQTT websockets in order for the 
 
 1) Download the tar gz file.
 
-2) Run the installer:
+2) Run the installer. Replace `x.x` with the version number of the skin you've downloaded.
 
 ```
-sudo wee_extension --install weewx-belchertown.tgz
+sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 ```
 
 3) Restart weewx:
