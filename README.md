@@ -49,6 +49,10 @@ To set this up you need to setup the `weewx-mqtt` extension which will publish y
 
 **I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
 
+## MQTT Websockets (optional)
+
+Your MQTT broker (server) will need to support MQTT websockets in order for the website skin to connect to the MQTT topics. Please make sure your broker has websockets support. 
+
 ## Install weewx-belchertown
 
 1) Download the tar gz file.
