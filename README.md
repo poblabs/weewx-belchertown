@@ -29,11 +29,11 @@ DarkSky API is where the forecast data comes from. The skin will work without Da
 * Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
 
 ### MQTT (optional)
-MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. Your weewx server will **publish** it's weather data to a broker (server) and visitors to your website will **subscribe** to those updates. When data is published the subscribers get that data immediatly. Once data is received the skin will automatically update the website with no delay. 
+MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. Your weewx server will **publish** it's weather data to a broker (server) and visitors to your website will **subscribe** to those updates. When data is published the subscribers get that data immediatly. Everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
 
-To set this up you need to setup the `weewx-mqtt` extension which will publish your weather data to a broker (server). I recommend version 0.18rc1 or later [(you can find 0.18rc1 here)](https://groups.google.com/d/msg/weewx-user/d4s-d0Vcrgk/tDqR9_28BwAJ) since it will publish your weather data on every LOOP and ARCHIVE. Once a LOOP is received from your weewx driver, it'll automatically publish that data which will update your website in real time. Once ARCHIVE is recevied, your website will reload the forecast data, earthquake data and graphs automatically. 
+To set this up you need to setup the [`weewx-mqtt`](https://github.com/weewx/weewx/wiki/mqtt) extension which will publish your weather data to a broker (server). I recommend using version 0.18 or later, since it will publish your weather data on every LOOP and ARCHIVE. 
 
-**Installing the MQTT extension**: To install weewx-mqtt, (if you manually downloaded 0.18rc1, you will need to rename the file to `mqtt.py`) place the Python file in your [bin/user](http://www.weewx.com/docs/usersguide.htm#Where_to_find_things) folder. Add `user.mqtt.MQTT` to the `restful_services` variable in weewx.conf, then configure MQTT by adding this section to your weewx.conf's `[StdRESTFul]` section. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Remove the tls section if your broker is not using SSL/TLS.
+[Follow the directions in the weewx wiki to install weewx-mqtt](https://github.com/weewx/weewx/wiki/mqtt). A sample config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
 
 ```
     [[MQTT]]
@@ -49,9 +49,15 @@ To set this up you need to setup the `weewx-mqtt` extension which will publish y
 
 **I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
 
-### MQTT Websockets (optional, but required if you use MQTT for real-time updates)
+### MQTT Websockets (optional, but required if you want real-time updates)
 
 Your MQTT broker (server) will need to support MQTT websockets in order for the website skin to connect to the MQTT topics. Please make sure your broker has websockets support. 
+
+### MQTT Brokers
+
+These public brokers have been tested as working. If you have others to add the to the list, let me know.
+
+* [test.mosquitto.org](http://test.mosquitto.org)
 
 ## Install weewx-belchertown
 
