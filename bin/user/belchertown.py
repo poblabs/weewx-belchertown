@@ -30,6 +30,10 @@ def loginf(msg):
 def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
+# Print version in syslog for easier troubleshooting
+VERSION = "0.6"
+loginf("version %s" % VERSION)
+
 class getAllStats(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
