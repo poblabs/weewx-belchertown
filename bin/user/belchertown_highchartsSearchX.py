@@ -8,6 +8,7 @@
 #    Author: Gary Roderick and Pat O'Brien
 #
 
+import calendar
 import datetime
 import time
 import weewx
@@ -84,15 +85,18 @@ class highchartsDay(SearchList):
         #_start_ts = startOfInterval(timespan.stop-86400, 3600)
         _start_ts, _end_ts = get_today_start_end_time()
         
+        stop_struct = time.localtime(_end_ts)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+        
         # Get our temperature vector
-        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp')
+        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outTemp_vt[2], "1f")[-2])
         outTempRound_vt =  [roundNone(x, usageRound) for x in outTemp_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         outTemp_json = json.dumps(zip(time_ms, outTempRound_vt))
         
         # Get our dewpoint vector
-        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'dewpoint')
+        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(dewpoint_vt[2], "1f")[-2])
         dewpointRound_vt =  [roundNone(x, usageRound) for x in dewpoint_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -110,25 +114,25 @@ class highchartsDay(SearchList):
         # loginf("appTempRound_vt=%s" % appTempRound_vt)
         
         # Get our wind chill vector
-        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windchill')
+        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windchill_vt[2], "1f")[-2])
         windchillRound_vt =  [roundNone(x, usageRound) for x in windchill_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         windchill_json = json.dumps(zip(time_ms, windchillRound_vt))
         
         # Get our heat index vector
-        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'heatindex')
+        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(heatindex_vt[2], "1f")[-2])
         heatindexRound_vt =  [roundNone(x, usageRound) for x in heatindex_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         heatindex_json = json.dumps(zip(time_ms, heatindexRound_vt))
         
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outHumidity')
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outHumidity')
         outHumidity_json = json.dumps(zip(time_ms, outHumidity_vt[0]))
         
         # Get our barometer vector
-        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer')
+        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'barometer')
         barometer_vt = self.generator.converter.convert(barometer_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -141,21 +145,21 @@ class highchartsDay(SearchList):
         barometer_json = json.dumps(zip(time_ms, barometerRound_vt))
 
         # Get our wind speed vector
-        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed')
+        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windSpeed_vt[2], "1f")[-2])
         windSpeedRound_vt =  [roundNone(x, usageRound) for x in windSpeed_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         windSpeed_json = json.dumps(zip(time_ms, windSpeedRound_vt))
         
         # Get our wind gust vector
-        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windGust')
+        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windGust_vt[2], "1f")[-2])
         windGustRound_vt =  [roundNone(x, usageRound) for x in windGust_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         windGust_json = json.dumps(zip(time_ms, windGustRound_vt))
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windDir')
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir')
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         windDir_json = json.dumps(zip(time_ms, windDir_vt[0]))
         
@@ -181,7 +185,7 @@ class highchartsDay(SearchList):
         #print rain_json
         
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -192,7 +196,7 @@ class highchartsDay(SearchList):
 
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
         #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, @total:=@total+rain AS total FROM archive, (SELECT @total:=0) AS t WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
@@ -205,7 +209,7 @@ class highchartsDay(SearchList):
         #print pob_rain_total_json
         
         # Get our radiation vector
-        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'radiation')
+        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[2], "2f")[-2])
         radiationRound_vt =  [roundNone(x, usageRound) for x in radiation_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -223,7 +227,8 @@ class highchartsDay(SearchList):
                                  'windSpeedDayjson' : windSpeed_json,
                                  'windGustDayjson' : windGust_json,
                                  'windDirDayjson' : windDir_json,
-                                 'radiationDayjson' : radiation_json}
+                                 'radiationDayjson' : radiation_json,
+                                 'utcOffset': utc_offset}
         # Return our json data
         return [search_list_extension]
         
@@ -259,6 +264,9 @@ class highchartsWeek(SearchList):
         # Get our start time, 7 days ago but aligned with start of day
         _start_ts = startOfInterval(timespan.stop - 604800, 86400)
         # _start_ts  = timespan.stop - 604800
+        
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
         #(time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
@@ -523,6 +531,7 @@ class highchartsWeek(SearchList):
                                  'radiationWeekjson' : radiation_json,
                                  #'insolationWeekjson' : insolation_json,
                                  #'uvWeekjson' : uv_json,
+                                 'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
                                  'weekPlotEnd' : timespan.stop * 1000}
         
@@ -829,6 +838,9 @@ class highchartsMonth(SearchList):
         _start_ts = startOfInterval(timespan.stop - 2592000, 86400)
         # _start_ts  = timespan.stop - 604800
         
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+        
         # Get our temperature vector
         #(time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
         #                                                                      'outTemp')
@@ -1127,6 +1139,7 @@ class highchartsMonth(SearchList):
                                  'radiationMonthjson' : radiation_json,
                                  #'insolationMonthjson' : insolation_json,
                                  #'uvMonthjson' : uv_json,
+                                 'utcOffset': utc_offset,
                                  'MonthPlotStart' : _start_ts * 1000,
                                  'MonthPlotEnd' : timespan.stop * 1000}
         
@@ -1327,6 +1340,9 @@ class highchartsYear(SearchList):
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
         _start_ts = startOfInterval(year_start_epoch ,86400) # This is the current calendar year
         #print _start_ts
+        
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
         #(time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
@@ -1619,6 +1635,7 @@ class highchartsYear(SearchList):
                                  'radiationYearjson' : radiation_json,
                                  #'insolationYearjson' : insolation_json,
                                  #'uvYearjson' : uv_json,
+                                 'utcOffset': utc_offset,
                                  'YearPlotStart' : _start_ts * 1000,
                                  'YearPlotEnd' : timespan.stop * 1000}
         

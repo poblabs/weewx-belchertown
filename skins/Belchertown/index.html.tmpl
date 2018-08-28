@@ -17,7 +17,11 @@
         #end if
         
         jQuery(document).ready(function() {
-            update_outtemp( "$current.outTemp.formatted" );
+            #if $unit.unit_type.outTemp == "degree_F"
+            update_outtemp_F( "$current.outTemp.formatted" );
+            #else
+            update_outtemp_C( "$current.outTemp.formatted" );
+            #end if
             rotateThis( "$current.windDir.formatted" );
             
             #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
@@ -56,8 +60,8 @@
             jQuery(".arrow").css( "transform", "rotate(" + finalRotation + "deg)" );
         }
         
-        // Change the color of the outTemp variable
-        function update_outtemp( outTemp ) {
+        // Change the color of the outTemp_F variable
+        function update_outtemp_F( outTemp ) {
             if ( outTemp <= 0 ) {
                 jQuery(".temp").css( "color", "#1278c8" );
             } else if ( outTemp <= 25 ) {
@@ -87,6 +91,41 @@
             } else if ( outTemp <= 110 ) {
                 jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
             } else if ( outTemp >= 111 ) {
+                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+            }
+        }
+        
+        // Change the color of the outTemp_F variable
+        function update_outtemp_C( outTemp ) {
+            if ( outTemp <= 0 ) {
+                jQuery(".temp").css( "color", "#1278c8" );
+            } else if ( outTemp <= -3.8 ) {
+                jQuery(".temp").css( "color", "#30bfef" );
+            } else if ( outTemp <= 0 ) {
+                jQuery(".temp").css( "color", "#1fafdd" );
+            } else if ( outTemp <= 4.4 ) {
+                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+            } else if ( outTemp <= 10 ) {
+                jQuery(".temp").css( "color", "#71bc3c" );
+            } else if ( outTemp <= 12.7 ) {
+                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+            } else if ( outTemp <= 18.3 ) {
+                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+            } else if ( outTemp <= 21.1 ) {
+                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+            } else if ( outTemp <= 23.8 ) {
+                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+            } else if ( outTemp <= 26.6 ) {
+                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+            } else if ( outTemp <= 29.4 ) {
+                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+            } else if ( outTemp <= 32.2 ) {
+                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+            } else if ( outTemp <= 35 ) {
+                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+            } else if ( outTemp <= 43.3 ) {
+                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+            } else if ( outTemp >= 43.4 ) {
                 jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
             }
         }
@@ -169,7 +208,7 @@
             jQuery(".curwindgust").text( parseFloat( data["current"]["windGust"] ).toFixed(1) );
             
             // Daily max gust span
-            jQuery(".dailymaxgust").html( data["day"]["wind"]["max"] );
+            jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
             
             // Daily stats section
             jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
@@ -352,7 +391,7 @@
             jQuery(".loadingMarker").show();            
             client.subscribe( "$Extras.mqtt_topic" );
             #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
-            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor ); // After 30 minutes stop automatic ajax refresh
+            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
             #end if
         }
         
@@ -415,10 +454,10 @@
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
             }
             
-            // Temperature
+            // Temperature F
             if ( data.hasOwnProperty("outTemp_F") ) {
                 outTemp = parseFloat( data["outTemp_F"] ).toFixed(1);
-                update_outtemp( outTemp );
+                update_outtemp_F( outTemp );
                 jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
             
                 // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
@@ -431,15 +470,32 @@
                 //}
             }
             
-            // Apparent Temperature
+            // Apparent Temperature US
             if ( data.hasOwnProperty("appTemp_F") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
             }
 
-            // Dewpoint
+            // Dewpoint US
             if ( data.hasOwnProperty("dewpoint_F") ) {
                 jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
             }
+            
+            // Temperature C
+            if ( data.hasOwnProperty("outTemp_C") ) {
+                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
+                update_outtemp_C( outTemp );
+                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+            }
+            
+            // Apparent Temperature Metric
+            if ( data.hasOwnProperty("appTemp_C") ) {
+                jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
+            }
+
+            // Dewpoint Metric
+            if ( data.hasOwnProperty("dewpoint_C") ) {
+                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_C"]).toFixed(1) + " $unit.label.outTemp" );
+            }            
             
             // Wind
             if ( data.hasOwnProperty("windDir") ) {
@@ -448,17 +504,40 @@
                 jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
                 jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
             }
+            // Windspeed US
             if ( data.hasOwnProperty("windSpeed_mph") ) {
                 jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mph"] ).toFixed(1) );
             }
-            // Wind gust may not be provided in mqtt, but just in case.
+            // Windspeed Metric
+            if ( data.hasOwnProperty("windSpeed_kph") ) {
+                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_kph"] ).toFixed(1) );
+            }
+            // Windspeed METRICWX
+            if ( data.hasOwnProperty("windSpeed_mps") ) {
+                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mps"] ).toFixed(1) );
+            }
+            
+            // Wind Gust US
+            // May not be provided in mqtt, but just in case.
             if ( data.hasOwnProperty("windGust_mph") ) {
                 jQuery(".curwindgust").text( data["windGust_mph"] );
             }
+            // Wind Gust Metric
+            if ( data.hasOwnProperty("windGust_kph") ) {
+                jQuery(".curwindgust").text( data["windGust_kph"] );
+            }
+            // Wind Gust METRICWX
+            if ( data.hasOwnProperty("windGust_mps") ) {
+                jQuery(".curwindgust").text( data["windGust_mps"] );
+            }
             
-            // Barometer
+            // Barometer US
             if ( data.hasOwnProperty("altimeter_inHg") ) {
                 jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_inHg"] ).toFixed(2) + " $unit.label.pressure" );
+            }
+            // Barometer Metric
+            if ( data.hasOwnProperty("altimeter_mbar") ) {
+                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_mbar"] ).toFixed(2) + " $unit.label.pressure" );
             }
             
             // Humidity
@@ -466,15 +545,39 @@
                 jQuery(".wx-humidity-value").text( parseFloat( data["outHumidity"] ).toFixed(1) + "$unit.label.outHumidity" );
             }
             
-            // Windchill
-            jQuery(".curwindchill").text( data["windchill"] + "$unit.label.outTemp" );
+            // Windchill US
+            if ( data.hasOwnProperty("windchill") ) {
+                jQuery(".curwindchill").text( data["windchill"] + "$unit.label.outTemp" );
+            }
+            // Windchill Metric
+            if ( data.hasOwnProperty("windchill_C") ) {
+                jQuery(".curwindchill").text( data["windchill_C"] + "$unit.label.outTemp" );
+            }
             
-            // Rain
+            // Rain Day US
             if ( data.hasOwnProperty("dayRain_in") ) {
                 jQuery(".wx-rain-value").text( parseFloat( data["dayRain_in"] ).toFixed(2) + " $unit.label.rain" );
             }
+            // Rain Day Metric
+            if ( data.hasOwnProperty("dayRain_cm") ) {
+                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_cm"] ).toFixed(2) + " $unit.label.rain" );
+            }
+            // Rain Day METRICWX
+            if ( data.hasOwnProperty("dayRain_mm") ) {
+                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_mm"] ).toFixed(2) + " $unit.label.rain" );
+            }
+            
+            // Rain rate US
             if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
                 jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+            }
+            // Rain rate Metric
+            if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
+                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+            }
+            // Rain rate METRICWX
+            if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
+                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
             }
             
             // UV

@@ -9,13 +9,6 @@ var weatherdirection = {
 
 function daily () {
 
-    Highcharts.setOptions({
-        global: {
-            timezoneOffset: 10 * 60,
-            useUTC: false
-        },
-    });
-
     var optionsTemp = {
         chart: {
             //plotBackgroundColor: {
@@ -816,6 +809,11 @@ function daily () {
         var chart = new Highcharts.StockChart(optionsWindDir);
         var chart = new Highcharts.StockChart(optionsRain);
         var chart = new Highcharts.StockChart(optionsRadiation);
+        Highcharts.setOptions({
+            global: {
+                timezoneOffset: -seriesData[0].utcoffset
+            },
+        });
     });
 
 };
