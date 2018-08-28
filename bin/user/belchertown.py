@@ -48,6 +48,10 @@ class getAllStats(SearchList):
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
         #_start_ts = startOfInterval(year_start_epoch ,86400) # This is the current calendar year
         
+        # Setup UTC offset hours for moment.js in index.html
+        moment_js_stop_struct = time.localtime( time.time() )
+        moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60/60
+        
         # Temperature Range Lookups
         year_temp_range_max = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total DESC LIMIT 1;' % year_start_epoch )
         year_temp_range_min = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total ASC LIMIT 1;' % year_start_epoch )
@@ -147,7 +151,8 @@ class getAllStats(SearchList):
         windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
         
         # Build the search list with the new values
-        search_list_extension = { 'alltime' : all_stats,
+        search_list_extension = { 'moment_js_utc_offset': moment_js_utc_offset,
+                                  'alltime' : all_stats,
                                   'year_temp_range_max': year_temp_range_max,
                                   'year_temp_range_min': year_temp_range_min,
                                   'at_temp_range_max' : at_temp_range_max,

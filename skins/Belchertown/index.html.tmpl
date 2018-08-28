@@ -437,7 +437,7 @@
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
             updated_text = "Connected to weather station live. Data received " + updated;
             jQuery(".updated").html( updated_text );
@@ -520,15 +520,15 @@
             // Wind Gust US
             // May not be provided in mqtt, but just in case.
             if ( data.hasOwnProperty("windGust_mph") ) {
-                jQuery(".curwindgust").text( data["windGust_mph"] );
+                jQuery(".curwindgust").text( parseFloat( data["windGust_mph"] ).toFixed(1) );
             }
             // Wind Gust Metric
             if ( data.hasOwnProperty("windGust_kph") ) {
-                jQuery(".curwindgust").text( data["windGust_kph"] );
+                jQuery(".curwindgust").text( parseFloat( data["windGust_kph"] ).toFixed(1) );
             }
             // Wind Gust METRICWX
             if ( data.hasOwnProperty("windGust_mps") ) {
-                jQuery(".curwindgust").text( data["windGust_mps"] );
+                jQuery(".curwindgust").text( parseFloat( data["windGust_mps"] ).toFixed(1) );
             }
             
             // Barometer US
@@ -547,11 +547,11 @@
             
             // Windchill US
             if ( data.hasOwnProperty("windchill") ) {
-                jQuery(".curwindchill").text( data["windchill"] + "$unit.label.outTemp" );
+                jQuery(".curwindchill").text( parseFloat( data["windchill"] ).toFixed(1) + "$unit.label.outTemp" );
             }
             // Windchill Metric
             if ( data.hasOwnProperty("windchill_C") ) {
-                jQuery(".curwindchill").text( data["windchill_C"] + "$unit.label.outTemp" );
+                jQuery(".curwindchill").text( parseFloat( data["windchill_C"] ).toFixed(1) + "$unit.label.outTemp" );
             }
             
             // Rain Day US
