@@ -185,7 +185,7 @@ class highchartsDay(SearchList):
         #print rain_json
         
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -196,7 +196,7 @@ class highchartsDay(SearchList):
 
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
         #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, @total:=@total+rain AS total FROM archive, (SELECT @total:=0) AS t WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
@@ -432,7 +432,7 @@ class highchartsWeek(SearchList):
         ##timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -443,7 +443,7 @@ class highchartsWeek(SearchList):
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
         #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, @total:=@total+rain AS total FROM archive, (SELECT @total:=0) AS t WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
@@ -1035,7 +1035,7 @@ class highchartsMonth(SearchList):
         ##timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -1046,7 +1046,7 @@ class highchartsMonth(SearchList):
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
         #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, @total:=@total+rain AS total FROM archive, (SELECT @total:=0) AS t WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
