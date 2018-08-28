@@ -7,6 +7,12 @@ var weatherdirection = {
 	360: 'N'
 };
 
+Highcharts.setOptions({
+    global: {
+        useUTC: false
+    },
+});
+
 function daily () {
 
     var optionsTemp = {
@@ -811,7 +817,7 @@ function daily () {
         var chart = new Highcharts.StockChart(optionsRadiation);
         Highcharts.setOptions({
             global: {
-                timezoneOffset: -seriesData[0].utcoffset
+                timezoneOffset: -seriesData[0].utcoffset,
             },
         });
     });
