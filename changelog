@@ -1,3 +1,11 @@
+0.5 August 27, 2018
+* Fixed NOAA report conflict.
+* Updated highcharts to reflect the station's UTC timezone offset.
+* Front page MQTT live updates now optimized for metric and metricwx units.
+* Now uses UTC offset for moment.js and "Data Received" timestamp when using MQTT.
+* Fixed full moon icon.
+
+
 0.4 August 23, 2018
 * Better usage of getting the right label from the skin dict. This fixes the wrong windSpeed label in the DarkSky forecast row. Thanks Gary!
 * Changes the way of determining the DarkSky visibility unit label values. Gets the unit from the API output, then sets the label. Fixes the wrong label when using "auto" for DarkSky units.
