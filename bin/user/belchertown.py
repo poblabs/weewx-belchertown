@@ -191,7 +191,14 @@ class getEarthquake(SearchList):
             return [search_list_extension]
 
         # Earthquake is enabled
-        earthquake_file = self.generator.skin_dict['HTML_ROOT'] + "/json/earthquake.json"
+        if 'HTML_ROOT' in self.generator.skin_dict:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.skin_dict['HTML_ROOT'])
+        else:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
+                                      
+        earthquake_file = local_root + "/json/earthquake.json"
         earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
         latitude = self.generator.config_dict['Station']['latitude']
         longitude = self.generator.config_dict['Station']['longitude']
@@ -278,7 +285,14 @@ class getForecast(SearchList):
             return [search_list_extension]
 
         # Forecast is enabled
-        forecast_file = self.generator.skin_dict['HTML_ROOT'] + "/json/darksky_forecast.json"
+        if 'HTML_ROOT' in self.generator.skin_dict:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.skin_dict['HTML_ROOT'])
+        else:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
+                                      
+        forecast_file = local_root + "/json/darksky_forecast.json"
         forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
         darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
         darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
@@ -446,7 +460,15 @@ class getNOAAdata(SearchList):
         years = []
         noaa_header_html = ""
         
-        noaa_dir = self.generator.skin_dict['HTML_ROOT'] + "/NOAA/"        
+        if 'HTML_ROOT' in self.generator.skin_dict:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.skin_dict['HTML_ROOT'])
+        else:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
+                                      
+        noaa_dir = local_root + "/NOAA/"
+        
         try:
             noaa_file_list = os.listdir( noaa_dir )
         except:
