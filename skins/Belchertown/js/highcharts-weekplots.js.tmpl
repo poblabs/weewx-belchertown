@@ -7,6 +7,45 @@ var weatherdirection = {
 	360: 'N'
 };
 
+// From the front page
+function get_cardinal_direction(degree) {
+    if (degree >= 0 && degree <= 11.25) {
+        return "N";
+    } else if (degree >= 11.26 && degree <= 33.75) {
+        return "NNE";
+    } else if (degree >= 33.76 && degree <= 56.25) {
+        return "NE";
+    } else if (degree >= 56.26 && degree <= 78.75) {
+        return "ENE";
+    } else if (degree >= 78.76 && degree <= 101.25) {
+        return "E";
+    } else if (degree >= 101.26 && degree <= 123.75) {
+        return "ESE";
+    } else if (degree >= 123.76 && degree <= 146.25) {
+        return "SE";
+    } else if (degree >= 146.26 && degree <= 168.75) {
+        return "SSE";
+    } else if (degree >= 168.76 && degree <= 191.25) {
+        return "S";
+    } else if (degree >= 191.26 && degree <= 213.75) {
+        return "SSW";
+    } else if (degree >= 213.76 && degree <= 236.25) {
+        return "SW";
+    } else if (degree >= 236.26 && degree <= 258.75) {
+        return "WSW";
+    } else if (degree >= 258.76 && degree <= 281.25) {
+        return "W";
+    } else if (degree >= 281.26 && degree <= 303.75) {
+        return "WNW";
+    } else if (degree >= 303.76 && degree <= 326.25) {
+        return "NW";
+    } else if (degree >= 326.26 && degree <= 348.75) {
+        return "NNW";
+    } else if (degree >= 348.76 && degree <= 360) {
+        return "N";
+    }
+}
+
 Highcharts.setOptions({
     global: {
         useUTC: false
@@ -496,7 +535,12 @@ function weekly() {
 		},
 
         tooltip: {
-            enabled: false,
+            enabled: true,
+            //pointFormat: '{series.name}: <b>{point.y}</b>',
+            formatter: function() {
+                return this.series.name +': <b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
+            },
+            valueDecimals: 2,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
             }
@@ -593,6 +637,7 @@ function weekly() {
 
         tooltip: {
             enabled: true,
+            valueDecimals: 2,
             dateTimeLabelFormats: {
                 hour: '%e %b'
             }
