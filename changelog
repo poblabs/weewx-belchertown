@@ -8,6 +8,7 @@
 * Updated highcharts wind direction to have a hover and display the wind direction.
 * Consolidated the getSocialShare and getNOAAdata into getAllTime, and renamed getAllTime to getData. Larger plan is to consolidate as much as possible to be able to minimize the number of SLE loops. This may or may not have a better performance, but I'll try and consolidate where it makes sense in an attempt at better performance.
 * Added a version printout in syslog for easier troubleshooting.
+* Removed about.inc and reports.inc from the installer because the installer was overwriting them. Please read the Readme on how to create these files. 
 
 
 0.5 August 27, 2018
