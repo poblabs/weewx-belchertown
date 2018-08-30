@@ -236,7 +236,30 @@ class getData(SearchList):
         twitter_owner = self.generator.skin_dict['Extras']['twitter_owner']
         twitter_hashtags = self.generator.skin_dict['Extras']['twitter_hashtags']
                 
+        if facebook_enabled == "1": 
+            facebook_html = """
+                <div id="fb-root"></div>
+                <script>(function(d, s, id) {
+                  var js, fjs = d.getElementsByTagName(s)[0];
+                  if (d.getElementById(id)) return;
+                  js = d.createElement(s); js.id = id;
+                  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=217237948331360";
+                  fjs.parentNode.insertBefore(js, fjs);
+                }(document, 'script', 'facebook-jssdk'));</script>
+                <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
+            """ % station_url
+        else:
+            facebook_html = ""
         
+        if twitter_enabled == "1":
+            twitter_html = """
+                <script>
+                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+                </script>
+                <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s Weather Conditions" data-via="%s" data-hashtags="%s">Tweet</a>
+            """ % ( station_url, station_location, twitter_owner, twitter_hashtags )
+        else:
+            twitter_html = ""
         
         # Build the output
         social_html = ""
