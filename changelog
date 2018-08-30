@@ -1,3 +1,15 @@
+0.6 August 30, 2018
+
+* Skip NULL rain values in highcharts generator.
+* Updated rainRate value on the front page and records page. 
+* Fix all time record for barometer. It was showing dewpoint. Oops!
+* Fixed a highcharts UTC graph error. Should prefer timezone offset now.
+* Updated highcharts rain rounding to 2 decimals.
+* Updated highcharts wind direction to have a hover and display the wind direction.
+* Consolidated the getSocialShare and getNOAAdata into getAllTime, and renamed getAllTime to getData. Larger plan is to consolidate as much as possible to be able to minimize the number of SLE loops. This may or may not have a better performance, but I'll try and consolidate where it makes sense in an attempt at better performance.
+* Added a version printout in syslog for easier troubleshooting.
+
+
 0.5 August 27, 2018
 * Fixed NOAA report conflict.
 * Updated highcharts to reflect the station's UTC timezone offset.
