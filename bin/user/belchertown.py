@@ -227,6 +227,33 @@ class getData(SearchList):
             pass
 
         
+        """
+        Social Share
+        """
+        station_location = self.generator.config_dict["Station"]["location"]
+        facebook_enabled = self.generator.skin_dict['Extras']['facebook_enabled']
+        twitter_enabled = self.generator.skin_dict['Extras']['twitter_enabled']
+        twitter_owner = self.generator.skin_dict['Extras']['twitter_owner']
+        twitter_hashtags = self.generator.skin_dict['Extras']['twitter_hashtags']
+                
+        
+        
+        # Build the output
+        social_html = ""
+        if facebook_html != "" or twitter_html != "":
+            social_html = '<div class="wx-stn-share">'
+            # Facebook first
+            if facebook_html != "":
+                social_html += facebook_html
+            # Add a separator margin if both are enabled
+            if facebook_html != "" and twitter_html != "":
+                social_html += '<div class="wx-share-sep"></div>'
+            # Twitter second
+            if twitter_html != "":
+                social_html += twitter_html
+            social_html += "</div>"
+
+            
         # Build the search list with the new values
         search_list_extension = { 'moment_js_utc_offset': moment_js_utc_offset,
                                   'alltime' : all_stats,
@@ -244,7 +271,8 @@ class getData(SearchList):
                                   'at_days_without_rain': at_days_without_rain,
                                   'windSpeedUnitLabel': windSpeedUnitLabel,
                                   'noaa_header_html': noaa_header_html,
-                                  'default_noaa_file': default_noaa_file }
+                                  'default_noaa_file': default_noaa_file,
+                                  'social_html': social_html }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
@@ -522,61 +550,3 @@ class getForecast(SearchList):
                                    'forecastHTML' : html_output }
         # Return our json data
         return [search_list_extension]
-
-        
-class getSocialShare(SearchList):
-    def __init__(self, generator):
-        SearchList.__init__(self, generator)
-
-    def get_extension_list(self, timespan, db_lookup):
-        """
-        Generate the social share buttons.
-        """
-        
-        # Check if the pre-requisites have been completed
-        try:
-            station_url = self.generator.config_dict["Station"]["station_url"]
-        except:
-            raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
-
-        station_location = self.generator.config_dict["Station"]["location"]
-        facebook_enabled = self.generator.skin_dict['Extras']['facebook_enabled']
-        twitter_enabled = self.generator.skin_dict['Extras']['twitter_enabled']
-        twitter_owner = self.generator.skin_dict['Extras']['twitter_owner']
-        twitter_hashtags = self.generator.skin_dict['Extras']['twitter_hashtags']
-                
-        if facebook_enabled == "0":
-            facebook_html = ""
-        else: 
-            facebook_html = """
-                <div id="fb-root"></div>
-                <script>(function(d, s, id) {
-                  var js, fjs = d.getElementsByTagName(s)[0];
-                  if (d.getElementById(id)) return;
-                  js = d.createElement(s); js.id = id;
-                  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=217237948331360";
-                  fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));</script>
-                <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
-            """ % station_url
-        
-        if twitter_enabled == "0":
-            twitter_html = ""
-        else:
-            twitter_html = """
-                <script>
-                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
-                </script>
-                <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s Weather Conditions" data-via="%s" data-hashtags="%s">Tweet</a>
-            """ % ( station_url, station_location, twitter_owner, twitter_hashtags )
-            
-        separator = '<div class="wx-share-sep"></div>'
-        
-        social_html = facebook_html + separator + twitter_html
-        
-        # Put into a dictionary to return
-        search_list_extension  = { 'social_html': social_html }
-        
-        # Return our data
-        return [search_list_extension]
-

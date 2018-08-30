@@ -618,9 +618,9 @@
                                 </div>
                                 <div class="updated">Last Updated $current.dateTime.format("%B %d, %Y at %I:%M %p")</div>
                             </div>
-                            <div class="wx-stn-share">
-                                $social_html
-                            </div>
+                            #if $social_html != ""
+                            $social_html
+                            #end if
                             <div class="clear"></div>
                         </div>
                         
