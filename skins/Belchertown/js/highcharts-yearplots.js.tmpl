@@ -539,7 +539,7 @@ function yearly() {
             enabled: true,
             //pointFormat: '{series.name}: <b>{point.y}</b>',
             formatter: function() {
-                return this.series.name +': <b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
+                return Highcharts.dateFormat('%A, %b %e, %H:%M', this.x) +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
             },
             valueDecimals: 2,
             dateTimeLabelFormats: {
