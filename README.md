@@ -82,7 +82,11 @@ sudo /etc/init.d/weewx start
 
 ## Customizing About Page and Records Page
 
-The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder, and edit the `about.inc` and `records.inc` files with your text editor. Then restart weewx for the changes to take effect. 
+The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder. 
+
+* Create (or edit) the `about.inc` and `records.inc` files with your text editor, such as Notepad or Nano.
+    * These files take full HTML, so you can get fancy if you want. 
+* Then restart weewx for the changes to take effect. 
 
 ## Using Metric
 
