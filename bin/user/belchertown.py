@@ -34,11 +34,28 @@ def logerr(msg):
 VERSION = "0.6"
 loginf("version %s" % VERSION)
 
-class getAllStats(SearchList):
+class getData(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
 
     def get_extension_list(self, timespan, db_lookup):
+        """
+        Build the data needed for the Belchertown skin
+        """
+        
+        # Check if the pre-requisites have been completed
+        try:
+            station_url = self.generator.config_dict["Station"]["station_url"]
+        except:
+            raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
+
+        if 'HTML_ROOT' in self.generator.skin_dict:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.skin_dict['HTML_ROOT'])
+        else:
+            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
+        
         """
         Get all time stats. Right from the weewx sample http://www.weewx.com/docs/customizing.htm
         """
@@ -154,6 +171,62 @@ class getAllStats(SearchList):
         windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
         windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
         
+        """
+        Get NOAA Data
+        """
+        years = []
+        noaa_header_html = ""
+        default_noaa_file = ""
+        noaa_dir = local_root + "/NOAA/"
+        
+        try:
+            noaa_file_list = os.listdir( noaa_dir )
+
+            # Generate a list of years based on file name
+            for f in noaa_file_list:
+                filename = f.split(".")[0] # Drop the .txt
+                year = filename.split("-")[1]
+                years.append(year)
+
+            years = sorted( set( years ) )[::-1] # Remove duplicates with set, and sort numerically, then reverse sort with [::-1] oldest year last
+            #first_year = years[0]
+            #final_year = years[-1]
+            
+            for y in years:
+                # Link to the year file
+                if os.path.exists( noaa_dir + "NOAA-%s.txt" % y ):
+                    noaa_header_html += '<a href="?yr=%s" class="noaa_rep_nav"><b>%s</b></a>:' % ( y, y )
+                else:
+                    noaa_header_html += '<span class="noaa_rep_nav"><b>%s</b></span>:' % y
+                    
+                # Loop through all 12 months and find if the file exists. 
+                # If the file doesn't exist, just show the month name in the header without a href link.
+                # There is no month 13, but we need to loop to 12, so 13 is where it stops.
+                for i in range(1, 13):
+                    month_num = format( i, '02' ) # Pad the number with a 0 since the NOAA files use 2 digit month
+                    month_abbr = calendar.month_abbr[ i ]
+                    if os.path.exists( noaa_dir + "NOAA-%s-%s.txt" % ( y, month_num ) ):
+                        noaa_header_html += ' <a href="?yr=%s&amp;mo=%s" class="noaa_rep_nav"><b>%s</b></a>' % ( y, month_num, month_abbr )
+                    else:
+                        noaa_header_html += ' <span class="noaa_rep_nav"><b>%s</b></span>' % month_abbr
+                
+                # Row build complete, push next row to new line
+                noaa_header_html += "<br>"
+                
+            # Find the current month's NOAA file for the default file to show on JavaScript page load. 
+            # The NOAA files are generated as part of this skin, but if for some reason that the month file doesn't exist, use the year file.
+            now = datetime.datetime.now()
+            current_year = str( now.year )
+            current_month = str( format( now.month, '02' ) )
+            if os.path.exists( noaa_dir + "NOAA-%s-%s.txt" % ( current_year, current_month ) ):
+                default_noaa_file = "NOAA-%s-%s.txt" % ( current_year, current_month )
+            else:
+                default_noaa_file = "NOAA-%s.txt" % current_year
+        except:
+            # There's an error - I've seen this on first run and the NOAA folder is not created yet. Skip this section.
+            pass
+
+        
         # Build the search list with the new values
         search_list_extension = { 'moment_js_utc_offset': moment_js_utc_offset,
                                   'alltime' : all_stats,
@@ -169,7 +242,9 @@ class getAllStats(SearchList):
                                   'year_days_without_rain': year_days_without_rain,
                                   'at_days_with_rain': at_days_with_rain,
                                   'at_days_without_rain': at_days_without_rain,
-                                  'windSpeedUnitLabel': windSpeedUnitLabel }
+                                  'windSpeedUnitLabel': windSpeedUnitLabel,
+                                  'noaa_header_html': noaa_header_html,
+                                  'default_noaa_file': default_noaa_file }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
@@ -446,84 +521,6 @@ class getForecast(SearchList):
                                    'visibility_unit': visibility_unit,
                                    'forecastHTML' : html_output }
         # Return our json data
-        return [search_list_extension]
-
-class getNOAAdata(SearchList):
-    def __init__(self, generator):
-        SearchList.__init__(self, generator)
-
-    def get_extension_list(self, timespan, db_lookup):
-        """
-        Parse the Earthquake data.
-        """
-        
-        years = []
-        noaa_header_html = ""
-        
-        if 'HTML_ROOT' in self.generator.skin_dict:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
-                                      self.generator.skin_dict['HTML_ROOT'])
-        else:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
-                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
-                                      
-        noaa_dir = local_root + "/NOAA/"
-        
-        try:
-            noaa_file_list = os.listdir( noaa_dir )
-        except:
-            # This could be due to first run and the folder not created yet. Skip it. 
-            # Return an empty SLE
-            search_list_extension = { }
-            return [search_list_extension]
-
-        # Generate a list of years based on file name
-        for f in noaa_file_list:
-            filename = f.split(".")[0] # Drop the .txt
-            year = filename.split("-")[1]
-            years.append(year)
-
-        years = sorted( set( years ) )[::-1] # Remove duplicates with set, and sort numerically, then reverse sort with [::-1] oldest year last
-        #first_year = years[0]
-        #final_year = years[-1]
-        
-        for y in years:
-            # Link to the year file
-            if os.path.exists( noaa_dir + "NOAA-%s.txt" % y ):
-                noaa_header_html += '<a href="?yr=%s" class="noaa_rep_nav"><b>%s</b></a>:' % ( y, y )
-            else:
-                noaa_header_html += '<span class="noaa_rep_nav"><b>%s</b></span>:' % y
-                
-            # Loop through all 12 months and find if the file exists. 
-            # If the file doesn't exist, just show the month name in the header without a href link.
-            # There is no month 13, but we need to loop to 12, so 13 is where it stops.
-            for i in range(1, 13):
-                month_num = format( i, '02' ) # Pad the number with a 0 since the NOAA files use 2 digit month
-                month_abbr = calendar.month_abbr[ i ]
-                if os.path.exists( noaa_dir + "NOAA-%s-%s.txt" % ( y, month_num ) ):
-                    noaa_header_html += ' <a href="?yr=%s&amp;mo=%s" class="noaa_rep_nav"><b>%s</b></a>' % ( y, month_num, month_abbr )
-                else:
-                    noaa_header_html += ' <span class="noaa_rep_nav"><b>%s</b></span>' % month_abbr
-            
-            # Row build complete, push next row to new line
-            noaa_header_html += "<br>"
-            
-        # Find the current month's NOAA file for the default file to show on JavaScript page load. 
-        # The NOAA files are generated as part of this skin, but if for some reason that the month file doesn't exist, use the year file.
-        now = datetime.datetime.now()
-        current_year = str( now.year )
-        current_month = str( format( now.month, '02' ) )
-        if os.path.exists( noaa_dir + "NOAA-%s-%s.txt" % ( current_year, current_month ) ):
-            default_noaa_file = "NOAA-%s-%s.txt" % ( current_year, current_month )
-        else:
-            default_noaa_file = "NOAA-%s.txt" % current_year
-
-            
-        # Put into a dictionary to return
-        search_list_extension  = { 'noaa_header_html': noaa_header_html,
-                                   'default_noaa_file': default_noaa_file }
-        
-        # Return our data
         return [search_list_extension]
 
         
