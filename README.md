@@ -82,10 +82,11 @@ sudo /etc/init.d/weewx start
 
 ## Customizing About Page and Records Page
 
-The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder. 
+The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder. In version 0.6+ you need to create these files if you are installing the skin for the first time. This is due to the fact that upgrades were previously deleting these files and re-creating them. Manually creating them makes sure they're not deleted on upgrades. 
 
-* Create (or edit) the `about.inc` and `records.inc` files with your text editor, such as Notepad or Nano.
+* Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
     * These files take full HTML, so you can get fancy if you want. 
+    * For an example of what the Records Page and About Page can say, visit BelchertownWeather.com's website. 
 * Then restart weewx for the changes to take effect. 
 
 ## Using Metric
