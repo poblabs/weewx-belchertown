@@ -80,7 +80,7 @@ sudo /etc/init.d/weewx start
 
 5) Browse to your website to see the skin. It may be in the belchertown subdirectory.
 
-## Customizing About Page and Records Page
+## Creating About Page and Records Page
 
 The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder. In version 0.6+ you need to create these files if you are installing the skin for the first time. This is due to the fact that upgrades were previously deleting these files and re-creating them. Manually creating them makes sure they're not deleted on upgrades. 
 
@@ -200,6 +200,11 @@ These are the options for the social media sharing section at the top right of e
 ---
 * Q: My NOAA reports are blank.
 * A: If this is right after you installed the skin, give weewx an archive interval or populate this data
+---
+* Q: I see errors like these:
+    * `No such file or directory '/home/weewx/skins/Belchertown/about.inc'` 
+    * `No such file or directory '/home/weewx/skins/Belchertown/records.inc'`
+* A: You probably skipped the step [Creating About Page and Records Page](https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page). Please give that a try. 
 ---
 * Q: Do I have to use MQTT?
 * A: Nope! If you disable the MQTT option, then weewx will still create a website for you, it just will be done on the archive interval. weewx will still generate these pages for you if you have MQTT enabled, the benefit is that you do not have to reload the website. 
