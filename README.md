@@ -86,6 +86,7 @@ The About Page and Records Page offer some areas for custom HTML to be run. To e
 
 * Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
     * These files take full HTML, so you can get fancy if you want. 
+    * You can view, and use the sample [`about.inc`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc) and [`records.inc`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc) which are available in this repo under the `skins/Belchertown` folder. 
     * For an example of what the Records Page and About Page can say, visit BelchertownWeather.com's website. 
 * Then restart weewx for the changes to take effect. 
 
