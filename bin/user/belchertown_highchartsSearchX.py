@@ -17,9 +17,7 @@ import syslog
 import json
 
 from weewx.cheetahgenerator import SearchList
-from weeutil.weeutil import TimeSpan, startOfInterval, intervalgen, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
-from weewx.units import ValueTuple
-from datetime import date
+from weeutil.weeutil import TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
 
 def logmsg(level, msg):
     syslog.syslog(level, 'highchartsSearchX: %s' % msg)
@@ -42,7 +40,6 @@ def roundNone(value, places):
             value = None
     return value
 
-
 class highchartsDay(SearchList):
 
     def __init__(self, generator):
@@ -59,7 +56,7 @@ class highchartsDay(SearchList):
         # Get our start time
         _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
         
-        stop_struct = time.localtime(_end_ts)
+        stop_struct = time.localtime( int( time.time() ) )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -201,19 +198,18 @@ class highchartsWeek(SearchList):
         t1 = time.time()
 
         # Get our start time. This returns "last 7 days". If you want "this week starting at 'week_start' from config", see below.
-        _start_ts = startOfInterval(timespan.stop - 604800, 86400)
-        _end_ts = timespan.stop
+        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
+        _start_ts = _start_ts - 604800
         
         # If you want "this week", uncomment this
         #week_start = to_int(self.generator.config_dict["Station"].get('week_start', 6))
         #_start_ts, _end_ts = archiveWeekSpan( int(time.time()), week_start)
 
-        stop_struct = time.localtime(timespan.stop)
+        stop_struct = time.localtime( int( time.time() ) )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
         (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'max', 3600)
-        
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
         # Can't use ValueHelper so round our results manually
@@ -419,16 +415,14 @@ class highchartsMonth(SearchList):
          
         t1 = time.time()
         
-        # Get our start time. This is "last 30 days". If you want "this month from day 1, see below"
-        # POB: 2592000 = seconds in a month
-        # 86400 = seconds in 24 hours
-        _start_ts = startOfInterval(timespan.stop - 2592000, 86400)
-        _end_ts = timespan.stop
+        # Get our start time. This is "last 30 days (2592000 seconds)". If you want "this month from day 1, see below"
+        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
+        _start_ts = _start_ts - 2592000
 
         # Start at day 1 of the current month. 
         #_start_ts, _end_ts = archiveMonthSpan( int( time.time() ) )
         
-        stop_struct = time.localtime(timespan.stop)
+        stop_struct = time.localtime( int( time.time() ) )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -673,7 +667,7 @@ class highchartsYear(SearchList):
         # Start at day 1 of current year
         _start_ts, _end_ts = archiveYearSpan( int( time.time() ) )
         
-        stop_struct = time.localtime(timespan.stop)
+        stop_struct = time.localtime( int( time.time() ) )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
