@@ -16,10 +16,8 @@ import weewx
 import syslog
 import json
 
-
 from weewx.cheetahgenerator import SearchList
-from weeutil.weeutil import TimeSpan, genMonthSpans, startOfInterval, intervalgen
-from weeutil.weeutil import intervalgen, archiveDaysAgoSpan
+from weeutil.weeutil import TimeSpan, startOfInterval, intervalgen, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
 from weewx.units import ValueTuple
 from datetime import date
 
@@ -44,29 +42,6 @@ def roundNone(value, places):
             value = None
     return value
 
-def roundInt(value, places):
-    """round value to 'places' but return as an integer if places=0"""
-    if places == 0:
-        value = int(round(value, 0))
-    else:
-        value = round(value, places)
-    return value
-
-def get_ago(dt, d_years=0, d_months=0):
-    """Function to return date object holding date d_years and d_months ago."""
-    # Get year number, month number and day number applying offset as required
-    _y, _m, _d = dt.year + d_years, dt.month + d_months, dt.day
-    # Calculate actual month number taking into account EOY rollover
-    _a, _m = divmod(_m-1, 12)
-    # Calculate and return date object
-    return date(_y+_a, _m+1, _d)
-
-def get_today_start_end_time():
-    start_str = time.strftime("%m/%d/%Y") + " 00:00:00"
-    end_str = time.strftime("%m/%d/%Y") + " 23:59:59"
-    start_ts = int(time.mktime(time.strptime(start_str, "%m/%d/%Y %H:%M:%S")))
-    end_ts = int(time.mktime(time.strptime(end_str, "%m/%d/%Y %H:%M:%S")))
-    return start_ts, end_ts
 
 class highchartsDay(SearchList):
 
@@ -81,8 +56,8 @@ class highchartsDay(SearchList):
             search_list_extension = { }
             return [search_list_extension]
        
-        # Get our start time, 24 hours ago but aligned with the (previous) hour
-        _start_ts, _end_ts = get_today_start_end_time()
+        # Get our start time
+        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
         
         stop_struct = time.localtime(_end_ts)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
@@ -225,15 +200,19 @@ class highchartsWeek(SearchList):
 
         t1 = time.time()
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time. This returns "last 7 days". If you want "this week starting at 'week_start' from config", see below.
         _start_ts = startOfInterval(timespan.stop - 604800, 86400)
-        # _start_ts  = timespan.stop - 604800
+        _end_ts = timespan.stop
         
+        # If you want "this week", uncomment this
+        #week_start = to_int(self.generator.config_dict["Station"].get('week_start', 6))
+        #_start_ts, _end_ts = archiveWeekSpan( int(time.time()), week_start)
+
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
-        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp', 'max', 3600)
+        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'max', 3600)
         
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
@@ -247,7 +226,7 @@ class highchartsWeek(SearchList):
         outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our dewpoint vector
-        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'dewpoint', 'max', 3600)
+        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 3600)
 
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
@@ -260,7 +239,7 @@ class highchartsWeek(SearchList):
         dewpoint_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
        
         # Get our wind chill vector
-        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windchill', 'max', 3600)
+        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill', 'max', 3600)
         windchill_vt = self.generator.converter.convert(windchill_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -272,7 +251,7 @@ class highchartsWeek(SearchList):
         windchill_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our heat index vector
-        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'heatindex', 'max', 3600)
+        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex', 'max', 3600)
         heatindex_vt = self.generator.converter.convert(heatindex_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -284,7 +263,7 @@ class highchartsWeek(SearchList):
         heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outHumidity', 'max', 3600)
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outHumidity', 'max', 3600)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[2], "1f")[-2])
@@ -295,7 +274,7 @@ class highchartsWeek(SearchList):
         outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our barometer vector
-        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer', 'max', 3600)
+        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'barometer', 'max', 3600)
         barometer_vt = self.generator.converter.convert(barometer_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -307,7 +286,7 @@ class highchartsWeek(SearchList):
         barometer_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind speed vector
-        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed', 'max', 3600)
+        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'max', 3600)
        
         windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
         # Can't use ValueHelper so round our results manually
@@ -320,7 +299,7 @@ class highchartsWeek(SearchList):
         windSpeed_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind gust vector
-        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windGust', 'max', 3600)
+        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust', 'max', 3600)
         windGust_vt = self.generator.converter.convert(windGust_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -332,7 +311,7 @@ class highchartsWeek(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windDir', 'max', 3600)
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'max', 3600)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "1f")[-2])
@@ -343,7 +322,7 @@ class highchartsWeek(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -352,7 +331,7 @@ class highchartsWeek(SearchList):
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
@@ -367,7 +346,7 @@ class highchartsWeek(SearchList):
         pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
         
         # Get our radiation vector
-        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'radiation', 'max', 3600)
+        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 3600)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         radiationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[2], "1f")[-2])
@@ -405,7 +384,7 @@ class highchartsWeek(SearchList):
                                  'radiationWeekjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
-                                 'weekPlotEnd' : timespan.stop * 1000}
+                                 'weekPlotEnd' : _end_ts * 1000}
         
         # Return our json data
         return [search_list_extension]
@@ -439,17 +418,21 @@ class highchartsMonth(SearchList):
             return [search_list_extension]
          
         t1 = time.time()
-
-        # Get our start time, 7 days ago but aligned with start of day
+        
+        # Get our start time. This is "last 30 days". If you want "this month from day 1, see below"
         # POB: 2592000 = seconds in a month
         # 86400 = seconds in 24 hours
         _start_ts = startOfInterval(timespan.stop - 2592000, 86400)
+        _end_ts = timespan.stop
+
+        # Start at day 1 of the current month. 
+        #_start_ts, _end_ts = archiveMonthSpan( int( time.time() ) )
         
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
-        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp', 'max', 86400)
+        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'max', 86400)
 
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
@@ -463,7 +446,7 @@ class highchartsMonth(SearchList):
         outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
        
         # Min temp vector
-        (time_start_vt, time_stop_vt, outTemp_min_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp', 'min', 86400)
+        (time_start_vt, time_stop_vt, outTemp_min_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'min', 86400)
 
         # Convert our temperature vector
         outTemp_min_vt = self.generator.converter.convert(outTemp_min_vt)
@@ -478,7 +461,7 @@ class highchartsMonth(SearchList):
         
         
         # Get our dewpoint vector
-        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'dewpoint', 'max', 86400)
+        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 86400)
 
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
@@ -491,7 +474,7 @@ class highchartsMonth(SearchList):
         dewpoint_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         # Get our wind chill vector
-        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windchill', 'max', 86400)
+        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill', 'max', 86400)
         windchill_vt = self.generator.converter.convert(windchill_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -503,7 +486,7 @@ class highchartsMonth(SearchList):
         windchill_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our heat index vector
-        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'heatindex', 'max', 86400)
+        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex', 'max', 86400)
         heatindex_vt = self.generator.converter.convert(heatindex_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -515,7 +498,7 @@ class highchartsMonth(SearchList):
         heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outHumidity', 'max', 86400)
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outHumidity', 'max', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[2], "1f")[-2])
@@ -526,7 +509,7 @@ class highchartsMonth(SearchList):
         outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our barometer vector
-        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer', 'max', 86400)
+        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'barometer', 'max', 86400)
         barometer_vt = self.generator.converter.convert(barometer_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -538,7 +521,7 @@ class highchartsMonth(SearchList):
         barometer_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind speed vector
-        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed', 'max', 86400)
+        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'max', 86400)
         windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -550,7 +533,7 @@ class highchartsMonth(SearchList):
         windSpeed_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Average Wind Speed
-        (time_start_vt, time_stop_vt, windSpeedAvg_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed', 'avg', 86400)
+        (time_start_vt, time_stop_vt, windSpeedAvg_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'avg', 86400)
         windSpeedAvg_vt = self.generator.converter.convert(windSpeedAvg_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -562,7 +545,7 @@ class highchartsMonth(SearchList):
         windSpeedAvg_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind gust vector
-        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windGust', 'max', 86400)
+        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust', 'max', 86400)
         windGust_vt = self.generator.converter.convert(windGust_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -574,7 +557,7 @@ class highchartsMonth(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windDir', 'avg', 86400)
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'avg', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "1f")[-2])
@@ -585,7 +568,7 @@ class highchartsMonth(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -594,7 +577,7 @@ class highchartsMonth(SearchList):
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_total = []
         rain_count = 0
@@ -610,7 +593,7 @@ class highchartsMonth(SearchList):
         pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
         
         # Get our radiation vector
-        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'radiation', 'max', 86400)
+        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         radiationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[2], "1f")[-2])
@@ -652,11 +635,8 @@ class highchartsMonth(SearchList):
                                  'radiationMonthjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'MonthPlotStart' : _start_ts * 1000,
-                                 'MonthPlotEnd' : timespan.stop * 1000}
+                                 'MonthPlotEnd' : _end_ts * 1000}
         
-        #t2 = time.time()
-        #logdbg2("highchartsWeek SLE executed in %0.3f seconds" % (t2 - t1))
-
         # Return our json data
         return [search_list_extension]
         
@@ -689,23 +669,15 @@ class highchartsYear(SearchList):
             return [search_list_extension]
 
         t1 = time.time()
-
-        # Get our start time, 7 days ago but aligned with start of day
-        # POB: 31556952 = seconds in a year
-        # 86400 = seconds in 24 hours
-        #_start_ts = startOfInterval(timespan.stop - 31556952, 86400) # This gets the last 365 days
-        # _start_ts  = timespan.stop - 604800
-        now = datetime.datetime.now()
-        date_time = '01/01/%s 00:00:00' % now.year
-        pattern = '%m/%d/%Y %H:%M:%S'
-        year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
-        _start_ts = startOfInterval(year_start_epoch ,86400) # This is the current calendar year
+        
+        # Start at day 1 of current year
+        _start_ts, _end_ts = archiveYearSpan( int( time.time() ) )
         
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
-        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp', 'max', 86400)
+        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'max', 86400)
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
         # Can't use ValueHelper so round our results manually
@@ -718,7 +690,7 @@ class highchartsYear(SearchList):
         outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Min temp vector
-        (time_start_vt, time_stop_vt, outTempMin_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outTemp', 'min', 86400)
+        (time_start_vt, time_stop_vt, outTempMin_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'min', 86400)
         # Convert our temperature vector
         outTempMin_vt = self.generator.converter.convert(outTempMin_vt)
         # Can't use ValueHelper so round our results manually
@@ -731,7 +703,7 @@ class highchartsYear(SearchList):
         outTempMin_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our dewpoint vector
-        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'dewpoint', 'max', 86400)
+        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 86400)
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -743,7 +715,7 @@ class highchartsYear(SearchList):
         dewpoint_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         # Get our wind chill vector
-        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windchill', 'max', 86400)
+        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill', 'max', 86400)
         windchill_vt = self.generator.converter.convert(windchill_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -755,7 +727,7 @@ class highchartsYear(SearchList):
         windchill_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our heat index vector
-        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'heatindex', 'max', 86400)
+        (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex', 'max', 86400)
         heatindex_vt = self.generator.converter.convert(heatindex_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -767,7 +739,7 @@ class highchartsYear(SearchList):
         heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'outHumidity', 'max', 86400)
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outHumidity', 'max', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[2], "1f")[-2])
@@ -778,7 +750,7 @@ class highchartsYear(SearchList):
         outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our barometer vector
-        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'barometer', 'max', 86400)
+        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'barometer', 'max', 86400)
         barometer_vt = self.generator.converter.convert(barometer_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -790,7 +762,7 @@ class highchartsYear(SearchList):
         barometer_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind speed vector
-        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed', 'max', 86400)
+        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'max', 86400)
         windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -802,7 +774,7 @@ class highchartsYear(SearchList):
         windSpeed_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Average wind speed vector
-        (time_start_vt, time_stop_vt, windSpeedAvg_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windSpeed', 'avg', 86400)
+        (time_start_vt, time_stop_vt, windSpeedAvg_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'avg', 86400)
         windSpeedAvg_vt = self.generator.converter.convert(windSpeedAvg_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -814,7 +786,7 @@ class highchartsYear(SearchList):
         windSpeedAvg_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind gust vector
-        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windGust', 'max', 86400)
+        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust', 'max', 86400)
         windGust_vt = self.generator.converter.convert(windGust_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -826,7 +798,7 @@ class highchartsYear(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'windDir', 'max', 86400)
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'max', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "1f")[-2])
@@ -837,7 +809,7 @@ class highchartsYear(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, timespan.stop) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -846,7 +818,7 @@ class highchartsYear(SearchList):
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
                 
         # Get our radiation vector
-        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'radiation', 'max', 86400)
+        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         radiationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[2], "1f")[-2])
@@ -887,7 +859,7 @@ class highchartsYear(SearchList):
                                  'radiationYearjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'YearPlotStart' : _start_ts * 1000,
-                                 'YearPlotEnd' : timespan.stop * 1000}
+                                 'YearPlotEnd' : _end_ts * 1000}
         
         # Return our json data
         return [search_list_extension]
