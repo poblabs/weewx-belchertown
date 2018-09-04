@@ -270,6 +270,164 @@ class getData(SearchList):
             # There's an error - I've seen this on first run and the NOAA folder is not created yet. Skip this section.
             pass
 
+            
+        """
+        Forecast Data
+        """
+        if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
+            forecast_file = local_root + "/json/darksky_forecast.json"
+            forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
+            darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
+            darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
+            latitude = self.generator.config_dict['Station']['latitude']
+            longitude = self.generator.config_dict['Station']['longitude']
+            forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
+            forecast_is_stale = False
+            
+            forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s" % ( darksky_secret_key, latitude, longitude, darksky_units )
+            
+            # Determine if the file exists and get it's modified time
+            if os.path.isfile( forecast_file ):
+                if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
+                    forecast_is_stale = True
+            else:
+                # File doesn't exist, download a new copy
+                forecast_is_stale = True
+            
+            # File is stale, download a new copy
+            if forecast_is_stale:
+                # Download new forecast data
+                try:
+                    import urllib2
+                    user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
+                    headers = { 'User-Agent' : user_agent }
+                    req = urllib2.Request( forecast_url, None, headers )
+                    response = urllib2.urlopen( req )
+                    page = response.read()
+                    response.close()
+                except Exception as error:
+                    raise ValueError( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
+                    
+                # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
+                try:
+                    with open( forecast_file, 'w+' ) as file:
+                        file.write( page )
+                        loginf( "New forecast file downloaded to %s" % forecast_file )
+                except IOError, e:
+                    raise ValueError( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
+
+                
+            # Process the forecast file
+            with open( forecast_file, "r" ) as read_file:
+                data = json.load( read_file )
+            
+            forecast_html_output = ""
+            forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
+            current_obs_summary = data["currently"]["summary"]
+            visibility = data["currently"]["visibility"]
+            
+            # Get the unit label from the skin dict for speed. 
+            windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
+            windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
+
+            if data["currently"]["icon"] == "partly-cloudy-night":
+                current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/partly-cloudy-night.png">'
+            else:
+                current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/'+data["currently"]["icon"]+'.png">'
+
+            # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
+            # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
+            # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
+            if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
+                visibility_unit = "miles"
+            elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
+                visibility_unit = "km"
+            else:
+                visibility_unit = ""
+                
+            # Loop through each day and generate the forecast row HTML
+            for daily_data in data["daily"]["data"]:
+                # Setup some variables
+                if daily_data["icon"] == "partly-cloudy-night":
+                    image_url = station_url + "/images/clear-day.png"
+                else:
+                    image_url = station_url + "/images/" + daily_data["icon"] + ".png"
+                
+                condition_text = ""
+                if daily_data["icon"] == "clear-day":
+                    condition_text = "Clear"
+                elif daily_data["icon"] == "clear-night":
+                    condition_text = "Clear"
+                elif daily_data["icon"] == "rain":
+                    condition_text = "Rain"
+                elif daily_data["icon"] == "snow":
+                    condition_text = "Snow"
+                elif daily_data["icon"] == "sleet":
+                    condition_text = "Sleet"
+                elif daily_data["icon"] == "wind":
+                    condition_text = "Windy"
+                elif daily_data["icon"] == "fog":
+                    condition_text = "Fog"
+                elif daily_data["icon"] == "cloudy":
+                    condition_text = "Overcast"
+                elif daily_data["icon"] == "partly-cloudy-day":
+                    condition_text = "Partly Cloudy"
+                elif daily_data["icon"] == "partly-cloudy-night":
+                    # https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
+                    condition_text = "Clear"
+                elif daily_data["icon"] == "hail":
+                    condition_text = "Hail"
+                elif daily_data["icon"] == "thunderstorm":
+                    condition_text = "Thunderstorm"
+                elif daily_data["icon"] == "tornado":
+                    condition_text = "Tornado"
+            
+                # Build html
+                if time.strftime( "%a %m/%d", time.localtime( daily_data["time"] ) ) == time.strftime( "%a %m/%d", time.localtime( time.time() ) ):
+                    # If the time in the darksky output is today, do not add border-left and say "Today" in the header
+                    output = '<div class="col-sm-1-5 wuforecast">'
+                    weekday = "Today"
+                else:
+                    output = '<div class="col-sm-1-5 wuforecast border-left">'
+                    weekday = time.strftime( "%a %-m/%d", time.localtime( daily_data["time"] ) )
+                
+                output += '<span id="weekday">' + weekday + '</span>'
+                output += '<br>'
+                output += '<div class="forecast-conditions">'
+                output += '<img id="icon" src="'+image_url+'">'
+                output += '<span class="forecast-condition-text">'
+                output += condition_text
+                output += '</span>'
+                output += '</div>'
+                output += '<span class="forecast-high">'+str( int( daily_data["temperatureHigh"] ) )+'&deg;</span> | <span class="forecast-low">'+str( int( daily_data["temperatureLow"] ) )+'&deg;</span>'
+                output += '<br>'
+                output += '<div class="forecast-precip">'
+                if "precipType" in daily_data:
+                    if daily_data["precipType"] == "snow":
+                        output += '<div class="snow-precip">'
+                        output += '<img src="'+station_url+'/images/snowflake-icon-15px.png"> <span>'+ str( '%.2f' % daily_data["precipAccumulation"] ) +'<span> in'
+                        output += '</div>'
+                    elif daily_data["precipType"] == "rain":
+                        output += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span >'+str( int( daily_data["precipProbability"] * 100 ) )+'%</span>'
+                else:
+                    output += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>'
+                output += '</div>'
+                output += '<div class="forecast-wind">'
+                output += '<i class="wi wi-strong-wind"></i> '+str( int( daily_data["windGust"] ) )+' '+ windSpeedUnitLabel
+                output += '</div>'
+                output += "</div> <!-- end .wuforecast -->"
+                
+                # Add to the output
+                forecast_html_output += output
+        else:
+            forecast_updated = ""
+            forecast_json_url = ""
+            current_obs_icon = ""
+            current_obs_summary = ""
+            visibility = ""
+            visibility_unit = ""
+            forecast_html_output = ""
+        
         
         """
         Earthquake Data
@@ -404,6 +562,13 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeedUnitLabel,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
+                                  'forecast_updated': forecast_updated,
+                                  'forecast_json_url': forecast_json_url,
+                                  'current_obs_icon': current_obs_icon,
+                                  'current_obs_summary': current_obs_summary,
+                                  'visibility': visibility,
+                                  'visibility_unit': visibility_unit,
+                                  'forecastHTML' : forecast_html_output,
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,
                                   'earthquake_place': eqplace,
@@ -413,194 +578,4 @@ class getData(SearchList):
                                   'social_html': social_html }
 
         # Finally, return our extension as a list:
-        return [search_list_extension]
-        
-    
-class getForecast(SearchList):
-
-    def __init__(self, generator):
-        SearchList.__init__(self, generator)
-
-    def get_extension_list(self, timespan, db_lookup):
-    
-        """
-        Download and parse the Forecast data. This is required for the majority of the theme to work
-        """
-        
-        # Check if the pre-requisites have been completed
-        try:
-            station_url = self.generator.config_dict["Station"]["station_url"]
-        except:
-            raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
-
-        # Return right away if we're not going to use the forecast.
-        if self.generator.skin_dict['Extras']['forecast_enabled'] == "0":
-            # Return an empty SLE
-            search_list_extension = { 'current_obs_icon': "",
-                                      'current_obs_summary': "",
-                                      'visibility': "", }
-            return [search_list_extension]
-
-        # Forecast is enabled
-        if 'HTML_ROOT' in self.generator.skin_dict:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
-                                      self.generator.skin_dict['HTML_ROOT'])
-        else:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
-                                      self.generator.config_dict['StdReport']['HTML_ROOT'])
-                                      
-        forecast_file = local_root + "/json/darksky_forecast.json"
-        forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
-        darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
-        darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
-        latitude = self.generator.config_dict['Station']['latitude']
-        longitude = self.generator.config_dict['Station']['longitude']
-        forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
-        forecast_is_stale = False
-        
-        forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s" % ( darksky_secret_key, latitude, longitude, darksky_units )
-        
-        # Determine if the file exists and get it's modified time
-        if os.path.isfile( forecast_file ):
-            if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
-                forecast_is_stale = True
-        else:
-            # File doesn't exist, download a new copy
-            forecast_is_stale = True
-        
-        # File is stale, download a new copy
-        if forecast_is_stale:
-            # Download new forecast data
-            try:
-                import urllib2
-                user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
-                headers = { 'User-Agent' : user_agent }
-                req = urllib2.Request( forecast_url, None, headers )
-                response = urllib2.urlopen( req )
-                page = response.read()
-                response.close()
-            except Exception as error:
-                raise ValueError( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
-                
-            # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
-            try:
-                with open( forecast_file, 'w+' ) as file:
-                    file.write( page )
-                    loginf( "New forecast file downloaded to %s" % forecast_file )
-            except IOError, e:
-                raise ValueError( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
-
-            
-        # Process the forecast file
-        with open( forecast_file, "r" ) as read_file:
-            data = json.load( read_file )
-        
-        html_output = ""
-        forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
-        current_obs_summary = data["currently"]["summary"]
-        visibility = data["currently"]["visibility"]
-        
-        # Get the unit label from the skin dict for speed. 
-        windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
-        windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
-
-        if data["currently"]["icon"] == "partly-cloudy-night":
-            current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/partly-cloudy-night.png">'
-        else:
-            current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/'+data["currently"]["icon"]+'.png">'
-
-        # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
-        # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
-        # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-        if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
-            visibility_unit = "miles"
-        elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
-            visibility_unit = "km"
-        else:
-            visibility_unit = ""
-            
-        # Loop through each day and generate the forecast row HTML
-        for daily_data in data["daily"]["data"]:
-            # Setup some variables
-            if daily_data["icon"] == "partly-cloudy-night":
-                image_url = station_url + "/images/clear-day.png"
-            else:
-                image_url = station_url + "/images/" + daily_data["icon"] + ".png"
-            
-            condition_text = ""
-            if daily_data["icon"] == "clear-day":
-                condition_text = "Clear"
-            elif daily_data["icon"] == "clear-night":
-                condition_text = "Clear"
-            elif daily_data["icon"] == "rain":
-                condition_text = "Rain"
-            elif daily_data["icon"] == "snow":
-                condition_text = "Snow"
-            elif daily_data["icon"] == "sleet":
-                condition_text = "Sleet"
-            elif daily_data["icon"] == "wind":
-                condition_text = "Windy"
-            elif daily_data["icon"] == "fog":
-                condition_text = "Fog"
-            elif daily_data["icon"] == "cloudy":
-                condition_text = "Overcast"
-            elif daily_data["icon"] == "partly-cloudy-day":
-                condition_text = "Partly Cloudy"
-            elif daily_data["icon"] == "partly-cloudy-night":
-                # https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                condition_text = "Clear"
-            elif daily_data["icon"] == "hail":
-                condition_text = "Hail"
-            elif daily_data["icon"] == "thunderstorm":
-                condition_text = "Thunderstorm"
-            elif daily_data["icon"] == "tornado":
-                condition_text = "Tornado"
-        
-            # Build html
-            if time.strftime( "%a %m/%d", time.localtime( daily_data["time"] ) ) == time.strftime( "%a %m/%d", time.localtime( time.time() ) ):
-                # If the time in the darksky output is today, do not add border-left and say "Today" in the header
-                output = '<div class="col-sm-1-5 wuforecast">'
-                weekday = "Today"
-            else:
-                output = '<div class="col-sm-1-5 wuforecast border-left">'
-                weekday = time.strftime( "%a %-m/%d", time.localtime( daily_data["time"] ) )
-            
-            output += '<span id="weekday">' + weekday + '</span>'
-            output += '<br>'
-            output += '<div class="forecast-conditions">'
-            output += '<img id="icon" src="'+image_url+'">'
-            output += '<span class="forecast-condition-text">'
-            output += condition_text
-            output += '</span>'
-            output += '</div>'
-            output += '<span class="forecast-high">'+str( int( daily_data["temperatureHigh"] ) )+'&deg;</span> | <span class="forecast-low">'+str( int( daily_data["temperatureLow"] ) )+'&deg;</span>'
-            output += '<br>'
-            output += '<div class="forecast-precip">'
-            if "precipType" in daily_data:
-                if daily_data["precipType"] == "snow":
-                    output += '<div class="snow-precip">'
-                    output += '<img src="'+station_url+'/images/snowflake-icon-15px.png"> <span>'+ int( daily_data["precipAccumulation"] ) +'<span> in'
-                    output += '</div>'
-                elif daily_data["precipType"] == "rain":
-                    output += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span >'+str( int( daily_data["precipProbability"] * 100 ) )+'%</span>'
-            else:
-                output += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>'
-            output += '</div>'
-            output += '<div class="forecast-wind">'
-            output += '<i class="wi wi-strong-wind"></i> '+str( int( daily_data["windGust"] ) )+' '+ windSpeedUnitLabel
-            output += '</div>'
-            output += "</div> <!-- end .wuforecast -->"
-            
-            # Add to the output
-            html_output += output
-
-        # Put into a dictionary to return
-        search_list_extension  = { 'forecast_updated': forecast_updated,
-                                   'forecast_json_url': forecast_json_url,
-                                   'current_obs_icon': current_obs_icon,
-                                   'current_obs_summary': current_obs_summary,
-                                   'visibility': visibility,
-                                   'visibility_unit': visibility_unit,
-                                   'forecastHTML' : html_output }
-        # Return our json data
         return [search_list_extension]
