@@ -49,6 +49,7 @@ class getData(SearchList):
         except:
             raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
 
+        # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
             local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
                                       self.generator.skin_dict['HTML_ROOT'])
@@ -56,10 +57,43 @@ class getData(SearchList):
             local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
                                       self.generator.config_dict['StdReport']['HTML_ROOT'])
         
+        # Find the SKIN ROOT
+        local_skin_root = os.path.join( self.generator.config_dict['WEEWX_ROOT'], self.generator.skin_dict['SKIN_ROOT'], self.generator.skin_dict['skin'] )
+        
+        # Setup UTC offset hours for moment.js in index.html
+        moment_js_stop_struct = time.localtime( time.time() )
+        moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60/60
+        
+        # Handle the about.inc and records.inc files.
+        # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
+        # records.inc: if the file is present use it, therwise do not show anything. 
+        about_file = local_skin_root + "/about.inc"
+        about_page_text = """
+        <p>Welcome to your new about page!</p>
+        <p>To change this text, please rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code>, or create a new file at <code>skins/Belchertown/about.inc</code> and add your about page description! Full HTML is accepted.</p>
+        <p><a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">Click this link if you need help!</a>
+        <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a></p>
         """
-        Get all time stats. Right from the weewx sample http://www.weewx.com/docs/customizing.htm
+        try:
+            with open( about_file, 'r' ) as af:
+                about_page_text = af.read()
+        except:
+            # File doesn't exist - use the default text. 
+            pass
+        
+        records_file = local_skin_root + "/records.inc"
+        records_page_text = ""
+        try:
+            with open( records_file, 'r' ) as rf:
+                records_page_text = rf.read()
+        except:
+            # File doesn't exist - show nothing. 
+            pass        
+        
+        
         """
-
+        Build the all time stats. A portion is right from the weewx sample http://www.weewx.com/docs/customizing.htm
+        """
         wx_manager = db_lookup()
         
         # Find the beginning of the current year
@@ -69,9 +103,6 @@ class getData(SearchList):
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
         #_start_ts = startOfInterval(year_start_epoch ,86400) # This is the current calendar year
         
-        # Setup UTC offset hours for moment.js in index.html
-        moment_js_stop_struct = time.localtime( time.time() )
-        moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60/60
         
         # Temperature Range Lookups
         year_temp_range_max = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total DESC LIMIT 1;' % year_start_epoch )
@@ -279,6 +310,8 @@ class getData(SearchList):
             
         # Build the search list with the new values
         search_list_extension = { 'moment_js_utc_offset': moment_js_utc_offset,
+                                  'about_page_text': about_page_text,
+                                  'records_page_text': records_page_text,
                                   'alltime' : all_stats,
                                   'year_temp_range_max': year_temp_range_max,
                                   'year_temp_range_min': year_temp_range_min,
