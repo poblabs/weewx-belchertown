@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.6"
+VERSION = "0.7rc1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -83,6 +83,7 @@ class getData(SearchList):
         <p><a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">Click this link if you need help!</a>
         <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a></p>
         """
+        
         try:
             with open( about_file, 'r' ) as af:
                 about_page_text = af.read()
