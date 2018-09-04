@@ -70,7 +70,16 @@ class getData(SearchList):
         about_file = local_skin_root + "/about.inc"
         about_page_text = """
         <p>Welcome to your new about page!</p>
-        <p>To change this text, please rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code>, or create a new file at <code>skins/Belchertown/about.inc</code> and add your about page description! Full HTML is accepted.</p>
+        <p>To change this text:
+        <ul>
+            <li> Rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code></li>
+            <ul>
+                <li> or create a new file at <code>skins/Belchertown/about.inc</code></li>
+            </ul>
+            <li> Use the example text within <code>skins/Belchertown/about.inc.example</code> to create your about page description!</li>
+            <li>Full HTML is accepted.</li>
+        </ul>
+        </p>
         <p><a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">Click this link if you need help!</a>
         <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a></p>
         """
