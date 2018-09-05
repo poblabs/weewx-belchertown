@@ -20,7 +20,7 @@ from weewx.cheetahgenerator import SearchList
 from weeutil.weeutil import TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
 
 def logmsg(level, msg):
-    syslog.syslog(level, 'highchartsSearchX: %s' % msg)
+    syslog.syslog(level, 'Belchertown Highcharts Extension: %s' % msg)
 
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
