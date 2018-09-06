@@ -20,8 +20,8 @@ class ExfoliationInstaller(ExtensionInstaller):
                         'skin':'Belchertown',
                         'HTML_ROOT':'belchertown'
                     },
-                    'Belchertown_Highcharts': {
-                        'skin':'Belchertown_Highcharts',
+                    'Highcharts_Belchertown': {
+                        'skin':'Highcharts_Belchertown',
                         'HTML_ROOT':'belchertown'
                     }
                 }
@@ -79,12 +79,12 @@ class ExfoliationInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/index.html'
                                                 ]
                     ),
-                   ('skins/Belchertown_Highcharts', ['skins/Belchertown_Highcharts/skin.conf']
+                   ('skins/Highcharts_Belchertown', ['skins/Highcharts_Belchertown/skin.conf']
                     ),
-                   ('skins/Belchertown_Highcharts/json', ['skins/Belchertown_Highcharts/json/day.json.tmpl',
-                                                          'skins/Belchertown_Highcharts/json/week.json.tmpl',
-                                                          'skins/Belchertown_Highcharts/json/month.json.tmpl',
-                                                          'skins/Belchertown_Highcharts/json/year.json.tmpl',
+                   ('skins/Highcharts_Belchertown/json', ['skins/Highcharts_Belchertown/json/day.json.tmpl',
+                                                          'skins/Highcharts_Belchertown/json/week.json.tmpl',
+                                                          'skins/Highcharts_Belchertown/json/month.json.tmpl',
+                                                          'skins/Highcharts_Belchertown/json/year.json.tmpl',
                                                          ]
                     )
                    ]
