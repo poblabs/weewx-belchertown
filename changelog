@@ -1,5 +1,14 @@
-0.6 August 30, 2018
+0.7 September 8, 2018
+* Separate Highcharts from the main skin into its own skin. In testing this has shown to speed up skin generation times. **Strongly advise you to uninstall Belchertown skin, and install 0.7 as a new skin**. Also, **be sure to have a backup of your skin customizations**
+* The highcharts extension gets its options from the Belchertown main skin. Keep your highcharts options under Belchertown's main Extras section. 
+* Moved highcharts timespans to our own intervals and not using the timespan intervals. 
+* Better handling of default about and records page. Now includes an `about.inc.example` and `records.inc.example` to show what you can do. If `about.inc` or `records.inc` is missing, then the skin will show some default information rather than throwing an error.
+* Moved the forecast and earthquake functions into the main `getData()` class.
+* Adjusted `.wind.` on the records page to `.windGust.` which should fix the errors that have been reported.
+* Cleaned up a lot of old code from the Highcharts extension included in this skin. 
 
+
+0.6 August 30, 2018
 * Skip NULL rain values in highcharts generator.
 * Updated rainRate value on the front page and records page. 
 * Fix all time record for barometer. It was showing dewpoint. Oops!

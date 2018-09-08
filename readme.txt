@@ -1,6 +1,8 @@
 This is the Belchertown skin for the weewx weather system.
 Copyright 2018 Pat O'Brien
 
+Please view the README.md on GitHub for full configuration instructions. https://github.com/poblabs/weewx-belchertown
+
 Installation instructions:
 
 1) First, edit your weewx.conf and fill in the station_url variable. Even if this website
