@@ -5,6 +5,8 @@
 * Better handling of default about and records page. Now includes an `about.inc.example` and `records.inc.example` to show what you can do. If `about.inc` or `records.inc` is missing, then the skin will show some default information rather than throwing an error.
 * Moved the forecast and earthquake functions into the main `getData()` class.
 * Adjusted `.wind.` on the records page to `.windGust.` which should fix the errors that have been reported.
+* Moved the moment.js utcOffset back to minutes instead of hours.
+* If no earthquake data is available in your region, we now display that information as "No recent earthquake data available!". If this affects you, you can expand your `earthquake_maxradiuskm`. 
 * Cleaned up a lot of old code from the Highcharts extension included in this skin. 
 
 
