@@ -15,6 +15,8 @@ import time
 import weewx
 import syslog
 import json
+import os
+import configobj
 
 from weewx.cheetahgenerator import SearchList
 from weeutil.weeutil import TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
@@ -47,12 +49,23 @@ class highchartsDay(SearchList):
 
     def get_extension_list(self, timespan, db_lookup):
     
+        # Get the skin options for the parent Belchertown skin
+        # Help from https://github.com/weewx/weewx/blob/master/bin/weewx/reportengine.py#L67-L182
+        belchertown_skin_config_path = os.path.join(
+                self.generator.config_dict['WEEWX_ROOT'],
+                self.generator.config_dict['StdReport']['SKIN_ROOT'],
+                self.generator.config_dict['StdReport']["Belchertown"].get('skin', 'Standard'),
+                'skin.conf')
+        belchertown_skin_dict = configobj.ConfigObj(belchertown_skin_config_path, file_error=True)
+        # Merge weewx.conf into skin.conf for overrides
+        belchertown_skin_dict.merge(self.generator.config_dict['StdReport']["Belchertown"])
+    
         # First make sure the user wants to use the extension. If not, return right away.
-        if self.generator.skin_dict['Extras']['highcharts_enabled'] == "0":
+        if belchertown_skin_dict['Extras']['highcharts_enabled'] == "0":
             # Return an empty SLE
             search_list_extension = { }
             return [search_list_extension]
-       
+
         # Get our start time
         _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
         
@@ -189,8 +202,19 @@ class highchartsWeek(SearchList):
                      object.
          """
 
+        # Get the skin options for the parent Belchertown skin
+        # Help from https://github.com/weewx/weewx/blob/master/bin/weewx/reportengine.py#L67-L182
+        belchertown_skin_config_path = os.path.join(
+                self.generator.config_dict['WEEWX_ROOT'],
+                self.generator.config_dict['StdReport']['SKIN_ROOT'],
+                self.generator.config_dict['StdReport']["Belchertown"].get('skin', 'Standard'),
+                'skin.conf')
+        belchertown_skin_dict = configobj.ConfigObj(belchertown_skin_config_path, file_error=True)
+        # Merge weewx.conf into skin.conf for overrides
+        belchertown_skin_dict.merge(self.generator.config_dict['StdReport']["Belchertown"])
+    
         # First make sure the user wants to use the extension. If not, return right away.
-        if self.generator.skin_dict['Extras']['highcharts_enabled'] == "0":
+        if belchertown_skin_dict['Extras']['highcharts_enabled'] == "0":
             # Return an empty SLE
             search_list_extension = { }
             return [search_list_extension]
@@ -407,8 +431,19 @@ class highchartsMonth(SearchList):
                      object.
          """
         
+        # Get the skin options for the parent Belchertown skin
+        # Help from https://github.com/weewx/weewx/blob/master/bin/weewx/reportengine.py#L67-L182
+        belchertown_skin_config_path = os.path.join(
+                self.generator.config_dict['WEEWX_ROOT'],
+                self.generator.config_dict['StdReport']['SKIN_ROOT'],
+                self.generator.config_dict['StdReport']["Belchertown"].get('skin', 'Standard'),
+                'skin.conf')
+        belchertown_skin_dict = configobj.ConfigObj(belchertown_skin_config_path, file_error=True)
+        # Merge weewx.conf into skin.conf for overrides
+        belchertown_skin_dict.merge(self.generator.config_dict['StdReport']["Belchertown"])
+    
         # First make sure the user wants to use the extension. If not, return right away.
-        if self.generator.skin_dict['Extras']['highcharts_enabled'] == "0":
+        if belchertown_skin_dict['Extras']['highcharts_enabled'] == "0":
             # Return an empty SLE
             search_list_extension = { }
             return [search_list_extension]
@@ -656,8 +691,19 @@ class highchartsYear(SearchList):
                      object.
          """
 
+        # Get the skin options for the parent Belchertown skin
+        # Help from https://github.com/weewx/weewx/blob/master/bin/weewx/reportengine.py#L67-L182
+        belchertown_skin_config_path = os.path.join(
+                self.generator.config_dict['WEEWX_ROOT'],
+                self.generator.config_dict['StdReport']['SKIN_ROOT'],
+                self.generator.config_dict['StdReport']["Belchertown"].get('skin', 'Standard'),
+                'skin.conf')
+        belchertown_skin_dict = configobj.ConfigObj(belchertown_skin_config_path, file_error=True)
+        # Merge weewx.conf into skin.conf for overrides
+        belchertown_skin_dict.merge(self.generator.config_dict['StdReport']["Belchertown"])
+    
         # First make sure the user wants to use the extension. If not, return right away.
-        if self.generator.skin_dict['Extras']['highcharts_enabled'] == "0":
+        if belchertown_skin_dict['Extras']['highcharts_enabled'] == "0":
             # Return an empty SLE
             search_list_extension = { }
             return [search_list_extension]
