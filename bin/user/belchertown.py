@@ -62,7 +62,7 @@ class getData(SearchList):
         
         # Setup UTC offset hours for moment.js in index.html
         moment_js_stop_struct = time.localtime( time.time() )
-        moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60/60
+        moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
         
         # Handle the about.inc and records.inc files.
         # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
