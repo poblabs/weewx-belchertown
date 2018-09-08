@@ -476,13 +476,23 @@ class getData(SearchList):
             # Process the earthquake file        
             with open( earthquake_file, "r" ) as read_file:
                 eqdata = json.load( read_file )
+            
+            try:
+                eqtime = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
+                equrl = eqdata["features"][0]["properties"]["url"]
+                eqplace = eqdata["features"][0]["properties"]["place"]
+                eqmag = eqdata["features"][0]["properties"]["mag"]
+                eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
+                eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
+            except:
+                # No earthquake data
+                eqtime = "No recent earthquake data available!"
+                equrl = ""
+                eqplace = ""
+                eqmag = ""
+                eqlat = ""
+                eqlon = ""
                 
-            eqtime = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
-            equrl = eqdata["features"][0]["properties"]["url"]
-            eqplace = eqdata["features"][0]["properties"]["place"]
-            eqmag = eqdata["features"][0]["properties"]["mag"]
-            eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
-            eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
         else:
             eqtime = ""
             equrl = ""

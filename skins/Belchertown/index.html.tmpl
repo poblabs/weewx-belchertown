@@ -932,6 +932,7 @@
                                 <div class="eq-title">Recent Local Earthquake</div>
                                 <div class="eq-region">
                                     <span>$earthquake_time</span>
+                                    #if $earthquake_place != ''
                                     <br>
                                     <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
                                     <div class="row">
@@ -943,6 +944,7 @@
                                             <br>$earthquake_lon &deg;</span>
                                         </div>
                                     </div>
+                                    #end if
                                 </div>
                                 <div class="eq-source">Source: <a href="http://usgs.gov" target="_blank">USGS.gov</a></div>
                             </div>
