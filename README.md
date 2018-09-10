@@ -82,13 +82,12 @@ sudo /etc/init.d/weewx start
 
 ## Creating About Page and Records Page
 
-The About Page and Records Page offer some areas for custom HTML to be run. To edit these pages, go to the `skins/Belchertown` folder. In version 0.6+ you need to create these files if you are installing the skin for the first time. This is due to the fact that upgrades were previously deleting these files and re-creating them. Manually creating them makes sure they're not deleted on upgrades. 
+The About Page and Records Page offer some areas for custom HTML to be run. To create or edit these pages, go to the `skins/Belchertown` folder. These files should not be overwritten during skin upgrdades, but it's always best to have a backup just in case!
 
 * Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
     * These files take full HTML, so you can get fancy if you want. 
-    * You can view, and use the sample [`about.inc`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc) and [`records.inc`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc) which are available in this repo under the `skins/Belchertown` folder. 
-    * For an example of what the Records Page and About Page can say, visit BelchertownWeather.com's website. 
-* Then restart weewx for the changes to take effect. 
+    * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
+* Then restart weewx for the changes to take effect, and wait for an archive interval for the pages to be generated.
 
 ## Using Metric
 
