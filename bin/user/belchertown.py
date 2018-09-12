@@ -282,12 +282,13 @@ class getData(SearchList):
             forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
             darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
             darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
+            darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
-            forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s" % ( darksky_secret_key, latitude, longitude, darksky_units )
+            forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( darksky_secret_key, latitude, longitude, darksky_units, darksky_lang )
             
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
