@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.7"
+VERSION = "0.8rc1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -43,11 +43,14 @@ class getData(SearchList):
         Build the data needed for the Belchertown skin
         """
         
+        # Look for the debug flag which can be used to show more logging
+        weewx.debug = int(self.generator.config_dict.get('debug', 0))
+        
         # Check if the pre-requisites have been completed
         try:
             station_url = self.generator.config_dict["Station"]["station_url"]
         except:
-            raise ValueError( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
+            raise Warning( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
@@ -306,7 +309,7 @@ class getData(SearchList):
                     page = response.read()
                     response.close()
                 except Exception as error:
-                    raise ValueError( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
+                    raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
                     
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
@@ -314,9 +317,8 @@ class getData(SearchList):
                         file.write( page )
                         loginf( "New forecast file downloaded to %s" % forecast_file )
                 except IOError, e:
-                    raise ValueError( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
+                    raise Warning( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
 
-                
             # Process the forecast file
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
@@ -462,16 +464,30 @@ class getData(SearchList):
                     response = urllib2.urlopen( req )
                     page = response.read()
                     response.close()
+                    if weewx.debug:
+                        logdbg( "Downloading earthquake data using urllib2 was successful" )
                 except Exception as error:
-                    raise ValueError( "Error downloading earthquake data. Check the URL and try again. You are trying to use URL: %s, and the error is: %s" % ( earthquake_url, error ) )
-                    
+                    if weewx.debug:
+                        logdbg( "Error downloading earthquake data with urllib2, reverting to curl and subprocess" )
+                    # Nested try - only execute if the urllib2 method fails
+                    try:
+                        import subprocess
+                        command = 'curl -L --silent "%s"' % earthquake_url
+                        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        page = p.communicate()[0]
+                        if weewx.debug:
+                            logdbg( "Downloading earthquake data with curl was successful." )
+                    except Exception as error:
+                        raise Warning( "Error downloading earthquake data using urllib2 and subprocess curl. Your software may need to be updated, or the URL is incorrect. You are trying to use URL: %s, and the error is: %s" % ( earthquake_url, error ) )
+
                 # Save earthquake data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
                     with open( earthquake_file, 'w+' ) as file:
                         file.write( page )
-                        loginf( "New earthquake data downloaded to %s" % earthquake_file )
+                        if weewx.debug:
+                            logdbg( "Earthquake data saved to %s" % earthquake_file )
                 except IOError, e:
-                    raise ValueError( "Error writing earthquake data to %s. Reason: %s" % ( earthquake_file, e) )
+                    raise Warning( "Error writing earthquake data to %s. Reason: %s" % ( earthquake_file, e) )
 
             # Process the earthquake file        
             with open( earthquake_file, "r" ) as read_file:
