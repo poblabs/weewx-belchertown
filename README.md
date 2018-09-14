@@ -108,6 +108,19 @@ If your weewx and your weather station are configured for metric, you can displa
                 group_speed = meter_per_second
                 group_speed2 = meter_per_second2
                 group_temperature = degree_C
+    [[Highcharts_Belchertown]]
+        skin = Highcharts_Belchertown
+        HTML_ROOT = belchertown
+        [[[Units]]]
+            [[[[Groups]]]]
+                group_altitude = meter
+                group_degree_day = degree_C_day
+                group_pressure = mbar
+                group_rain = mm
+                group_rainrate = mm_per_hour
+                group_speed = meter_per_second
+                group_speed2 = meter_per_second2
+                group_temperature = degree_C                
 ```
 
 ## Belchertown Skin Options
