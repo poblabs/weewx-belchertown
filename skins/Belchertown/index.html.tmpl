@@ -179,7 +179,7 @@
         //=================================//
         
         function ajaxweewx() {
-            jQuery.getJSON("$station.station_url/json/weewx_data.json", update_weewx_data);
+            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
         };
         
         function ajaxforecast() {
@@ -260,9 +260,9 @@
             // WX Icon
             if ( data['currently']['icon'] == "partly-cloudy-night" ) {
                 // partly-cloudy-night could also be clear-day
-                jQuery("#wxicon").attr( "src", "$station.station_url/images/partly-cloudy-night.png" );
+                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
             } else {
-                jQuery("#wxicon").attr( "src", "$station.station_url/images/" + data['currently']['icon'] + ".png" );
+                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
             }
             
             // Current observation text
@@ -273,9 +273,9 @@
             for (i = 0; i < data["daily"]["data"].length; i++) {
                 var forecastDay = data["daily"]["data"][i];
                 if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                    var image_url = "$station.station_url/images/clear-day.png";
+                    var image_url = "$belchertown_root_url/images/clear-day.png";
                 } else { 
-                    var image_url = "$station.station_url/images/"+data['daily']['data'][i]['icon']+".png";
+                    var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
                 }
                 
                 var condition_text = "";
@@ -339,7 +339,7 @@
                 output_html += '<div class="forecast-precip">';
                 if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
                     output_html += '<div class="snow-precip">';
-                    output_html += '<img src="$station.station_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
+                    output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
                     output_html += '</div>';
                 } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
                     output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
@@ -801,9 +801,9 @@
                                                             Sun &amp; Moon
                                                         </div>
                                                         <div class="col-sm-5 sun">
-                                                            <span class="sunrise-set-image"><img src="$station.station_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span>
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span>
                                                             <br>
-                                                            <span class="sunrise-set-image"><img src="$station.station_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span>
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span>
                                                         </div>
                                                         <div class="col-sm-7 moon">
                                                             <div class="moon-container">
@@ -956,7 +956,7 @@
                         <!-- Begin of fourth row -->
                         <div class="row highcharts-row graph">
                             <div class="col-sm-12 wx-graph-front">
-                                Graphs for today. <a href="$station.station_url/graphs">View more graphs here</a>.
+                                Graphs for today. <a href="$belchertown_root_url/graphs">View more graphs here</a>.
                             </div>
                             
                             <div class="col-sm-6 highcharts-temp">

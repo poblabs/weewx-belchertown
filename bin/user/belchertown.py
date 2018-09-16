@@ -67,6 +67,12 @@ class getData(SearchList):
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
         
+        # Get the Belchertown Skin Root override if set
+        if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
+            belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
+        else:
+            belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
+        
         # Handle the about.inc and records.inc files.
         # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
         # records.inc: if the file is present use it, therwise do not show anything. 
@@ -570,7 +576,8 @@ class getData(SearchList):
 
             
         # Build the search list with the new values
-        search_list_extension = { 'moment_js_utc_offset': moment_js_utc_offset,
+        search_list_extension = { 'belchertown_root_url': belchertown_root_url,
+                                  'moment_js_utc_offset': moment_js_utc_offset,
                                   'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
                                   'alltime' : all_stats,

@@ -9,11 +9,11 @@
             var month = getSearchParams("mo");
             var year = getSearchParams("yr");
             if ( ( year !== undefined ) && ( month !== undefined ) ) {
-                url = '$station.station_url/NOAA/NOAA-'+year+'-'+month+'.txt';
+                url = '$belchertown_root_url/NOAA/NOAA-'+year+'-'+month+'.txt';
             } else if ( year !== undefined ) {
-                url = '$station.station_url/NOAA/NOAA-'+year+'.txt';
+                url = '$belchertown_root_url/NOAA/NOAA-'+year+'.txt';
             } else {
-                url = '$station.station_url/NOAA/$default_noaa_file';
+                url = '$belchertown_root_url/NOAA/$default_noaa_file';
             }
             
             // Load the file into the pre
@@ -65,7 +65,7 @@
                                 </div>
                                 <div class="col-sm-5" style="float:right;">
                                     <div class="wx-stn-info">
-                                        Observations are powered by a <a href="$station.station_url/about" target="_blank">Personal Weather Station</a>
+                                        Observations are powered by a <a href="$belchertown_root_url/about" target="_blank">Personal Weather Station</a>
                                     </div>
                                 </div>
                             </div>

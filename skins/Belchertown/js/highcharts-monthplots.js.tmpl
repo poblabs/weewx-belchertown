@@ -737,7 +737,7 @@ function monthly() {
 
     };
 
-    jQuery.getJSON('$station.station_url/json/month.json', function(seriesData) {
+    jQuery.getJSON('$belchertown_root_url/json/month.json', function(seriesData) {
         optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
         optionsTemp.series[1] = seriesData[0].temperatureplot.series.outTempMin;
         optionsTemp.series[2] = seriesData[0].temperatureplot.series.dewpoint;
