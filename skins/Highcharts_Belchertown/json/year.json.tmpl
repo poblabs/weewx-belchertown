@@ -66,7 +66,18 @@
 #else
  "(cm)"
 #end if
-}}, 
+}},
+"rainplottotal": {"series": 
+{"rain": {"name": "Rainfall Total", "data": $rainYearTotaljson}}, 
+"yAxisLabel": {"text": #slurp
+#if $unit.unit_type_dict.group_rain == "mm"
+ "(mm)"
+#elif $unit.unit_type_dict.group_rain == "inch"
+ "(in)"
+#else
+ "(cm)"
+#end if
+}},
 "radiationplot": {"series": 
 {"radiation": {"name": "Solar Radiation", "data": $radiationYearjson}}
 }

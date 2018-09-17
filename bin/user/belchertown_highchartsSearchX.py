@@ -856,6 +856,22 @@ class highchartsYear(SearchList):
             rain_time_ms.append(float(rainsql[0]) * 1000)
             rain_round.append( rainsql[1] )
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
+        
+        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
+        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        rain_time_ms = []
+        rain_total = []
+        rain_count = 0
+        for rainsql in _pob_rain_totals_lookup:
+            rain_time_ms.append(float(rainsql[0]) * 1000)
+            rain_count = rain_count + rainsql[1]
+            rain_total.append( round( rain_count, 2) )
+            #rain_total.append( rainsql[1] )
+            #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
+        #Now that the dicts are built, do some rounding
+        #rainRound_vt =  [roundNone(x,2) for x in rain_total]
+        #pob_rain_total_json = json.dumps(zip(rain_time_ms, rainRound_vt))
+        pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
                 
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 86400)
@@ -896,6 +912,7 @@ class highchartsYear(SearchList):
                                  'windGustYearjson' : windGust_json,
                                  'windDirYearjson' : windDir_json,
                                  'rainYearjson' : pob_rain_json,
+                                 'rainYearTotaljson' : pob_rain_total_json,                                 
                                  'radiationYearjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'YearPlotStart' : _start_ts * 1000,
