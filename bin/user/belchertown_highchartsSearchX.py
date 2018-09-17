@@ -137,7 +137,7 @@ class highchartsDay(SearchList):
         windDir_json = json.dumps(zip(time_ms, windDir_vt[0]))
         
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -342,7 +342,7 @@ class highchartsWeek(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:
@@ -597,7 +597,7 @@ class highchartsMonth(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
                 
         #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
         rain_time_ms = []
         rain_round = []
         for rainsql in _pob_rain_lookup:

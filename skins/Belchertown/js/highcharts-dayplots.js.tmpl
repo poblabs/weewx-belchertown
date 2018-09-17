@@ -851,6 +851,9 @@ function daily () {
         optionsRain.series[1] = seriesData[0].rainplottotal.series.rain;
         optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
         optionsRain.yAxis.title.text = seriesData[0].rainplottotal.yAxisLabel.text;
+        optionsRain.series[0].type = 'line';
+        optionsRain.series[1].type = 'line';
+        optionsRain.series[1].color = '#000';        
         optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
         //var chart = new Highcharts.Chart(optionsWindchill);
         //var chart = new Highcharts.Chart(optionsHumidity);
