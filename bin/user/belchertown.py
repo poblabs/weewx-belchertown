@@ -46,11 +46,14 @@ class getData(SearchList):
         # Look for the debug flag which can be used to show more logging
         weewx.debug = int(self.generator.config_dict.get('debug', 0))
         
-        # Check if the pre-requisites have been completed
+        # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
         try:
-            station_url = self.generator.config_dict["Station"]["station_url"]
+            if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
+                belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
+            else:
+                belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
         except:
-            raise Warning( "Error with Belchertown skin. You must define your Station URL in weewx.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
+            raise Warning( "Error with Belchertown skin. You must define your station_url in weewx.conf or add the belchertown_root_url skin option for your site's URL. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
@@ -66,13 +69,7 @@ class getData(SearchList):
         # Setup UTC offset hours for moment.js in index.html
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
-        
-        # Get the Belchertown Skin Root override if set
-        if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
-            belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-        else:
-            belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
-        
+                
         # Handle the about.inc and records.inc files.
         # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
         # records.inc: if the file is present use it, therwise do not show anything. 
@@ -285,7 +282,7 @@ class getData(SearchList):
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
             forecast_file = local_root + "/json/darksky_forecast.json"
-            forecast_json_url = self.generator.config_dict['Station']['station_url'] + "/json/darksky_forecast.json"
+            forecast_json_url = belchertown_root_url + "/json/darksky_forecast.json"
             darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
             darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
             darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
@@ -340,9 +337,9 @@ class getData(SearchList):
             windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
 
             if data["currently"]["icon"] == "partly-cloudy-night":
-                current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/partly-cloudy-night.png">'
+                current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/partly-cloudy-night.png">'
             else:
-                current_obs_icon = '<img id="wxicon" src="'+station_url+'/images/'+data["currently"]["icon"]+'.png">'
+                current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/'+data["currently"]["icon"]+'.png">'
 
             # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
             # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
@@ -358,9 +355,9 @@ class getData(SearchList):
             for daily_data in data["daily"]["data"]:
                 # Setup some variables
                 if daily_data["icon"] == "partly-cloudy-night":
-                    image_url = station_url + "/images/clear-day.png"
+                    image_url = belchertown_root_url + "/images/clear-day.png"
                 else:
-                    image_url = station_url + "/images/" + daily_data["icon"] + ".png"
+                    image_url = belchertown_root_url + "/images/" + daily_data["icon"] + ".png"
                 
                 condition_text = ""
                 if daily_data["icon"] == "clear-day":
@@ -414,7 +411,7 @@ class getData(SearchList):
                 if "precipType" in daily_data:
                     if daily_data["precipType"] == "snow":
                         output += '<div class="snow-precip">'
-                        output += '<img src="'+station_url+'/images/snowflake-icon-15px.png"> <span>'+ str( '%.2f' % daily_data["precipAccumulation"] ) +'<span> in'
+                        output += '<img src="'+belchertown_root_url+'/images/snowflake-icon-15px.png"> <span>'+ str( '%.2f' % daily_data["precipAccumulation"] ) +'<span> in'
                         output += '</div>'
                     elif daily_data["precipType"] == "rain":
                         output += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span >'+str( int( daily_data["precipProbability"] * 100 ) )+'%</span>'
@@ -545,7 +542,7 @@ class getData(SearchList):
                   fjs.parentNode.insertBefore(js, fjs);
                 }(document, 'script', 'facebook-jssdk'));</script>
                 <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
-            """ % station_url
+            """ % belchertown_root_url
         else:
             facebook_html = ""
         
@@ -555,7 +552,7 @@ class getData(SearchList):
                     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
                 </script>
                 <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s Weather Conditions" data-via="%s" data-hashtags="%s">Tweet</a>
-            """ % ( station_url, station_location, twitter_owner, twitter_hashtags )
+            """ % ( belchertown_root_url, station_location, twitter_owner, twitter_hashtags )
         else:
             twitter_html = ""
         
