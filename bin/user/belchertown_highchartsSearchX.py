@@ -142,7 +142,7 @@ class highchartsDay(SearchList):
         rain_round = []
         for rainsql in _pob_rain_lookup:
             rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( round( rainsql[1], 2) )
+            rain_round.append( rainsql[1] )
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
 
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
@@ -347,7 +347,7 @@ class highchartsWeek(SearchList):
         rain_round = []
         for rainsql in _pob_rain_lookup:
             rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( round( rainsql[1], 2) )
+            rain_round.append( rainsql[1] )
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
@@ -602,7 +602,7 @@ class highchartsMonth(SearchList):
         rain_round = []
         for rainsql in _pob_rain_lookup:
             rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( round( rainsql[1], 2) )
+            rain_round.append( rainsql[1] )
         pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
