@@ -91,7 +91,7 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
 
 ## Using Metric
 
-If your weewx and your weather station are configured for metric, you can display the metric values in the skin. Just like with the [Standard weewx skin](http://weewx.com/docs/customizing.htm#[Units]), to change the site to metric you would need to add `[[[Units]]]` and `[[[[Groups]]]]` to the Belchertown skin options in `weewx.conf`, with the appropriate group values. For example:
+If your weewx and your weather station are configured for metric, you can display the metric values in the skin. Just like with the [Standard weewx skin](http://weewx.com/docs/customizing.htm#[Units]), to change the site to metric you would need to add `[[[Units]]]` and `[[[[Groups]]]]` to the Belchertown skin options in `weewx.conf`, with the appropriate group values. Restart weewx when you have made the changes. For example:
 
 ```
 [StdReport]
