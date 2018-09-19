@@ -29,11 +29,13 @@ DarkSky API is where the forecast data comes from. The skin will work without Da
 * Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
 
 ### MQTT (optional)
-MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. Your weewx server will **publish** it's weather data to a broker (server) and visitors to your website will **subscribe** to those updates. When data is published the subscribers get that data immediatly. Everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
+MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. 
 
-To set this up you need to setup the [`weewx-mqtt`](https://github.com/weewx/weewx/wiki/mqtt) extension which will publish your weather data to a broker (server). I recommend using version 0.18 or later, since it will publish your weather data on every LOOP and ARCHIVE. 
+You will to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://obrienlabs.net/how-to-setup-your-own-mqtt-broker/), or use a public one (some free, some paid). Your weewx server will **publish** it's weather data to a broker and visitors to your website will **subscribe** to those updates using MQTT Websockets. When data is published the subscribers get that data immediatly. 
 
-[Follow the directions in the weewx wiki to install weewx-mqtt](https://github.com/weewx/weewx/wiki/mqtt). A sample config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
+With the [`weewx-mqtt` extension](https://github.com/weewx/weewx/wiki/mqtt) installed, everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
+
+A sample MQTT extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
 
 ```
     [[MQTT]]
@@ -55,6 +57,10 @@ Your MQTT broker (server) will need to support MQTT websockets in order for the 
 
 ### MQTT Brokers
 
+#### Install your own MQTT Broker
+If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/how-to-setup-your-own-mqtt-broker/). 
+
+#### Use a Public Broker
 These public brokers have been tested as working. If you have others to add the to the list, let me know.
 
 * [test.mosquitto.org](http://test.mosquitto.org)
