@@ -19,7 +19,7 @@ import os
 import configobj
 
 from weewx.cheetahgenerator import SearchList
-from weeutil.weeutil import TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan
+from weeutil.weeutil import TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay
 
 def logmsg(level, msg):
     syslog.syslog(level, 'Belchertown Highcharts Extension: %s' % msg)
@@ -67,9 +67,9 @@ class highchartsDay(SearchList):
             return [search_list_extension]
 
         # Get our start time
-        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
+        _start_ts, _end_ts = archiveDaySpan( timespan.stop )
         
-        stop_struct = time.localtime( int( time.time() ) )
+        stop_struct = time.localtime( timespan.stop )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -136,27 +136,68 @@ class highchartsDay(SearchList):
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         windDir_json = json.dumps(zip(time_ms, windDir_vt[0]))
         
-        #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_round = []
-        for rainsql in _pob_rain_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( rainsql[1] )
-        pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
-
-        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_total = []
+        # Get our rain vector for total accumulation
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain')
+        # Convert our rain vector
+        rain_vt = self.generator.converter.convert(rain_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
         rain_count = 0
-        for rainsql in _pob_rain_totals_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_count = rain_count + rainsql[1]
-            #rain_total.append( round( rainsql[1], 2) )
-            rain_total.append( round( rain_count, 2) )
-        pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        rain_total = []
+        for rain in rain_vt[0]:
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
+        # Get our rainRate vector
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate')
+        # Convert our rain vector
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRateRound_vt = [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
+        rain_round = []
+        for rainRate in rainRate_vt[0]:
+            rain_round.append( rainRate )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above
+        #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_total = []
+        #rain_count = 0
+        #for rainsql in _pob_rain_totals_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    #rain_converted = self.generator.converter.convert( int(rainsql[1] ) )
+        #    rain_count = rain_count + rainsql[1]
+        #    #rain_total.append( round( rainsql[1], 2) )
+        #    rain_total.append( round( rain_count, 2) )
+        #pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # POB rain vector 2.0
+        #_pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_round = []
+        #for rainsql in _pob_rain_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_round.append( rainsql[1] )
+        #pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
+
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation')
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[2], "2f")[-2])
@@ -171,8 +212,8 @@ class highchartsDay(SearchList):
                                  'windchillDayjson' : windchill_json,
                                  'heatindexDayjson' : heatindex_json,
                                  'barometerDayjson' : barometer_json,
-                                 'rainDayjson' : pob_rain_json,
                                  'rainDayTotaljson' : pob_rain_total_json,
+                                 'rainDayjson' : pob_rain_json,
                                  'windSpeedDayjson' : windSpeed_json,
                                  'windGustDayjson' : windGust_json,
                                  'windDirDayjson' : windDir_json,
@@ -222,14 +263,19 @@ class highchartsWeek(SearchList):
         t1 = time.time()
 
         # Get our start time. This returns "last 7 days". If you want "this week starting at 'week_start' from config", see below.
-        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
-        _start_ts = _start_ts - 604800
-        
+        # First get the start of today
+        _ts = startOfDay(timespan.stop)
+        # Then go back 7 days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_ts = time.mktime(_start_dt.timetuple())
+        _end_ts = timespan.stop
+
         # If you want "this week", uncomment this
         #week_start = to_int(self.generator.config_dict["Station"].get('week_start', 6))
-        #_start_ts, _end_ts = archiveWeekSpan( int(time.time()), week_start)
+        #_start_ts, _end_ts = archiveWeekSpan( timespan.stop, week_start)
 
-        stop_struct = time.localtime( int( time.time() ) )
+        stop_struct = time.localtime( timespan.stop )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -307,7 +353,6 @@ class highchartsWeek(SearchList):
         
         # Get our wind speed vector
         (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'max', 3600)
-       
         windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -340,30 +385,70 @@ class highchartsWeek(SearchList):
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-                
-        #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_round = []
-        for rainsql in _pob_rain_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( rainsql[1] )
-        pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
-        
-        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_total = []
+         
+        # Get our rain vector for total accumulation
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 3600)
+        # Convert our rain vector
+        rain_vt = self.generator.converter.convert(rain_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
         rain_count = 0
-        for rainsql in _pob_rain_totals_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_count = rain_count + rainsql[1]
-            rain_total.append( round( rain_count, 2) )
-            #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
+        rain_total = []
+        for rain in rain_vt[0]:
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
+        
+        # Get our rainRate vector
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', '', 3600)
+        # Convert our rain vector
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRateRound_vt = [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
+        rain_round = []
+        for rainRate in rainRate_vt[0]:
+            rain_round.append( rainRate )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
+        #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_total = []
+        #rain_count = 0
+        #for rainsql in _pob_rain_totals_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_count = rain_count + rainsql[1]
+        #    rain_total.append( round( rain_count, 2) )
+        #    #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
         #Now that the dicts are built, do some rounding
         #rainRound_vt =  [roundNone(x,2) for x in rain_total]
         #pob_rain_total_json = json.dumps(zip(rain_time_ms, rainRound_vt))
-        pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        #pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion        
+        # POB rain vector 2.0
+        #_pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_round = []
+        #for rainsql in _pob_rain_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_round.append( rainsql[1] )
+        #pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 3600)
@@ -399,8 +484,8 @@ class highchartsWeek(SearchList):
                                  'windSpeedWeekjson' : windSpeed_json,
                                  'windGustWeekjson' : windGust_json,
                                  'windDirWeekjson' : windDir_json,
-                                 'rainWeekjson' : pob_rain_json,
                                  'rainWeekTotaljson' : pob_rain_total_json,
+                                 'rainWeekjson' : pob_rain_json,
                                  'radiationWeekjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
@@ -451,13 +536,18 @@ class highchartsMonth(SearchList):
         t1 = time.time()
         
         # Get our start time. This is "last 30 days (2592000 seconds)". If you want "this month from day 1, see below"
-        _start_ts, _end_ts = archiveDaySpan( int( time.time() ) )
-        _start_ts = _start_ts - 2592000
+        # First get the start of today
+        _ts = startOfDay(timespan.stop)
+        # Then go back 30 days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=30)
+        _start_ts = time.mktime(_start_dt.timetuple())
+        _end_ts = timespan.stop
 
-        # Start at day 1 of the current month. 
-        #_start_ts, _end_ts = archiveMonthSpan( int( time.time() ) )
+        # Uncomment below if you want start at day 1 of the current month. 
+        #_start_ts, _end_ts = archiveMonthSpan( timespan.stop )
         
-        stop_struct = time.localtime( int( time.time() ) )
+        stop_struct = time.localtime( timespan.stop )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -487,7 +577,6 @@ class highchartsMonth(SearchList):
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         outTempMin_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-        
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 86400)
@@ -595,31 +684,71 @@ class highchartsMonth(SearchList):
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-                
-        #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_round = []
-        for rainsql in _pob_rain_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( rainsql[1] )
-        pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
-        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_total = []
+        # Get our rain vector for total accumulation
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        # Convert our rain vector
+        rain_vt = self.generator.converter.convert(rain_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
         rain_count = 0
-        for rainsql in _pob_rain_totals_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_count = rain_count + rainsql[1]
-            rain_total.append( round( rain_count, 2) )
-            #rain_total.append( rainsql[1] )
-            #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
+        rain_total = []
+        for rain in rain_vt[0]:
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
+        
+        # Get our rainRate vector
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', '', 86400)
+        # Convert our rain vector
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRateRound_vt = [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
+        rain_round = []
+        for rainRate in rainRate_vt[0]:
+            rain_round.append( rainRate )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
+        #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_total = []
+        #rain_count = 0
+        #for rainsql in _pob_rain_totals_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_count = rain_count + rainsql[1]
+        #    rain_total.append( round( rain_count, 2) )
+        #    #rain_total.append( rainsql[1] )
+        #    #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
         #Now that the dicts are built, do some rounding
         #rainRound_vt =  [roundNone(x,2) for x in rain_total]
         #pob_rain_total_json = json.dumps(zip(rain_time_ms, rainRound_vt))
-        pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        #pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # POB rain vector 2.0
+        #_pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rainRate FROM archive WHERE rainRate IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_round = []
+        #for rainsql in _pob_rain_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_round.append( rainsql[1] )
+        #pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 86400)
@@ -659,8 +788,8 @@ class highchartsMonth(SearchList):
                                  'windSpeedAvgMonthjson' : windSpeedAvg_json,
                                  'windGustMonthjson' : windGust_json,
                                  'windDirMonthjson' : windDir_json,
-                                 'rainMonthjson' : pob_rain_json,
                                  'rainMonthTotaljson' : pob_rain_total_json,
+                                 'rainMonthjson' : pob_rain_json,
                                  'radiationMonthjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'MonthPlotStart' : _start_ts * 1000,
@@ -711,9 +840,9 @@ class highchartsYear(SearchList):
         t1 = time.time()
         
         # Start at day 1 of current year
-        _start_ts, _end_ts = archiveYearSpan( int( time.time() ) )
+        _start_ts, _end_ts = archiveYearSpan( timespan.stop )
         
-        stop_struct = time.localtime( int( time.time() ) )
+        stop_struct = time.localtime( timespan.stop )
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
         
         # Get our temperature vector
@@ -847,32 +976,72 @@ class highchartsYear(SearchList):
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-                
-        #POB rain vector 2.0
-        _pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_round = []
-        for rainsql in _pob_rain_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_round.append( rainsql[1] )
-        pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
         
-        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
-        _pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
-        rain_time_ms = []
-        rain_total = []
+        # Get our rain vector for total accumulation
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        # Convert our rain vector
+        rain_vt = self.generator.converter.convert(rain_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
         rain_count = 0
-        for rainsql in _pob_rain_totals_lookup:
-            rain_time_ms.append(float(rainsql[0]) * 1000)
-            rain_count = rain_count + rainsql[1]
-            rain_total.append( round( rain_count, 2) )
-            #rain_total.append( rainsql[1] )
-            #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
+        rain_total = []
+        for rain in rain_vt[0]:
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
+        
+        # Get our rain "bucket tips" vector
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        # Convert our rain vector
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
+        # Don't round. Let Highcharts JS do the rounding. 
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        #rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
+        # Do the rounding
+        #rainRateRound_vt = [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
+        rain_round = []
+        for rainRate in rainRate_vt[0]:
+            rain_round.append( rainRate )
+        # Get our time vector in ms (Highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
+
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # Rain accumulation totals using the timespan. For static 1 day, look at POB archive above.
+        #_pob_rain_totals_lookup = db_lookup().genSql( "SELECT dateTime, rain FROM archive WHERE rain IS NOT NULL and dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_total = []
+        #rain_count = 0
+        #for rainsql in _pob_rain_totals_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_count = rain_count + rainsql[1]
+        #    rain_total.append( round( rain_count, 2) )
+        #    #rain_total.append( rainsql[1] )
+        #    #rain_total.append( round(rainsql[1], 2) ) # Need to automate this from skin_dict?
         #Now that the dicts are built, do some rounding
         #rainRound_vt =  [roundNone(x,2) for x in rain_total]
         #pob_rain_total_json = json.dumps(zip(rain_time_ms, rainRound_vt))
-        pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
-                
+        #pob_rain_total_json = json.dumps(zip(rain_time_ms, rain_total))
+        
+        # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
+        # POB rain vector 2.0
+        #_pob_rain_lookup = db_lookup().genSql("SELECT dateTime, rain FROM archive WHERE dateTime>=%s AND dateTime<=%s" % (_start_ts, _end_ts) )
+        #rain_time_ms = []
+        #rain_round = []
+        #for rainsql in _pob_rain_lookup:
+        #    rain_time_ms.append(float(rainsql[0]) * 1000)
+        #    rain_round.append( rainsql[1] )
+        #pob_rain_json = json.dumps(zip(rain_time_ms, rain_round))
+        
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'radiation', 'max', 86400)
         # Can't use ValueHelper so round our results manually
@@ -911,8 +1080,8 @@ class highchartsYear(SearchList):
                                  'windSpeedAvgYearjson' : windSpeedAvg_json,
                                  'windGustYearjson' : windGust_json,
                                  'windDirYearjson' : windDir_json,
+                                 'rainYearTotaljson' : pob_rain_total_json,
                                  'rainYearjson' : pob_rain_json,
-                                 'rainYearTotaljson' : pob_rain_total_json,                                 
                                  'radiationYearjson' : radiation_json,
                                  'utcOffset': utc_offset,
                                  'YearPlotStart' : _start_ts * 1000,
