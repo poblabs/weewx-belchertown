@@ -74,6 +74,7 @@ class highchartsDay(SearchList):
         
         # Get our temperature vector
         (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp')
+        outTemp_vt = self.generator.converter.convert(outTemp_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outTemp_vt[2], "1f")[-2])
         outTempRound_vt =  [roundNone(x, usageRound) for x in outTemp_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -81,6 +82,7 @@ class highchartsDay(SearchList):
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint')
+        dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(dewpoint_vt[2], "1f")[-2])
         dewpointRound_vt =  [roundNone(x, usageRound) for x in dewpoint_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -88,6 +90,7 @@ class highchartsDay(SearchList):
                 
         # Get our wind chill vector
         (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill')
+        windchill_vt = self.generator.converter.convert(windchill_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windchill_vt[2], "1f")[-2])
         windchillRound_vt =  [roundNone(x, usageRound) for x in windchill_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -95,6 +98,7 @@ class highchartsDay(SearchList):
         
         # Get our heat index vector
         (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex')
+        heatindex_vt = self.generator.converter.convert(heatindex_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(heatindex_vt[2], "1f")[-2])
         heatindexRound_vt =  [roundNone(x, usageRound) for x in heatindex_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -119,6 +123,7 @@ class highchartsDay(SearchList):
 
         # Get our wind speed vector
         (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed')
+        windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windSpeed_vt[2], "1f")[-2])
         windSpeedRound_vt =  [roundNone(x, usageRound) for x in windSpeed_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -126,6 +131,7 @@ class highchartsDay(SearchList):
         
         # Get our wind gust vector
         (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust')
+        windGust_vt = self.generator.converter.convert(windGust_vt)
         usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windGust_vt[2], "1f")[-2])
         windGustRound_vt =  [roundNone(x, usageRound) for x in windGust_vt[0]]
         time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -293,7 +299,6 @@ class highchartsWeek(SearchList):
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 3600)
-
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -552,7 +557,6 @@ class highchartsMonth(SearchList):
         
         # Get our temperature vector
         (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'max', 86400)
-
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
         # Can't use ValueHelper so round our results manually
@@ -566,7 +570,6 @@ class highchartsMonth(SearchList):
        
         # Min temp vector
         (time_start_vt, time_stop_vt, outTemp_min_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'min', 86400)
-
         # Convert our temperature vector
         outTemp_min_vt = self.generator.converter.convert(outTemp_min_vt)
         # Can't use ValueHelper so round our results manually
@@ -580,7 +583,6 @@ class highchartsMonth(SearchList):
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 86400)
-
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
