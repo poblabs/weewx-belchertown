@@ -155,10 +155,11 @@ class highchartsDay(SearchList):
         rain_count = 0
         rain_total = []
         for rain in rain_vt[0]:
-            # If the rain value is not None or is not "", add it
-            if rain:
-                rain_count = rain_count + rain
-                rain_total.append( round( rain_count, 2 ) )
+            # If the rain value is None or "", add it as 0.0
+            if rain is None or rain == "":
+                rain = 0.0
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -406,10 +407,11 @@ class highchartsWeek(SearchList):
         rain_count = 0
         rain_total = []
         for rain in rain_vt[0]:
-            # If the rain value is not None or is not "", add it
-            if rain:
-                rain_count = rain_count + rain
-                rain_total.append( round( rain_count, 2 ) )
+            # If the rain value is None or "", add it as 0.0
+            if rain is None or rain == "":
+                rain = 0.0
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -704,10 +706,11 @@ class highchartsMonth(SearchList):
         rain_count = 0
         rain_total = []
         for rain in rain_vt[0]:
-            # If the rain value is not None or is not "", add it
-            if rain:
-                rain_count = rain_count + rain
-                rain_total.append( round( rain_count, 2 ) )
+            # If the rain value is None or "", add it as 0.0
+            if rain is None or rain == "":
+                rain = 0.0
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -998,10 +1001,11 @@ class highchartsYear(SearchList):
         rain_count = 0
         rain_total = []
         for rain in rain_vt[0]:
-            # If the rain value is not None or is not "", add it
-            if rain:
-                rain_count = rain_count + rain
-                rain_total.append( round( rain_count, 2 ) )
+            # If the rain value is None or "", add it as 0.0
+            if rain is None or rain == "":
+                rain = 0.0
+            rain_count = rain_count + rain
+            rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
