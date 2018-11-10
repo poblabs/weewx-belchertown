@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8rc1"
+VERSION = "0.8rc2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -119,13 +119,79 @@ class getData(SearchList):
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
         #_start_ts = startOfInterval(year_start_epoch ,86400) # This is the current calendar year
         
+        # Setup the converter
+        # Get the target unit nickname (something like 'US' or 'METRIC'):
+        target_unit_nickname = self.generator.config_dict['StdConvert']['target_unit']
+        # Get the target unit: weewx.US, weewx.METRIC, weewx.METRICWX
+        target_unit = weewx.units.unit_constants[target_unit_nickname.upper()]
+        # Bind to the appropriate standard converter units
+        converter = weewx.units.StdUnitConverters[target_unit]
         
         # Temperature Range Lookups
-        year_temp_range_max = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total DESC LIMIT 1;' % year_start_epoch )
-        year_temp_range_min = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total ASC LIMIT 1;' % year_start_epoch )
-        at_temp_range_max = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp ORDER BY total DESC LIMIT 1;' )
-        at_temp_range_min = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp ORDER BY total ASC LIMIT 1;' )
+                
+        # 1. The database query finds the result based off the total column.
+        # 2. We need to convert the min, max to the site's requested unit.
+        # 3. We need to re-calculate the min/max range because the unit may have changed. 
 
+        year_outTemp_max_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total DESC LIMIT 1;' % year_start_epoch )
+        year_outTemp_min_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp WHERE dateTime >= %s ORDER BY total ASC LIMIT 1;' % year_start_epoch )
+        at_outTemp_max_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp ORDER BY total DESC LIMIT 1;' )
+        at_outTemp_min_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1), ROUND( max, 1) FROM archive_day_outTemp ORDER BY total ASC LIMIT 1;' )
+        
+        # Find the group_name for outTemp
+        outTemp_unit = converter.group_unit_dict["group_temperature"]
+        
+        # Find the number of decimals to round to
+        outTemp_round = int(self.generator.skin_dict['Units']['StringFormats'].get("group_temperature", "1f")[-2])
+
+        # Largest Daily Temperature Range Conversions
+        # Max temperature for this day
+        year_outTemp_max_range_max_tuple = (year_outTemp_max_range_query[3], outTemp_unit, 'group_temperature')
+        year_outTemp_max_range_max = round( self.generator.converter.convert(year_outTemp_max_range_max_tuple)[0], outTemp_round )
+        # Min temperature for this day
+        year_outTemp_max_range_min_tuple = (year_outTemp_max_range_query[2], outTemp_unit, 'group_temperature')
+        year_outTemp_max_range_min = round ( self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0], outTemp_round )
+        # Largest Daily Temperature Range total
+        year_outTemp_max_range_total = round( year_outTemp_max_range_max - year_outTemp_max_range_min, outTemp_round )
+        
+        # Smallest Daily Temperature Range Conversions
+        # Max temperature for this day
+        year_outTemp_min_range_max_tuple = (year_outTemp_min_range_query[3], outTemp_unit, 'group_temperature')
+        year_outTemp_min_range_max = round( self.generator.converter.convert(year_outTemp_min_range_max_tuple)[0], outTemp_round )
+        # Min temperature for this day
+        year_outTemp_min_range_min_tuple = (year_outTemp_min_range_query[2], outTemp_unit, 'group_temperature')
+        year_outTemp_min_range_min = round( self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0], outTemp_round )
+        # Smallest Daily Temperature Range total
+        year_outTemp_min_range_total = round( year_outTemp_min_range_max - year_outTemp_min_range_min, outTemp_round )
+        
+        # All Time - Largest Daily Temperature Range Conversions
+        # Max temperature
+        at_outTemp_max_range_max_tuple = (at_outTemp_max_range_query[3], outTemp_unit, 'group_temperature')
+        at_outTemp_max_range_max = round( self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0], outTemp_round )
+        # Min temperature for this day
+        at_outTemp_max_range_min_tuple = (at_outTemp_max_range_query[2], outTemp_unit, 'group_temperature')
+        at_outTemp_max_range_min = round ( self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0], outTemp_round )
+        # Largest Daily Temperature Range total
+        at_outTemp_max_range_total = round( at_outTemp_max_range_max - at_outTemp_max_range_min, outTemp_round )
+
+        # All Time - Smallest Daily Temperature Range Conversions
+        # Max temperature for this day
+        at_outTemp_min_range_max_tuple = (at_outTemp_min_range_query[3], outTemp_unit, 'group_temperature')
+        at_outTemp_min_range_max = round( self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0], outTemp_round )
+        # Min temperature for this day
+        at_outTemp_min_range_min_tuple = (at_outTemp_min_range_query[2], outTemp_unit, 'group_temperature')
+        at_outTemp_min_range_min = round( self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0], outTemp_round )
+        # Smallest Daily Temperature Range total
+        at_outTemp_min_range_total = round( at_outTemp_min_range_max - at_outTemp_min_range_min, outTemp_round )
+
+        
+        # Replace the SQL Query output with the converted values
+        year_temp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
+        year_temp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
+        at_temp_range_max = [ at_outTemp_max_range_query[0], at_outTemp_max_range_total, at_outTemp_max_range_min, at_outTemp_max_range_max ]
+        at_temp_range_min = [ at_outTemp_min_range_query[0], at_outTemp_min_range_total, at_outTemp_min_range_min, at_outTemp_min_range_max ]
+
+        
         # Rain lookups
         rainiest_day = wx_manager.getSql( 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
 
