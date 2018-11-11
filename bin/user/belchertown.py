@@ -184,7 +184,6 @@ class getData(SearchList):
         # Smallest Daily Temperature Range total
         at_outTemp_min_range_total = round( at_outTemp_min_range_max - at_outTemp_min_range_min, outTemp_round )
 
-        
         # Replace the SQL Query output with the converted values
         year_temp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
         year_temp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
@@ -193,11 +192,25 @@ class getData(SearchList):
 
         
         # Rain lookups
-        rainiest_day = wx_manager.getSql( 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
+        
+        # Find the group_name for rain
+        rain_unit = converter.group_unit_dict["group_rain"]
+        
+        # Find the number of decimals to round to
+        rain_round = int(self.generator.skin_dict['Units']['StringFormats'].get("group_rain", "2f")[-2])
+        
+        # Rainiest Day
+        rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
+        rainiest_day_tuple = (rainiest_day_query[1], rain_unit, 'group_rain')
+        rainiest_day_converted = round( self.generator.converter.convert(rainiest_day_tuple)[0], rain_round )
+        rainiest_day = [ rainiest_day_query[0], rainiest_day_converted ]
 
-        at_rainiest_day = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
-        at_rainiest_day = list( at_rainiest_day )
-        at_rainiest_day[0] = time.strftime( "%B %d, %Y at %-I:%M %p", time.localtime( at_rainiest_day[0] ) )
+        # All Time Rainiest Day
+        at_rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
+        at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, 'group_rain')
+        at_rainiest_day_converted = round( self.generator.converter.convert(at_rainiest_day_tuple)[0], rain_round )
+        at_rainiest_day = [ time.strftime( "%B %d, %Y at %-I:%M %p", time.localtime( at_rainiest_day_query[0] ) ), at_rainiest_day_converted ]
+                
 
         # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
         dbtype = self.generator.config_dict['DataBindings']['wx_binding']['database']
@@ -213,15 +226,16 @@ class getData(SearchList):
             at_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain;'
 
         # Rainiest month
-        year_rainiest_month = wx_manager.getSql( year_rainiest_month_sql )
-        year_rainiest_month = list( year_rainiest_month )
-        year_rainiest_month[0] = calendar.month_name[ int( year_rainiest_month[0] ) ]
-        
-        at_rainiest_month = wx_manager.getSql( at_rainiest_month_sql )
-        at_rainiest_month = list( at_rainiest_month )
-        at_rainiest_month_name = calendar.month_name[ int( at_rainiest_month[0] ) ]
-        at_rainiest_month[0] = at_rainiest_month_name + ", " + at_rainiest_month[1] # Result: "June, 2018"
-        del at_rainiest_month[1] # Remove the year from the list since it's not needed
+        year_rainiest_month_query = wx_manager.getSql( year_rainiest_month_sql )
+        year_rainiest_month_tuple = (year_rainiest_month_query[1], rain_unit, 'group_rain')
+        year_rainiest_month_converted = round( self.generator.converter.convert(year_rainiest_month_tuple)[0], rain_round )
+        year_rainiest_month = [ calendar.month_name[ int( year_rainiest_month_query[0] ) ], year_rainiest_month_converted ]
+
+        # All time rainiest month
+        at_rainiest_month_query = wx_manager.getSql( at_rainiest_month_sql )
+        at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, 'group_rain')
+        at_rainiest_month_converted = round( self.generator.converter.convert(at_rainiest_month_tuple)[0], rain_round )
+        at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], at_rainiest_month_converted ]
         
         # Consecutive days with/without rainfall
         # dateTime needs to be epoch. Conversion done in the template using #echo
