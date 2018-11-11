@@ -443,7 +443,6 @@
             if ( data.hasOwnProperty("interval_minute") ) {
                 // Delays are recommended to allow the other skins to complete processing
                 console.log("MQTT message indicates this is an archive interval.");
-                setTimeout( daily, 30000 ); // Load updated graphs
                 setTimeout( ajaxweewx, 10000 ); // Update weewx data
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
             }
