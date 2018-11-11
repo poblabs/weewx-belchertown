@@ -33,19 +33,7 @@
         <![endif]-->
         <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
-        #if $page == "home" and $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
-        #end if
-        #if $page == "home" or $page == "graphs"
-        <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
-        <script type='text/javascript' src='$belchertown_root_url/js/highcharts-dayplots.js'></script>
-        #end if
-        #if $page == "graphs"
-        <script type='text/javascript' src='$belchertown_root_url/js/highcharts-weekplots.js'></script>
-        <script type='text/javascript' src='$belchertown_root_url/js/highcharts-monthplots.js'></script>
-        <script type='text/javascript' src='$belchertown_root_url/js/highcharts-yearplots.js'></script>
-        #end if
         
         <link rel='shortlink' href='$belchertown_root_url/' />
                 
