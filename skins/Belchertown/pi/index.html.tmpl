@@ -384,9 +384,6 @@
             jQuery(".offlineMarker").hide();
             jQuery(".loadingMarker").show();            
             client.subscribe( "$Extras.mqtt_topic" );
-            #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
-            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
-            #end if
         }
         
         function onFailure() {
