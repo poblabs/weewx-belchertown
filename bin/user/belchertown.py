@@ -242,7 +242,11 @@ class getData(SearchList):
         at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], at_rainiest_month_converted ]
         
         # All time rainiest year
-        at_rain_highest_year = wx_manager.getSql( at_rain_highest_year_sql )
+        at_rain_highest_year_query = wx_manager.getSql( at_rain_highest_year_sql )
+        at_rain_highest_year_tuple = (at_rain_highest_year_query[1], rain_unit, 'group_rain')
+        at_rain_highest_year_converted = round( self.generator.converter.convert(at_rain_highest_year_tuple)[0], rain_round )
+        at_rain_highest_year = [ at_rain_highest_year_query[0], at_rain_highest_year_converted ]
+        
         
         # Consecutive days with/without rainfall
         # dateTime needs to be epoch. Conversion done in the template using #echo
