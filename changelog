@@ -1,3 +1,18 @@
+0.8 November ??, 2018
+* A lot of metric conversion fixes. A lot. 
+* More metric conversions fixes.
+* Now have belchertown_root_url in place of station_url. This means you can run your station on a different URL than station_url. The station_url can be used to show your station on the weewx.com map. So the belchertown_root_url was added in case you did not want that, or if you want to run test sites, offline sites, or have Belchertown on a different folder or site all together than station_url.
+* Better fallback method if the earthquake data has no recent earthquakes.
+* Added option to change DarkSky language. Use darksky_lang in configs.
+* Add rainfall total line graph to year graphs.
+* Show rainRate on day, week, month charts instead of bucket tips. This makes for a much more interesting graph. 
+* Remove rounding on the rainRate chart
+* Added a windy.png icon, which is a clone of wind.png. Sometimes DarkSky wants wind.png and other times windy.png
+* Added a Raspberry Pi kiosk page. 
+    * This is handy if you want a 2nd console display using a [Raspberry Pi and a 3.5" TFT screen like this one](https://amzn.to/2z37wlV). An example of it in use can be seen here.
+    * This page also does not have the MQTT timeout, so the Kiosk console display will update forever.
+
+
 0.7 September 8, 2018
 * Separate Highcharts from the main skin into its own skin. In testing this has shown to speed up skin generation times. **Strongly advise you to uninstall Belchertown skin, and install 0.7 as a new skin**. Also, **be sure to have a backup of your skin customizations**
 * The highcharts extension gets its options from the Belchertown main skin. Keep your highcharts options under Belchertown's main Extras section. 
