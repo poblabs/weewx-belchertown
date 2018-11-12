@@ -215,16 +215,20 @@ class getData(SearchList):
         # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
         dbtype = self.generator.config_dict['DataBindings']['wx_binding']['database']
         if dbtype == "archive_sqlite":
-            year_rainiest_month_sql = 'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1' % time.strftime( "%Y", time.localtime( time.time() ) )
-            at_rainiest_month_sql = 'SELECT strftime("%m", datetime(dateTime, "unixepoch")) as month, strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1'
-            year_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s"' % time.strftime( "%Y", time.localtime( time.time() ) )
-            at_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain'
+            year_rainiest_month_sql = 'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1;' % time.strftime( "%Y", time.localtime( time.time() ) )
+            at_rainiest_month_sql = 'SELECT strftime("%m", datetime(dateTime, "unixepoch")) as month, strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
+            year_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s";' % time.strftime( "%Y", time.localtime( time.time() ) )
+            at_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain;'
+            # The all stats from http://www.weewx.com/docs/customizing.htm doesn't seem to calculate "Total Rainfall for" all time stat correctly. 
+            at_rain_highest_year_sql = 'SELECT strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY year ORDER BY total DESC LIMIT 1;'
         elif dbtype == "archive_mysql":
             year_rainiest_month_sql = 'SELECT FROM_UNIXTIME( dateTime, "%%m" ) AS month, ROUND( SUM( sum ), 2 ) AS total FROM archive_day_rain WHERE year( FROM_UNIXTIME( dateTime ) ) = "{0}" GROUP BY month ORDER BY total DESC LIMIT 1;'.format( time.strftime( "%Y", time.localtime( time.time() ) ) ) # Why does this one require .format() but the other's don't?
             at_rainiest_month_sql = 'SELECT FROM_UNIXTIME( dateTime, "%%m" ) AS month, FROM_UNIXTIME( dateTime, "%%Y" ) AS year, ROUND( SUM( sum ), 2 ) AS total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
             year_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE year( FROM_UNIXTIME( dateTime ) ) = "%s";' % time.strftime( "%Y", time.localtime( time.time() ) )
             at_rain_data_sql = 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain;'
-
+            # The all stats from http://www.weewx.com/docs/customizing.htm doesn't seem to calculate "Total Rainfall for" all time stat correctly. 
+            at_rain_highest_year_sql = 'SELECT FROM_UNIXTIME( dateTime, "%%Y" ) AS year, ROUND( SUM( sum ), 2 ) AS total FROM archive_day_rain GROUP BY year ORDER BY total DESC LIMIT 1;'
+            
         # Rainiest month
         year_rainiest_month_query = wx_manager.getSql( year_rainiest_month_sql )
         year_rainiest_month_tuple = (year_rainiest_month_query[1], rain_unit, 'group_rain')
@@ -236,6 +240,9 @@ class getData(SearchList):
         at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, 'group_rain')
         at_rainiest_month_converted = round( self.generator.converter.convert(at_rainiest_month_tuple)[0], rain_round )
         at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], at_rainiest_month_converted ]
+        
+        # All time rainiest year
+        at_rain_highest_year = wx_manager.getSql( at_rain_highest_year_sql )
         
         # Consecutive days with/without rainfall
         # dateTime needs to be epoch. Conversion done in the template using #echo
@@ -666,6 +673,7 @@ class getData(SearchList):
                                   'at_rainiest_day': at_rainiest_day,
                                   'year_rainiest_month': year_rainiest_month,
                                   'at_rainiest_month': at_rainiest_month,
+                                  'at_rain_highest_year': at_rain_highest_year,
                                   'year_days_with_rain': year_days_with_rain,
                                   'year_days_without_rain': year_days_without_rain,
                                   'at_days_with_rain': at_days_with_rain,
