@@ -9,7 +9,7 @@
 * Remove rounding on the rainRate chart
 * Added a windy.png icon, which is a clone of wind.png. Sometimes DarkSky wants wind.png and other times windy.png
 * Added a Raspberry Pi kiosk page. 
-    * This is handy if you want a 2nd console display using a [Raspberry Pi and a 3.5" TFT screen like this one](https://amzn.to/2z37wlV). An example of it in use can be seen here.
+    * This is handy if you want a 2nd console display using a [Raspberry Pi and a 3.5" TFT screen like this one](https://amzn.to/2z37wlV). An example of it in use [can be seen here](https://obrienlabs.net/redirecting-weather-station-data-from-observerip/#website).
     * This page also does not have the MQTT timeout, so the Kiosk console display will update forever.
 
 
