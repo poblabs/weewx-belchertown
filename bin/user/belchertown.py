@@ -185,10 +185,10 @@ class getData(SearchList):
         at_outTemp_min_range_total = round( at_outTemp_min_range_max - at_outTemp_min_range_min, outTemp_round )
 
         # Replace the SQL Query output with the converted values
-        year_temp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
-        year_temp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
-        at_temp_range_max = [ at_outTemp_max_range_query[0], at_outTemp_max_range_total, at_outTemp_max_range_min, at_outTemp_max_range_max ]
-        at_temp_range_min = [ at_outTemp_min_range_query[0], at_outTemp_min_range_total, at_outTemp_min_range_min, at_outTemp_min_range_max ]
+        year_outTemp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
+        year_outTemp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
+        at_outTemp_range_max = [ at_outTemp_max_range_query[0], at_outTemp_max_range_total, at_outTemp_max_range_min, at_outTemp_max_range_max ]
+        at_outTemp_range_min = [ at_outTemp_min_range_query[0], at_outTemp_min_range_total, at_outTemp_min_range_min, at_outTemp_min_range_max ]
 
         
         # Rain lookups
@@ -669,10 +669,10 @@ class getData(SearchList):
                                   'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
                                   'alltime' : all_stats,
-                                  'year_temp_range_max': year_temp_range_max,
-                                  'year_temp_range_min': year_temp_range_min,
-                                  'at_temp_range_max' : at_temp_range_max,
-                                  'at_temp_range_min': at_temp_range_min,
+                                  'year_outTemp_range_max': year_outTemp_range_max,
+                                  'year_outTemp_range_min': year_outTemp_range_min,
+                                  'at_outTemp_range_max' : at_outTemp_range_max,
+                                  'at_outTemp_range_min': at_outTemp_range_min,
                                   'rainiest_day': rainiest_day,
                                   'at_rainiest_day': at_rainiest_day,
                                   'year_rainiest_month': year_rainiest_month,
