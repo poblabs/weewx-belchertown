@@ -53,7 +53,7 @@ class getData(SearchList):
             else:
                 belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
         except:
-            raise Warning( "Error with Belchertown skin. You must define your station_url in weewx.conf or add the belchertown_root_url skin option for your site's URL. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide if you have questions." )
+            raise Warning( "Error with Belchertown skin. You must define your website URL using station_url or belchertown_root_url in weewx.conf (preferred) or skin.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide on GitHub if you have questions." )
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
