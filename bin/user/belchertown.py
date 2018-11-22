@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8rc2"
+VERSION = "0.8rc3"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -128,7 +128,7 @@ class getData(SearchList):
         converter = weewx.units.StdUnitConverters[target_unit]
         
         # Temperature Range Lookups
-                
+        
         # 1. The database query finds the result based off the total column.
         # 2. We need to convert the min, max to the site's requested unit.
         # 3. We need to re-calculate the min/max range because the unit may have changed. 

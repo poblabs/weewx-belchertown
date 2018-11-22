@@ -139,13 +139,13 @@ function yearly() {
 
     var optionsWindchill = {
         chart: {
-            plotBackgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                stops: [
-                    [0, '#FCFFC5'],
-                    [1, '#E0E0FF']
-                ]
-            },
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
             renderTo: 'windchillplot',
             spacing: [5, 10, 10, 0],
             type: 'line',
@@ -183,17 +183,30 @@ function yearly() {
             minorGridLineWidth: 0,
             startOnTick: true,
             title: {
-            }
+            },
+            opposite: false
         },
 
         plotOptions: {
             line: {
-                lineWidth: 1,
+                lineWidth: 2,
                 marker: {
                     enabled: false
                 }
             }
         },
+		// Define the plot colors in order as they are loaded below
+		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
 
         tooltip: {
             enabled: true,
@@ -208,13 +221,13 @@ function yearly() {
 
     var optionsHumidity = {
         chart: {
-            plotBackgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                stops: [
-                    [0, '#FCFFC5'],
-                    [1, '#E0E0FF']
-                ]
-            },
+            //plotBackgroundColor: {
+            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            //    stops: [
+            //        [0, '#FCFFC5'],
+            //        [1, '#E0E0FF']
+            //    ]
+            //},
             renderTo: 'humidityplot',
             spacing: [5, 10, 10, 0],
             type: 'line',
@@ -254,12 +267,13 @@ function yearly() {
             startOnTick: true,
             title:  {
                 text: '(%)'
-            }
+            },
+            opposite: false
         },
 
         plotOptions: {
             line: {
-                lineWidth: 1,
+                lineWidth: 2,
                 marker: {
                     enabled: false
                 }
@@ -268,6 +282,18 @@ function yearly() {
                 color: '#4242B4'
             }
         },
+		// Define the plot colors in order as they are loaded below
+		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
+		
+		scrollbar: {
+			enabled: false
+        },
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			enabled: false
+		},
 
         tooltip: {
             enabled: true,
@@ -745,11 +771,11 @@ function yearly() {
         //optionsTemp.series[3] = seriesData[0].windchillplot.series.heatindex;
         optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
         //optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
-        //optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
-        //optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
-        //optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
-        //optionsWindchill.yAxis.title.text = seriesData[0].windchillplot.yAxisLabel.text;
-        //optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
+        optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
+        optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
+        optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
+        optionsWindchill.yAxis.title.text = seriesData[0].windchillplot.yAxisLabel.text;
+        optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
         optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
         optionsBarometer.yAxis.title.text = seriesData[0].barometerplot.yAxisLabel.text;
         optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
@@ -764,14 +790,41 @@ function yearly() {
         optionsRain.series[1].color = '#000';
         optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
         optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
-        //var chart = new Highcharts.Chart(optionsWindchill);
-        //var chart = new Highcharts.Chart(optionsHumidity);
+
+        // Load a chart based on whats selected in options
+        #if $Extras.highcharts_graph_1 == 'windchillplot' or $Extras.highcharts_graph_2 == 'windchillplot' or $Extras.highcharts_graph_3 == 'windchillplot' or $Extras.highcharts_graph_4 == 'windchillplot' or $Extras.highcharts_graph_5 == 'windchillplot' or $Extras.highcharts_graph_6 == 'windchillplot'
+        var chart = new Highcharts.StockChart(optionsWindchill);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'humidityplot' or $Extras.highcharts_graph_2 == 'humidityplot' or $Extras.highcharts_graph_3 == 'humidityplot' or $Extras.highcharts_graph_4 == 'humidityplot' or $Extras.highcharts_graph_5 == 'humidityplot' or $Extras.highcharts_graph_6 == 'humidityplot'
+        var chart = new Highcharts.StockChart(optionsHumidity);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'temperatureplot' or $Extras.highcharts_graph_2 == 'temperatureplot' or $Extras.highcharts_graph_3 == 'temperatureplot' or $Extras.highcharts_graph_4 == 'temperatureplot' or $Extras.highcharts_graph_5 == 'temperatureplot' or $Extras.highcharts_graph_6 == 'temperatureplot'
         var chart = new Highcharts.StockChart(optionsTemp);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'barometerplot' or $Extras.highcharts_graph_2 == 'barometerplot' or $Extras.highcharts_graph_3 == 'barometerplot' or $Extras.highcharts_graph_4 == 'barometerplot' or $Extras.highcharts_graph_5 == 'barometerplot' or $Extras.highcharts_graph_6 == 'barometerplot'
         var chart = new Highcharts.StockChart(optionsBarometer);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'windplot' or $Extras.highcharts_graph_2 == 'windplot' or $Extras.highcharts_graph_3 == 'windplot' or $Extras.highcharts_graph_4 == 'windplot' or $Extras.highcharts_graph_5 == 'windplot' or $Extras.highcharts_graph_6 == 'windplot'
         var chart = new Highcharts.StockChart(optionsWind);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'winddirplot' or $Extras.highcharts_graph_2 == 'winddirplot' or $Extras.highcharts_graph_3 == 'winddirplot' or $Extras.highcharts_graph_4 == 'winddirplot' or $Extras.highcharts_graph_5 == 'winddirplot' or $Extras.highcharts_graph_6 == 'winddirplot'
         var chart = new Highcharts.StockChart(optionsWindDir);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'rainplot' or $Extras.highcharts_graph_2 == 'rainplot' or $Extras.highcharts_graph_3 == 'rainplot' or $Extras.highcharts_graph_4 == 'rainplot' or $Extras.highcharts_graph_5 == 'rainplot' or $Extras.highcharts_graph_6 == 'rainplot'
         var chart = new Highcharts.StockChart(optionsRain);
+        #end if
+        
+        #if $Extras.highcharts_graph_1 == 'radiationplot' or $Extras.highcharts_graph_2 == 'radiationplot' or $Extras.highcharts_graph_3 == 'radiationplot' or $Extras.highcharts_graph_4 == 'radiationplot' or $Extras.highcharts_graph_5 == 'radiationplot' or $Extras.highcharts_graph_6 == 'radiationplot'
         var chart = new Highcharts.StockChart(optionsRadiation);
+        #end if        
+
+
         Highcharts.setOptions({
             global: {
                 timezoneOffset: -seriesData[0].utcoffset,
