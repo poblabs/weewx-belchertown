@@ -664,7 +664,8 @@ class getData(SearchList):
 
             
         # Build the search list with the new values
-        search_list_extension = { 'belchertown_root_url': belchertown_root_url,
+        search_list_extension = { 'belchertown_version': VERSION,
+                                  'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
