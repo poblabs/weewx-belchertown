@@ -860,8 +860,10 @@ function daily () {
         optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
         optionsTemp.series[2] = seriesData[0].windchillplot.series.windchill;
         optionsTemp.series[3] = seriesData[0].windchillplot.series.heatindex;
+        #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+        optionsTemp.series[4] = seriesData[0].temperatureplot.series.appTemp;
+        #end if
         optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
-        //optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
         optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
         optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
         //optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
