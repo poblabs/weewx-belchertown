@@ -858,13 +858,13 @@ function daily () {
     jQuery.getJSON('$belchertown_root_url/json/day.json', function(seriesData) {
         optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
         optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
-        #if $Extras.has_key('highcharts_show_windChill') and $Extras.highcharts_show_windChill == '1'
+        #if $Extras.has_key('highcharts_show_windchill') and $Extras.highcharts_show_windchill == '1'
         optionsTemp.series[2] = seriesData[0].windchillplot.series.windchill;
         #end if
-        #if $Extras.has_key('highcharts_show_heatIndex') and $Extras.highcharts_show_heatIndex == '1'
+        #if $Extras.has_key('highcharts_show_heatindex') and $Extras.highcharts_show_heatindex == '1'
         optionsTemp.series[3] = seriesData[0].windchillplot.series.heatindex;
         #end if
-        #if $Extras.has_key('highcharts_show_appTemp') and $Extras.highcharts_show_appTemp == '1'
+        #if $Extras.has_key('highcharts_show_apptemp') and $Extras.highcharts_show_apptemp == '1'
         optionsTemp.series[4] = seriesData[0].temperatureplot.series.appTemp;
         #end if
         optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
