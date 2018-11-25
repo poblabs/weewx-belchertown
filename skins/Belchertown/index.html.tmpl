@@ -848,9 +848,17 @@
                             #end if
                         </div>
                         <!-- End of first row -->
+                        
+                        #if $index_hook_after_station_info_enabled == 1
+                        <!-- Start of index_hook_after_station_info row -->
+                        <div class="row border-bottom">
+                            $index_hook_after_station_info_text
+                        </div>
+                        <!-- End of index_hook_after_station_info row -->
+                        #end if
 
                         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                        <!-- Start of second row -->        
+                        <!-- Start of second row -->
                         <div class="row forecastrow">
                             <!-- Forecast -->
                             <div class="col-lg-12 forecast">
@@ -864,6 +872,14 @@
                         </div>
                         <!-- End of second row -->
                         #end if
+                        
+                        #if $index_hook_after_forecast_enabled == 1
+                        <!-- Start of index_hook_after_forecast row -->
+                        <div class="row border-bottom">
+                            $index_hook_after_forecast_text
+                        </div>
+                        <!-- End of index_hook_after_forecast row -->
+                        #end if                        
                         
                         <!-- Start of third row -->
                         <div class="row eq-stats-row">            
@@ -952,6 +968,14 @@
                         </div>
                         <!-- End of third row -->
                         
+                        #if $index_hook_after_snapshot_enabled == 1
+                        <!-- Start of index_hook_after_snapshot row -->
+                        <div class="row border-bottom">
+                            $index_hook_after_snapshot_text
+                        </div>
+                        <!-- End of index_hook_after_snapshot row -->
+                        #end if                          
+                        
                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                         <!-- Begin of fourth row -->
                         <div class="row highcharts-row graph">
@@ -990,8 +1014,16 @@
                         </div>
                         <!-- End of sixth row -->
                         #end if
-                                
+                        
                         <div class="clear"></div>
+                        
+                        #if $index_hook_after_charts_enabled == 1
+                        <!-- Start of index_hook_after_charts row -->
+                        <div class="row border-top">
+                            $index_hook_after_charts_text
+                        </div>
+                        <!-- End of index_hook_after_charts row -->
+                        #end if  
                         
                     </div> <!-- End entry-content -->
                     

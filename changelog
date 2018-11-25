@@ -4,6 +4,7 @@
 * Now uses new option belchertown_root_url and falls back to station_url for the URL of your weather station. The CSS and JavaScript files are dependant on this setting. 
     * This new setting means you can run your station on a different URL than station_url. The station_url can be used to show your station on the weewx.com map. So the belchertown_root_url was added in case you did not want that, or if you want to run test sites, offline sites, or have Belchertown on a different folder or site all together than station_url.
 * You can now select your own graph order and also can pick from 8 graphs to show in 6 positions. Details on the user guide on GitHub
+* 4 Custom rows now available on index page for you to customize content. Check the readme on GitHub for more info on how to use these areas.
 * Better fallback method if the earthquake data has no recent earthquakes.
 * Added option to change DarkSky language. Use darksky_lang in configs.
 * Add rainfall total line graph to year graphs.

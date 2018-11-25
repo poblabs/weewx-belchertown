@@ -1427,6 +1427,10 @@ li.comment {
 	border-top: 1px solid #D7D7D7 !important;
 }
 
+.border-bottom {
+	border-bottom: 1px solid #D7D7D7 !important;
+}
+
 .border-left {
 	border-left: 1px solid #D7D7D7 !important;
 }
@@ -1578,7 +1582,7 @@ li.comment {
 }
 
 
-.temperature-row, .forecastrow {
+.temperature-row, .forecastrow, .eq-stats-row {
 	border-bottom:1px solid #D7D7D7;
 }
 
@@ -1899,7 +1903,7 @@ li.comment {
 }
 
 .highcharts-row {
-	border-top:1px solid #D7D7D7;
+	/* border-top:1px solid #D7D7D7; */
 	/* margin-top:25px; */
 }
 

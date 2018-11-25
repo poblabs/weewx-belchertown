@@ -106,6 +106,62 @@ class getData(SearchList):
             # File doesn't exist - show nothing. 
             pass        
         
+        # Custom Row 1 on index. Between station info and forecast
+        index_hook_after_station_info_enabled = 0
+        index_hook_after_station_info_file = local_skin_root + "/index_hook_after_station_info.inc"
+        index_hook_after_station_info_text = ""
+        try:
+            with open( index_hook_after_station_info_file, 'r' ) as ihasif:
+                index_hook_after_station_info_text = ihasif.read()
+        except:
+            # File doesn't exist - show nothing. 
+            pass
+        # Check whether or not to display the custom hook area
+        if index_hook_after_station_info_text != "":
+            index_hook_after_station_info_enabled = 1
+            
+        # Custom Row 2 on index. Between forecast and snapshot records row
+        index_hook_after_forecast_enabled = 0
+        index_hook_after_forecast_file = local_skin_root + "/index_hook_after_forecast.inc"
+        index_hook_after_forecast_text = ""
+        try:
+            with open( index_hook_after_forecast_file, 'r' ) as ihaff:
+                index_hook_after_forecast_text = ihaff.read()
+        except:
+            # File doesn't exist - show nothing. 
+            pass
+        # Check whether or not to display the custom hook area
+        if index_hook_after_forecast_text != "":
+            index_hook_after_forecast_enabled = 1
+            
+        # Custom Row 3 on index. Between snapshot records row and the graphs
+        index_hook_after_snapshot_enabled = 0
+        index_hook_after_snapshot_file = local_skin_root + "/index_hook_after_snapshot.inc"
+        index_hook_after_snapshot_text = ""
+        try:
+            with open( index_hook_after_snapshot_file, 'r' ) as ihasf:
+                index_hook_after_snapshot_text = ihasf.read()
+        except:
+            # File doesn't exist - show nothing. 
+            pass
+        # Check whether or not to display the custom hook area
+        if index_hook_after_snapshot_text != "":
+            index_hook_after_snapshot_enabled = 1
+            
+        # Custom Row 4 on index. After the charts
+        index_hook_after_charts_enabled = 0
+        index_hook_after_charts_file = local_skin_root + "/index_hook_after_charts.inc"
+        index_hook_after_charts_text = ""
+        try:
+            with open( index_hook_after_charts_file, 'r' ) as ihacf:
+                index_hook_after_charts_text = ihacf.read()
+        except:
+            # File doesn't exist - show nothing. 
+            pass
+        # Check whether or not to display the custom hook area
+        if index_hook_after_charts_text != "":
+            index_hook_after_charts_enabled = 1
+        
         
         """
         Build the all time stats.
@@ -669,6 +725,14 @@ class getData(SearchList):
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
+                                  'index_hook_after_station_info_enabled': index_hook_after_station_info_enabled,
+                                  'index_hook_after_station_info_text': index_hook_after_station_info_text,
+                                  'index_hook_after_forecast_enabled': index_hook_after_forecast_enabled,
+                                  'index_hook_after_forecast_text': index_hook_after_forecast_text,
+                                  'index_hook_after_snapshot_enabled': index_hook_after_snapshot_enabled,
+                                  'index_hook_after_snapshot_text': index_hook_after_snapshot_text,
+                                  'index_hook_after_charts_enabled': index_hook_after_charts_enabled,
+                                  'index_hook_after_charts_text': index_hook_after_charts_text,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,
