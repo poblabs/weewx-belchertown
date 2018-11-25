@@ -763,18 +763,6 @@ function weekly() {
     };
 
     jQuery.getJSON('$belchertown_root_url/json/week.json', function(seriesData) {
-        optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
-        optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
-        #if $Extras.has_key('highcharts_show_windchill') and $Extras.highcharts_show_windchill == '1'
-        optionsTemp.series[2] = seriesData[0].windchillplot.series.windchill;
-        #end if
-        #if $Extras.has_key('highcharts_show_heatindex') and $Extras.highcharts_show_heatindex == '1'
-        optionsTemp.series[3] = seriesData[0].windchillplot.series.heatindex;
-        #end if
-        #if $Extras.has_key('highcharts_show_apptemp') and $Extras.highcharts_show_apptemp == '1'
-        optionsTemp.series[4] = seriesData[0].temperatureplot.series.appTemp;
-        #end if
-        optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
         optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
         optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
         //optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
@@ -794,6 +782,39 @@ function weekly() {
         optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
         optionsRain.yAxis.title.text = seriesData[0].rainplottotal.yAxisLabel.text;
         optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
+        
+        // Temperature Chart with options to include observations
+        #if $Extras.highcharts_graph_1 == 'temperatureplot' or $Extras.highcharts_graph_2 == 'temperatureplot' or $Extras.highcharts_graph_3 == 'temperatureplot' or $Extras.highcharts_graph_4 == 'temperatureplot' or $Extras.highcharts_graph_5 == 'temperatureplot' or $Extras.highcharts_graph_6 == 'temperatureplot'
+        
+        var i = 2; // Start at 2 to have Temperature and Dew Point as first 2 chart series.
+        
+        optionsTemp.yAxis.title.text = seriesData[0].temperatureplot.yAxisLabel.text;
+        
+        optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
+        optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
+                    
+        #if $Extras.has_key('highcharts_show_windchill') and $Extras.highcharts_show_windchill == '1'
+        optionsTemp.series[i] = seriesData[0].windchillplot.series.windchill;
+        optionsTemp.series[i].color = "#90ed7d"; // Always set wind chill to the green color no matter its order
+        i++;
+        #end if
+        
+        #if $Extras.has_key('highcharts_show_heatindex') and $Extras.highcharts_show_heatindex == '1'
+        optionsTemp.series[i] = seriesData[0].windchillplot.series.heatindex;
+        optionsTemp.series[i].color = "#f7a35c"; // Always set heat to the orange color no matter its order
+        i++;
+        #end if
+
+        #if $Extras.has_key('highcharts_show_apptemp') and $Extras.highcharts_show_apptemp == '1'
+        optionsTemp.series[i] = seriesData[0].temperatureplot.series.appTemp;
+        optionsTemp.series[i].color = "#8085e9"; // Always set apptemp to purple no matter its order
+        i++;
+        #end if
+        
+        var chart = new Highcharts.StockChart(optionsTemp);
+                
+        #end if
+        // End of Temperature Chart
 
         // Load a chart based on whats selected in options
         #if $Extras.highcharts_graph_1 == 'windchillplot' or $Extras.highcharts_graph_2 == 'windchillplot' or $Extras.highcharts_graph_3 == 'windchillplot' or $Extras.highcharts_graph_4 == 'windchillplot' or $Extras.highcharts_graph_5 == 'windchillplot' or $Extras.highcharts_graph_6 == 'windchillplot'
@@ -802,10 +823,6 @@ function weekly() {
         
         #if $Extras.highcharts_graph_1 == 'humidityplot' or $Extras.highcharts_graph_2 == 'humidityplot' or $Extras.highcharts_graph_3 == 'humidityplot' or $Extras.highcharts_graph_4 == 'humidityplot' or $Extras.highcharts_graph_5 == 'humidityplot' or $Extras.highcharts_graph_6 == 'humidityplot'
         var chart = new Highcharts.StockChart(optionsHumidity);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'temperatureplot' or $Extras.highcharts_graph_2 == 'temperatureplot' or $Extras.highcharts_graph_3 == 'temperatureplot' or $Extras.highcharts_graph_4 == 'temperatureplot' or $Extras.highcharts_graph_5 == 'temperatureplot' or $Extras.highcharts_graph_6 == 'temperatureplot'
-        var chart = new Highcharts.StockChart(optionsTemp);
         #end if
         
         #if $Extras.highcharts_graph_1 == 'barometerplot' or $Extras.highcharts_graph_2 == 'barometerplot' or $Extras.highcharts_graph_3 == 'barometerplot' or $Extras.highcharts_graph_4 == 'barometerplot' or $Extras.highcharts_graph_5 == 'barometerplot' or $Extras.highcharts_graph_6 == 'barometerplot'
