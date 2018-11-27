@@ -46,6 +46,10 @@ class ExfoliationInstaller(ExtensionInstaller):
                                                'skins/Belchertown/NOAA/NOAA-YYYY.txt.tmpl'
                                               ]
                     ),
+                   ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl',
+                                               'skins/Belchertown/pi/pi-header.html.tmpl'
+                                              ]
+                    ),                    
                    ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
                    ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
                    ('skins/Belchertown/js', ['skins/Belchertown/js/highcharts-dayplots.js.tmpl',
