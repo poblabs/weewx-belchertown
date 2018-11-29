@@ -86,6 +86,32 @@ sudo /etc/init.d/weewx start
 
 5) Browse to your website to see the skin. It may be in the belchertown subdirectory.
 
+## Belchertown Skin as Default Skin
+
+To make Belchertown the default skin for your site, make the configuration changes as below. This is an example config and may need a little fine-tuning site-per-site.
+
+1. In `weewx.conf` look for the `[StdReport]` section. Within that section is `[[StandardReport]]` and under that change `skin = Standard` to `skin = Belchertown`. 
+
+2. Take note of the `HTML_ROOT` setting in the `[StdReport]` section since you will need it for the next section. 
+
+3. Then modify the Belchertown skin options with these minimal updates:
+
+```
+    [[Belchertown]]
+        HTML_ROOT = <<the HTML_ROOT location as above. E.g. public_html>>
+        skin = Belchertown
+        [[[Extras]]]
+           belchertown_root_url = "http://your_full_website_url"
+           
+   [[Highcharts_Belchertown]]
+        HTML_ROOT = <<the HTML_ROOT location as above. E.g. public_html>>
+        skin = Highcharts_Belchertown
+```
+
+4. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
+
+5. Restart weewx and let it generate the files upon the next archive interval.
+
 ## Creating About Page and Records Page
 
 The About Page and Records Page offer some areas for custom HTML to be run. To create or edit these pages, go to the `skins/Belchertown` folder. These files should not be overwritten during skin upgrdades, but it's always best to have a backup just in case!
