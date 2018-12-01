@@ -14,6 +14,7 @@
 * Added a Raspberry Pi kiosk page. 
     * This is handy if you want a 2nd console display using a [Raspberry Pi and a 3.5" TFT screen like this one](https://amzn.to/2z37wlV). An example of it in use [can be seen here](https://obrienlabs.net/redirecting-weather-station-data-from-observerip/#website).
     * This page also does not have the MQTT timeout, so the Kiosk console display will update forever.
+* Some other bug fixes and code optimization.
 
 
 0.7 September 8, 2018
