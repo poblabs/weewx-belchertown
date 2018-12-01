@@ -2,6 +2,8 @@
 
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I developed that website with custom features but used weewx as the backend archive. It was a good fit to port the site to a weewx skin.
 
+![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
+
 Features include:
 * Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required)
 * Forecast data updated every hour without needing to reload the website. (a free DarkSky API key required)
