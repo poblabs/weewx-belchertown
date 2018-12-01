@@ -70,7 +70,7 @@ class getData(SearchList):
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
         
-        # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location.
+        # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
             lat = self.generator.config_dict['Station']['latitude']
             lon = self.generator.config_dict['Station']['longitude']
