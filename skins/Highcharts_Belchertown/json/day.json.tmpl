@@ -4,7 +4,7 @@
 "temperatureplot": {"series": 
 {"outTemp": { "zIndex": "1", "name": "Temperature", "data": $outTempDayjson}, 
 "dewpoint": {"name": "Dew Point", "data": $dewpointDayjson}, 
-"appTemp": {"name": "Apparent Temperature", "data": ""}}, 
+"appTemp": {"name": "Apparent Temperature", "data": $appTempDayjson}}, 
 "yAxisLabel": {"text": #slurp
 #if $unit.unit_type_dict.group_temperature == "degree_C"
  "(\u00B0 C)"
@@ -13,8 +13,7 @@
 #end if
 }}, 
 "windchillplot": {"series": 
-{"appTemp": {"name": "Apparent Temperature", "data": ""}, 
-"windchill": {"name": "Wind Chill", "data": $windchillDayjson}, 
+{"windchill": {"name": "Wind Chill", "data": $windchillDayjson}, 
 "heatindex": {"name": "Heat Index", "data": $heatindexDayjson}}, 
 "yAxisLabel": {"text": #slurp
 #if $unit.unit_type_dict.group_temperature == "degree_C"
