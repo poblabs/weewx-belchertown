@@ -69,7 +69,15 @@ class getData(SearchList):
         # Setup UTC offset hours for moment.js in index.html
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
-                
+        
+        # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location.
+        if self.generator.skin_dict['Extras']['radar_html'] == "":
+            lat = self.generator.config_dict['Station']['latitude']
+            lon = self.generator.config_dict['Station']['longitude']
+            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom=8&level=surface&overlay=radar&menu=&message=true&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=mph&metricTemp=%C2%B0F&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, lat, lon )
+        else:
+            radar_html = self.generator.skin_dict['Extras']['radar_html']
+        
         # Handle the about.inc and records.inc files.
         # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
         # records.inc: if the file is present use it, therwise do not show anything. 
@@ -723,6 +731,7 @@ class getData(SearchList):
         search_list_extension = { 'belchertown_version': VERSION,
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
+                                  'radar_html': radar_html,
                                   'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
                                   'index_hook_after_station_info_enabled': index_hook_after_station_info_enabled,
