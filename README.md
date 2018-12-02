@@ -18,7 +18,10 @@ Features include:
 These settings need to be enabled in order for the skin to work. Within `weewx.conf`, under `[Station]` make sure you have: 
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
-* `station_url` - The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: `http://yourwebsite.com` or `http://192.168.1.100`
+
+You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this. You need only 1. 
+* `belchertown_root_url` - **This is the preferred option**. Add this to your skin Extras section (see below). 
+* `station_url` - Example: `http://yourwebsite.com` or `http://192.168.1.100`
 
 ### DarkSky API (optional)
 DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
@@ -169,6 +172,7 @@ To override a default setting add the setting name and value to the Extras secti
         skin = Belchertown
         HTML_ROOT = belchertown
         [[[Extras]]]
+            belchertown_root_url = "https://belchertownweather.com"
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
@@ -184,10 +188,47 @@ Restart weewx once you add your custom options and wait for an archive period to
 
 For ease of readability I have broken them out into separate tables. However you just add the overrides to the config just like the example above. 
 
+## Add Custom Content to the Front Page
+
+There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
+
+Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
+Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
+Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
+Below the charts: `skins/belchertown/index_hook_after_charts.inc`
+
+Check out this visual representation
+
+![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
+
+## Change The Charts Order
+
+You can change the order of your graphs by using the options below in your Extras section. See below in General Options. 
+
+```
+    highcharts_graph_1 = "temperatureplot"
+    highcharts_graph_2 = "windplot"
+    highcharts_graph_3 = "rainplot"
+    highcharts_graph_4 = "winddirplot"
+    highcharts_graph_5 = "barometerplot"
+    highcharts_graph_6 = "radiationplot"
+```
+
+There are 7 chart “plots” you can use and they are case sensitive - must be lower case.
+
+* temperatureplot
+* windplot
+* rainplot
+* winddirplot
+* barometerplot
+* radiationplot
+* humidityplot
+
 ## General Options
 
 | Name | Default | Description
 | ---- | ------- | ----------
+| belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com"
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
@@ -197,9 +238,18 @@ For ease of readability I have broken them out into separate tables. However you
 | about_page_header | "About This Site" | The header text to show on the About page
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
+| highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
+| highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
+| highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
 | show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
 | show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
+| highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
+| highcharts_graph_2 | "windplot" | Change the observation for chart plot in chart 2. 
+| highcharts_graph_3 | "rainplot" | Change the observation for chart plot in chart 3. 
+| highcharts_graph_4 | "winddirplot" | Change the observation for chart plot in chart 4. 
+| highcharts_graph_5 | "barometerplot" | Change the observation for chart plot in chart 5. 
+| highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
 
 ## MQTT (for Real Time Streaming) Options
 
