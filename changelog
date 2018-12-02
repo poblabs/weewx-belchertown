@@ -1,4 +1,4 @@
-0.8 November ??, 2018
+0.8 December 2, 2018
 * A lot of metric conversion fixes. A lot. 
 * More metric conversions fixes.
 * Now uses new option belchertown_root_url and falls back to station_url for the URL of your weather station. The CSS and JavaScript files are dependant on this setting. 
