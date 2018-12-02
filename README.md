@@ -193,12 +193,12 @@ For ease of readability I have broken them out into separate tables. However you
 
 There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
 
-Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
-Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
-Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
-Below the charts: `skins/belchertown/index_hook_after_charts.inc`
+* Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
+* Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
+* Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
+* Below the charts: `skins/belchertown/index_hook_after_charts.inc`
 
-Check out this visual representation
+Check out this visual representation:
 
 ![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
