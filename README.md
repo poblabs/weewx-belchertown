@@ -19,9 +19,10 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
 
-You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this. You need only 1. 
+You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Example: `http://yourwebsite.com` or `http://192.168.1.100`.
+Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this which offer flexibility. See below General Options for more information. You need to only enable 1 option for the skin to work. 
 * `belchertown_root_url` - **This is the preferred option**. Add this to your skin Extras section (see below). 
-* `station_url` - Example: `http://yourwebsite.com` or `http://192.168.1.100`
+* `station_url` - This is the built-in weewx.conf config. 
 
 ### DarkSky API (optional)
 DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
