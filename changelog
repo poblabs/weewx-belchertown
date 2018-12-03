@@ -1,3 +1,6 @@
+0.8.1 December ??, 2018
+* Fixes an edge case scenario where skin fails to generate due to N/A as a wind observation value.
+
 0.8 December 2, 2018
 * A lot of metric conversion fixes. A lot. 
 * More metric conversions fixes.
