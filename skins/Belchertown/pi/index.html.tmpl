@@ -698,8 +698,24 @@
                                 <td class="windtext border-left">Gust</td>
                             </tr>
                             <tr>
-                                <td><span class="curwindspeed">#echo "%.1f" % int( float( $current.windSpeed.formatted ) )#</span></td>
-                                <td class="border-left"> <span class="curwindgust">#echo "%.1f" % int( float( $current.windGust.formatted ) )#</span></td><!-- AJAX -->
+                                <td>
+                                    <span class="curwindspeed">
+                                        #if $current.windSpeed.formatted == "N/A"
+                                        $current.windSpeed
+                                        #else
+                                        #echo "%.1f" % int( float( $current.windSpeed.formatted ) )#
+                                        #end if
+                                    </span>
+                                </td><!-- AJAX -->
+                                <td class="border-left">&nbsp;
+                                    <span class="curwindgust">
+                                        #if $current.windGust.formatted == "N/A"
+                                        $current.windGust
+                                        #else
+                                        #echo "%.1f" % int( float( $current.windGust.formatted ) )#
+                                        #end if
+                                    </span>
+                                </td><!-- AJAX -->
                             </tr>
                         </tbody>
                     </table>
