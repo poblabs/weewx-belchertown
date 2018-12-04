@@ -449,7 +449,7 @@
             if ( data.hasOwnProperty("interval_minute") ) {
                 // Delays are recommended to allow the other skins to complete processing
                 console.log("MQTT message indicates this is an archive interval.");
-                setTimeout( daily, 30000 ); // Load updated graphs
+                setTimeout( daily, 30000 ); // Load updated charts
                 setTimeout( ajaxweewx, 10000 ); // Update weewx data
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
             }
@@ -994,7 +994,7 @@
                         <!-- Begin of fourth row -->
                         <div class="row highcharts-row graph">
                             <div class="col-sm-12 wx-graph-front">
-                                Graphs for today. <a href="$belchertown_root_url/graphs">View more graphs here</a>.
+                                Today's charts. <a href="$belchertown_root_url/graphs">View more here</a>.
                             </div>
                             
                             <div class="col-sm-6">
