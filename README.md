@@ -312,8 +312,7 @@ These are the options for the social media sharing section at the top right of e
 * A: Nope! If you disable the MQTT option, then weewx will still create a website for you, it just will be done on the archive interval. weewx will still generate these pages for you if you have MQTT enabled, the benefit is that you do not have to reload the website. 
 ---
 * Q: What MQTT broker should I use?
-* A: There are a number of free ones out there and they all have different limitations. A popular one is io.adafruit.com, but check that their free tier will suite your needs. If you can't find a good free one, you can always install and configure Mosquitto (the name of an MQTT broker) on your server. Just make sure you set the permissions so that **only you can publish**. You do not want the general public to have the ability to publish data onto your weewx stream. 
-* Currently I am not providing support on how to do this, but I do plan to do a write up soon and will link to it when it's ready. In the meantime there's plenty of resources available online to set up your own MQTT broker if desired. 
+* A: [Check the MQTT Brokers section of this page which has more information](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) on a free one that works, as well as **running your own secure broker**. If you want to use a free one, there are a number of them out there and they all have different limitations. Check their terms to make sure it will suite your needs. 
 ---
 * Q: Do I have to use forecasts?
 * A: You do not need to use forecasts, but it is recommended to use forecasts so you take advantage of the theme's design with icons and observations.
