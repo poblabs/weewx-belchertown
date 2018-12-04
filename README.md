@@ -294,6 +294,9 @@ These are the options for the social media sharing section at the top right of e
 
 ## Frequently Asked Questions
 
+* Q: I don't have a radiation sensor, can I turn that chart off?
+* A: You can change the chart to something else, like `humidityplot`. [Check these instructions](https://github.com/poblabs/weewx-belchertown#change-the-charts-order), and restart weewx once you've made the change.
+---
 * Q: How do I make this skin my default website?
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
 ---
