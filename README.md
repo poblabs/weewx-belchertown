@@ -202,7 +202,7 @@ Check out this visual representation:
 
 ![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
-## Change The Charts Order
+## Change (or remove) a Chart
 
 You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
 
@@ -242,19 +242,19 @@ Here are the default order of the chart plots:
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
 | about_page_header | "About This Site" | The header text to show on the About page
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
+| show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
+| show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
 | highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
-| show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
-| show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
-| googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
 | highcharts_graph_2 | "windplot" | Change the observation for chart plot in chart 2. 
 | highcharts_graph_3 | "rainplot" | Change the observation for chart plot in chart 3. 
 | highcharts_graph_4 | "winddirplot" | Change the observation for chart plot in chart 4. 
 | highcharts_graph_5 | "barometerplot" | Change the observation for chart plot in chart 5. 
 | highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
+| googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 
 ## MQTT (for Real Time Streaming) Options
 
