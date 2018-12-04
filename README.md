@@ -204,7 +204,21 @@ Check out this visual representation:
 
 ## Change The Charts Order
 
-You can change the order of your graphs by using the options below in your Extras section. See below in General Options. 
+You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
+
+If you want to remove a chart, just specify `""`. For example to remove chart 6, you would set `highcharts_graph_6 = ""`. Restart weewx when done.
+
+There are 7 chart plots you can use and they are case sensitive - must be lower case.
+
+* temperatureplot
+* windplot
+* rainplot
+* winddirplot
+* barometerplot
+* radiationplot
+* humidityplot
+
+Here are the default order of the chart plots:
 
 ```
     highcharts_graph_1 = "temperatureplot"
@@ -214,16 +228,6 @@ You can change the order of your graphs by using the options below in your Extra
     highcharts_graph_5 = "barometerplot"
     highcharts_graph_6 = "radiationplot"
 ```
-
-There are 7 chart “plots” you can use and they are case sensitive - must be lower case.
-
-* temperatureplot
-* windplot
-* rainplot
-* winddirplot
-* barometerplot
-* radiationplot
-* humidityplot
 
 ## General Options
 
