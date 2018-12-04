@@ -342,6 +342,9 @@ These are the options for the social media sharing section at the top right of e
 * Q: How come I'm seeing `NAN` in some areas?
 * A: This is because weewx hasn't gathered enough data from your station yet. Give it a few more archive intervals. 
 ---
+* Q: I'm seeing `cheetahgenerator: **** Reason: could not convert string to float: N/A`, how do I fix this?
+* A: Upgrade to 0.8.1 or newer which resolves this error
+---
 * Q: How do I uninstall this skin?
 * A: `sudo wee_extension --uninstall Belchertown`
 
