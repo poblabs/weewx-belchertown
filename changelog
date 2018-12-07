@@ -1,5 +1,7 @@
-0.8.1 December ??, 2018
+0.8.1 December 7, 2018
 * Fixes an edge case scenario where skin fails to generate due to N/A as a wind observation value.
+* Fixes some false positive errors with belchertown_root_url or station_url being reported it's not set. 
+* On the front page, change the wording to Chart instead of Graphs above the chart region. Afterall, these are charts and not graphs. I should probably update everything to be "chart". 
 
 0.8 December 2, 2018
 * A lot of metric conversion fixes. A lot. 

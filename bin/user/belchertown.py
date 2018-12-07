@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8.1rc1"
+VERSION = "0.8.1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
