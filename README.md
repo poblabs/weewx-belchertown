@@ -202,9 +202,23 @@ Check out this visual representation:
 
 ![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
-## Change The Charts Order
+## Change (or remove) a Chart
 
-You can change the order of your graphs by using the options below in your Extras section. See below in General Options. 
+You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
+
+If you want to remove a chart, just specify `""`. For example to remove chart 6, you would set `highcharts_graph_6 = ""`. Restart weewx when done.
+
+There are 7 chart plots you can use and they are case sensitive - must be lower case.
+
+* temperatureplot
+* windplot
+* rainplot
+* winddirplot
+* barometerplot
+* radiationplot
+* humidityplot
+
+Here are the default order of the chart plots:
 
 ```
     highcharts_graph_1 = "temperatureplot"
@@ -214,16 +228,6 @@ You can change the order of your graphs by using the options below in your Extra
     highcharts_graph_5 = "barometerplot"
     highcharts_graph_6 = "radiationplot"
 ```
-
-There are 7 chart “plots” you can use and they are case sensitive - must be lower case.
-
-* temperatureplot
-* windplot
-* rainplot
-* winddirplot
-* barometerplot
-* radiationplot
-* humidityplot
 
 ## General Options
 
@@ -238,19 +242,19 @@ There are 7 chart “plots” you can use and they are case sensitive - must be 
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
 | about_page_header | "About This Site" | The header text to show on the About page
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
+| show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
+| show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
 | highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
-| show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
-| show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
-| googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
 | highcharts_graph_2 | "windplot" | Change the observation for chart plot in chart 2. 
 | highcharts_graph_3 | "rainplot" | Change the observation for chart plot in chart 3. 
 | highcharts_graph_4 | "winddirplot" | Change the observation for chart plot in chart 4. 
 | highcharts_graph_5 | "barometerplot" | Change the observation for chart plot in chart 5. 
 | highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
+| googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 
 ## MQTT (for Real Time Streaming) Options
 
@@ -294,6 +298,9 @@ These are the options for the social media sharing section at the top right of e
 
 ## Frequently Asked Questions
 
+* Q: I don't have a radiation sensor, can I turn that chart off?
+* A: You can change the chart to something else, like `humidityplot`. [Check these instructions](https://github.com/poblabs/weewx-belchertown#change-the-charts-order), and restart weewx once you've made the change.
+---
 * Q: How do I make this skin my default website?
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
 ---
@@ -309,8 +316,7 @@ These are the options for the social media sharing section at the top right of e
 * A: Nope! If you disable the MQTT option, then weewx will still create a website for you, it just will be done on the archive interval. weewx will still generate these pages for you if you have MQTT enabled, the benefit is that you do not have to reload the website. 
 ---
 * Q: What MQTT broker should I use?
-* A: There are a number of free ones out there and they all have different limitations. A popular one is io.adafruit.com, but check that their free tier will suite your needs. If you can't find a good free one, you can always install and configure Mosquitto (the name of an MQTT broker) on your server. Just make sure you set the permissions so that **only you can publish**. You do not want the general public to have the ability to publish data onto your weewx stream. 
-* Currently I am not providing support on how to do this, but I do plan to do a write up soon and will link to it when it's ready. In the meantime there's plenty of resources available online to set up your own MQTT broker if desired. 
+* A: [Check the MQTT Brokers section of this page which has more information](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) on a free one that works, as well as **running your own secure broker**. If you want to use a free one, there are a number of them out there and they all have different limitations. Check their terms to make sure it will suite your needs. 
 ---
 * Q: Do I have to use forecasts?
 * A: You do not need to use forecasts, but it is recommended to use forecasts so you take advantage of the theme's design with icons and observations.
@@ -341,6 +347,9 @@ These are the options for the social media sharing section at the top right of e
 ---
 * Q: How come I'm seeing `NAN` in some areas?
 * A: This is because weewx hasn't gathered enough data from your station yet. Give it a few more archive intervals. 
+---
+* Q: I'm seeing `cheetahgenerator: **** Reason: could not convert string to float: N/A`, how do I fix this?
+* A: Upgrade to 0.8.1 or newer which resolves this error
 ---
 * Q: How do I uninstall this skin?
 * A: `sudo wee_extension --uninstall Belchertown`

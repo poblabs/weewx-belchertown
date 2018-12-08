@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8"
+VERSION = "0.8.1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -47,13 +47,12 @@ class getData(SearchList):
         weewx.debug = int(self.generator.config_dict.get('debug', 0))
         
         # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
-        try:
-            if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
-                belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-            else:
-                belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
-        except:
-            raise Warning( "Error with Belchertown skin. You must define your website URL using station_url or belchertown_root_url in weewx.conf (preferred) or skin.conf. Even if your site is LAN only, this skin needs this value before continuing. Please see the setup guide on GitHub if you have questions." )
+        if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
+            belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
+        elif self.generator.config_dict["Station"].has_key("station_url"):
+            belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
+        else:
+            belchertown_root_url = ""
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
