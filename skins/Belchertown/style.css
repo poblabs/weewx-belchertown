@@ -1568,6 +1568,13 @@ li.comment {
 
 .wx-stn-share iframe { max-width:initial !important; }
 
+.wx-stn-alert {
+    display: none;
+    width: 100%;
+}
+
+.wx-stn-alert i { color: red; }
+
 .wx-fb, .wx-share-sep, .wx-twitter {
     display:inline-block;
 }
