@@ -269,6 +269,8 @@
             if ( data['alerts'] ) {
                 jQuery(".wx-stn-alert-text").html( "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + data['alerts'][0]['description'].substring(0,75) + "...</a>" );
                 jQuery(".wx-stn-alert").show();
+            } else {
+                jQuery(".wx-stn-alert").hide();
             }
             
             // Current observation text
