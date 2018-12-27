@@ -506,6 +506,18 @@
             if ( data.hasOwnProperty("appTemp_C") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
             }
+            
+            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+            // Cloud Base US
+            if ( data.hasOwnProperty("cloudbase_foot") ) {
+                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_foot"] ).toFixed(0) + " $unit.label.cloudbase" );
+            }
+
+            // Cloud Base Metric
+            if ( data.hasOwnProperty("cloudbase_meter") ) {
+                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_meter"] ).toFixed(0) + " $unit.label.cloudbase" );
+            }
+            #end if
 
             // Dewpoint Metric
             if ( data.hasOwnProperty("dewpoint_C") ) {
@@ -771,6 +783,16 @@
                                                 <td>
                                                     <span class="wx-visibility">
                                                         <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            #end if
+                                            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+                                            <tr>
+                                                <td>Cloud Base</td>
+                                                <td>
+                                                    <span class="wx-cloudbase">
+                                                        <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
                                                     </span>
                                                 </td>
                                             </tr>
