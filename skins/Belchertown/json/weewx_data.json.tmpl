@@ -20,6 +20,7 @@
     "current": {
         "datetime": "$current.dateTime",
         "outTemp": "$current.outTemp",
+        "outTemp_formatted": "$current.outTemp.formatted",
         "outHumidity": "$current.outHumidity",
         #if $day.appTemp.has_data
         "appTemp": "$current.appTemp",
@@ -31,7 +32,9 @@
         "barometer_trend": "$trend.barometer",
         "windspeed": "$current.windSpeed",
         "winddir": "$current.windDir",
-        "windGust": "$current.windGust.formatted",
+        "winddir_formatted": "$current.windDir.formatted",
+        "windGust": "$current.windGust",
+        "windGust_formatted": "$current.windGust.formatted",
         "windGustDir": "$current.windGustDir",
         "windcompass": "$current.windDir.ordinal_compass",
         #if $day.windrun.has_data
