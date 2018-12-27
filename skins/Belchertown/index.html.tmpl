@@ -450,6 +450,11 @@
             //console.log( data );
             data = jQuery.parseJSON( data );
             
+            #if $Extras.has_key('googleAnalyticsId')
+            // Send a pageview
+            ga('send', 'pageview');
+            #end if
+            
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
