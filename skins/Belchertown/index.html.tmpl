@@ -559,12 +559,12 @@
             }
             
             // Barometer US
-            if ( data.hasOwnProperty("altimeter_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_inHg"] ).toFixed(2) + " $unit.label.pressure" );
+            if ( data.hasOwnProperty("barometer_inHg") ) {
+                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_inHg"] ).toFixed(2) + " $unit.label.pressure" );
             }
             // Barometer Metric
-            if ( data.hasOwnProperty("altimeter_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_mbar"] ).toFixed(2) + " $unit.label.pressure" );
+            if ( data.hasOwnProperty("barometer_mbar") ) {
+                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_mbar"] ).toFixed(2) + " $unit.label.pressure" );
             }
             
             // Humidity
