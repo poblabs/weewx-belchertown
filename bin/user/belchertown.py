@@ -443,6 +443,7 @@ class getData(SearchList):
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
+            forecast_alert_length = int( self.generator.skin_dict['Extras']['forecast_alert_length'] )
             forecast_is_stale = False
             
             forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( darksky_secret_key, latitude, longitude, darksky_units, darksky_lang )
@@ -480,6 +481,16 @@ class getData(SearchList):
             # Process the forecast file
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
+            
+            # Weather Alerts
+            forecast_alert_text = ""
+            if "alerts" in data:
+                if len( data['alerts'][0]['description'] ) > forecast_alert_length:
+                    forecast_alert_description = data['alerts'][0]['description'][:forecast_alert_length] + '...'
+                else:
+                    forecast_alert_description = data['alerts'][0]['description']
+                # Final alert string
+                forecast_alert_text = "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + forecast_alert_description + "</a>"
             
             forecast_html_output = ""
             forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
@@ -764,6 +775,7 @@ class getData(SearchList):
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
+                                  'forecast_alert_text': forecast_alert_text,
                                   'forecastHTML' : forecast_html_output,
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,

@@ -24,6 +24,11 @@
             #end if
             rotateThis( "$current.windDir.formatted" );
             
+            #if $forecast_alert_text != ""
+            // Weather Alert Found in Forecast Data
+            jQuery(".wx-stn-alert").show();
+            #end if
+            
             #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
             ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
             ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
@@ -267,7 +272,7 @@
             
             // Weather Alerts
             if ( data['alerts'] ) {
-                jQuery(".wx-stn-alert-text").html( "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + data['alerts'][0]['description'].substring(0,75) + "...</a>" );
+                jQuery(".wx-stn-alert-text").html( "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + data['alerts'][0]['description'].substring(0,$Extras.forecast_alert_length) + "...</a>" );
                 jQuery(".wx-stn-alert").show();
             } else {
                 jQuery(".wx-stn-alert").hide();
@@ -630,7 +635,7 @@
                             $social_html
                             #end if
                             <div class="clear"></div>
-                            <div class="wx-stn-alert"><i class="fa fa-exclamation-triangle"></i> <span class="wx-stn-alert-text"></span></div><!--AJAX-->
+                            <div class="wx-stn-alert"><i class="fa fa-exclamation-triangle"></i> <span class="wx-stn-alert-text">$forecast_alert_text</span></div><!--AJAX-->
                         </div>
                         
                         <!-- First row with temperature, observation data and radar -->
