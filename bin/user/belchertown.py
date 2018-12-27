@@ -442,8 +442,9 @@ class getData(SearchList):
             darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
-            forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
+            forecast_alert_enabled = int( self.generator.skin_dict['Extras']['forecast_alert_enabled'] )
             forecast_alert_length = int( self.generator.skin_dict['Extras']['forecast_alert_length'] )
+            forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
             forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( darksky_secret_key, latitude, longitude, darksky_units, darksky_lang )
@@ -482,15 +483,16 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
             
-            # Weather Alerts
+            # Weather Alerts (only if enabled)
             forecast_alert_text = ""
-            if "alerts" in data:
-                if len( data['alerts'][0]['description'] ) > forecast_alert_length:
-                    forecast_alert_description = data['alerts'][0]['description'][:forecast_alert_length] + '...'
-                else:
-                    forecast_alert_description = data['alerts'][0]['description']
-                # Final alert string
-                forecast_alert_text = "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + forecast_alert_description + "</a>"
+            if forecast_alert_enabled == 1:
+                if "alerts" in data:
+                    if len( data['alerts'][0]['description'] ) > forecast_alert_length:
+                        forecast_alert_description = data['alerts'][0]['description'][:forecast_alert_length] + '...'
+                    else:
+                        forecast_alert_description = data['alerts'][0]['description']
+                    # Final alert string
+                    forecast_alert_text = "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + forecast_alert_description + "</a>"
             
             forecast_html_output = ""
             forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )

@@ -270,6 +270,7 @@
                 jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
             }
             
+            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
             // Weather Alerts
             if ( data['alerts'] ) {
                 jQuery(".wx-stn-alert-text").html( "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + data['alerts'][0]['description'].substring(0,$Extras.forecast_alert_length) + "...</a>" );
@@ -277,6 +278,7 @@
             } else {
                 jQuery(".wx-stn-alert").hide();
             }
+            #end if
             
             // Current observation text
             jQuery(".current-obs-text").html( data["currently"]["summary"] );
@@ -635,7 +637,9 @@
                             $social_html
                             #end if
                             <div class="clear"></div>
+                            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
                             <div class="wx-stn-alert"><i class="fa fa-exclamation-triangle"></i> <span class="wx-stn-alert-text">$forecast_alert_text</span></div><!--AJAX-->
+                            #end if
                         </div>
                         
                         <!-- First row with temperature, observation data and radar -->
