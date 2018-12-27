@@ -242,8 +242,8 @@ Here are the default order of the chart plots:
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
 | about_page_header | "About This Site" | The header text to show on the About page
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
-| show_apptemp | 0 | If you have [enabled Apparent Temperature](http://weewx.com/docs/customizing.htm#add_archive_type) (appTemp) in your database, you can show it on the site by enabling this. 
-| show_windrun | 0 | If you have [enabled Wind Run](http://weewx.com/docs/customizing.htm#add_archive_type) (windRun) in your database, you can show it on the site by enabling this.
+| show_apptemp | 0 | If you have [enabled Apparent Temperature](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (appTemp) in your database, you can show it on the site by enabling this. 
+| show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
