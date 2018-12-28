@@ -443,7 +443,6 @@ class getData(SearchList):
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             forecast_alert_enabled = int( self.generator.skin_dict['Extras']['forecast_alert_enabled'] )
-            forecast_alert_length = int( self.generator.skin_dict['Extras']['forecast_alert_length'] )
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
@@ -487,12 +486,10 @@ class getData(SearchList):
             forecast_alert_text = ""
             if forecast_alert_enabled == 1:
                 if "alerts" in data:
-                    if len( data['alerts'][0]['description'] ) > forecast_alert_length:
-                        forecast_alert_description = data['alerts'][0]['description'][:forecast_alert_length] + '...'
-                    else:
-                        forecast_alert_description = data['alerts'][0]['description']
-                    # Final alert string
-                    forecast_alert_text = "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + forecast_alert_description + "</a>"
+                    for alert in data['alerts']:
+                        alert_expires = time.strftime('%B %d, %Y %-I:%M %p', time.localtime( alert['expires'] )) # December 27, 2018, 9:00 PM
+                        # Final alert string
+                        forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
             
             forecast_html_output = ""
             forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )

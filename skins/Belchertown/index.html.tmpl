@@ -273,7 +273,13 @@
             #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
             // Weather Alerts
             if ( data['alerts'] ) {
-                jQuery(".wx-stn-alert-text").html( "<strong>" + data['alerts'][0]['title'] + ":</strong> <a href='"+data['alerts'][0]['uri']+"' target='_blank'>" + data['alerts'][0]['description'].substring(0,$Extras.forecast_alert_length) + "...</a>" );
+                var i, forecast_alert_text;
+                forecast_alert_text = "";
+                for ( i = 0; i < data['alerts'].length; i++ ) { 
+                    alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'MMMM D, YYYY, h:mm A' ); // December 27, 2018, 9:00 PM
+                    forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " in effect until " + alert_expires + "</a><br>";
+                }
+                jQuery(".wx-stn-alert-text").html( forecast_alert_text );
                 jQuery(".wx-stn-alert").show();
             } else {
                 jQuery(".wx-stn-alert").hide();
@@ -655,7 +661,7 @@
                             #end if
                             <div class="clear"></div>
                             #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-                            <div class="wx-stn-alert"><i class="fa fa-exclamation-triangle"></i> <span class="wx-stn-alert-text">$forecast_alert_text</span></div><!--AJAX-->
+                            <div class="wx-stn-alert"><span class="wx-stn-alert-text">$forecast_alert_text</span></div><!--AJAX-->
                             #end if
                         </div>
                         
