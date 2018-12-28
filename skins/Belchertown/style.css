@@ -1551,6 +1551,7 @@ li.comment {
 .wx-stn-info-container {
 	width:100%;
 	border-bottom: 1px solid #D7D7D7;
+    padding-bottom: 10px;
 }
 
 .wx-stn-name {
@@ -1565,7 +1566,9 @@ li.comment {
 	margin-right:10px;
 }
 
-.wx-stn-share { margin-bottom:10px; }
+.wx-stn-share { 
+    /* margin-bottom:10px;  */
+}
 
 .wx-stn-share iframe { max-width:initial !important; }
 
