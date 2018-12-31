@@ -442,6 +442,7 @@ class getData(SearchList):
             darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
+            forecast_alert_enabled = int( self.generator.skin_dict['Extras']['forecast_alert_enabled'] )
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
@@ -480,6 +481,15 @@ class getData(SearchList):
             # Process the forecast file
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
+            
+            # Weather Alerts (only if enabled)
+            forecast_alert_text = ""
+            if forecast_alert_enabled == 1:
+                if "alerts" in data:
+                    for alert in data['alerts']:
+                        alert_expires = time.strftime('%B %d, %Y %-I:%M %p', time.localtime( alert['expires'] )) # December 27, 2018, 9:00 PM
+                        # Final alert string
+                        forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
             
             forecast_html_output = ""
             forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
@@ -764,6 +774,7 @@ class getData(SearchList):
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
+                                  'forecast_alert_text': forecast_alert_text,
                                   'forecastHTML' : forecast_html_output,
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,

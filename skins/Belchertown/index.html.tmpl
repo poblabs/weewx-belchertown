@@ -24,6 +24,11 @@
             #end if
             rotateThis( "$current.windDir.formatted" );
             
+            #if $forecast_alert_text != ""
+            // Weather Alert Found in Forecast Data
+            jQuery(".wx-stn-alert").show();
+            #end if
+            
             #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
             ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
             ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
@@ -265,6 +270,22 @@
                 jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
             }
             
+            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+            // Weather Alerts
+            if ( data['alerts'] ) {
+                var i, forecast_alert_text;
+                forecast_alert_text = "";
+                for ( i = 0; i < data['alerts'].length; i++ ) { 
+                    alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'MMMM D, YYYY, h:mm A' ); // December 27, 2018, 9:00 PM
+                    forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " in effect until " + alert_expires + "</a><br>";
+                }
+                jQuery(".wx-stn-alert-text").html( forecast_alert_text );
+                jQuery(".wx-stn-alert").show();
+            } else {
+                jQuery(".wx-stn-alert").hide();
+            }
+            #end if
+            
             // Current observation text
             jQuery(".current-obs-text").html( data["currently"]["summary"] );
             
@@ -435,6 +456,11 @@
             //console.log( data );
             data = jQuery.parseJSON( data );
             
+            #if $Extras.has_key('googleAnalyticsId')
+            // Send a pageview
+            ga('send', 'pageview');
+            #end if
+            
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
@@ -491,6 +517,18 @@
             if ( data.hasOwnProperty("appTemp_C") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
             }
+            
+            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+            // Cloud Base US
+            if ( data.hasOwnProperty("cloudbase_foot") ) {
+                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_foot"] ).toFixed(0) + " $unit.label.cloudbase" );
+            }
+
+            // Cloud Base Metric
+            if ( data.hasOwnProperty("cloudbase_meter") ) {
+                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_meter"] ).toFixed(0) + " $unit.label.cloudbase" );
+            }
+            #end if
 
             // Dewpoint Metric
             if ( data.hasOwnProperty("dewpoint_C") ) {
@@ -532,12 +570,12 @@
             }
             
             // Barometer US
-            if ( data.hasOwnProperty("altimeter_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_inHg"] ).toFixed(2) + " $unit.label.pressure" );
+            if ( data.hasOwnProperty("barometer_inHg") ) {
+                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_inHg"] ).toFixed(2) + " $unit.label.pressure" );
             }
             // Barometer Metric
-            if ( data.hasOwnProperty("altimeter_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_mbar"] ).toFixed(2) + " $unit.label.pressure" );
+            if ( data.hasOwnProperty("barometer_mbar") ) {
+                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_mbar"] ).toFixed(2) + " $unit.label.pressure" );
             }
             
             // Humidity
@@ -622,6 +660,9 @@
                             $social_html
                             #end if
                             <div class="clear"></div>
+                            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+                            <div class="wx-stn-alert"><span class="wx-stn-alert-text">$forecast_alert_text</span></div><!--AJAX-->
+                            #end if
                         </div>
                         
                         <!-- First row with temperature, observation data and radar -->
@@ -753,6 +794,16 @@
                                                 <td>
                                                     <span class="wx-visibility">
                                                         <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            #end if
+                                            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+                                            <tr>
+                                                <td>Cloud Base</td>
+                                                <td>
+                                                    <span class="wx-cloudbase">
+                                                        <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
                                                     </span>
                                                 </td>
                                             </tr>
