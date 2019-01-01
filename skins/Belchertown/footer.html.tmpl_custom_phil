@@ -1,0 +1,16 @@
+
+    <footer class="site-footer">
+            <div class="wrap">
+                <div class="footerLeft">Copyright &copy; $current.dateTime.format("%Y") $Extras.footer_copyright_text</div>
+                <div class="footerRight"><strong>Never make important decisions based on info from this website.</strong> weewx theme by <a href="https://obrienlabs.net" target="_blank">Pat O'Brien</a></div>
+                <div class="clear"></div>
+            </div>
+        </footer>
+        
+        <script type='text/javascript' src='$belchertown_root_url/js/responsive-menu.js'></script>
+        <script type='text/javascript' src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+        
+        <!-- Belchertown Skin Version: $belchertown_version -->
+
+    </body>
+</html>
