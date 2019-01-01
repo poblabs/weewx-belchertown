@@ -1,4 +1,5 @@
-0.8.2 December ??, 2018
+0.8.2 January 1, 2019
+* Fixed an error where the skin would fail when the date rolls to the New Year due to no data being in certain tables in the database yet. 
 * Added the ability to show any weather alerts provided by the DarkSky API. Weather alerts are off by default, use forecast_alert_enabled in weewx.conf skin options to enable it.
 * New option to show cloudbase. You must have your database schema extended for the cloudbase observation to be calculated by weewx. Check the Belchertown skin wiki for details.
 * Fixes an issue where the MQTT updates showed altimeter instead of barometer.
