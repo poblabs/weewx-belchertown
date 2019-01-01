@@ -31,7 +31,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -508,7 +508,7 @@ class getData(SearchList):
             if forecast_alert_enabled == 1:
                 if "alerts" in data:
                     for alert in data['alerts']:
-                        alert_expires = time.strftime('%B %d, %Y %-I:%M %p', time.localtime( alert['expires'] )) # December 27, 2018, 9:00 PM
+                        alert_expires = time.strftime('%B %-d, %Y, %-I:%M %p', time.localtime( alert['expires'] )) # December 27, 2018, 9:00 PM
                         # Final alert string
                         forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
             
