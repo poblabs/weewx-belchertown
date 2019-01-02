@@ -16,6 +16,7 @@ All weather observations are also posted to:
 <br>
 <ul>
       <li><a href="https://www.pwsweather.com/obs/KNCBL.html" target="_blank">KNCBL on PWSWeather.com</a>
+	  <li>"http://www.findu.com/cgi-bin/wxpage.cgi?last=24&amp;call=FW3054" target="_blank">FW3054</a> on CWOP</li>
 </ul>
 
 Software used:
