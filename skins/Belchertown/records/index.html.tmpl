@@ -78,7 +78,9 @@
                                         <td>Highest Apparent Temperature</td>
                                         <td class="leftborder">$year.appTemp.max</td>
                                         <td>$year.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") $unit.label.outTemp</td>
+                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") 
+## Remove spurious "degree F" display								
+##$unit.label.outTemp</td>
                                         <td>$alltime.appTemp.max</td>
                                     </tr>
                                     <tr>
@@ -252,7 +254,30 @@
                                         <td class="leftborder">$alltime.barometer.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
                                         <td>$alltime.barometer.min</td>                             
                                     </tr>
-                                    
+  
+## Remove Sun Records since Vantage Vue doesn't measure those  
+##                                    <tr>
+##                                        <td class="records-header" colspan=5>Sun Records</td>
+##                                    </tr>
+##                                    <tr>
+##                                        <td class="records-header" colspan=1> </td>                                    
+##                                        <td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
+##                                        <td class="records-header-alltime" colspan=2>All Time</td>
+##                                    </tr>                          
+##                                    <tr>
+##                                        <td>Highest Solar Radiation</td>
+##                                        <td class="leftborder">$year.radiation.max</td>
+##                                        <td>$year.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td class="leftborder">$alltime.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td>$alltime.radiation.max</td>                             
+##                                    </tr>                        
+##                                    <tr>
+##                                        <td>Highest UV</td>
+##                                        <td class="leftborder">$year.UV.max</td>
+##                                        <td>$year.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td class="leftborder">$alltime.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td>$alltime.UV.max</td>                             
+##                                    </tr>
                                 </tbody>
                             </table>
                         </div>
