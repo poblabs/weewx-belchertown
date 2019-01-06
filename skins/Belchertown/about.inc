@@ -15,8 +15,9 @@ All weather observations are also posted to:
 
 <br>
 <ul>
-      <li><a href="https://www.pwsweather.com/obs/KNCBL.html" target="_blank">KNCBL on PWSWeather.com</a>
-	  <li>"http://www.findu.com/cgi-bin/wxpage.cgi?last=24&amp;call=FW3054" target="_blank">FW3054</a> on CWOP</li>
+      <li><a href="https://www.pwsweather.com/obs/KNCBL.html" target="_blank">KNCBL</a> on PWSWeather.com</li>
+	  <li><a href="http://www.findu.com/cgi-bin/wxpage.cgi?last=24&amp;call=FW3054" target="_blank">FW3054</a> on CWOP</li>
+	  <li><a href="https://www.wunderground.com/personal-weather-station/dashboard?ID=KNCCANDL38" target="_blank">KNCCANDL38</a> on Weather Underground</li>
 </ul>
 
 Software used:
