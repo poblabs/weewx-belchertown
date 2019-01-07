@@ -1,4 +1,12 @@
 {
-  "short_name": "WeeWX",
-  "display": "standalone",
+  "short_name": "$Extras.manifest_short_name",
+  "name": "$Extras.manifest_name",
+  "icons": [
+    {
+      "src": "/images/station.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    }
+  ],
+  "display": "standalone"
 }
