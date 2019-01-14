@@ -1,6 +1,6 @@
 # Belchertown weewx skin
 
-This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I developed that website with custom features but used weewx as the backend archive. It was a good fit to port the site to a weewx skin.
+This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
 
 ![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
 
@@ -11,6 +11,7 @@ Features include:
 * Observation graphs without needing to reload the website.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
+* Progressive webapp ready enabling the "Add to homescreen" option so your website feels like an app on your mobile devices. 
 
 ## Requirements 
 
@@ -237,6 +238,8 @@ Here are the default order of the chart plots:
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
+| manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device (available in 0.9)
+| manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app (available in 0.9)
 | graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
 | reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
