@@ -310,7 +310,7 @@ These are the options for the social media sharing section at the top right of e
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
 ---
 * Q: My NOAA reports are blank.
-* A: If this is right after you installed the skin, give weewx an archive interval or populate this data
+* A: If this is right after you installed the skin, give weewx an archive interval (or two, or three...) in order to populate this data
 ---
 * Q: I see errors like these:
     * `No such file or directory '/home/weewx/skins/Belchertown/about.inc'` 
