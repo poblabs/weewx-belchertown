@@ -1,3 +1,7 @@
+0.9 January ??, 2019
+* Fixed a bug certain users were seeing with UTF-8. Thanks user spanishhighs!
+* Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
+
 0.8.2 January 1, 2019
 * Fixed an error where the skin would fail when the date rolls to the New Year due to no data being in certain tables in the database yet. 
 * Added the ability to show any weather alerts provided by the DarkSky API. Weather alerts are off by default, use forecast_alert_enabled in weewx.conf skin options to enable it.
