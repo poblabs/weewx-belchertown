@@ -10,6 +10,7 @@ import calendar
 import json
 import os
 import syslog
+import sys
 
 import weewx
 import weecfg
@@ -17,6 +18,10 @@ import weecfg
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
+
+# This helps with locale. https://stackoverflow.com/a/40346898/1177153
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 def logmsg(level, msg):
     syslog.syslog(level, 'Belchertown Extension: %s' % msg)
