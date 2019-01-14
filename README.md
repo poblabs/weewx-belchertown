@@ -336,19 +336,19 @@ These are the options for the social media sharing section at the top right of e
 * A: Nope! If you have it disabled we will hide those portions of the site. It comes packaged with this theme already though, so you can leave it enabled. 
 ---
 * Q: Why does the skin take a while to generate sometimes?
-* A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database is this could take a little longer. 
+* A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
 ---
 * Q: I noticed my graphs don't update right away on an archive period. How come?
 * A: Because the highcharts can take a few extra seconds, I've put in a 30 second delay on the graphs automatic update. This way it's loading the newest data.
 ---
-* Q: Do the graphs on the Graphs page update automatically?
+* Q: Do the charts on the Graphs page update automatically with MQTT?
 * A: No, only the front page is automatically updated. All the other pages are normal pages that need to be refreshed to see new information.
 ---
 * Q: How do I change my about page, or records page?
-* A: See above on how to do that. 
+* A: [See above on how to do that.](https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page)
 ---
 * Q: How can I tell if the skin downloaded new forecast or earthquake data?
-* A: Check your system log file. You should see the skin output something along the lines of "New forecast file downloaded" or "New earthquake file downloaded".
+* A: Check your system log file. You should see the skin output something along the lines of "New forecast file downloaded" or "New earthquake file downloaded". It will also display errors and what the error was if there was a failure. 
 ---
 * Q: How come I'm seeing `NAN` in some areas?
 * A: This is because weewx hasn't gathered enough data from your station yet. Give it a few more archive intervals. 
