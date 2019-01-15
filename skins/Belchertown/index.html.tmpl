@@ -22,6 +22,7 @@
             #else
             update_outtemp_C( "$current.outTemp.formatted" );
             #end if
+            
             rotateThis( "$current.windDir.formatted" );
             
             #if $forecast_alert_text != ""
@@ -226,6 +227,7 @@
             jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
             
             // Daily stats section
+            jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, MMMM D, YYYY' ) ); // e.g. Tuesday, January 15, 2019
             jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
             jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
             jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
@@ -422,7 +424,7 @@
             jQuery(".loadingMarker").show();            
             client.subscribe( "$Extras.mqtt_topic" );
             #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
-            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
+            var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
             #end if
         }
         
@@ -443,7 +445,7 @@
             jQuery(".loadingMarker").hide();
             jQuery(".updated").html( "Lost connection to the weather station. Real time updates are not available. Please try again later!" );
             if (responseObject.errorCode !== 0) {
-                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
+                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage );
             }
         }
         
@@ -975,7 +977,7 @@
                                         
                                         <div class="col-sm-6 stn-quick-stats">
                                             <div class="stats-title">
-                                                Today, $current.dateTime.format("%A, %B %d, %Y")
+                                                Today, <span class="snapshot-records-today-header">$current.dateTime.format("%A, %B %d, %Y")</span><!-- AJAX -->
                                             </div>
                                             <table>
                                                 <tr>
