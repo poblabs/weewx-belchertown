@@ -22,6 +22,7 @@
             #else
             update_outtemp_C( "$current.outTemp.formatted" );
             #end if
+            
             rotateThis( "$current.windDir.formatted" );
             
             #if $forecast_alert_text != ""
@@ -37,6 +38,7 @@
             jQuery(document).on('click', '.restart-interval', function() { 
                 ajaxweewx(); // Update weewx data
                 ajaxforecast(); // Update forecast data
+                ajaxradar(); // Update radar "img src" if present
                 connect(); // Restart mqtt after weewx data's re-loaded
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                 daily(); // Update the daily highcharts
@@ -191,6 +193,15 @@
             jQuery.getJSON("$forecast_json_url", update_forecast_data);
         };
         
+        function ajaxradar() {
+            // This function only runs if the radar-map element has an img src.
+            if ( document.querySelectorAll(".radar-map img").length > 0 ) {
+                console.log("Updating radar image");
+                var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+                jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
+            }
+        }
+        
         // Initial load of cached data
         function update_weewx_data( data ) {
             console.log("Updating weewx data");
@@ -216,6 +227,7 @@
             jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
             
             // Daily stats section
+            jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, MMMM D, YYYY' ) ); // e.g. Tuesday, January 15, 2019
             jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
             jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
             jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
@@ -412,7 +424,7 @@
             jQuery(".loadingMarker").show();            
             client.subscribe( "$Extras.mqtt_topic" );
             #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
-            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
+            var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
             #end if
         }
         
@@ -433,7 +445,7 @@
             jQuery(".loadingMarker").hide();
             jQuery(".updated").html( "Lost connection to the weather station. Real time updates are not available. Please try again later!" );
             if (responseObject.errorCode !== 0) {
-                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
+                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage );
             }
         }
         
@@ -456,18 +468,18 @@
             //console.log( data );
             data = jQuery.parseJSON( data );
             
-## Pat's original code
-            #if $Extras.has_key('googleAnalyticsId')
+ Pat's original code
+           #if $Extras.has_key('googleAnalyticsId')
             // Send a pageview
             ga('send', 'pageview');
             #end if
 
 ## Phil's code - gtag instead of ga
 ##           #if $Extras.has_key('googleAnalyticsId')
-##            // Send a pageview
+##          // Send a pageview
 ##            gtag ('config', '$Extras.googleAnalyticsId');
 ##            #end if
-            
+			
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
@@ -485,6 +497,7 @@
                 setTimeout( daily, 30000 ); // Load updated charts
                 setTimeout( ajaxweewx, 10000 ); // Update weewx data
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
+                setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
             }
             
             // Temperature F
@@ -971,7 +984,7 @@
                                         
                                         <div class="col-sm-6 stn-quick-stats">
                                             <div class="stats-title">
-                                                Today, $current.dateTime.format("%A, %B %d, %Y")
+                                                Today, <span class="snapshot-records-today-header">$current.dateTime.format("%A, %B %d, %Y")</span><!-- AJAX -->
                                             </div>
                                             <table>
                                                 <tr>
