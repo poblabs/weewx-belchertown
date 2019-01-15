@@ -37,6 +37,7 @@
             jQuery(document).on('click', '.restart-interval', function() { 
                 ajaxweewx(); // Update weewx data
                 ajaxforecast(); // Update forecast data
+                ajaxradar(); // Update radar "img src" if present
                 connect(); // Restart mqtt after weewx data's re-loaded
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                 daily(); // Update the daily highcharts
@@ -190,6 +191,15 @@
         function ajaxforecast() {
             jQuery.getJSON("$forecast_json_url", update_forecast_data);
         };
+        
+        function ajaxradar() {
+            // This function only runs if the radar-map element has an img src.
+            if ( document.querySelectorAll(".radar-map img").length > 0 ) {
+                console.log("Updating radar image");
+                var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+                jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
+            }
+        }
         
         // Initial load of cached data
         function update_weewx_data( data ) {
@@ -478,6 +488,7 @@
                 setTimeout( daily, 30000 ); // Load updated charts
                 setTimeout( ajaxweewx, 10000 ); // Update weewx data
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
+                setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
             }
             
             // Temperature F
