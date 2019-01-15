@@ -457,16 +457,16 @@
             data = jQuery.parseJSON( data );
             
 ## Pat's original code
-##            #if $Extras.has_key('googleAnalyticsId')
-##            // Send a pageview
-##            ga('send', 'pageview');
-##            #end if
-
-## Phil's code - gtag instead of ga
             #if $Extras.has_key('googleAnalyticsId')
             // Send a pageview
-            gtag ('config', '$Extras.googleAnalyticsId');
+            ga('send', 'pageview');
             #end if
+
+## Phil's code - gtag instead of ga
+##           #if $Extras.has_key('googleAnalyticsId')
+##            // Send a pageview
+##            gtag ('config', '$Extras.googleAnalyticsId');
+##            #end if
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);

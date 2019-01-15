@@ -65,20 +65,35 @@
 ##        #end if
 
 ##  Phil's code - gtag instead of ga
-		#if $Extras.has_key('googleAnalyticsId')
-        <!-- Global Site Tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', '$Extras.googleAnalyticsId');
+##		#if $Extras.has_key('googleAnalyticsId')
+##        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+##        <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
+##        <script>
+##          window.dataLayer = window.dataLayer || [];
+##          function gtag(){dataLayer.push(arguments);}
+##          gtag('js', new Date());
+##
+##          gtag('config', '$Extras.googleAnalyticsId');
+##        </script>
+##
+##
+##      #end if
+		
+##  Updated to use patched analytics.js code
+        #if $Extras.has_key('googleAnalyticsId')
+        <script type='text/javascript'>
+##      <script>
+         (function(i,s,o,r){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date()})(window,document,'script','ga');
+         ga('create', '$Extras.googleAnalyticsId', 'auto');
+         ga('send', 'pageview');
         </script>
+        <script src="/analytics.js" async></script>
 
 
         #end if
-
+		
+	
     </head>
     
     <body class="home page-template-default page page-id-2 full-width-content" itemscope itemtype="https://schema.org/WebPage">
