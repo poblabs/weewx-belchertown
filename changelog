@@ -3,6 +3,7 @@
 * Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
 * Fixed a bug where if using a radar image (not windy.com, but a jpg, gif, png, etc.), it'll reload the image upon background updates. 
 * Fixed a bug where the date of the weather records snapshot on the home page didn't update if the page was automatically updated overnight. 
+* Fixed a bug where rounding of rain and outTemp for custom Records page code wasn't honoring the number of decimal places from skin.conf. 
 
 0.8.2 January 1, 2019
 * Fixed an error where the skin would fail when the date rolls to the New Year due to no data being in certain tables in the database yet. 
