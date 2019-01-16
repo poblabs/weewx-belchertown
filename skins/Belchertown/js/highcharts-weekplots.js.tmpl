@@ -811,6 +811,12 @@ function weekly() {
         i++;
         #end if
         
+        #if $Extras.has_key('highcharts_show_intemp') and $Extras.highcharts_show_intemp == '1'
+        optionsTemp.series[i] = seriesData[0].temperatureplot.series.inTemp;
+        optionsTemp.series[i].color = "#f47142"; // Always set intemp to orange no matter its order
+        i++;
+        #end if
+        
         var chart = new Highcharts.StockChart(optionsTemp);
                 
         #end if
