@@ -228,6 +228,7 @@
             
             // Daily stats section
             jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, MMMM D, YYYY' ) ); // e.g. Tuesday, January 15, 2019
+            jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM, YYYY' ) ); // e.g. January, 2019
             jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
             jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
             jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
@@ -999,7 +1000,7 @@
                                         <!-- Quick this month stats -->
                                         <div class="col-sm-6 stn-quick-stats border-left">
                                             <div class="stats-title">
-                                                Month of $current.dateTime.format("%B, %Y")
+                                                Month of <span class="snapshot-records-month-header">$current.dateTime.format("%B, %Y")</span><!-- AJAX -->
                                             </div>
                                             <table>
                                                 <tr>
