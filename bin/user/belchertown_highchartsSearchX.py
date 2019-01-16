@@ -90,6 +90,17 @@ class highchartsDay(SearchList):
             appTemp_json = json.dumps(zip(time_ms, appTempRound_vt))
         else:
             appTemp_json = json.dumps( "N/A" )
+            
+        if belchertown_skin_dict['Extras']['highcharts_show_intemp'] == "1":
+            # Get our indoor temperature vector
+            (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'inTemp')
+            inTemp_vt = self.generator.converter.convert(inTemp_vt)
+            usageRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inTemp_vt[2], "1f")[-2])
+            inTempRound_vt = [roundNone(x, usageRound) for x in inTemp_vt[0]]
+            time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+            inTemp_json = json.dumps(zip(time_ms, inTempRound_vt))
+        else:
+            inTemp_json = json.dumps( "N/A" )
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint')
@@ -228,6 +239,7 @@ class highchartsDay(SearchList):
         # Put into a dictionary to return
         search_list_extension = {'outTempDayjson' : outTemp_json,
                                  'appTempDayjson' : appTemp_json,
+                                 'inTempDayjson' : inTemp_json,
                                  'outHumidityDayjson' : outHumidity_json,
                                  'dewpointDayjson' : dewpoint_json,
                                  'windchillDayjson' : windchill_json,
@@ -322,6 +334,17 @@ class highchartsWeek(SearchList):
             appTemp_json = json.dumps(zip(appTemp_time_ms, appTempRound_vt))
         else:
             appTemp_json = json.dumps( "N/A" )
+            
+        if belchertown_skin_dict['Extras']['highcharts_show_intemp'] == "1":
+            # Get our indoor temperature vector
+            (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'inTemp', 'max', 3600)
+            inTemp_vt = self.generator.converter.convert(inTemp_vt)
+            inTempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inTemp_vt[2], "1f")[-2])
+            inTempRound_vt = [roundNone(x,inTempRound) for x in inTemp_vt[0]]
+            inTemp_time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+            inTemp_json = json.dumps(zip(inTemp_time_ms, inTempRound_vt))
+        else:
+            inTemp_json = json.dumps( "N/A" )
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 3600)
@@ -511,6 +534,7 @@ class highchartsWeek(SearchList):
         # Put into a dictionary to return
         search_list_extension = {'outTempWeekjson' : outTemp_json,
                                  'appTempWeekjson' : appTemp_json,
+                                 'inTempWeekjson' : inTemp_json,
                                  'dewpointWeekjson' : dewpoint_json,
                                  'windchillWeekjson' : windchill_json,
                                  'heatindexWeekjson' : heatindex_json,
