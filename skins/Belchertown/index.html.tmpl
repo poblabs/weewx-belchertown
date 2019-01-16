@@ -471,7 +471,7 @@
             
             #if $Extras.has_key('googleAnalyticsId')
             // Send a pageview
-            ga('send', 'pageview');
+            gtag('config', '$Extras.googleAnalyticsId');
             #end if
             
             // Updated time
