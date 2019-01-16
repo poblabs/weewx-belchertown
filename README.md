@@ -250,6 +250,7 @@ Here are the default order of the chart plots:
 | show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
+| highcharts_show_intemp | 0 | Show the indoor temperature chart on the temperatureplot. Available only on day and week plots. (available in 0.9)
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
 | highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
 | highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
