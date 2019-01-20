@@ -107,6 +107,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 },
@@ -189,6 +191,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 }
@@ -273,6 +277,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -315,8 +321,8 @@ function weekly() {
             //    ]
             //},
             renderTo: 'barometerplot',
-            //spacing: [5, 10, 10, 0],
-            type: 'spline',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
             zoomType: 'x'
         },
 
@@ -359,6 +365,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -441,6 +449,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 },
@@ -535,6 +545,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: true
                 }
@@ -637,6 +649,14 @@ function weekly() {
         },
 
         plotOptions: {
+            line: {
+                lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
+                marker: {
+                    enabled: false
+                },
+            },        
             column: {
                 color: '#72B2C4',
                 borderWidth: 0,
@@ -728,6 +748,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
