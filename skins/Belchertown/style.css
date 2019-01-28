@@ -2221,7 +2221,7 @@ li.comment {
     body.pi {
         font-family:initial;
         padding: 0px;
-        overflow: auto;
+        overflow: hidden;
         overflow-x: hidden;
     }
     
