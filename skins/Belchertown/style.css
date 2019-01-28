@@ -2220,6 +2220,21 @@ li.comment {
     
     body.pi {
         font-family:initial;
+        padding: 0px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+    
+    .pi .wx-stn-info-container {
+        padding-bottom: 0px;
+    }
+    
+    .pi .updated-wrapper {
+        margin-bottom: 5px;
+    }
+    
+    .pi .onlineMarkerOuter {
+        padding: 7px 0 0 25px;
     }
     
     .pi .site-inner, .pi .wrap {
@@ -2229,6 +2244,11 @@ li.comment {
     }
     .pi .entry {
         margin-bottom: 0px;
+    }
+
+    .pi .col-xs-6 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
     }
     
     .pi .col-md-3 { padding: 0px !important; }
@@ -2270,7 +2290,7 @@ li.comment {
     }
     
     .pi .temp-observation img {
-        width:70px;
+        width:60px;
         height:auto;
     }
     
@@ -2289,12 +2309,13 @@ li.comment {
     .pi .tempstats {
         font-size:16px;
         line-height:20px;
-        margin-top:13px;
+        margin-top:10px;
     }
     
     .pi .feelslike { 
         font-size:16px;
         text-align:center;
+        padding-bottom: 6px;
     }
      
     .pi .wind_col { 
@@ -2322,7 +2343,7 @@ li.comment {
     }
     
     .pi .compass {
-        margin-left: 63px;
+        margin-left: 56px;
         margin-top: 5px;
         margin-bottom: 5px;
     }
@@ -2353,7 +2374,12 @@ li.comment {
     .pi .moon-container {
         margin-top: 5px;
         line-height: 18px;
-    }    
+    }
+    
+    .pi .moon, .pi .sun {
+        float: none;
+        text-align: center;
+    }
     
     .pi .forecastrow .col-lg-12 {
         padding: 0;

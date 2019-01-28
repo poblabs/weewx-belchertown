@@ -430,7 +430,7 @@
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
-            updated_text = "Connected to weather station live. Data received " + updated;
+            updated_text = "Connected. Received " + updated;
             jQuery(".updated").html( updated_text );
             jQuery(".onlineMarker").show(); // Show the online beacon
             jQuery(".offlineMarker").hide(); // Hide offline beacon
@@ -737,25 +737,25 @@
                                         </div>
                                         <div class="col-sm-7 moon">
                                             <div class="moon-container">
-                                                <span class="moon-icon">
-                                                    #if $almanac.moon_phase == "New Moon"
-                                                        <div class='wi wi-moon-alt-new'></div>
-                                                    #else if $almanac.moon_phase == "Waxing Crescent"
-                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                    #else if $almanac.moon_phase == "First Quarter"
-                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                    #else if $almanac.moon_phase == "Waxing Gibbous"
-                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                    #else if $almanac.moon_phase == "Full Moon"
-                                                        <div class='wi wi-moon-alt-full'></div>
-                                                    #else if $almanac.moon_phase == "Waning Gibbous"
-                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                    #else if $almanac.moon_phase == "Last Quarter"
-                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                    #else if $almanac.moon_phase == "Waning Crescent"
-                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
-                                                    #end if                                                
-                                                </span><!-- AJAX -->
+                                                    <span class="moon-icon">
+                                                        #if $almanac.moon_phase.lower() == "new moon"
+                                                            <div class='wi wi-moon-alt-new'></div>
+                                                        #else if $almanac.moon_phase.lower() == "waxing crescent"
+                                                            <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                        #else if $almanac.moon_phase.lower() == "first quarter"
+                                                            <div class='wi wi-moon-alt-first-quarter'></div>
+                                                        #else if $almanac.moon_phase.lower() == "waxing gibbous"
+                                                            <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                        #else if $almanac.moon_phase.lower() == "full moon"
+                                                            <div class='wi wi-moon-alt-full'></div>
+                                                        #else if $almanac.moon_phase.lower() == "waning gibbous"
+                                                            <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                        #else if $almanac.moon_phase.lower() == "last quarter"
+                                                            <div class='wi wi-moon-alt-first-quarter'></div>
+                                                        #else if $almanac.moon_phase.lower() == "waning crescent"
+                                                            <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                        #end if
+                                                    </span><!-- AJAX -->
                                                 <span class="moon-phase">$almanac.moon_phase</span><!-- AJAX -->
                                             </div>
                                         </div>
