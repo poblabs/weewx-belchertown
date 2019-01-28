@@ -889,21 +889,21 @@
                                                         <div class="col-sm-7 moon">
                                                             <div class="moon-container">
                                                                 <span class="moon-icon">
-                                                                    #if $almanac.moon_phase == "New Moon"
+                                                                    #if $almanac.moon_phase.lower() == "new moon"
                                                                         <div class='wi wi-moon-alt-new'></div>
-                                                                    #else if $almanac.moon_phase == "Waxing Crescent"
+                                                                    #else if $almanac.moon_phase.lower() == "waxing crescent"
                                                                         <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                                    #else if $almanac.moon_phase == "First Quarter"
+                                                                    #else if $almanac.moon_phase.lower() == "first quarter"
                                                                         <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase == "Waxing Gibbous"
+                                                                    #else if $almanac.moon_phase.lower() == "waxing gibbous"
                                                                         <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase == "Full Moon"
+                                                                    #else if $almanac.moon_phase.lower() == "full moon"
                                                                         <div class='wi wi-moon-alt-full'></div>
-                                                                    #else if $almanac.moon_phase == "Waning Gibbous"
+                                                                    #else if $almanac.moon_phase.lower() == "waning gibbous"
                                                                         <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase == "Last Quarter"
+                                                                    #else if $almanac.moon_phase.lower() == "last quarter"
                                                                         <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase == "Waning Crescent"
+                                                                    #else if $almanac.moon_phase.lower() == "waning crescent"
                                                                         <div class='wi wi-moon-alt-waning-crescent-4'></div>
                                                                     #end if
                                                                 </span>
