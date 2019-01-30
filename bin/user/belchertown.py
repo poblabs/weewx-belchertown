@@ -610,7 +610,7 @@ class getData(SearchList):
                     output += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>'
                 output += '</div>'
                 output += '<div class="forecast-wind">'
-                output += '<i class="wi wi-strong-wind"></i> '+str( int( daily_data["windGust"] ) )+' '+ windSpeedUnitLabel
+                output += '<i class="wi wi-strong-wind"></i> <span>'+str( int( daily_data["windSpeed"] ) )+'</span> | <span>'+str( int( daily_data["windGust"] ) )+'</span>' + windSpeedUnitLabel
                 output += '</div>'
                 output += "</div> <!-- end .wuforecast -->"
                 

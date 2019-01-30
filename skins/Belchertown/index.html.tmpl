@@ -389,7 +389,7 @@
                 }
                 output_html += '</div>';
                 output_html += '<div class="forecast-wind">';
-                output_html += '<i class="wi wi-strong-wind"></i> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) + '$unit.label.windSpeed';
+                output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
                 output_html += '</div>';
                 output_html += '</div>';
             }
