@@ -42,7 +42,9 @@
                         <!-- Begin row -->
                         <div class="row">
                             <div class="col-sm-12 wx-records-description">
-                                $records_page_text
+                                #if os.path.exists("records.inc")
+                                #include "records.inc"
+                                #end if
                             </div>
                         </div>
                         <!-- End row -->

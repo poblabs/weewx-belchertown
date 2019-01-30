@@ -82,17 +82,6 @@ class getData(SearchList):
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
-        # Handle the records.inc file.
-        # records.inc: if the file is present use it, therwise do not show anything.
-        records_file = local_skin_root + "/records.inc"
-        records_page_text = ""
-        try:
-            with open( records_file, 'r' ) as rf:
-                records_page_text = rf.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass        
-        
         # Custom Row 1 on index. Between station info and forecast
         index_hook_after_station_info_enabled = 0
         index_hook_after_station_info_file = local_skin_root + "/index_hook_after_station_info.inc"
@@ -743,7 +732,6 @@ class getData(SearchList):
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'radar_html': radar_html,
-                                  'records_page_text': records_page_text,
                                   'index_hook_after_station_info_enabled': index_hook_after_station_info_enabled,
                                   'index_hook_after_station_info_text': index_hook_after_station_info_text,
                                   'index_hook_after_forecast_enabled': index_hook_after_forecast_enabled,
