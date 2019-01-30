@@ -1,13 +1,19 @@
 0.9 January ??, 2019
+* Updated almanac to work with weewx 3.9.0's new [Default] section within weewx.conf.
 * Added the option to show indoor temperature (inTemp) to the temperature charts. This option is disabled by default and is setup exactly like apparent temperature. Once you opt-in to show this data, it is only available for the day and week charts.
 * Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
 * Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
 * Switched to the new Google Analytics method of tracking with gtag.js.
+* Added forecast windspeed next to the (existing) wind gust.
+* Simplified the includes for the About page, Records page and home page. Before it had a lot of overhead to it, so now it's using a simple Cheetah #include. If you want to show something in these areas, you just need to create the .inc file and that's it. No options to set or anything. See the README for more information.
+* On the Pi page, added a timer to reconnect to MQTT if connection is lost to the MQTT broker.
+* Fixed Pi page styles to match the 640x480 resolution for the PiTFT.
 * Fixed a bug certain users were seeing with UTF-8. Thanks user spanishhighs!
 * Fixed a bug where if using a radar image (not windy.com, but a jpg, gif, png, etc.), it'll reload the image upon background updates. 
 * Fixed a bug where the date of the weather records snapshot for "Today" and "Month of" on the home page didn't update if the page was automatically updated overnight into a new day or a new month. 
 * Fixed a bug where rounding of rain and outTemp for custom Records page code wasn't honoring the number of decimal places from skin.conf. 
 * Fixed a bug where if there was missing data in the chart data, the chart would show a connecting line. Instead the correct behavior should be to show a gap which represents that data is missing.
+* Fixed a bug where the Facebook share button was using the O'Brien Labs Facebook App ID.
 
 0.8.2 January 1, 2019
 * Fixed an error where the skin would fail when the date rolls to the New Year due to no data being in certain tables in the database yet. 
