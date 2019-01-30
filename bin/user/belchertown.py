@@ -82,33 +82,8 @@ class getData(SearchList):
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
-        # Handle the about.inc and records.inc files.
-        # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
-        # records.inc: if the file is present use it, therwise do not show anything. 
-        about_file = local_skin_root + "/about.inc"
-        about_page_text = """
-        <p>Welcome to your new about page!</p>
-        <p>To change this text:
-        <ul>
-            <li> Rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code></li>
-            <ul>
-                <li> or create a new file at <code>skins/Belchertown/about.inc</code></li>
-            </ul>
-            <li> Use the example text within <code>skins/Belchertown/about.inc.example</code> to create your about page description!</li>
-            <li>Full HTML is accepted.</li>
-        </ul>
-        </p>
-        <p><a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">Click this link if you need help!</a>
-        <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a></p>
-        """
-        
-        try:
-            with open( about_file, 'r' ) as af:
-                about_page_text = af.read()
-        except:
-            # File doesn't exist - use the default text. 
-            pass
-        
+        # Handle the records.inc file.
+        # records.inc: if the file is present use it, therwise do not show anything.
         records_file = local_skin_root + "/records.inc"
         records_page_text = ""
         try:
@@ -768,7 +743,6 @@ class getData(SearchList):
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'radar_html': radar_html,
-                                  'about_page_text': about_page_text,
                                   'records_page_text': records_page_text,
                                   'index_hook_after_station_info_enabled': index_hook_after_station_info_enabled,
                                   'index_hook_after_station_info_text': index_hook_after_station_info_text,

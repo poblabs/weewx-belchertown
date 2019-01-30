@@ -39,7 +39,11 @@
                                 <div class="clear"></div>
                             </div>
 
-                        $about_page_text
+                        #if os.path.exists("about.inc")
+                        #include "about.inc"
+                        #else
+                        #include "about.inc.example"
+                        #end if
                     
                     </div>
                 </article>
