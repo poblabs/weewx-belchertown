@@ -398,7 +398,8 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Failed to connect to weather station." );
+            jQuery(".updated").html( "Failed to connect to weather station. Retrying..." );
+            setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             console.log( d.getTime() + ": Cannot connect to MQTT broker" );
         }
 
