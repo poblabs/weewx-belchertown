@@ -408,7 +408,8 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Connection lost to the weather station." );
+            jQuery(".updated").html( "Connection lost to the weather station. Retrying..." );
+            setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             if (responseObject.errorCode !== 0) {
                 console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
             }
