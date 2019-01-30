@@ -935,10 +935,10 @@
                         </div>
                         <!-- End of first row -->
                         
-                        #if $index_hook_after_station_info_enabled == 1
+                        #if os.path.exists("index_hook_after_station_info.inc")
                         <!-- Start of index_hook_after_station_info row -->
                         <div class="row border-bottom">
-                            $index_hook_after_station_info_text
+                            #include "index_hook_after_station_info.inc"
                         </div>
                         <!-- End of index_hook_after_station_info row -->
                         #end if
@@ -959,10 +959,10 @@
                         <!-- End of second row -->
                         #end if
                         
-                        #if $index_hook_after_forecast_enabled == 1
+                        #if os.path.exists("index_hook_after_forecast.inc")
                         <!-- Start of index_hook_after_forecast row -->
                         <div class="row border-bottom">
-                            $index_hook_after_forecast_text
+                            #include "index_hook_after_forecast.inc"
                         </div>
                         <!-- End of index_hook_after_forecast row -->
                         #end if                        
@@ -1054,10 +1054,10 @@
                         </div>
                         <!-- End of third row -->
                         
-                        #if $index_hook_after_snapshot_enabled == 1
+                        #if os.path.exists("index_hook_after_snapshot.inc")
                         <!-- Start of index_hook_after_snapshot row -->
                         <div class="row border-bottom">
-                            $index_hook_after_snapshot_text
+                            #include "index_hook_after_snapshot.inc"
                         </div>
                         <!-- End of index_hook_after_snapshot row -->
                         #end if                          
@@ -1103,10 +1103,10 @@
                         
                         <div class="clear"></div>
                         
-                        #if $index_hook_after_charts_enabled == 1
+                        #if os.path.exists("index_hook_after_charts.inc")
                         <!-- Start of index_hook_after_charts row -->
                         <div class="row border-top">
-                            $index_hook_after_charts_text
+                            #include "index_hook_after_charts.inc"
                         </div>
                         <!-- End of index_hook_after_charts row -->
                         #end if  
