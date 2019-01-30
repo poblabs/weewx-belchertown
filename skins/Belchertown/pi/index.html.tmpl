@@ -398,7 +398,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "The weather station is offline. Real time updates are not available. Please try again later!" );
+            jQuery(".updated").html( "Failed to connect to weather station." );
             console.log( d.getTime() + ": Cannot connect to MQTT broker" );
         }
 
@@ -408,7 +408,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "The weather station has gone offline. Real time updates are not available. Please try again later!" );
+            jQuery(".updated").html( "Connection lost to the weather station." );
             if (responseObject.errorCode !== 0) {
                 console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
             }
