@@ -13,6 +13,11 @@
 * Fixed a bug where the date of the weather records snapshot for "Today" and "Month of" on the home page didn't update if the page was automatically updated overnight into a new day or a new month. 
 * Fixed a bug where rounding of rain and outTemp for custom Records page code wasn't honoring the number of decimal places from skin.conf. 
 * Fixed a bug where if there was missing data in the chart data, the chart would show a connecting line. Instead the correct behavior should be to show a gap which represents that data is missing.
+** Gaps will show if the following time ranges are missing in the chart:
+** Day chart: 5 minute gap
+** Week chart: 1 hour gap
+** Month: 24 hour gap
+** Year: 24 hour gap
 * Fixed a bug where the Facebook share button was using the O'Brien Labs Facebook App ID.
 
 0.8.2 January 1, 2019
