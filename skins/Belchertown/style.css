@@ -1626,7 +1626,13 @@ li.comment {
 }
 
 .current-obs-text {
+    text-align:center;
 	font-size:20px;
+}
+
+#wxicon {
+    display: block;
+    margin: 0 auto;
 }
 
 .current_temp {
