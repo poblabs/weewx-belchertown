@@ -1554,6 +1554,14 @@ li.comment {
     padding-bottom: 10px;
 }
 
+.wx-stn-info-current-obs {
+    text-align: center;
+}
+
+.obs-header-icon, .obs-header-outtemp, .wx-stn-info, .wx-stn-info-social {
+    display:block;
+}
+
 .wx-stn-name {
 	float:left;
 }
@@ -2045,6 +2053,12 @@ li.comment {
 	.wx-stn-info-container {
 		text-align:center;
 	}
+    
+    .obs-header-icon, .obs-header-outtemp {
+        display: inline-block;
+    }
+    
+    .obs-header-icon { width:25%; }
 	
 	.wx-stn-name {
 		float:none;

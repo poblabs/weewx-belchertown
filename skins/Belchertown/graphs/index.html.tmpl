@@ -43,34 +43,7 @@
                                 
                         </script>
                         
-                        <div class="wx-stn-info-container">
-                            <div class="row">
-                                <div class="col-sm-1">
-                                    $current_obs_icon
-                                </div>
-                                <div class="col-sm-5">
-                                    <div class="wx-stn-name">
-                                        <h1>$Extras.graphs_page_header</h1>
-                                    </div>
-                                </div>
-                                <div class="col-sm-5" style="float:right;">
-                                    <div class="wx-stn-info">
-                                        Observations are powered by a <a href="$belchertown_root_url/about" target="_blank">Personal Weather Station</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-1" style="text-align:center;">
-                                    $current.outTemp
-                                </div>
-                                #if $social_html != ""
-                                <div class="col-sm-10" style="float:right;">
-                                    $social_html
-                                </div>
-                                #end if
-                            </div>
-                            <div class="clear"></div>
-                        </div>
+                        #include "page-header.inc"
 
                         <!-- Begin row -->
                         <div class="row">
