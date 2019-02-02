@@ -161,14 +161,18 @@
                                         <td class="leftborder">$year_days_with_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_with_rain[1] ) )#</td>
                                         <td class="leftborder">$at_days_with_rain[0] days</td>
-                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_with_rain[1] ) )#</td>
+                                        ## Minus the epoch date from the number of days
+                                        #set daysago = datetime.datetime.fromtimestamp($at_days_with_rain[1]) - timedelta(days=$at_days_with_rain[0])#
+                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_with_rain[1] ) )#</td>
                                     </tr>                        
                                     <tr>
                                         <td>Consecutive Days Without Rainfall</td>
                                         <td class="leftborder">$year_days_without_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_without_rain[1] ) )#</td>
                                         <td class="leftborder">$at_days_without_rain[0] days</td>
-                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
+                                        ## Minus the epoch date from the number of days
+                                        #set daysago = datetime.datetime.fromtimestamp($at_days_without_rain[1]) - timedelta(days=$at_days_without_rain[0])#
+                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
                                     </tr>
                                  
                                     <tr>
