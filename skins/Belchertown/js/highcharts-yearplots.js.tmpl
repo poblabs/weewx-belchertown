@@ -48,7 +48,8 @@ function get_cardinal_direction(degree) {
 
 Highcharts.setOptions({
     global: {
-        useUTC: false
+        //useUTC: false
+        timezoneOffset: -($moment_js_utc_offset) // Needs to be opposite normal offsets. 
     },
 });
 
@@ -854,12 +855,6 @@ function yearly() {
         var chart = new Highcharts.StockChart(optionsRadiation);
         #end if        
 
-
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
     });
 
 };

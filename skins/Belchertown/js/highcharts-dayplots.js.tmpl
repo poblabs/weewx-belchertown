@@ -48,7 +48,8 @@ function get_cardinal_direction(degree) {
 
 Highcharts.setOptions({
     global: {
-        useUTC: false
+        //useUTC: false
+        timezoneOffset: -($moment_js_utc_offset) // Needs to be opposite normal offsets. 
     },
 });
 
@@ -973,12 +974,7 @@ function daily () {
         #if $Extras.highcharts_graph_1 == 'radiationplot' or $Extras.highcharts_graph_2 == 'radiationplot' or $Extras.highcharts_graph_3 == 'radiationplot' or $Extras.highcharts_graph_4 == 'radiationplot' or $Extras.highcharts_graph_5 == 'radiationplot' or $Extras.highcharts_graph_6 == 'radiationplot'
         var chart = new Highcharts.StockChart(optionsRadiation);
         #end if        
-        
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
+                
     });
 
 };
