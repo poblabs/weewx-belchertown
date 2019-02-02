@@ -915,7 +915,7 @@ class highchartsYear(SearchList):
         outTempRound_vt =  [roundNone(x,tempRound) for x in outTemp_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        outTemp_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Min temp vector
         (time_start_vt, time_stop_vt, outTempMin_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outTemp', 'min', 86400)
@@ -928,7 +928,7 @@ class highchartsYear(SearchList):
         outTempMinRound_vt =  [roundNone(x,tempMinRound) for x in outTempMin_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        outTempMin_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        outTempMin_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'dewpoint', 'max', 86400)
@@ -940,7 +940,7 @@ class highchartsYear(SearchList):
         dewpointRound_vt =  [roundNone(x,dewpointRound) for x in dewpoint_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        dewpoint_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        dewpoint_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
                 
         # Get our wind chill vector
         (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windchill', 'max', 86400)
@@ -952,7 +952,7 @@ class highchartsYear(SearchList):
         windchillRound_vt =  [roundNone(x,windchillRound) for x in windchill_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        windchill_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        windchill_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our heat index vector
         (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'heatindex', 'max', 86400)
@@ -964,7 +964,7 @@ class highchartsYear(SearchList):
         heatindexRound_vt =  [roundNone(x,heatindexRound) for x in heatindex_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        heatindex_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our humidity vector
         (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'outHumidity', 'max', 86400)
@@ -975,7 +975,7 @@ class highchartsYear(SearchList):
         outHumidityRound_vt =  [roundNone(x,outHumidityRound) for x in outHumidity_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        outHumidity_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our barometer vector
         (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'barometer', 'max', 86400)
@@ -987,7 +987,7 @@ class highchartsYear(SearchList):
         barometerRound_vt =  [roundNone(x,barometerRound) for x in barometer_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        barometer_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        barometer_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our wind speed vector
         (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'max', 86400)
@@ -999,7 +999,7 @@ class highchartsYear(SearchList):
         windSpeedRound_vt =  [roundNone(x,windspeedRound) for x in windSpeed_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        windSpeed_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        windSpeed_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Average wind speed vector
         (time_start_vt, time_stop_vt, windSpeedAvg_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windSpeed', 'avg', 86400)
@@ -1011,7 +1011,7 @@ class highchartsYear(SearchList):
         windSpeedAvgRound_vt =  [roundNone(x,windspeedAvgRound) for x in windSpeedAvg_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        windSpeedAvg_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        windSpeedAvg_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our wind gust vector
         (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windGust', 'max', 86400)
@@ -1023,7 +1023,7 @@ class highchartsYear(SearchList):
         windGustRound_vt =  [roundNone(x,windgustRound) for x in windGust_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        windGust_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our wind direction vector
         (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'max', 86400)
@@ -1034,7 +1034,7 @@ class highchartsYear(SearchList):
         windDirRound_vt =  [roundNone(x,windDirRound) for x in windDir_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        windDir_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our rain vector for total accumulation
         (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
@@ -1113,7 +1113,7 @@ class highchartsYear(SearchList):
         radiationRound_vt =  [roundNone(x,radiationRound) for x in radiation_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        radiation_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        radiation_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
                 
         # Format our vectors in json format. Need the zip() to get time/value pairs
         # Assumes all vectors have the same number of elements
