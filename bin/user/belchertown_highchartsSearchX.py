@@ -441,7 +441,7 @@ class highchartsWeek(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
          
         # Get our rain vector for total accumulation
-        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 3600)
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', 'sum', 3600)
         # Convert our rain vector
         rain_vt = self.generator.converter.convert(rain_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -454,8 +454,9 @@ class highchartsWeek(SearchList):
         rain_total = []
         for rain in rain_vt[0]:
             # If the rain value is None or "", add it as 0.0
-            if rain is None or rain == "":
-                rain = 0.0
+            # Removed this section 2/2/2019 due to it adding A LOT of plots
+            #if rain is None or rain == "":
+            #    rain = 0.0
             rain_count = rain_count + rain
             rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
@@ -464,7 +465,7 @@ class highchartsWeek(SearchList):
         pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
         # Get our rainRate vector
-        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', '', 3600)
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', 'max', 3600)
         # Convert our rain vector
         rainRate_vt = self.generator.converter.convert(rainRate_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -742,7 +743,7 @@ class highchartsMonth(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our rain vector for total accumulation
-        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', 'sum', 86400)
         # Convert our rain vector
         rain_vt = self.generator.converter.convert(rain_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -755,8 +756,9 @@ class highchartsMonth(SearchList):
         rain_total = []
         for rain in rain_vt[0]:
             # If the rain value is None or "", add it as 0.0
-            if rain is None or rain == "":
-                rain = 0.0
+            # Removed this section 2/2/2019 due to it adding A LOT of plots
+            #if rain is None or rain == "":
+            #    rain = 0.0
             rain_count = rain_count + rain
             rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
@@ -765,7 +767,7 @@ class highchartsMonth(SearchList):
         pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
         # Get our rainRate vector
-        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', '', 86400)
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', 'max', 86400)
         # Convert our rain vector
         rainRate_vt = self.generator.converter.convert(rainRate_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -1037,7 +1039,7 @@ class highchartsYear(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our rain vector for total accumulation
-        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', 'sum', 86400)
         # Convert our rain vector
         rain_vt = self.generator.converter.convert(rain_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -1050,17 +1052,18 @@ class highchartsYear(SearchList):
         rain_total = []
         for rain in rain_vt[0]:
             # If the rain value is None or "", add it as 0.0
-            if rain is None or rain == "":
-                rain = 0.0
+            # Removed this section 2/2/2019 due to it adding A LOT of plots
+            #if rain is None or rain == "":
+            #    rain = 0.0
             rain_count = rain_count + rain
             rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRain_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
         # Get our rain "bucket tips" vector
-        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rain', '', 86400)
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'rainRate', 'max', 86400)
         # Convert our rain vector
         rainRate_vt = self.generator.converter.convert(rainRate_vt)
         # Don't round. Let Highcharts JS do the rounding. 
@@ -1074,7 +1077,7 @@ class highchartsYear(SearchList):
             rain_round.append( rainRate )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRainRate_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
 
         # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
