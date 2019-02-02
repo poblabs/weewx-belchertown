@@ -461,7 +461,7 @@ class highchartsWeek(SearchList):
             rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRain_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
         # Get our rainRate vector
@@ -479,7 +479,7 @@ class highchartsWeek(SearchList):
             rain_round.append( rainRate )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRainRate_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
         
         # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
@@ -763,7 +763,7 @@ class highchartsMonth(SearchList):
             rain_total.append( round( rain_count, 2 ) )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRain_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_total_json = json.dumps(zip(timeRain_ms, rain_total))
         
         # Get our rainRate vector
@@ -781,7 +781,7 @@ class highchartsMonth(SearchList):
             rain_round.append( rainRate )
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        timeRainRate_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        timeRainRate_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         pob_rain_json = json.dumps(zip(timeRainRate_ms, rain_round))
         
         # Decomissioned in 0.8 in favor of the getSqlVectors code above which handles the vectors better and does rain unit conversion
