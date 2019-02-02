@@ -5,6 +5,7 @@
 * Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
 * Switched to the new Google Analytics method of tracking with gtag.js.
 * Added forecast windspeed next to the (existing) wind gust.
+* Updated windspeed forecast CSS on mobile.
 * Simplified the includes for the About page, Records page and home page. Before it had a lot of overhead to it, so now it's using a simple Cheetah #include. If you want to show something in these areas, you just need to create the .inc file and that's it. No options to set or anything. See the README for more information.
 * On the Pi page, added a timer to reconnect to MQTT if connection is lost to the MQTT broker.
 * Fixed Pi page styles to match the 640x480 resolution for the PiTFT.
