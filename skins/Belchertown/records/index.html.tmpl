@@ -2,6 +2,9 @@
 #encoding UTF-8
 #set global $page = "records"
 
+#import datetime
+#from datetime import timedelta
+
     #include "header.html.tmpl"
 
     <div class="site-inner">
@@ -157,15 +160,15 @@
                                         <td>Consecutive Days With Rainfall</td>
                                         <td class="leftborder">$year_days_with_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_with_rain[1] ) )#</td>
-                                        <td class="leftborder">Highest Year</td>
-                                        <td>$at_days_with_rain[0] days in #echo time.strftime( "%Y", time.localtime( $at_days_with_rain[1] ) )#</td>
+                                        <td class="leftborder">$at_days_with_rain[0] days</td>
+                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_with_rain[1] ) )#</td>
                                     </tr>                        
                                     <tr>
                                         <td>Consecutive Days Without Rainfall</td>
                                         <td class="leftborder">$year_days_without_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_without_rain[1] ) )#</td>
-                                        <td class="leftborder">Highest Year</td>
-                                        <td>$at_days_without_rain[0] days in #echo time.strftime( "%Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
+                                        <td class="leftborder">$at_days_without_rain[0] days</td>
+                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
                                     </tr>
                                  
                                     <tr>
