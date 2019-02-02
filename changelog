@@ -13,6 +13,7 @@
 * Fixed a bug where the date of the weather records snapshot for "Today" and "Month of" on the home page didn't update if the page was automatically updated overnight into a new day or a new month. 
 * Fixed a bug where rounding of rain and outTemp for custom Records page code wasn't honoring the number of decimal places from skin.conf. 
 * Fixed a bug where the highcharts timelines were in the viewer's timezone and not the station's timezone.
+* Fixed a bug where the Week and Month charts did not begin on a week before, or a month before (respectively).
 * Fixed a bug where the Year charts did not begin on January 1.
 * Fixed a bug where if there was missing data in the chart data, the chart would show a connecting line. Instead the correct behavior should be to show a gap which represents that data is missing.
 ** Gaps will show if the following time ranges are missing in the chart:
