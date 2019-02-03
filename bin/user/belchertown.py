@@ -74,7 +74,7 @@ class getData(SearchList):
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
         
-        # Highcharts UTC offset is the opposite or normal. Positive values are west, negative values are east of UTC. https://api.highcharts.com/highcharts/time.timezoneOffset
+        # Highcharts UTC offset is the opposite of normal. Positive values are west, negative values are east of UTC. https://api.highcharts.com/highcharts/time.timezoneOffset
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
         
