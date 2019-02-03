@@ -4,7 +4,8 @@
 "temperatureplot": {"series": 
 {"outTemp": {"zIndex": "1", "name": "Temperature", "data": $outTempWeekjson}, 
 "dewpoint": {"name": "Dew Point", "data": $dewpointWeekjson}, 
-"appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson}}, 
+"appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson}, 
+"inTemp": {"name": "Indoor Temperature", "data": $inTempWeekjson}}, 
 "yAxisLabel": {"text": #slurp
 #if $unit.unit_type_dict.group_temperature == "degree_C"
  "(\u00B0 C)"
@@ -56,7 +57,7 @@
 {"windDir": {"name": "Wind Direction", "data": $windDirWeekjson}}
 }, 
 "rainplot": {"series": 
-{"rain": {"name": "Rain Rate", "data": $rainWeekjson}}, 
+{"rain": {"name": "Rain Rate Max", "data": $rainWeekjson}}, 
 "yAxisLabel": {"text": #slurp
 #if $unit.unit_type_dict.group_rain == "mm"
  "(mm)"

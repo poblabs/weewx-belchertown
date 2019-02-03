@@ -48,7 +48,8 @@ function get_cardinal_direction(degree) {
 
 Highcharts.setOptions({
     global: {
-        useUTC: false
+        //useUTC: false
+        timezoneOffset: $highcharts_timezoneoffset 
     },
 });
 
@@ -91,6 +92,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -107,6 +109,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -173,6 +177,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -189,6 +194,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 }
@@ -256,6 +263,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -273,6 +281,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -315,8 +325,8 @@ function weekly() {
             //    ]
             //},
             renderTo: 'barometerplot',
-            //spacing: [5, 10, 10, 0],
-            type: 'spline',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
             zoomType: 'x'
         },
 
@@ -342,6 +352,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -359,6 +370,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -425,6 +438,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -441,6 +455,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 },
@@ -507,6 +523,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 		
@@ -535,6 +552,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: true
                 }
@@ -612,14 +631,15 @@ function weekly() {
                 month: '%b %y',
             },
             lineColor: '#555',
-            minRange: 86400000,
-            // minRange: 900000,
+            // minRange: 86400000,
+            minRange: 900000,
             minTickInterval: 900000,
             title: {
                 style: {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 		
@@ -637,6 +657,14 @@ function weekly() {
         },
 
         plotOptions: {
+            line: {
+                lineWidth: 2,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
+                marker: {
+                    enabled: false
+                },
+            },        
             column: {
                 color: '#72B2C4',
                 borderWidth: 0,
@@ -710,6 +738,7 @@ function weekly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -728,6 +757,8 @@ function weekly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 3600000, // 1 hour in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -811,6 +842,12 @@ function weekly() {
         i++;
         #end if
         
+        #if $Extras.has_key('highcharts_show_intemp') and $Extras.highcharts_show_intemp == '1'
+        optionsTemp.series[i] = seriesData[0].temperatureplot.series.inTemp;
+        optionsTemp.series[i].color = "#f47142"; // Always set intemp to orange no matter its order
+        i++;
+        #end if
+        
         var chart = new Highcharts.StockChart(optionsTemp);
                 
         #end if
@@ -845,12 +882,6 @@ function weekly() {
         var chart = new Highcharts.StockChart(optionsRadiation);
         #end if        
 
-
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
     });
 
 };

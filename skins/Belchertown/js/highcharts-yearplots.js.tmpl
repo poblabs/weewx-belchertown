@@ -48,7 +48,8 @@ function get_cardinal_direction(degree) {
 
 Highcharts.setOptions({
     global: {
-        useUTC: false
+        //useUTC: false
+        timezoneOffset: $highcharts_timezoneoffset 
     },
 });
 
@@ -91,6 +92,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -107,6 +109,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -174,6 +178,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -190,6 +195,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 }
@@ -257,6 +264,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -274,6 +282,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',                
                 marker: {
                     enabled: false
                 }
@@ -316,8 +326,8 @@ function yearly() {
             //    ]
             //},
             renderTo: 'barometerplot',
-            //spacing: [5, 10, 10, 0],
-            type: 'spline',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
             zoomType: 'x'
         },
 
@@ -343,6 +353,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -360,6 +371,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -426,6 +439,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -442,6 +456,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -508,6 +524,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 		
@@ -536,6 +553,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: true
                 }
@@ -613,14 +632,15 @@ function yearly() {
                 month: '%b %y',
             },
             lineColor: '#555',
-            minRange: 86400000,
-            // minRange: 900000,
+            // minRange: 86400000,
+            minRange: 900000,
             minTickInterval: 900000,
             title: {
                 style: {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 		
@@ -638,6 +658,14 @@ function yearly() {
         },
 
         plotOptions: {
+            line: {
+                lineWidth: 2,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
+                marker: {
+                    enabled: false
+                },
+            },        
             column: {
                 color: '#72B2C4',
                 borderWidth: 0,
@@ -711,6 +739,7 @@ function yearly() {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
+            ordinal: false,
             type: 'datetime',
         },
 
@@ -729,6 +758,8 @@ function yearly() {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 86400000, // 24 hours in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -785,7 +816,7 @@ function yearly() {
         optionsWindDir.series[0] = seriesData[0].winddirplot.series.windDir;
         optionsRain.series[0] = seriesData[0].rainplot.series.rain;
         optionsRain.series[1] = seriesData[0].rainplottotal.series.rain;
-        optionsRain.series[0].type = 'column';
+        optionsRain.series[0].type = 'line';
         optionsRain.series[1].type = 'line';
         optionsRain.series[1].color = '#000';
         optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
@@ -824,12 +855,6 @@ function yearly() {
         var chart = new Highcharts.StockChart(optionsRadiation);
         #end if        
 
-
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
     });
 
 };

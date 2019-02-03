@@ -1,3 +1,31 @@
+0.9 February ??, 2019
+* Updated almanac to work with weewx 3.9.0's new [Default] section within weewx.conf.
+* Added the option to show indoor temperature (inTemp) to the temperature charts. This option is disabled by default and is setup exactly like apparent temperature. Once you opt-in to show this data, it is only available for the day and week charts.
+* Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
+* Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
+* Switched to the new Google Analytics method of tracking with gtag.js.
+* Added forecast windspeed next to the (existing) wind gust.
+* Updated windspeed forecast CSS on mobile.
+* Updated the records page for Consecutive Rain Days to show all time date range. Useful if your consecutive rain dates wrap around a new year and the math seems wrong (like BelchertownWeather.com shows)
+* Simplified the includes for the About page, Records page and home page. Before it had a lot of overhead to it, so now it's using a simple Cheetah #include. If you want to show something in these areas, you just need to create the .inc file and that's it. No options to set or anything. See the README for more information.
+* On the Pi page, added a timer to reconnect to MQTT if connection is lost to the MQTT broker.
+* Major bugfix for the rain charts. The old code was adding A LOT OF PLOTS. This resulted in slower chart generation time.
+* Fixed Pi page styles to match the 640x480 resolution for the PiTFT.
+* Fixed a bug certain users were seeing with UTF-8. Thanks user spanishhighs!
+* Fixed a bug where if using a radar image (not windy.com, but a jpg, gif, png, etc.), it'll reload the image upon background updates. 
+* Fixed a bug where the date of the weather records snapshot for "Today" and "Month of" on the home page didn't update if the page was automatically updated overnight into a new day or a new month. 
+* Fixed a bug where rounding of rain and outTemp for custom Records page code wasn't honoring the number of decimal places from skin.conf. 
+* Fixed a bug where the highcharts timelines were in the viewer's timezone and not the station's timezone.
+* Fixed a bug where the Week and Month charts did not begin on a week before, or a month before (respectively).
+* Fixed a bug where the Year charts did not begin on January 1.
+* Fixed a bug where if there was missing data in the chart data, the chart would show a connecting line. Instead the correct behavior should be to show a gap which represents that data is missing.
+** Gaps will show if the following time ranges are missing in the chart:
+** Day chart: 5 minute gap
+** Week chart: 1 hour gap
+** Month: 24 hour gap
+** Year: 24 hour gap
+* Fixed a bug where the Facebook share button was using the O'Brien Labs Facebook App ID.
+
 0.8.2 January 1, 2019
 * Fixed an error where the skin would fail when the date rolls to the New Year due to no data being in certain tables in the database yet. 
 * Added the ability to show any weather alerts provided by the DarkSky API. Weather alerts are off by default, use forecast_alert_enabled in weewx.conf skin options to enable it.

@@ -4,7 +4,8 @@
 "temperatureplot": {"series": 
 {"outTemp": { "zIndex": "1", "name": "Temperature", "data": $outTempDayjson}, 
 "dewpoint": {"name": "Dew Point", "data": $dewpointDayjson}, 
-"appTemp": {"name": "Apparent Temperature", "data": $appTempDayjson}}, 
+"appTemp": {"name": "Apparent Temperature", "data": $appTempDayjson},
+"inTemp": {"name": "Indoor Temperature", "data": $inTempDayjson}},
 "yAxisLabel": {"text": #slurp
 #if $unit.unit_type_dict.group_temperature == "degree_C"
  "(\u00B0 C)"

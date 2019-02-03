@@ -1,6 +1,6 @@
 # Belchertown weewx skin
 
-This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I developed that website with custom features but used weewx as the backend archive. It was a good fit to port the site to a weewx skin.
+This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
 
 ![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
 
@@ -11,6 +11,7 @@ Features include:
 * Observation graphs without needing to reload the website.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
+* Progressive webapp ready enabling the "Add to homescreen" option so your website feels like an app on your mobile devices. 
 
 ## Requirements 
 
@@ -237,6 +238,8 @@ Here are the default order of the chart plots:
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
+| manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device (available in 0.9)
+| manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app (available in 0.9)
 | graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
 | reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
@@ -244,8 +247,10 @@ Here are the default order of the chart plots:
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
 | show_apptemp | 0 | If you have [enabled Apparent Temperature](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (appTemp) in your database, you can show it on the site by enabling this. 
 | show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
+| show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
+| highcharts_show_intemp | 0 | Show the indoor temperature chart on the temperatureplot. Available only on day and week plots. (available in 0.9)
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
 | highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
 | highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
@@ -262,10 +267,10 @@ Here are the default order of the chart plots:
 | ---- | ------- | -----------
 | mqtt_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT broker (server)
 | mqtt_host | "" | The MQTT broker hostname or IP
-| mqtt_port | 1883 | The MQTT broker's port. Example: 1883 is standard. Brokers using SSL may be on port 9001. Check your broker's documentation.
+| mqtt_port | 8080 | The port of the MQTT broker's **Websockets** port. Check your broker's documentation.
 | mqtt_ssl | 0 | Set to 1 if your broker is using SSL
 | mqtt_topic | "" | The topic to subscribe to for your weather data
-| disconnect_live_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
+| disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
 
 ## Forecast Options
 
@@ -276,6 +281,7 @@ Here are the default order of the chart plots:
 | darksky_units | "auto" | The units to use for the DarkSky forecast. Default of `auto` which automatically selects units based on your geographic location. [Other options](https://darksky.net/dev/docs) are: `us` (imperial), `si` (metric), `ca` (metric except that windSpeed and windGust are in kilometers per hour), `uk2` (metric except that nearestStormDistance and visibility are in miles, and windSpeed and windGust in miles per hour).
 | darksky_lang | "en" | Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
 | forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being billed from DarkSky. Use at your own risk of being billed if you set this too low. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 
+| forecast_alert_enabled | 0 | Set to 1 to enable weather alerts that are included with the DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the DarkSky forecast. 
 
 ## Earthquake Options
 
@@ -305,7 +311,7 @@ These are the options for the social media sharing section at the top right of e
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
 ---
 * Q: My NOAA reports are blank.
-* A: If this is right after you installed the skin, give weewx an archive interval or populate this data
+* A: If this is right after you installed the skin, give weewx an archive interval (or two, or three...) in order to populate this data
 ---
 * Q: I see errors like these:
     * `No such file or directory '/home/weewx/skins/Belchertown/about.inc'` 
@@ -331,19 +337,19 @@ These are the options for the social media sharing section at the top right of e
 * A: Nope! If you have it disabled we will hide those portions of the site. It comes packaged with this theme already though, so you can leave it enabled. 
 ---
 * Q: Why does the skin take a while to generate sometimes?
-* A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database is this could take a little longer. 
+* A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
 ---
 * Q: I noticed my graphs don't update right away on an archive period. How come?
 * A: Because the highcharts can take a few extra seconds, I've put in a 30 second delay on the graphs automatic update. This way it's loading the newest data.
 ---
-* Q: Do the graphs on the Graphs page update automatically?
+* Q: Do the charts on the Graphs page update automatically with MQTT?
 * A: No, only the front page is automatically updated. All the other pages are normal pages that need to be refreshed to see new information.
 ---
 * Q: How do I change my about page, or records page?
-* A: See above on how to do that. 
+* A: [See above on how to do that.](https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page)
 ---
 * Q: How can I tell if the skin downloaded new forecast or earthquake data?
-* A: Check your system log file. You should see the skin output something along the lines of "New forecast file downloaded" or "New earthquake file downloaded".
+* A: Check your system log file. You should see the skin output something along the lines of "New forecast file downloaded" or "New earthquake file downloaded". It will also display errors and what the error was if there was a failure. 
 ---
 * Q: How come I'm seeing `NAN` in some areas?
 * A: This is because weewx hasn't gathered enough data from your station yet. Give it a few more archive intervals. 

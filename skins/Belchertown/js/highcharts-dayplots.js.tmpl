@@ -48,7 +48,8 @@ function get_cardinal_direction(degree) {
 
 Highcharts.setOptions({
     global: {
-        useUTC: false
+        //useUTC: false
+        timezoneOffset: $highcharts_timezoneoffset
     },
 });
 
@@ -91,7 +92,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -107,6 +109,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -173,7 +177,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -189,6 +194,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -256,7 +263,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -273,6 +281,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -315,8 +325,8 @@ function daily () {
             //    ]
             //},
             renderTo: 'barometerplot',
-            //spacing: [5, 10, 10, 0],
-            type: 'spline',
+            spacing: [5, 10, 10, 0],
+            type: 'line',
             zoomType: 'x'
         },
 
@@ -342,7 +352,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -359,6 +370,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -425,7 +438,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -441,6 +455,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 2,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 },
@@ -507,7 +523,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 		
         yAxis: {
@@ -535,6 +552,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: true
                 }
@@ -705,15 +724,16 @@ function daily () {
                 month: '%b %y',
             },
             lineColor: '#555',
-            minRange: 86400000,
-            // minRange: 900000,
+            // minRange: 86400000,
+            minRange: 900000,
             minTickInterval: 900000,
             title: {
                 style: {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 		
         yAxis: {
@@ -730,6 +750,14 @@ function daily () {
         },
 
         plotOptions: {
+            line: {
+                lineWidth: 2,
+                gapSize: 300000, // 10 minutes in milliseconds
+                gapUnit: 'value',
+                marker: {
+                    enabled: false
+                },
+            },
             column: {
                 color: '#72B2C4',
                 borderWidth: 0,
@@ -803,7 +831,8 @@ function daily () {
                     font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
                 }
             },
-            type: 'datetime',
+            ordinal: false,
+            type: 'datetime'
         },
 
         yAxis: {
@@ -821,6 +850,8 @@ function daily () {
         plotOptions: {
             line: {
                 lineWidth: 1,
+                gapSize: 300000, // 5 minutes in milliseconds
+                gapUnit: 'value',
                 marker: {
                     enabled: false
                 }
@@ -904,6 +935,12 @@ function daily () {
         i++;
         #end if
         
+        #if $Extras.has_key('highcharts_show_intemp') and $Extras.highcharts_show_intemp == '1'
+        optionsTemp.series[i] = seriesData[0].temperatureplot.series.inTemp;
+        optionsTemp.series[i].color = "#f47142"; // Always set intemp to orange no matter its order
+        i++;
+        #end if
+        
         var chart = new Highcharts.StockChart(optionsTemp);
                 
         #end if
@@ -937,12 +974,7 @@ function daily () {
         #if $Extras.highcharts_graph_1 == 'radiationplot' or $Extras.highcharts_graph_2 == 'radiationplot' or $Extras.highcharts_graph_3 == 'radiationplot' or $Extras.highcharts_graph_4 == 'radiationplot' or $Extras.highcharts_graph_5 == 'radiationplot' or $Extras.highcharts_graph_6 == 'radiationplot'
         var chart = new Highcharts.StockChart(optionsRadiation);
         #end if        
-        
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
+                
     });
 
 };

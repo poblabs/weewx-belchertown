@@ -10,6 +10,7 @@ import calendar
 import json
 import os
 import syslog
+import sys
 
 import weewx
 import weecfg
@@ -17,6 +18,10 @@ import weecfg
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
+
+# This helps with locale. https://stackoverflow.com/a/40346898/1177153
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 def logmsg(level, msg):
     syslog.syslog(level, 'Belchertown Extension: %s' % msg)
@@ -31,7 +36,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.8.2"
+VERSION = "0.9rc3"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -69,6 +74,10 @@ class getData(SearchList):
         moment_js_stop_struct = time.localtime( time.time() )
         moment_js_utc_offset = (calendar.timegm(moment_js_stop_struct) - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct))))/60
         
+        # Highcharts UTC offset is the opposite or normal. Positive values are west, negative values are east of UTC. https://api.highcharts.com/highcharts/time.timezoneOffset
+        # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
+        highcharts_timezoneoffset = moment_js_utc_offset * -1
+        
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
             lat = self.generator.config_dict['Station']['latitude']
@@ -76,99 +85,6 @@ class getData(SearchList):
             radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom=8&level=surface&overlay=radar&menu=&message=true&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=mph&metricTemp=%C2%B0F&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
-        
-        # Handle the about.inc and records.inc files.
-        # about.inc: if the file is present use it, otherwise use a default "please setup about.inc". 
-        # records.inc: if the file is present use it, therwise do not show anything. 
-        about_file = local_skin_root + "/about.inc"
-        about_page_text = """
-        <p>Welcome to your new about page!</p>
-        <p>To change this text:
-        <ul>
-            <li> Rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code></li>
-            <ul>
-                <li> or create a new file at <code>skins/Belchertown/about.inc</code></li>
-            </ul>
-            <li> Use the example text within <code>skins/Belchertown/about.inc.example</code> to create your about page description!</li>
-            <li>Full HTML is accepted.</li>
-        </ul>
-        </p>
-        <p><a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">Click this link if you need help!</a>
-        <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a></p>
-        """
-        
-        try:
-            with open( about_file, 'r' ) as af:
-                about_page_text = af.read()
-        except:
-            # File doesn't exist - use the default text. 
-            pass
-        
-        records_file = local_skin_root + "/records.inc"
-        records_page_text = ""
-        try:
-            with open( records_file, 'r' ) as rf:
-                records_page_text = rf.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass        
-        
-        # Custom Row 1 on index. Between station info and forecast
-        index_hook_after_station_info_enabled = 0
-        index_hook_after_station_info_file = local_skin_root + "/index_hook_after_station_info.inc"
-        index_hook_after_station_info_text = ""
-        try:
-            with open( index_hook_after_station_info_file, 'r' ) as ihasif:
-                index_hook_after_station_info_text = ihasif.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass
-        # Check whether or not to display the custom hook area
-        if index_hook_after_station_info_text != "":
-            index_hook_after_station_info_enabled = 1
-            
-        # Custom Row 2 on index. Between forecast and snapshot records row
-        index_hook_after_forecast_enabled = 0
-        index_hook_after_forecast_file = local_skin_root + "/index_hook_after_forecast.inc"
-        index_hook_after_forecast_text = ""
-        try:
-            with open( index_hook_after_forecast_file, 'r' ) as ihaff:
-                index_hook_after_forecast_text = ihaff.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass
-        # Check whether or not to display the custom hook area
-        if index_hook_after_forecast_text != "":
-            index_hook_after_forecast_enabled = 1
-            
-        # Custom Row 3 on index. Between snapshot records row and the graphs
-        index_hook_after_snapshot_enabled = 0
-        index_hook_after_snapshot_file = local_skin_root + "/index_hook_after_snapshot.inc"
-        index_hook_after_snapshot_text = ""
-        try:
-            with open( index_hook_after_snapshot_file, 'r' ) as ihasf:
-                index_hook_after_snapshot_text = ihasf.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass
-        # Check whether or not to display the custom hook area
-        if index_hook_after_snapshot_text != "":
-            index_hook_after_snapshot_enabled = 1
-            
-        # Custom Row 4 on index. After the charts
-        index_hook_after_charts_enabled = 0
-        index_hook_after_charts_file = local_skin_root + "/index_hook_after_charts.inc"
-        index_hook_after_charts_text = ""
-        try:
-            with open( index_hook_after_charts_file, 'r' ) as ihacf:
-                index_hook_after_charts_text = ihacf.read()
-        except:
-            # File doesn't exist - show nothing. 
-            pass
-        # Check whether or not to display the custom hook area
-        if index_hook_after_charts_text != "":
-            index_hook_after_charts_enabled = 1
-        
         
         """
         Build the all time stats.
@@ -205,18 +121,18 @@ class getData(SearchList):
         outTemp_unit = converter.group_unit_dict["group_temperature"]
         
         # Find the number of decimals to round to
-        outTemp_round = int(self.generator.skin_dict['Units']['StringFormats'].get("group_temperature", "1f")[-2])
+        outTemp_round = self.generator.skin_dict['Units']['StringFormats'].get(outTemp_unit, "%.1f")
 
         # Largest Daily Temperature Range Conversions
         # Max temperature for this day
         if year_outTemp_max_range_query is not None:
             year_outTemp_max_range_max_tuple = (year_outTemp_max_range_query[3], outTemp_unit, 'group_temperature')
-            year_outTemp_max_range_max = round( self.generator.converter.convert(year_outTemp_max_range_max_tuple)[0], outTemp_round )
+            year_outTemp_max_range_max = outTemp_round % self.generator.converter.convert(year_outTemp_max_range_max_tuple)[0]
             # Min temperature for this day
             year_outTemp_max_range_min_tuple = (year_outTemp_max_range_query[2], outTemp_unit, 'group_temperature')
-            year_outTemp_max_range_min = round ( self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0], outTemp_round )
+            year_outTemp_max_range_min = outTemp_round % self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0]
             # Largest Daily Temperature Range total
-            year_outTemp_max_range_total = round( year_outTemp_max_range_max - year_outTemp_max_range_min, outTemp_round )
+            year_outTemp_max_range_total = outTemp_round % ( float(year_outTemp_max_range_max) - float(year_outTemp_max_range_min) )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
         else:
@@ -226,12 +142,12 @@ class getData(SearchList):
         # Max temperature for this day
         if year_outTemp_min_range_query is not None:
             year_outTemp_min_range_max_tuple = (year_outTemp_min_range_query[3], outTemp_unit, 'group_temperature')
-            year_outTemp_min_range_max = round( self.generator.converter.convert(year_outTemp_min_range_max_tuple)[0], outTemp_round )
+            year_outTemp_min_range_max = outTemp_round % self.generator.converter.convert(year_outTemp_min_range_max_tuple)[0]
             # Min temperature for this day
             year_outTemp_min_range_min_tuple = (year_outTemp_min_range_query[2], outTemp_unit, 'group_temperature')
-            year_outTemp_min_range_min = round( self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0], outTemp_round )
+            year_outTemp_min_range_min = outTemp_round % self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0]
             # Smallest Daily Temperature Range total
-            year_outTemp_min_range_total = round( year_outTemp_min_range_max - year_outTemp_min_range_min, outTemp_round )
+            year_outTemp_min_range_total = outTemp_round % ( float(year_outTemp_min_range_max) - float(year_outTemp_min_range_min) )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
         else:
@@ -240,24 +156,24 @@ class getData(SearchList):
         # All Time - Largest Daily Temperature Range Conversions
         # Max temperature
         at_outTemp_max_range_max_tuple = (at_outTemp_max_range_query[3], outTemp_unit, 'group_temperature')
-        at_outTemp_max_range_max = round( self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0], outTemp_round )
+        at_outTemp_max_range_max = outTemp_round % self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0]
         # Min temperature for this day
         at_outTemp_max_range_min_tuple = (at_outTemp_max_range_query[2], outTemp_unit, 'group_temperature')
-        at_outTemp_max_range_min = round ( self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0], outTemp_round )
+        at_outTemp_max_range_min = outTemp_round % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
         # Largest Daily Temperature Range total
-        at_outTemp_max_range_total = round( at_outTemp_max_range_max - at_outTemp_max_range_min, outTemp_round )
+        at_outTemp_max_range_total = outTemp_round % ( float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min) )
         # Replace the SQL Query output with the converted values
         at_outTemp_range_max = [ at_outTemp_max_range_query[0], at_outTemp_max_range_total, at_outTemp_max_range_min, at_outTemp_max_range_max ]
 
         # All Time - Smallest Daily Temperature Range Conversions
         # Max temperature for this day
         at_outTemp_min_range_max_tuple = (at_outTemp_min_range_query[3], outTemp_unit, 'group_temperature')
-        at_outTemp_min_range_max = round( self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0], outTemp_round )
+        at_outTemp_min_range_max = outTemp_round % self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0]
         # Min temperature for this day
         at_outTemp_min_range_min_tuple = (at_outTemp_min_range_query[2], outTemp_unit, 'group_temperature')
-        at_outTemp_min_range_min = round( self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0], outTemp_round )
+        at_outTemp_min_range_min = outTemp_round % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
         # Smallest Daily Temperature Range total
-        at_outTemp_min_range_total = round( at_outTemp_min_range_max - at_outTemp_min_range_min, outTemp_round )
+        at_outTemp_min_range_total = outTemp_round % ( float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min) )
         # Replace the SQL Query output with the converted values
         at_outTemp_range_min = [ at_outTemp_min_range_query[0], at_outTemp_min_range_total, at_outTemp_min_range_min, at_outTemp_min_range_max ]
         
@@ -267,22 +183,22 @@ class getData(SearchList):
         rain_unit = converter.group_unit_dict["group_rain"]
         
         # Find the number of decimals to round to
-        rain_round = int(self.generator.skin_dict['Units']['StringFormats'].get("group_rain", "2f")[-2])
+        rain_round = self.generator.skin_dict['Units']['StringFormats'].get(rain_unit, "%.2f")
         
         # Rainiest Day
-        rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
+        rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
         if rainiest_day_query is not None:
             rainiest_day_tuple = (rainiest_day_query[1], rain_unit, 'group_rain')
-            rainiest_day_converted = round( self.generator.converter.convert(rainiest_day_tuple)[0], rain_round )
+            rainiest_day_converted = rain_round % self.generator.converter.convert(rainiest_day_tuple)[0]
             rainiest_day = [ rainiest_day_query[0], rainiest_day_converted ]
         else:
-            rainiest_day = [ calendar.timegm( time.gmtime() ), 0.0 ]
+            rainiest_day = [ calendar.timegm( time.gmtime() ), 0.00 ]
             
 
         # All Time Rainiest Day
         at_rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
         at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, 'group_rain')
-        at_rainiest_day_converted = round( self.generator.converter.convert(at_rainiest_day_tuple)[0], rain_round )
+        at_rainiest_day_converted = rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
         at_rainiest_day = [ time.strftime( "%B %d, %Y at %-I:%M %p", time.localtime( at_rainiest_day_query[0] ) ), at_rainiest_day_converted ]
         
 
@@ -307,7 +223,7 @@ class getData(SearchList):
         year_rainiest_month_query = wx_manager.getSql( year_rainiest_month_sql )
         if year_rainiest_month_query is not None:
             year_rainiest_month_tuple = (year_rainiest_month_query[1], rain_unit, 'group_rain')
-            year_rainiest_month_converted = round( self.generator.converter.convert(year_rainiest_month_tuple)[0], rain_round )
+            year_rainiest_month_converted = rain_round % self.generator.converter.convert(year_rainiest_month_tuple)[0]
             year_rainiest_month = [ calendar.month_name[ int( year_rainiest_month_query[0] ) ], year_rainiest_month_converted ]
         else:
             year_rainiest_month = [ "N/A", 0.0 ]
@@ -315,13 +231,14 @@ class getData(SearchList):
         # All time rainiest month
         at_rainiest_month_query = wx_manager.getSql( at_rainiest_month_sql )
         at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, 'group_rain')
-        at_rainiest_month_converted = round( self.generator.converter.convert(at_rainiest_month_tuple)[0], rain_round )
+        at_rainiest_month_converted = rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
         at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], at_rainiest_month_converted ]
         
         # All time rainiest year
         at_rain_highest_year_query = wx_manager.getSql( at_rain_highest_year_sql )
         at_rain_highest_year_tuple = (at_rain_highest_year_query[1], rain_unit, 'group_rain')
-        at_rain_highest_year_converted = round( self.generator.converter.convert(at_rain_highest_year_tuple)[0], rain_round )
+        #at_rain_highest_year_converted = round( self.generator.converter.convert(at_rain_highest_year_tuple)[0], rain_round )
+        at_rain_highest_year_converted = rain_round % self.generator.converter.convert(at_rain_highest_year_tuple)[0]
         at_rain_highest_year = [ at_rain_highest_year_query[0], at_rain_highest_year_converted ]
         
         
@@ -604,7 +521,7 @@ class getData(SearchList):
                     output += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>'
                 output += '</div>'
                 output += '<div class="forecast-wind">'
-                output += '<i class="wi wi-strong-wind"></i> '+str( int( daily_data["windGust"] ) )+' '+ windSpeedUnitLabel
+                output += '<i class="wi wi-strong-wind"></i> <span>'+str( int( daily_data["windSpeed"] ) )+'</span> | <span>'+str( int( daily_data["windGust"] ) )+'</span>' + windSpeedUnitLabel
                 output += '</div>'
                 output += "</div> <!-- end .wuforecast -->"
                 
@@ -723,7 +640,7 @@ class getData(SearchList):
                   var js, fjs = d.getElementsByTagName(s)[0];
                   if (d.getElementById(id)) return;
                   js = d.createElement(s); js.id = id;
-                  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=217237948331360";
+                  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
                   fjs.parentNode.insertBefore(js, fjs);
                 }(document, 'script', 'facebook-jssdk'));</script>
                 <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
@@ -761,17 +678,8 @@ class getData(SearchList):
         search_list_extension = { 'belchertown_version': VERSION,
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
+                                  'highcharts_timezoneoffset': highcharts_timezoneoffset,
                                   'radar_html': radar_html,
-                                  'about_page_text': about_page_text,
-                                  'records_page_text': records_page_text,
-                                  'index_hook_after_station_info_enabled': index_hook_after_station_info_enabled,
-                                  'index_hook_after_station_info_text': index_hook_after_station_info_text,
-                                  'index_hook_after_forecast_enabled': index_hook_after_forecast_enabled,
-                                  'index_hook_after_forecast_text': index_hook_after_forecast_text,
-                                  'index_hook_after_snapshot_enabled': index_hook_after_snapshot_enabled,
-                                  'index_hook_after_snapshot_text': index_hook_after_snapshot_text,
-                                  'index_hook_after_charts_enabled': index_hook_after_charts_enabled,
-                                  'index_hook_after_charts_text': index_hook_after_charts_text,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,

@@ -1554,6 +1554,14 @@ li.comment {
     padding-bottom: 10px;
 }
 
+.wx-stn-info-current-obs {
+    text-align: center;
+}
+
+.obs-header-icon, .obs-header-outtemp, .wx-stn-info, .wx-stn-info-social {
+    display:block;
+}
+
 .wx-stn-name {
 	float:left;
 }
@@ -1618,7 +1626,13 @@ li.comment {
 }
 
 .current-obs-text {
+    text-align:center;
 	font-size:20px;
+}
+
+#wxicon {
+    display: block;
+    margin: 0 auto;
 }
 
 .current_temp {
@@ -2045,6 +2059,12 @@ li.comment {
 	.wx-stn-info-container {
 		text-align:center;
 	}
+    
+    .obs-header-icon, .obs-header-outtemp {
+        display: inline-block;
+    }
+    
+    .obs-header-icon { width:25%; }
 	
 	.wx-stn-name {
 		float:none;
@@ -2130,7 +2150,7 @@ li.comment {
 	
 	.forecast-precip, .forecast-wind {
 		font-size: 16px;
-		display:inline-block !important;
+		/* display:inline-block !important; */
 	}
         
     .forecast-conditions {
@@ -2220,6 +2240,21 @@ li.comment {
     
     body.pi {
         font-family:initial;
+        padding: 0px;
+        overflow: hidden;
+        overflow-x: hidden;
+    }
+    
+    .pi .wx-stn-info-container {
+        padding-bottom: 0px;
+    }
+    
+    .pi .updated-wrapper {
+        margin-bottom: 5px;
+    }
+    
+    .pi .onlineMarkerOuter {
+        padding: 7px 0 0 25px;
     }
     
     .pi .site-inner, .pi .wrap {
@@ -2229,6 +2264,11 @@ li.comment {
     }
     .pi .entry {
         margin-bottom: 0px;
+    }
+
+    .pi .col-xs-6 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
     }
     
     .pi .col-md-3 { padding: 0px !important; }
@@ -2289,12 +2329,13 @@ li.comment {
     .pi .tempstats {
         font-size:16px;
         line-height:20px;
-        margin-top:13px;
+        margin-top:10px;
     }
     
     .pi .feelslike { 
         font-size:16px;
         text-align:center;
+        padding-bottom: 6px;
     }
      
     .pi .wind_col { 
@@ -2322,7 +2363,7 @@ li.comment {
     }
     
     .pi .compass {
-        margin-left: 63px;
+        margin-left: 62px;
         margin-top: 5px;
         margin-bottom: 5px;
     }
@@ -2353,7 +2394,12 @@ li.comment {
     .pi .moon-container {
         margin-top: 5px;
         line-height: 18px;
-    }    
+    }
+    
+    .pi .moon, .pi .sun {
+        float: none;
+        text-align: center;
+    }
     
     .pi .forecastrow .col-lg-12 {
         padding: 0;
