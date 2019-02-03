@@ -2,9 +2,6 @@
 #encoding UTF-8
 #set global $page = "records"
 
-#import datetime
-#from datetime import timedelta
-
     #include "header.html.tmpl"
 
     <div class="site-inner">
@@ -13,14 +10,39 @@
                 <article class="weewx records page type-page status-publish entry" itemscope itemtype="https://schema.org/CreativeWork">
                     <div class="entry-content wx-content" itemprop="text">
                     
-                        #include "page-header.inc"
+                        <div class="wx-stn-info-container">
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    $current_obs_icon
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="wx-stn-name">
+                                        <h1>$Extras.records_page_header</h1>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5" style="float:right;">
+                                    <div class="wx-stn-info">
+                                        Observations are powered by a <a href="$belchertown_root_url/about" target="_blank">Personal Weather Station</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-1" style="text-align:center;">
+                                    $current.outTemp
+                                </div>
+                                #if $social_html != ""
+                                <div class="col-sm-10" style="float:right;">
+                                    $social_html
+                                </div>
+                                #end if
+                            </div>
+                            <div class="clear"></div>
+                        </div>
 
                         <!-- Begin row -->
                         <div class="row">
                             <div class="col-sm-12 wx-records-description">
-                                #if os.path.exists("records.inc")
-                                #include "records.inc"
-                                #end if
+                                $records_page_text
                             </div>
                         </div>
                         <!-- End row -->
@@ -56,7 +78,9 @@
                                         <td>Highest Apparent Temperature</td>
                                         <td class="leftborder">$year.appTemp.max</td>
                                         <td>$year.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") $unit.label.outTemp</td>
+                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") 
+## Remove spurious "degree F" display								
+##$unit.label.outTemp</td>
                                         <td>$alltime.appTemp.max</td>
                                     </tr>
                                     <tr>
@@ -160,19 +184,15 @@
                                         <td>Consecutive Days With Rainfall</td>
                                         <td class="leftborder">$year_days_with_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_with_rain[1] ) )#</td>
-                                        <td class="leftborder">$at_days_with_rain[0] days</td>
-                                        ## Minus the epoch date from the number of days
-                                        #set daysago = datetime.datetime.fromtimestamp($at_days_with_rain[1]) - timedelta(days=$at_days_with_rain[0])#
-                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_with_rain[1] ) )#</td>
+                                        <td class="leftborder">Highest Year</td>
+                                        <td>$at_days_with_rain[0] days in #echo time.strftime( "%Y", time.localtime( $at_days_with_rain[1] ) )#</td>
                                     </tr>                        
                                     <tr>
                                         <td>Consecutive Days Without Rainfall</td>
                                         <td class="leftborder">$year_days_without_rain[0] days</td>
                                         <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_without_rain[1] ) )#</td>
-                                        <td class="leftborder">$at_days_without_rain[0] days</td>
-                                        ## Minus the epoch date from the number of days
-                                        #set daysago = datetime.datetime.fromtimestamp($at_days_without_rain[1]) - timedelta(days=$at_days_without_rain[0])#
-                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
+                                        <td class="leftborder">Highest Year</td>
+                                        <td>$at_days_without_rain[0] days in #echo time.strftime( "%Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
                                     </tr>
                                  
                                     <tr>
@@ -234,29 +254,30 @@
                                         <td class="leftborder">$alltime.barometer.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
                                         <td>$alltime.barometer.min</td>                             
                                     </tr>
-                                    
-                                    <tr>
-                                        <td class="records-header" colspan=5>Sun Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="records-header" colspan=1> </td>                                    
-                                        <td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                          
-                                    <tr>
-                                        <td>Highest Solar Radiation</td>
-                                        <td class="leftborder">$year.radiation.max</td>
-                                        <td>$year.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td>$alltime.radiation.max</td>                             
-                                    </tr>                        
-                                    <tr>
-                                        <td>Highest UV</td>
-                                        <td class="leftborder">$year.UV.max</td>
-                                        <td>$year.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td>$alltime.UV.max</td>                             
-                                    </tr>
+  
+## Remove Sun Records since Vantage Vue doesn't measure those  
+##                                    <tr>
+##                                        <td class="records-header" colspan=5>Sun Records</td>
+##                                    </tr>
+##                                    <tr>
+##                                        <td class="records-header" colspan=1> </td>                                    
+##                                        <td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
+##                                        <td class="records-header-alltime" colspan=2>All Time</td>
+##                                    </tr>                          
+##                                    <tr>
+##                                        <td>Highest Solar Radiation</td>
+##                                        <td class="leftborder">$year.radiation.max</td>
+##                                        <td>$year.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td class="leftborder">$alltime.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td>$alltime.radiation.max</td>                             
+##                                    </tr>                        
+##                                    <tr>
+##                                        <td>Highest UV</td>
+##                                        <td class="leftborder">$year.UV.max</td>
+##                                        <td>$year.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td class="leftborder">$alltime.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+##                                        <td>$alltime.UV.max</td>                             
+##                                    </tr>
                                 </tbody>
                             </table>
                         </div>
