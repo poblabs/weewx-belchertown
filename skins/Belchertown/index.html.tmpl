@@ -441,8 +441,10 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Failed connecting to the weather station. Please try again later!" );
-            console.log( d.getTime() + ": Cannot connect to MQTT broker" );
+            epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
+            console.log( updated + ": Cannot connect to MQTT broker" );
         }
 
         // mqtt connection lost
@@ -451,9 +453,11 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Lost connection to the weather station. Real time updates are not available. Please try again later!" );
+            epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
             if (responseObject.errorCode !== 0) {
-                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage );
+                console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
             }
         }
         
