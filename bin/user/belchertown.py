@@ -604,7 +604,7 @@ class getData(SearchList):
                 eqdata = json.load( read_file )
             
             try:
-                eqtime = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
+                eqtime = time.strftime( "%B %d, %Y, %-I:%M %p", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
                 equrl = eqdata["features"][0]["properties"]["url"]
                 eqplace = eqdata["features"][0]["properties"]["place"]
                 eqmag = eqdata["features"][0]["properties"]["mag"]
