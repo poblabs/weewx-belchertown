@@ -95,29 +95,29 @@ sudo /etc/init.d/weewx start
 
 ## Belchertown Skin as Default Skin
 
-To make Belchertown the default skin for your site, make the configuration changes as below. This is an example config and may need a little fine-tuning site-per-site.
+This is what worked for me to make Belchertown the default skin for your site. This is an **example config** and may need a little fine-tuning site-per-site.
 
-1. In `weewx.conf` look for the `[StdReport]` section. Within that section is `[[StandardReport]]` and under that change `skin = Standard` to `skin = Belchertown`. 
+I changed it so the standard skin would be in a subfolder, and the main folder has my skin files. So when you go to my website you're seeing the Belchertown skin, with the default skin under `/weewx`.
 
-2. Take note of the `HTML_ROOT` setting in the `[StdReport]` section since you will need it for the next section. 
+1. Edit `weewx.conf`, then look for `[StdReport]` and under it `HTML_ROOT` to be `/var/www/html/weewx`. Note, your HTML directory may be `/home/weewx/public_html`, so you'd want `/home/weewx/public_html/weewx`.
 
-3. Then modify the Belchertown skin options with these minimal updates:
+2. Then modify the Belchertown skin options with these minimal updates. Note, you may need to change the path as mentioned above.
 
 ```
     [[Belchertown]]
-        HTML_ROOT = <<the HTML_ROOT location as above. E.g. public_html>>
+        HTML_ROOT = /var/www/html
         skin = Belchertown
         [[[Extras]]]
            belchertown_root_url = "http://your_full_website_url"
            
    [[Highcharts_Belchertown]]
-        HTML_ROOT = <<the HTML_ROOT location as above. E.g. public_html>>
+        HTML_ROOT = /var/www/html
         skin = Highcharts_Belchertown
 ```
 
-4. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
+3. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
 
-5. Restart weewx and let it generate the files upon the next archive interval.
+4. Restart weewx and let it generate the files upon the next archive interval.
 
 ## Creating About Page and Records Page
 
