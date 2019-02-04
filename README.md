@@ -99,7 +99,7 @@ This is what worked for me to make Belchertown the default skin for your site. T
 
 I changed it so the standard skin would be in a subfolder, and the main folder has my skin files. So when you go to my website you're seeing the Belchertown skin, with the default skin under `/weewx`.
 
-1. Edit `weewx.conf`, then look for `[StdReport]` and under it `HTML_ROOT` to be `/var/www/html/weewx`. Note, your HTML directory may be `/home/weewx/public_html`, so you'd want `/home/weewx/public_html/weewx`.
+1. Edit `weewx.conf`, then look for `[StdReport]` and under it change `HTML_ROOT` to be `/var/www/html/weewx`. Note, your HTML directory may be `/home/weewx/public_html`, so you'd want `/home/weewx/public_html/weewx`.
 
 2. Then modify the Belchertown skin options with these minimal updates. Note, you may need to change the path as mentioned above.
 
