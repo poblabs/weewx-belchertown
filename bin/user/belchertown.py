@@ -11,6 +11,7 @@ import json
 import os
 import syslog
 import sys
+import locale
 
 import weewx
 import weecfg
@@ -77,6 +78,9 @@ class getData(SearchList):
         # Highcharts UTC offset is the opposite of normal. Positive values are west, negative values are east of UTC. https://api.highcharts.com/highcharts/time.timezoneOffset
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
+        
+        # Get the system locale for use with moment.js
+        system_locale = locale.getdefaultlocale()[0]
         
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
@@ -679,6 +683,7 @@ class getData(SearchList):
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
+                                  'system_locale': system_locale,
                                   'radar_html': radar_html,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,

@@ -15,6 +15,8 @@
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
+        var moment_locale = "$system_locale".substring(0, 2);
+        moment.locale(moment_locale); // "en" or "de", etc.
         
         jQuery(document).ready(function() {
             #if $unit.unit_type.outTemp == "degree_F"
@@ -244,8 +246,8 @@
             jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
             
             // Sunrise and Sunset            
-            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
-            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
+            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss A").format("h:mm A");
+            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss A").format("h:mm A");
             jQuery(".sunrise-value").html( sunrise );
             jQuery(".sunset-value").html( sunset );
             
@@ -367,7 +369,7 @@
                     var weekday = "Today";
                 } else {
                     output_html += '<div class="col-sm-1-5 wuforecast border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" ); // Requires moment.js
+                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" );
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
@@ -487,7 +489,7 @@
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a");
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
             updated_text = "Connected to weather station live. Data received " + updated;
             jQuery(".updated").html( updated_text );
