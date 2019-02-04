@@ -444,7 +444,7 @@
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
             epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS"); // requires moment.js
             jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
             console.log( updated + ": Cannot connect to MQTT broker" );
         }
@@ -456,7 +456,7 @@
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
             epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS"); // requires moment.js
             jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
             if (responseObject.errorCode !== 0) {
                 console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
@@ -489,7 +489,7 @@
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a");
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
             updated_text = "Connected to weather station live. Data received " + updated;
             jQuery(".updated").html( updated_text );
