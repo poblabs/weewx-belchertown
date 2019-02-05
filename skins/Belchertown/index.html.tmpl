@@ -32,6 +32,18 @@
             jQuery(".wx-stn-alert").show();
             #end if
             
+            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+            ajaxforecast(); // Update forecast data
+            #end if
+            
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+            jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+            #end if
+            
+            #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+            daily(); // Initial load daily highcharts
+            #end if
+            
             #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
             ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
             ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
@@ -46,19 +58,6 @@
                 daily(); // Update the daily highcharts
                 #end if
             });
-            #end if
-            
-            #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-            daily(); // Initial load daily highcharts
-            #end if
-            
-            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-                forecast_subtitle = moment.unix( $forecast_updated ).format( 'LLL' );
-                jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
-            #end if
-            
-            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-                jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
             #end if
         });
         
