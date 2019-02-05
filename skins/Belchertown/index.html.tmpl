@@ -25,9 +25,6 @@
         ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
         #end if
         
-        #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-        jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
-        #end if
         
         jQuery(document).ready(function() {
             #if $unit.unit_type.outTemp == "degree_F"
@@ -37,6 +34,10 @@
             #end if
             
             rotateThis( "$current.windDir.formatted" );
+            
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+            jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+            #end if
             
             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
             daily(); // Initial load daily highcharts
