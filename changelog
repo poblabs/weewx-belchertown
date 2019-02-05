@@ -1,8 +1,8 @@
 0.9 February ??, 2019
 * A lot of work focused on locale for time formatting. All time should be auto-detected by the locale on your server and displayed in your locale format.
+* Major bugfix for the rain charts. The old code was adding A LOT OF PLOTS. This resulted in slower chart generation time.
 * Forecast row is now JavaScript only and has been removed from the belchertown.py SLE. This makes it easier to manage in the future since it's only in 1 place now.
 * Updated almanac to work with weewx 3.9.0's new [Default] section within weewx.conf.
-* Updated the forecast row 
 * Added the option to show indoor temperature (inTemp) to the temperature charts. This option is disabled by default and is setup exactly like apparent temperature. Once you opt-in to show this data, it is only available for the day and week charts.
 * Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
 * Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
@@ -12,7 +12,7 @@
 * Updated the records page for Consecutive Rain Days to show all time date range. Useful if your consecutive rain dates wrap around a new year and the math seems wrong (like BelchertownWeather.com shows)
 * Simplified the includes for the About page, Records page and home page. Before it had a lot of overhead to it, so now it's using a simple Cheetah #include. If you want to show something in these areas, you just need to create the .inc file and that's it. No options to set or anything. See the README for more information.
 * On the Pi page, added a timer to reconnect to MQTT if connection is lost to the MQTT broker.
-* Major bugfix for the rain charts. The old code was adding A LOT OF PLOTS. This resulted in slower chart generation time.
+* Re-ordered some JavaScript functions due to improper grouping.
 * Fixed Pi page styles to match the 640x480 resolution for the PiTFT.
 * Fixed a bug certain users were seeing with UTF-8. Thanks user spanishhighs!
 * Fixed a bug where if using a radar image (not windy.com, but a jpg, gif, png, etc.), it'll reload the image upon background updates. 
