@@ -434,7 +434,7 @@ class getData(SearchList):
                         forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
             
             forecast_html_output = ""
-            forecast_updated = time.strftime( "%c", time.localtime( data["currently"]["time"] ) )
+            forecast_updated = data["currently"]["time"]
             current_obs_summary = data["currently"]["summary"]
             visibility = data["currently"]["visibility"]
             

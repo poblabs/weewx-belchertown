@@ -52,6 +52,11 @@
             daily(); // Initial load daily highcharts
             #end if
             
+            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+                forecast_subtitle = moment.unix( $forecast_updated ).format( 'LLL' );
+                jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
+            #end if
+            
             #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
                 jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
             #end if
@@ -956,7 +961,7 @@
                             <!-- Forecast -->
                             <div class="col-lg-12 forecast">
                                 <div class="forecast-title">
-                                    8 Day Forecast <span class="forecast-subtitle">Last Updated on $forecast_updated</span>
+                                    8 Day Forecast <span class="forecast-subtitle"></span><!-- moment.js -->
                                 </div>
                                 <div class="row forecasts">
                                     $forecastHTML
