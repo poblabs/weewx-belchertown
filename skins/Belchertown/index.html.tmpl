@@ -375,7 +375,7 @@
                     var weekday = "Today";
                 } else {
                     output_html += '<div class="col-sm-1-5 wuforecast border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Removes "/Year", ".Year" and/or "-Year" - https://stackoverflow.com/a/12704805/1177153
+                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "YYYY" - https://stackoverflow.com/a/12704805/1177153
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
