@@ -339,6 +339,9 @@ These are the options for the social media sharing section at the top right of e
 * Q: Why does the skin take a while to generate sometimes?
 * A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
 ---
+* Q: How come the forecast's "Last Updated" time jumps when I load the page?
+* A: This is because the page loads with the default Python's format for your locale. When it connects to MQTT websockets, moment.js updates that timestamp to it's format of your locale. This locale format fragmentation is hard to avoid when using locale formatting.
+---
 * Q: I noticed my graphs don't update right away on an archive period. How come?
 * A: Because the highcharts can take a few extra seconds, I've put in a 30 second delay on the graphs automatic update. This way it's loading the newest data.
 ---
