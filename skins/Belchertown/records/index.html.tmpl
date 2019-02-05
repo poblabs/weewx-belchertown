@@ -6,6 +6,54 @@
 #from datetime import timedelta
 
     #include "header.html.tmpl"
+    
+    <script type="text/javascript">
+        var moment_locale = "$system_locale".replace(/_/g, '-'); // Replace underscore with dash (e.g. "en_US" becomes "en-US") which is a format that moment.js needs for locale
+        moment.locale(moment_locale);
+        
+        jQuery(document).ready(function() {
+            document.getElementById("year-outtemp-max-ts").innerText = moment.unix($year.outTemp.maxtime.raw).format('LLL');
+            document.getElementById("at-outtemp-max-ts").innerText = moment.unix($alltime.outTemp.maxtime.raw).format('LLL');
+            document.getElementById("year-outtemp-min-ts").innerText = moment.unix($year.outTemp.mintime.raw).format('LLL');
+            document.getElementById("at-outtemp-min-ts").innerText = moment.unix($alltime.outTemp.mintime.raw).format('LLL');
+            #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+            document.getElementById("year-apptemp-max-ts").innerText = moment.unix($year.appTemp.maxtime.raw).format('LLL');
+            document.getElementById("at-apptemp-max-ts").innerText = moment.unix($alltime.appTemp.maxtime.raw).format('LLL');
+            document.getElementById("year-apptemp-min-ts").innerText = moment.unix($year.appTemp.mintime.raw).format('LLL');
+            document.getElementById("at-apptemp-min-ts").innerText = moment.unix($alltime.appTemp.mintime.raw).format('LLL');
+            #end if
+            document.getElementById("year-heatindex-max-ts").innerText = moment.unix($year.heatindex.maxtime.raw).format('LLL');
+            document.getElementById("at-heatindex-max-ts").innerText = moment.unix($alltime.heatindex.maxtime.raw).format('LLL');
+            document.getElementById("year-windchill-min-ts").innerText = moment.unix($year.windchill.mintime.raw).format('LLL');
+            document.getElementById("at-windchill-min-ts").innerText = moment.unix($alltime.windchill.mintime.raw).format('LLL');
+            document.getElementById("year-windGust-max-ts").innerText = moment.unix($year.windGust.maxtime.raw).format('LLL');
+            document.getElementById("at-windGust-max-ts").innerText = moment.unix($alltime.windGust.maxtime.raw).format('LLL');
+            #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
+            document.getElementById("year-windrun-max-ts").innerText = moment.unix($year.windrun.maxtime.raw).format('LLL');
+            document.getElementById("at-windrun-max-ts").innerText = moment.unix($alltime.windrun.maxtime.raw).format('LLL');
+            #end if
+            document.getElementById("year-rainRate-max-ts").innerText = moment.unix($year.rainRate.maxtime.raw).format('LLL');
+            document.getElementById("at-rainRate-max-ts").innerText = moment.unix($alltime.rainRate.maxtime.raw).format('LLL');
+            document.getElementById("year-outHumidity-max-ts").innerText = moment.unix($year.outHumidity.maxtime.raw).format('LLL');
+            document.getElementById("at-outHumidity-max-ts").innerText = moment.unix($alltime.outHumidity.maxtime.raw).format('LLL');
+            document.getElementById("year-outHumidity-min-ts").innerText = moment.unix($year.outHumidity.mintime.raw).format('LLL');
+            document.getElementById("at-outHumidity-min-ts").innerText = moment.unix($alltime.outHumidity.mintime.raw).format('LLL');
+            document.getElementById("year-dewpoint-max-ts").innerText = moment.unix($year.dewpoint.maxtime.raw).format('LLL');
+            document.getElementById("at-dewpoint-max-ts").innerText = moment.unix($alltime.dewpoint.maxtime.raw).format('LLL');
+            document.getElementById("year-dewpoint-min-ts").innerText = moment.unix($year.dewpoint.mintime.raw).format('LLL');
+            document.getElementById("at-dewpoint-min-ts").innerText = moment.unix($alltime.dewpoint.mintime.raw).format('LLL');
+            document.getElementById("year-barometer-max-ts").innerText = moment.unix($year.barometer.maxtime.raw).format('LLL');
+            document.getElementById("at-barometer-max-ts").innerText = moment.unix($alltime.barometer.maxtime.raw).format('LLL');
+            document.getElementById("year-barometer-min-ts").innerText = moment.unix($year.barometer.mintime.raw).format('LLL');
+            document.getElementById("at-barometer-min-ts").innerText = moment.unix($alltime.barometer.mintime.raw).format('LLL');
+            document.getElementById("year-radiation-max-ts").innerText = moment.unix($year.radiation.maxtime.raw).format('LLL');
+            document.getElementById("at-radiation-max-ts").innerText = moment.unix($alltime.radiation.maxtime.raw).format('LLL');
+            document.getElementById("year-uv-max-ts").innerText = moment.unix($year.UV.maxtime.raw).format('LLL');
+            document.getElementById("at-uv-max-ts").innerText = moment.unix($alltime.UV.maxtime.raw).format('LLL');
+
+        
+        });
+    </script>
 
     <div class="site-inner">
         <div class="content-sidebar-wrap">
@@ -40,45 +88,45 @@
                                     <tr>
                                         <td>Highest Temperature</td>
                                         <td class="leftborder">$year.outTemp.max</td>
-                                        <td>$year.outTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.outTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td><span id="year-outtemp-max-ts"></span></td><!-- moment.js -->
+                                        <td class="leftborder"><span id="at-outtemp-max-ts"></span></td><!-- moment.js -->
                                         <td>$alltime.outTemp.max</td>
                                     </tr>
                                     <tr>
                                         <td>Lowest Temperature</td>
                                         <td class="leftborder">$year.outTemp.min</td>
-                                        <td>$year.outTemp.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.outTemp.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-outtemp-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-outtemp-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.outTemp.min</td>
                                     </tr>
                                     #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
                                     <tr>
                                         <td>Highest Apparent Temperature</td>
                                         <td class="leftborder">$year.appTemp.max</td>
-                                        <td>$year.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.appTemp.maxtime.format("%B %-d, %Y at %-I:%M %p") $unit.label.outTemp</td>
+                                        <td id="year-apptemp-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-apptemp-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.appTemp.max</td>
                                     </tr>
                                     <tr>
                                         <td>Lowest Apparent Temperature</td>
                                         <td class="leftborder">$year.appTemp.min</td>
-                                        <td>$year.appTemp.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.appTemp.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-apptemp-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-apptemp-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.appTemp.min</td>
                                     </tr>
                                     #end if
                                     <tr>
                                         <td>Highest Heat Index</td>
                                         <td class="leftborder">$year.heatindex.max</td>
-                                        <td>$year.heatindex.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.heatindex.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-heatindex-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-heatindex-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.heatindex.max</td>
                                     </tr>  
                                     <tr>
                                         <td>Lowest Wind Chill</td>
                                         <td class="leftborder">$year.windchill.min</td>
-                                        <td>$year.windchill.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.windchill.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-windchill-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-windchill-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.windchill.min</td>
                                     </tr>
                                     <tr>
@@ -107,16 +155,16 @@
                                     <tr>
                                         <td>Strongest Wind Gust</td>
                                         <td class="leftborder">$year.windGust.max</td>
-                                        <td>$year.windGust.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.windGust.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-windGust-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-windGust-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.windGust.max</td>                            
                                     </tr>
                                     #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
                                     <tr>
                                         <td>Highest Daily Wind Run</td>
                                         <td class="leftborder">$year.windrun.max</td>
-                                        <td>$year.windrun.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.windrun.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-windrun-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-windrun-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.windrun.max</td>
                                     </tr>
                                     #end if
@@ -138,8 +186,8 @@
                                     <tr>
                                         <td>Highest Daily Rainfall Rate</td>
                                         <td class="leftborder">$year.rainRate.max</td>
-                                        <td>$year.rainRate.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.rainRate.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-rainRate-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-rainRate-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.rainRate.max</td>
                                     </tr>
                                     <tr>
@@ -186,29 +234,29 @@
                                     <tr>
                                         <td>Highest Humidity</td>
                                         <td class="leftborder">$year.outHumidity.max</td>
-                                        <td>$year.outHumidity.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.outHumidity.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-outHumidity-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-outHumidity-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.outHumidity.max</td>
                                     </tr>
                                     <tr>
                                         <td>Lowest Humidity</td>
                                         <td class="leftborder">$year.outHumidity.min</td>
-                                        <td>$year.outHumidity.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.outHumidity.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-outHumidity-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-outHumidity-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.outHumidity.min</td>                            
                                     </tr>
                                     <tr>
                                         <td>Highest Dewpoint</td>
                                         <td class="leftborder">$year.dewpoint.max</td>
-                                        <td>$year.dewpoint.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.dewpoint.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-dewpoint-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-dewpoint-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.dewpoint.max</td>                            
                                     </tr>
                                     <tr>
                                         <td>Lowest Dewpoint</td>
                                         <td class="leftborder">$year.dewpoint.min</td>
-                                        <td>$year.dewpoint.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.dewpoint.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-dewpoint-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-dewpoint-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.dewpoint.min</td>                            
                                     </tr>
                                     
@@ -223,15 +271,15 @@
                                     <tr>
                                         <td>Highest Barometer</td>
                                         <td class="leftborder">$year.barometer.max</td>
-                                        <td>$year.barometer.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.barometer.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-barometer-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-barometer-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.barometer.max</td>                            
                                     </tr>
                                     <tr>
                                         <td>Lowest Barometer</td>
                                         <td class="leftborder">$year.barometer.min</td>
-                                        <td>$year.barometer.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.barometer.mintime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-barometer-min-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-barometer-min-ts"></td><!-- moment.js -->
                                         <td>$alltime.barometer.min</td>                             
                                     </tr>
                                     
@@ -246,15 +294,15 @@
                                     <tr>
                                         <td>Highest Solar Radiation</td>
                                         <td class="leftborder">$year.radiation.max</td>
-                                        <td>$year.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.radiation.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td>$alltime.radiation.max</td>                             
+                                        <td id="year-radiation-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
+                                        <td>$alltime.radiation.max</td>
                                     </tr>                        
                                     <tr>
                                         <td>Highest UV</td>
                                         <td class="leftborder">$year.UV.max</td>
-                                        <td>$year.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
-                                        <td class="leftborder">$alltime.UV.maxtime.format("%B %-d, %Y at %-I:%M %p")</td>
+                                        <td id="year-uv-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.UV.max</td>                             
                                     </tr>
                                 </tbody>
