@@ -434,7 +434,7 @@ class getData(SearchList):
                         forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
             
             forecast_html_output = ""
-            forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
+            forecast_updated = time.strftime( "%c", time.localtime( data["currently"]["time"] ) )
             current_obs_summary = data["currently"]["summary"]
             visibility = data["currently"]["visibility"]
             
@@ -604,7 +604,7 @@ class getData(SearchList):
                 eqdata = json.load( read_file )
             
             try:
-                eqtime = time.strftime( "%B %d, %Y, %-I:%M %p", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
+                eqtime = time.strftime( "%c", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
                 equrl = eqdata["features"][0]["properties"]["url"]
                 eqplace = eqdata["features"][0]["properties"]["place"]
                 eqmag = eqdata["features"][0]["properties"]["mag"]

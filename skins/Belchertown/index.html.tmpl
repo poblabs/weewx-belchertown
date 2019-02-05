@@ -393,7 +393,7 @@
                 output_html += '</div>';
                 output_html += '</div>';
             }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'MMMM D, YYYY, h:mm A' ); // August 14, 2018, 1:00 PM
+            forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
             jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
             jQuery(".forecasts").html( output_html );
         }
