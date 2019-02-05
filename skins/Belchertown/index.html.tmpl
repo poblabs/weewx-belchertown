@@ -51,6 +51,10 @@
             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
             daily(); // Initial load daily highcharts
             #end if
+            
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+            #end if
         });
         
         // Handle wind arrow rotation with the ability to "rollover" past 0 
@@ -1036,7 +1040,7 @@
                             <div class="col-sm-3 earthquake-container border-left">
                                 <div class="eq-title">Recent Local Earthquake</div>
                                 <div class="eq-region">
-                                    <span>$earthquake_time</span>
+                                    <span class="earthquake-time"></span><!-- moment.js -->
                                     #if $earthquake_place != ''
                                     <br>
                                     <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
