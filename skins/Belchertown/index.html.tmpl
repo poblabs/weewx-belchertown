@@ -246,10 +246,8 @@
             jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
             
             // Sunrise and Sunset            
-            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss A").format("h:mm A");
-            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss A").format("h:mm A");
-            jQuery(".sunrise-value").html( sunrise );
-            jQuery(".sunset-value").html( sunset );
+            jQuery(".sunrise-value").html( data["almanac"]["sunrise"] );
+            jQuery(".sunset-value").html( data["almanac"]["sunset"] );
             
             // Moon icon, phase and illumination percent
             switch ( data["almanac"]["moon"]["moon_phase"] ) {
@@ -444,7 +442,7 @@
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
             epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
             jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
             console.log( updated + ": Cannot connect to MQTT broker" );
         }
@@ -456,7 +454,7 @@
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
             epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
             jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
             if (responseObject.errorCode !== 0) {
                 console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
@@ -490,7 +488,6 @@
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
             updated_text = "Connected to weather station live. Data received " + updated;
             jQuery(".updated").html( updated_text );
             jQuery(".onlineMarker").show(); // Show the online beacon
@@ -894,12 +891,12 @@
                                                         <div class="sun-moon-title">
                                                             Sun &amp; Moon
                                                         </div>
-                                                        <div class="col-sm-5 sun">
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span>
+                                                        <div class="col-sm-6 sun">
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise</span>
                                                             <br>
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span>
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset</span>
                                                         </div>
-                                                        <div class="col-sm-7 moon">
+                                                        <div class="col-sm-6 moon">
                                                             <div class="moon-container">
                                                                 <span class="moon-icon">
                                                                     #if $almanac.moon_phase.lower() == "new moon"
