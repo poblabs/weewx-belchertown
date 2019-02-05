@@ -1,5 +1,8 @@
 0.9 February ??, 2019
+* A lot of work focused on locale for time formatting. All time should be auto-detected by the locale on your server and displayed in your locale format.
+* Forecast row is now JavaScript only and has been removed from the belchertown.py SLE. This makes it easier to manage in the future since it's only in 1 place now.
 * Updated almanac to work with weewx 3.9.0's new [Default] section within weewx.conf.
+* Updated the forecast row 
 * Added the option to show indoor temperature (inTemp) to the temperature charts. This option is disabled by default and is setup exactly like apparent temperature. Once you opt-in to show this data, it is only available for the day and week charts.
 * Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
 * Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
