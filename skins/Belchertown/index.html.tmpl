@@ -15,8 +15,8 @@
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
-        var moment_locale = "$system_locale".substring(0, 2);
-        moment.locale(moment_locale); // "en" or "de", etc.
+        var moment_locale = "$system_locale".replace(/_/g, '-'); // Replace underscore with dash (e.g. "en_US" becomes "en-US") which is a format that moment.js needs for locale
+        moment.locale(moment_locale);
         
         ajaxweewx(); // Initial call. Load from weewx (date, daily high, low, etc)
         
