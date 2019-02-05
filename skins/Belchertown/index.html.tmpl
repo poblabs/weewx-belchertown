@@ -18,6 +18,8 @@
         var moment_locale = "$system_locale".substring(0, 2);
         moment.locale(moment_locale); // "en" or "de", etc.
         
+        ajaxweewx(); // Initial call. Load from weewx (date, daily high, low, etc)
+        
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         // Load forecast
         ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
@@ -41,7 +43,6 @@
             #end if
             
             #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
-            ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
             connect(); // Begin mqtt after weewx initial load
             // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
             jQuery(document).on('click', '.restart-interval', function() { 
@@ -194,6 +195,79 @@
             cache:false
         });
         
+        function ajaxweewx() {
+            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
+        };
+        
+        // Update weewx data elements
+        function update_weewx_data( data ) {
+            console.log("Updating weewx data");
+            // Daily High Low
+            high = data["day"]["outTemp"]["max"];
+            low = data["day"]["outTemp"]["min"];
+            jQuery(".high").html( high );
+            jQuery(".low").html( low );
+            
+            // Barometer trending by finding a negative number
+            count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
+            
+            if ( count >= 1 ) {
+                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
+            } else {
+                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
+            }
+            
+            // Current wind gust
+            jQuery(".curwindgust").text( parseFloat( data["current"]["windGust"] ).toFixed(1) );
+            
+            // Daily max gust span
+            jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
+            
+            // Daily stats section
+            jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, LL' ) );
+            jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM YYYY' ) );
+            jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
+            jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
+            jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
+            jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
+            jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
+            jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
+            
+            // Sunrise and Sunset            
+            jQuery(".sunrise-value").html( data["almanac"]["sunrise"] );
+            jQuery(".sunset-value").html( data["almanac"]["sunset"] );
+            
+            // Moon icon, phase and illumination percent
+            switch ( data["almanac"]["moon"]["moon_phase"] ) {
+                case "New Moon":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
+                    break;
+                case "Waxing Crescent":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
+                    break;
+                case "First Quarter":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+                    break;
+                case "Waxing Gibbous":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
+                    break;
+                case "Full Moon":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
+                    break;
+                case "Waning Gibbous":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
+                    break;
+                case "Last Quarter":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+                    break;
+                case "Waning Crescent":
+                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
+                    break;
+            }
+            jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
+            jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
+        }
+        
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         function ajaxforecast() {
             jQuery.getJSON("$forecast_json_url", update_forecast_data);
@@ -330,79 +404,6 @@
                 var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
                 jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
             }
-        }
-        
-        function ajaxweewx() {
-            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
-        };
-        
-        // Update weewx data elements
-        function update_weewx_data( data ) {
-            console.log("Updating weewx data");
-            // Daily High Low
-            high = data["day"]["outTemp"]["max"];
-            low = data["day"]["outTemp"]["min"];
-            jQuery(".high").html( high );
-            jQuery(".low").html( low );
-            
-            // Barometer trending by finding a negative number
-            count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
-            
-            if ( count >= 1 ) {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
-            } else {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
-            }
-            
-            // Current wind gust
-            jQuery(".curwindgust").text( parseFloat( data["current"]["windGust"] ).toFixed(1) );
-            
-            // Daily max gust span
-            jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
-            
-            // Daily stats section
-            jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, MMMM D, YYYY' ) ); // e.g. Tuesday, January 15, 2019
-            jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM, YYYY' ) ); // e.g. January, 2019
-            jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
-            jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
-            jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
-            jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
-            jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
-            jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
-            
-            // Sunrise and Sunset            
-            jQuery(".sunrise-value").html( data["almanac"]["sunrise"] );
-            jQuery(".sunset-value").html( data["almanac"]["sunset"] );
-            
-            // Moon icon, phase and illumination percent
-            switch ( data["almanac"]["moon"]["moon_phase"] ) {
-                case "New Moon":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
-                    break;
-                case "Waxing Crescent":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
-                    break;
-                case "First Quarter":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "Waxing Gibbous":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
-                    break;
-                case "Full Moon":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
-                    break;
-                case "Waning Gibbous":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
-                    break;
-                case "Last Quarter":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "Waning Crescent":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
-                    break;
-            }
-            jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
-            jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
         }
         
         // mqtt connect
@@ -993,7 +994,7 @@
                                         
                                         <div class="col-sm-6 stn-quick-stats">
                                             <div class="stats-title">
-                                                Today, <span class="snapshot-records-today-header">$current.dateTime.format("%A, %B %d, %Y")</span><!-- AJAX -->
+                                                <span class="snapshot-records-today-header"></span><!-- JS and AJAX -->
                                             </div>
                                             <table>
                                                 <tr>
@@ -1015,7 +1016,7 @@
                                         <!-- Quick this month stats -->
                                         <div class="col-sm-6 stn-quick-stats border-left">
                                             <div class="stats-title">
-                                                Month of <span class="snapshot-records-month-header">$current.dateTime.format("%B, %Y")</span><!-- AJAX -->
+                                                <span class="snapshot-records-month-header">$current.dateTime.format("%B %Y")</span><!-- AJAX -->
                                             </div>
                                             <table>
                                                 <tr>
