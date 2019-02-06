@@ -771,20 +771,12 @@
                                                     <tr>
                                                         <td>
                                                             <span class="curwindspeed">
-                                                                #if $current.windSpeed.formatted == "N/A"
-                                                                $current.windSpeed
-                                                                #else
-                                                                #echo "%.1f" % int( float( $current.windSpeed.formatted ) )#
-                                                                #end if
+                                                                current.windSpeed.format(format_string="%.1f", None_string="N/A", add_label=False)
                                                             </span>
                                                         </td>
                                                         <td class="border-left gust">&nbsp;
                                                             <span class="curwindgust">
-                                                                #if $current.windGust.formatted == "N/A"
-                                                                $current.windGust
-                                                                #else
-                                                                #echo "%.1f" % int( float( $current.windGust.formatted ) )#
-                                                                #end if
+                                                                $current.windGust.format(format_string="%.1f", None_string="N/A", add_label=False) 
                                                             </span>
                                                         </td>
                                                     </tr>
