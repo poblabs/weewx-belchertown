@@ -14,44 +14,80 @@
         jQuery(document).ready(function() {
             document.getElementById("year-outtemp-max-ts").innerText = moment.unix($year.outTemp.maxtime.raw).format('LLL');
             document.getElementById("at-outtemp-max-ts").innerText = moment.unix($alltime.outTemp.maxtime.raw).format('LLL');
+            
             document.getElementById("year-outtemp-min-ts").innerText = moment.unix($year.outTemp.mintime.raw).format('LLL');
             document.getElementById("at-outtemp-min-ts").innerText = moment.unix($alltime.outTemp.mintime.raw).format('LLL');
+            
             #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
             document.getElementById("year-apptemp-max-ts").innerText = moment.unix($year.appTemp.maxtime.raw).format('LLL');
             document.getElementById("at-apptemp-max-ts").innerText = moment.unix($alltime.appTemp.maxtime.raw).format('LLL');
+            
             document.getElementById("year-apptemp-min-ts").innerText = moment.unix($year.appTemp.mintime.raw).format('LLL');
             document.getElementById("at-apptemp-min-ts").innerText = moment.unix($alltime.appTemp.mintime.raw).format('LLL');
             #end if
+            
             document.getElementById("year-heatindex-max-ts").innerText = moment.unix($year.heatindex.maxtime.raw).format('LLL');
             document.getElementById("at-heatindex-max-ts").innerText = moment.unix($alltime.heatindex.maxtime.raw).format('LLL');
+            
             document.getElementById("year-windchill-min-ts").innerText = moment.unix($year.windchill.mintime.raw).format('LLL');
             document.getElementById("at-windchill-min-ts").innerText = moment.unix($alltime.windchill.mintime.raw).format('LLL');
+            
+            document.getElementById("year-outtemp-range-max-ts").innerText = moment.unix($year_outTemp_range_max[0]).format('LL');
+            document.getElementById("at-outtemp-range-max-ts").innerText = moment.unix($at_outTemp_range_max[0]).format('LL');
+            
+            document.getElementById("year-outtemp-range-min-ts").innerText = moment.unix($year_outTemp_range_min[0]).format('LL');
+            document.getElementById("at-outtemp-range-min-ts").innerText = moment.unix($at_outTemp_range_min[0]).format('LL');
+            
             document.getElementById("year-windGust-max-ts").innerText = moment.unix($year.windGust.maxtime.raw).format('LLL');
             document.getElementById("at-windGust-max-ts").innerText = moment.unix($alltime.windGust.maxtime.raw).format('LLL');
+            
             #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
             document.getElementById("year-windrun-max-ts").innerText = moment.unix($year.windrun.maxtime.raw).format('LLL');
             document.getElementById("at-windrun-max-ts").innerText = moment.unix($alltime.windrun.maxtime.raw).format('LLL');
             #end if
+            
+            document.getElementById("year-rainiest-day-ts").innerText = moment.unix($rainiest_day[0]).format('LL');
+            document.getElementById("at-rainiest-day-ts").innerText = moment.unix($at_rainiest_day[0]).format('LL');
+            
             document.getElementById("year-rainRate-max-ts").innerText = moment.unix($year.rainRate.maxtime.raw).format('LLL');
             document.getElementById("at-rainRate-max-ts").innerText = moment.unix($alltime.rainRate.maxtime.raw).format('LLL');
+            
             document.getElementById("year-outHumidity-max-ts").innerText = moment.unix($year.outHumidity.maxtime.raw).format('LLL');
             document.getElementById("at-outHumidity-max-ts").innerText = moment.unix($alltime.outHumidity.maxtime.raw).format('LLL');
+            
             document.getElementById("year-outHumidity-min-ts").innerText = moment.unix($year.outHumidity.mintime.raw).format('LLL');
             document.getElementById("at-outHumidity-min-ts").innerText = moment.unix($alltime.outHumidity.mintime.raw).format('LLL');
+            
             document.getElementById("year-dewpoint-max-ts").innerText = moment.unix($year.dewpoint.maxtime.raw).format('LLL');
             document.getElementById("at-dewpoint-max-ts").innerText = moment.unix($alltime.dewpoint.maxtime.raw).format('LLL');
+            
             document.getElementById("year-dewpoint-min-ts").innerText = moment.unix($year.dewpoint.mintime.raw).format('LLL');
             document.getElementById("at-dewpoint-min-ts").innerText = moment.unix($alltime.dewpoint.mintime.raw).format('LLL');
+            
             document.getElementById("year-barometer-max-ts").innerText = moment.unix($year.barometer.maxtime.raw).format('LLL');
             document.getElementById("at-barometer-max-ts").innerText = moment.unix($alltime.barometer.maxtime.raw).format('LLL');
+            
             document.getElementById("year-barometer-min-ts").innerText = moment.unix($year.barometer.mintime.raw).format('LLL');
             document.getElementById("at-barometer-min-ts").innerText = moment.unix($alltime.barometer.mintime.raw).format('LLL');
+            
             document.getElementById("year-radiation-max-ts").innerText = moment.unix($year.radiation.maxtime.raw).format('LLL');
             document.getElementById("at-radiation-max-ts").innerText = moment.unix($alltime.radiation.maxtime.raw).format('LLL');
+            
             document.getElementById("year-uv-max-ts").innerText = moment.unix($year.UV.maxtime.raw).format('LLL');
             document.getElementById("at-uv-max-ts").innerText = moment.unix($alltime.UV.maxtime.raw).format('LLL');
+            
+            document.getElementById("year-days-with-rainfall-ts").innerText = moment.unix($year_days_with_rain[1]).format('LL');
+            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
+            var start_day_epoch = $at_days_with_rain[1] - ($at_days_with_rain[0] * 86400);
+            document.getElementById("at-days-with-rainfall-range-ts").innerText = moment.unix(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_with_rain[1]).format('LL');
 
-        
+            document.getElementById("year-days-without-rainfall-ts").innerText = moment.unix($year_days_without_rain[1]).format('LL');
+            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
+            var start_day_epoch = $at_days_without_rain[1] - ($at_days_without_rain[0] * 86400);
+            document.getElementById("at-days-without-rainfall-range-ts").innerText = moment.unix(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_without_rain[1]).format('LL');
+
         });
     </script>
 
@@ -132,15 +168,15 @@
                                     <tr>
                                         <td>Largest Daily Temperature Range</td>
                                         <td class="leftborder">$year_outTemp_range_max[1] $unit.label.outTemp</td>
-                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_outTemp_range_max[0] ) ) #<br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td>
-                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_outTemp_range_max[0] ) ) #<br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td>
+                                        <td><span id="year-outtemp-range-max-ts"></span><br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                        <td class="leftborder"><span id="at-outtemp-range-max-ts"></span><br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
                                         <td>$at_outTemp_range_max[1] $unit.label.outTemp</td>
                                     </tr>                           
                                     <tr>
                                         <td>Smallest Daily Temperature Range</td>
                                         <td class="leftborder">$year_outTemp_range_min[1] $unit.label.outTemp</td>
-                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $year_outTemp_range_min[0] ) ) #<br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td>
-                                        <td class="leftborder">#echo time.strftime( "%B %d, %Y", time.localtime( $at_outTemp_range_min[0] ) ) #<br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td>
+                                        <td><span id="year-outtemp-range-min-ts"></span><br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                        <td class="leftborder"><span id="at-outtemp-range-min-ts"></span><br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
                                         <td>$at_outTemp_range_min[1] $unit.label.outTemp</td>
                                     </tr>
                                     
@@ -179,8 +215,8 @@
                                     <tr>
                                         <td>Highest Daily Rainfall</td>
                                         <td class="leftborder">$rainiest_day[1] $unit.label.rain</td>
-                                        <td>#echo time.strftime( "%B %d, %Y", time.localtime( $rainiest_day[0] ) )#</td>
-                                        <td class="leftborder">$at_rainiest_day[0]</td>
+                                        <td id="year-rainiest-day-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-rainiest-day-ts"></td><!-- moment.js -->
                                         <td>$at_rainiest_day[1] $unit.label.rain</td>
                                     </tr>
                                     <tr>
@@ -207,20 +243,16 @@
                                     <tr>
                                         <td>Consecutive Days With Rainfall</td>
                                         <td class="leftborder">$year_days_with_rain[0] days</td>
-                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_with_rain[1] ) )#</td>
+                                        <td>ending <span id="year-days-with-rainfall-ts"></span></td><!-- moment.js -->
                                         <td class="leftborder">$at_days_with_rain[0] days</td>
-                                        ## Minus the epoch date from the number of days
-                                        #set daysago = datetime.datetime.fromtimestamp($at_days_with_rain[1]) - timedelta(days=$at_days_with_rain[0])#
-                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_with_rain[1] ) )#</td>
+                                        <td id="at-days-with-rainfall-range-ts"></td><!-- moment.js -->
                                     </tr>                        
                                     <tr>
                                         <td>Consecutive Days Without Rainfall</td>
                                         <td class="leftborder">$year_days_without_rain[0] days</td>
-                                        <td>ending #echo time.strftime( "%B %d, %Y", time.localtime( $year_days_without_rain[1] ) )#</td>
+                                        <td>ending <span id="year-days-without-rainfall-ts"></span></td><!-- moment.js -->
                                         <td class="leftborder">$at_days_without_rain[0] days</td>
-                                        ## Minus the epoch date from the number of days
-                                        #set daysago = datetime.datetime.fromtimestamp($at_days_without_rain[1]) - timedelta(days=$at_days_without_rain[0])#
-                                        <td>$daysago.strftime( "%B %d" ) - #echo time.strftime( "%B %d, %Y", time.localtime( $at_days_without_rain[1] ) )#</td>                            
+                                        <td id="at-days-without-rainfall-range-ts"></td><!-- moment.js -->
                                     </tr>
                                  
                                     <tr>

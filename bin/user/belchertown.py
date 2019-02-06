@@ -203,7 +203,7 @@ class getData(SearchList):
         at_rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
         at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, 'group_rain')
         at_rainiest_day_converted = rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
-        at_rainiest_day = [ time.strftime( "%B %d, %Y at %-I:%M %p", time.localtime( at_rainiest_day_query[0] ) ), at_rainiest_day_converted ]
+        at_rainiest_day = [ at_rainiest_day_query[0], at_rainiest_day_converted ]
         
 
         # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
