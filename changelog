@@ -14,6 +14,7 @@
 * On the Pi page, added a timer to reconnect to MQTT if connection is lost to the MQTT broker.
 * Re-ordered some JavaScript functions due to improper grouping.
 * Fixed Pi page styles to match the 640x480 resolution for the PiTFT.
+* Fixed a bug on the Records page where certain custom observations were not in the station's locale formatting.
 * Fixed a bug certain users were seeing with UTF-8. Thanks user spanishhighs!
 * Fixed a bug where if using a radar image (not windy.com, but a jpg, gif, png, etc.), it'll reload the image upon background updates. 
 * Fixed a bug where the date of the weather records snapshot for "Today" and "Month of" on the home page didn't update if the page was automatically updated overnight into a new day or a new month. 
