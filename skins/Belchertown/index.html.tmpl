@@ -235,8 +235,8 @@
             jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
             
             // Sunrise and Sunset            
-            jQuery(".sunrise-value").html( data["almanac"]["sunrise"] );
-            jQuery(".sunset-value").html( data["almanac"]["sunset"] );
+            jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
+            jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
             
             // Moon icon, phase and illumination percent
             switch ( data["almanac"]["moon"]["moon_phase"] ) {
@@ -893,9 +893,9 @@
                                                             Sun &amp; Moon
                                                         </div>
                                                         <div class="col-sm-6 sun">
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise</span>
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
                                                             <br>
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset</span>
+                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
                                                         </div>
                                                         <div class="col-sm-6 moon">
                                                             <div class="moon-container">
