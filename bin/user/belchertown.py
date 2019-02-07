@@ -11,6 +11,7 @@ import json
 import os
 import syslog
 import sys
+import locale
 
 import weewx
 import weecfg
@@ -22,6 +23,7 @@ from weeutil.weeutil import TimeSpan
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
 reload(sys)
 sys.setdefaultencoding("utf-8")
+locale.setlocale(locale.LC_ALL, "")
 
 def logmsg(level, msg):
     syslog.syslog(level, 'Belchertown Extension: %s' % msg)
@@ -36,7 +38,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.9rc3"
+VERSION = "0.9rc5"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -77,6 +79,9 @@ class getData(SearchList):
         # Highcharts UTC offset is the opposite of normal. Positive values are west, negative values are east of UTC. https://api.highcharts.com/highcharts/time.timezoneOffset
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
+        
+        # Get the system locale for use with moment.js
+        system_locale = locale.getdefaultlocale()[0]
         
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
@@ -134,7 +139,7 @@ class getData(SearchList):
             # Largest Daily Temperature Range total
             year_outTemp_max_range_total = outTemp_round % ( float(year_outTemp_max_range_max) - float(year_outTemp_max_range_min) )
             # Replace the SQL Query output with the converted values
-            year_outTemp_range_max = [ year_outTemp_max_range_query[0], year_outTemp_max_range_total, year_outTemp_max_range_min, year_outTemp_max_range_max ]
+            year_outTemp_range_max = [ year_outTemp_max_range_query[0], locale.format("%g", float(year_outTemp_max_range_total)), locale.format("%g", float(year_outTemp_max_range_min)), locale.format("%g", float(year_outTemp_max_range_max)) ]
         else:
             year_outTemp_range_max = [ calendar.timegm( time.gmtime() ), 0.0, 0.0, 0.0 ]
         
@@ -149,7 +154,7 @@ class getData(SearchList):
             # Smallest Daily Temperature Range total
             year_outTemp_min_range_total = outTemp_round % ( float(year_outTemp_min_range_max) - float(year_outTemp_min_range_min) )
             # Replace the SQL Query output with the converted values
-            year_outTemp_range_min = [ year_outTemp_min_range_query[0], year_outTemp_min_range_total, year_outTemp_min_range_min, year_outTemp_min_range_max ]
+            year_outTemp_range_min = [ year_outTemp_min_range_query[0], locale.format("%g", float(year_outTemp_min_range_total)), locale.format("%g", float(year_outTemp_min_range_min)), locale.format("%g", float(year_outTemp_min_range_max)) ]
         else:
             year_outTemp_range_min = [ calendar.timegm( time.gmtime() ), 0.0, 0.0, 0.0 ]
         
@@ -163,7 +168,7 @@ class getData(SearchList):
         # Largest Daily Temperature Range total
         at_outTemp_max_range_total = outTemp_round % ( float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min) )
         # Replace the SQL Query output with the converted values
-        at_outTemp_range_max = [ at_outTemp_max_range_query[0], at_outTemp_max_range_total, at_outTemp_max_range_min, at_outTemp_max_range_max ]
+        at_outTemp_range_max = [ at_outTemp_max_range_query[0], locale.format("%g", float(at_outTemp_max_range_total)), locale.format("%g", float(at_outTemp_max_range_min)), locale.format("%g", float(at_outTemp_max_range_max)) ]
 
         # All Time - Smallest Daily Temperature Range Conversions
         # Max temperature for this day
@@ -175,7 +180,7 @@ class getData(SearchList):
         # Smallest Daily Temperature Range total
         at_outTemp_min_range_total = outTemp_round % ( float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min) )
         # Replace the SQL Query output with the converted values
-        at_outTemp_range_min = [ at_outTemp_min_range_query[0], at_outTemp_min_range_total, at_outTemp_min_range_min, at_outTemp_min_range_max ]
+        at_outTemp_range_min = [ at_outTemp_min_range_query[0], locale.format("%g", float(at_outTemp_min_range_total)), locale.format("%g", float(at_outTemp_min_range_min)), locale.format("%g", float(at_outTemp_min_range_max)) ]
         
         
         # Rain lookups
@@ -199,7 +204,7 @@ class getData(SearchList):
         at_rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
         at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, 'group_rain')
         at_rainiest_day_converted = rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
-        at_rainiest_day = [ time.strftime( "%B %d, %Y at %-I:%M %p", time.localtime( at_rainiest_day_query[0] ) ), at_rainiest_day_converted ]
+        at_rainiest_day = [ at_rainiest_day_query[0], at_rainiest_day_converted ]
         
 
         # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
@@ -224,7 +229,7 @@ class getData(SearchList):
         if year_rainiest_month_query is not None:
             year_rainiest_month_tuple = (year_rainiest_month_query[1], rain_unit, 'group_rain')
             year_rainiest_month_converted = rain_round % self.generator.converter.convert(year_rainiest_month_tuple)[0]
-            year_rainiest_month = [ calendar.month_name[ int( year_rainiest_month_query[0] ) ], year_rainiest_month_converted ]
+            year_rainiest_month = [ calendar.month_name[ int( year_rainiest_month_query[0] ) ], locale.format("%g", float(year_rainiest_month_converted)) ]
         else:
             year_rainiest_month = [ "N/A", 0.0 ]
 
@@ -232,14 +237,14 @@ class getData(SearchList):
         at_rainiest_month_query = wx_manager.getSql( at_rainiest_month_sql )
         at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, 'group_rain')
         at_rainiest_month_converted = rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
-        at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], at_rainiest_month_converted ]
+        at_rainiest_month = [ calendar.month_name[ int( at_rainiest_month_query[0] ) ] + ", " + at_rainiest_month_query[1], locale.format("%g", float(at_rainiest_month_converted)) ]
         
         # All time rainiest year
         at_rain_highest_year_query = wx_manager.getSql( at_rain_highest_year_sql )
         at_rain_highest_year_tuple = (at_rain_highest_year_query[1], rain_unit, 'group_rain')
         #at_rain_highest_year_converted = round( self.generator.converter.convert(at_rain_highest_year_tuple)[0], rain_round )
         at_rain_highest_year_converted = rain_round % self.generator.converter.convert(at_rain_highest_year_tuple)[0]
-        at_rain_highest_year = [ at_rain_highest_year_query[0], at_rain_highest_year_converted ]
+        at_rain_highest_year = [ at_rain_highest_year_query[0], locale.format("%g", float(at_rain_highest_year_converted)) ]
         
         
         # Consecutive days with/without rainfall
@@ -372,7 +377,6 @@ class getData(SearchList):
         """
         Forecast Data
         """
-        forecast_alert_text = ""
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
             forecast_file = local_root + "/json/darksky_forecast.json"
             forecast_json_url = belchertown_root_url + "/json/darksky_forecast.json"
@@ -421,23 +425,9 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
             
-            # Weather Alerts (only if enabled)
-            if forecast_alert_enabled == 1:
-                if "alerts" in data:
-                    for alert in data['alerts']:
-                        alert_expires = time.strftime('%B %-d, %Y, %-I:%M %p', time.localtime( alert['expires'] )) # December 27, 2018, 9:00 PM
-                        # Final alert string
-                        forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='%s' target='_blank'>%s in effect until %s</a><br>" % ( alert['uri'], alert['title'], alert_expires )
-            
-            forecast_html_output = ""
-            forecast_updated = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( data["currently"]["time"] ) )
             current_obs_summary = data["currently"]["summary"]
             visibility = data["currently"]["visibility"]
             
-            # Get the unit label from the skin dict for speed. 
-            windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
-            windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
-
             if data["currently"]["icon"] == "partly-cloudy-night":
                 current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/partly-cloudy-night.png">'
             else:
@@ -453,88 +443,12 @@ class getData(SearchList):
             else:
                 visibility_unit = ""
                 
-            # Loop through each day and generate the forecast row HTML
-            for daily_data in data["daily"]["data"]:
-                # Setup some variables
-                if daily_data["icon"] == "partly-cloudy-night":
-                    image_url = belchertown_root_url + "/images/clear-day.png"
-                else:
-                    image_url = belchertown_root_url + "/images/" + daily_data["icon"] + ".png"
-                
-                condition_text = ""
-                if daily_data["icon"] == "clear-day":
-                    condition_text = "Clear"
-                elif daily_data["icon"] == "clear-night":
-                    condition_text = "Clear"
-                elif daily_data["icon"] == "rain":
-                    condition_text = "Rain"
-                elif daily_data["icon"] == "snow":
-                    condition_text = "Snow"
-                elif daily_data["icon"] == "sleet":
-                    condition_text = "Sleet"
-                elif daily_data["icon"] == "wind":
-                    condition_text = "Windy"
-                elif daily_data["icon"] == "fog":
-                    condition_text = "Fog"
-                elif daily_data["icon"] == "cloudy":
-                    condition_text = "Overcast"
-                elif daily_data["icon"] == "partly-cloudy-day":
-                    condition_text = "Partly Cloudy"
-                elif daily_data["icon"] == "partly-cloudy-night":
-                    # https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                    condition_text = "Clear"
-                elif daily_data["icon"] == "hail":
-                    condition_text = "Hail"
-                elif daily_data["icon"] == "thunderstorm":
-                    condition_text = "Thunderstorm"
-                elif daily_data["icon"] == "tornado":
-                    condition_text = "Tornado"
-            
-                # Build html
-                if time.strftime( "%a %m/%d", time.localtime( daily_data["time"] ) ) == time.strftime( "%a %m/%d", time.localtime( time.time() ) ):
-                    # If the time in the darksky output is today, do not add border-left and say "Today" in the header
-                    output = '<div class="col-sm-1-5 wuforecast">'
-                    weekday = "Today"
-                else:
-                    output = '<div class="col-sm-1-5 wuforecast border-left">'
-                    weekday = time.strftime( "%a %-m/%d", time.localtime( daily_data["time"] ) )
-                
-                output += '<span id="weekday">' + weekday + '</span>'
-                output += '<br>'
-                output += '<div class="forecast-conditions">'
-                output += '<img id="icon" src="'+image_url+'">'
-                output += '<span class="forecast-condition-text">'
-                output += condition_text
-                output += '</span>'
-                output += '</div>'
-                output += '<span class="forecast-high">'+str( int( daily_data["temperatureHigh"] ) )+'&deg;</span> | <span class="forecast-low">'+str( int( daily_data["temperatureLow"] ) )+'&deg;</span>'
-                output += '<br>'
-                output += '<div class="forecast-precip">'
-                if "precipType" in daily_data:
-                    if daily_data["precipType"] == "snow":
-                        output += '<div class="snow-precip">'
-                        output += '<img src="'+belchertown_root_url+'/images/snowflake-icon-15px.png"> <span>'+ str( '%.2f' % daily_data["precipAccumulation"] ) +'<span> in'
-                        output += '</div>'
-                    elif daily_data["precipType"] == "rain":
-                        output += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span >'+str( int( daily_data["precipProbability"] * 100 ) )+'%</span>'
-                else:
-                    output += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>'
-                output += '</div>'
-                output += '<div class="forecast-wind">'
-                output += '<i class="wi wi-strong-wind"></i> <span>'+str( int( daily_data["windSpeed"] ) )+'</span> | <span>'+str( int( daily_data["windGust"] ) )+'</span>' + windSpeedUnitLabel
-                output += '</div>'
-                output += "</div> <!-- end .wuforecast -->"
-                
-                # Add to the output
-                forecast_html_output += output
         else:
-            forecast_updated = ""
             forecast_json_url = ""
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = ""
             visibility_unit = ""
-            forecast_html_output = ""
         
         
         """
@@ -600,7 +514,7 @@ class getData(SearchList):
                 eqdata = json.load( read_file )
             
             try:
-                eqtime = time.strftime( "%B %d, %Y, %-I:%M %p %Z", time.localtime( eqdata["features"][0]["properties"]["time"] / 1000 ) )
+                eqtime = eqdata["features"][0]["properties"]["time"] / 1000
                 equrl = eqdata["features"][0]["properties"]["url"]
                 eqplace = eqdata["features"][0]["properties"]["place"]
                 eqmag = eqdata["features"][0]["properties"]["mag"]
@@ -679,6 +593,7 @@ class getData(SearchList):
                                   'belchertown_root_url': belchertown_root_url,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
+                                  'system_locale': system_locale,
                                   'radar_html': radar_html,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
@@ -697,14 +612,11 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeedUnitLabel,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
-                                  'forecast_updated': forecast_updated,
                                   'forecast_json_url': forecast_json_url,
                                   'current_obs_icon': current_obs_icon,
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
-                                  'forecast_alert_text': forecast_alert_text,
-                                  'forecastHTML' : forecast_html_output,
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,
                                   'earthquake_place': eqplace,

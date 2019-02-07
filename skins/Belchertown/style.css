@@ -2279,6 +2279,11 @@ li.comment {
     .pi .updated-wrapper {
         float: none;
     }
+    
+    .pi #wxicon {
+    display: initial;
+    margin: initial;
+    }
 
     .pi .updated {
         padding-top: 0px;
