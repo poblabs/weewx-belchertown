@@ -1,5 +1,6 @@
 0.9 February ??, 2019
 * A lot of work focused on locale for time formatting. All time should be auto-detected by the locale on your server and displayed in your locale format.
+* Charts hover tooltips are now in station's locale format.
 * Major bugfix for the rain charts. The old code was adding A LOT OF PLOTS. This resulted in slower chart generation time.
 * Forecast row is now JavaScript only and has been removed from the belchertown.py SLE. This makes it easier to manage in the future since it's only in 1 place now.
 * Updated almanac to work with weewx 3.9.0's new [Default] section within weewx.conf.
