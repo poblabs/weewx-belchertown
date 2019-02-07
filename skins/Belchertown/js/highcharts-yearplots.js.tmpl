@@ -1,3 +1,6 @@
+var moment_locale = "$system_locale".replace(/_/g, '-'); // Replace underscore with dash (e.g. "en_US" becomes "en-US") which is a format that moment.js needs for locale
+moment.locale(moment_locale);
+
 // http://stackoverflow.com/a/14887961/1177153
 var weatherdirection = {
 	0: 'N',
@@ -134,7 +137,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -219,7 +231,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -309,7 +330,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -395,7 +425,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -480,7 +519,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -584,7 +632,7 @@ function yearly() {
             enabled: true,
             //pointFormat: '{series.name}: <b>{point.y}</b>',
             formatter: function() {
-                return Highcharts.dateFormat('%A, %b %e, %H:%M', this.x) +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
+                return moment.unix( this.x / 1000).format("dddd LL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
             },
             valueDecimals: 2,
             dateTimeLabelFormats: {
@@ -695,7 +743,16 @@ function yearly() {
             valueDecimals: 2,
             dateTimeLabelFormats: {
                 hour: '%e %b'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + parseFloat(point.y).toFixed(2);
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
@@ -787,7 +844,16 @@ function yearly() {
             enabled: true,
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
-            }
+            },
+            formatter: function () {
+                // The first returned item is the header, subsequent items are the points
+                return [moment.unix( this.x / 1000).format("dddd LL")].concat(
+                    this.points.map(function (point) {
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                    })
+                );
+            },
+            split: true,
         },
 
         series: [{}]
