@@ -235,8 +235,8 @@
             jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
             
             // Sunrise and Sunset            
-            jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).format("LT") );
-            jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).format("LT") );
+            jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
+            jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
             
             // Moon icon, phase and illumination percent
             switch ( data["almanac"]["moon"]["moon_phase"] ) {
