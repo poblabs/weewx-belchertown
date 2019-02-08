@@ -70,11 +70,15 @@
             document.getElementById("year-barometer-min-ts").innerText = moment.unix($year.barometer.mintime.raw).format('LLL');
             document.getElementById("at-barometer-min-ts").innerText = moment.unix($alltime.barometer.mintime.raw).format('LLL');
             
+            #if $year.radiation.has_data
             document.getElementById("year-radiation-max-ts").innerText = moment.unix($year.radiation.maxtime.raw).format('LLL');
             document.getElementById("at-radiation-max-ts").innerText = moment.unix($alltime.radiation.maxtime.raw).format('LLL');
+            #end if
             
+            #if $year.UV.has_data
             document.getElementById("year-uv-max-ts").innerText = moment.unix($year.UV.maxtime.raw).format('LLL');
             document.getElementById("at-uv-max-ts").innerText = moment.unix($alltime.UV.maxtime.raw).format('LLL');
+            #end if
             
             document.getElementById("year-days-with-rainfall-ts").innerText = moment.unix($year_days_with_rain[1]).format('LL');
             // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
@@ -323,22 +327,25 @@
                                         <td class="records-header" colspan=1> </td>                                    
                                         <td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
                                         <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                          
-
-                                   <tr>
-                                       <td>Highest Solar Radiation</td>
-                                       <td class="leftborder">$year.radiation.max</td>
-                                       <td id="year-radiation-max-ts"></td><!-- moment.js -->
-                                       <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
-                                       <td>$alltime.radiation.max</td>
-                                   </tr>                        
-                                   <tr>
-                                       <td>Highest UV</td>
-                                       <td class="leftborder">$year.UV.max</td>
-                                       <td id="year-uv-max-ts"></td><!-- moment.js -->
-                                       <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
-                                       <td>$alltime.UV.max</td>                             
-                                   </tr>
+                                    </tr>
+                                    #if $year.radiation.has_data
+                                    <tr>
+                                        <td>Highest Solar Radiation</td>
+                                        <td class="leftborder">$year.radiation.max</td>
+                                        <td id="year-radiation-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
+                                        <td>$alltime.radiation.max</td>
+                                    </tr>
+                                    #end if
+                                    #if $year.UV.has_data
+                                    <tr>
+                                        <td>Highest UV</td>
+                                        <td class="leftborder">$year.UV.max</td>
+                                        <td id="year-uv-max-ts"></td><!-- moment.js -->
+                                        <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
+                                        <td>$alltime.UV.max</td>                             
+                                    </tr>
+                                    #end if
                                 </tbody>
                             </table>
                         </div>
