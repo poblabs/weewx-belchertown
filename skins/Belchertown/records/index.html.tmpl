@@ -320,32 +320,34 @@
                                         <td>$alltime.barometer.min</td>                             
                                     </tr>
 
-                                    <tr>
-                                        <td class="records-header" colspan=5>Sun Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="records-header" colspan=1> </td>                                    
-                                        <td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>
-                                    #if $year.radiation.has_data
-                                    <tr>
-                                        <td>Highest Solar Radiation</td>
-                                        <td class="leftborder">$year.radiation.max</td>
-                                        <td id="year-radiation-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.radiation.max</td>
-                                    </tr>
-                                    #end if
-                                    #if $year.UV.has_data
-                                    <tr>
-                                        <td>Highest UV</td>
-                                        <td class="leftborder">$year.UV.max</td>
-                                        <td id="year-uv-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.UV.max</td>                             
-                                    </tr>
-                                    #end if
+									#if $year.radiation.has_data or $year.UV.has_data
+										<tr>
+											<td class="records-header" colspan=5>Sun Records</td>
+										</tr>
+										<tr>
+											<td class="records-header" colspan=1> </td>                                    
+											<td class="records-header" colspan=2>$current.dateTime.format("%Y")</td>
+											<td class="records-header-alltime" colspan=2>All Time</td>
+										</tr>
+										#if $year.radiation.has_data
+										<tr>
+											<td>Highest Solar Radiation</td>
+											<td class="leftborder">$year.radiation.max</td>
+											<td id="year-radiation-max-ts"></td><!-- moment.js -->
+											<td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
+											<td>$alltime.radiation.max</td>
+										</tr>
+										#end if
+										#if $year.UV.has_data
+										<tr>
+											<td>Highest UV</td>
+											<td class="leftborder">$year.UV.max</td>
+											<td id="year-uv-max-ts"></td><!-- moment.js -->
+											<td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
+											<td>$alltime.UV.max</td>                             
+										</tr>
+										#end if
+									#end if
                                 </tbody>
                             </table>
                         </div>
