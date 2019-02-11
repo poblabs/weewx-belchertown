@@ -319,6 +319,7 @@
                                         <td>$alltime.barometer.min</td>                             
                                     </tr>
                                     
+                                    #if $year.radiation.has_data or $year.UV.has_data
                                     <tr>
                                         <td class="records-header" colspan=5>Sun Records</td>
                                     </tr>
@@ -344,6 +345,7 @@
                                         <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
                                         <td>$alltime.UV.max</td>                             
                                     </tr>
+                                    #end if
                                     #end if
                                 </tbody>
                             </table>
