@@ -300,7 +300,7 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
 
 ## Creating a sitemap.xml File
 
-Sitemap files are used to tell search engines where your content is. It is one part of SEO which helps visitors find your website through web searches. The sitemap helps the Search Engine crawlers index your site more efficiently. 
+Sitemap files are part of the SEO strategy which helps the Search Engine crawlers index your site more efficiently. The result (in addition with other SEO practices) helps visitors find your website through web searches.
 
 Currently with the way that weewx creates websites there is no built-in method which can create a sitemap file automatically. 
 
@@ -312,6 +312,9 @@ You can then submit the full URL to your sitemap to search engine tools. Example
 
 * [Google](https://www.google.com/webmasters/tools/sitemap-list)
 * [Bing](http://www.bing.com/toolbox/webmaster)
+* [Yandex](https://webmaster.yandex.com/)
+* [Baidu](http://zhanzhang.baidu.com/)
+
 
 Then insert the following line at the bottom of the `skins/Belchertown/robots.txt` file, specifying the URL path to your sitemap. 
 
