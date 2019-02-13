@@ -13,6 +13,31 @@ Features include:
 
 ![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
 
+## Install weewx-belchertown
+
+1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
+
+2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
+
+```
+sudo wee_extension --install weewx-belchertown-x.x.tar.gz
+```
+
+3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
+
+4) Tailor the skin to meet your needs using the [custom option variables. There's a lot of them](https://github.com/poblabs/weewx-belchertown#general-options).
+
+5) Restart weewx:
+
+```
+sudo /etc/init.d/weewx stop
+sudo /etc/init.d/weewx start
+```
+
+6) Wait for an archive period, or run `sudo wee_reports` to force an update
+
+7) Browse to your website to see the skin. It may be in a belchertown subdirectory.
+
 ## Requirements 
 
 ### weewx.conf
@@ -73,29 +98,6 @@ These public brokers have been tested as working with MQTT and Websockets. If yo
 * [HiveMQ Public Broker](http://www.mqtt-dashboard.com)
 * [test.mosquitto.org](http://test.mosquitto.org)
 * [You can also try some from this list](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
-
-## Install weewx-belchertown
-
-1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
-
-2) Run the installer as below. Replace `x.x` with the version number of the skin you've downloaded.
-
-```
-sudo wee_extension --install weewx-belchertown-x.x.tar.gz
-```
-
-3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
-
-4) Restart weewx:
-
-```
-sudo /etc/init.d/weewx stop
-sudo /etc/init.d/weewx start
-```
-
-5) Wait for an archive period, or run `sudo wee_reports` to force an update
-
-6) Browse to your website to see the skin. It may be in a belchertown subdirectory.
 
 ## Belchertown Skin as Default Skin
 
