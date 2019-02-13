@@ -42,8 +42,8 @@
             document.getElementById("at-windGust-max-ts").innerText = moment.unix($alltime.windGust.maxtime.raw).format('LLL');
             
             #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
-            document.getElementById("year-windrun-max-ts").innerText = moment.unix($year.windrun.maxtime.raw).format('LLL');
-            document.getElementById("at-windrun-max-ts").innerText = moment.unix($alltime.windrun.maxtime.raw).format('LLL');
+            document.getElementById("year-windrun-max-ts").innerText = moment.unix($year.windrun.maxtime.raw).format('LL');
+            document.getElementById("at-windrun-max-ts").innerText = moment.unix($alltime.windrun.maxtime.raw).format('LL');
             #end if
             
             document.getElementById("year-rainiest-day-ts").innerText = moment.unix($rainiest_day[0]).format('LL');
