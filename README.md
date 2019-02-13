@@ -35,14 +35,18 @@ DarkSky API is where the forecast data comes from. The skin will work without Da
 * Use this key as the `darksky_secret_key` option. See below options table after you have installed the skin.
 * Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
 
-### MQTT (optional)
+### MQTT and MQTT Websockets (optional)
 MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. 
 
-You will to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://obrienlabs.net/how-to-setup-your-own-mqtt-broker/), or use a public one (some free, some paid). Your weewx server will **publish** it's weather data to a broker and visitors to your website will **subscribe** to those updates using MQTT Websockets. When data is published the subscribers get that data immediatly. 
+MQTT Websockets allows websites such as this to connect to the MQTT broker to subscribe to a topic and get updates. 
+
+You will to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://github.com/poblabs/weewx-belchertown#install-your-own-mqtt-broker), or use a [public one](https://github.com/poblabs/weewx-belchertown#use-a-public-broker) (some free, some paid). 
+
+Your weewx server will **publish** it's weather data to a broker and visitors to your website will **subscribe** to those updates using MQTT Websockets. When data is published the subscribers get that data immediately. 
 
 With the [`weewx-mqtt` extension](https://github.com/weewx/weewx/wiki/mqtt) installed, everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
 
-A sample MQTT extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
+A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
 
 ```
     [[MQTT]]
@@ -58,10 +62,6 @@ A sample MQTT extension config is below. Update the `server_url`, `topic`, and `
 
 **I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
 
-### MQTT Websockets (optional, but required if you want real-time updates)
-
-Your MQTT broker (server) will need to support MQTT websockets in order for the website skin to connect to the MQTT topics. Please make sure your broker has websockets support. 
-
 ### MQTT Brokers
 
 #### Install your own MQTT Broker
@@ -76,24 +76,26 @@ These public brokers have been tested as working with MQTT and Websockets. If yo
 
 ## Install weewx-belchertown
 
-1) Download the tar gz file.
+1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
 
-2) Run the installer. Replace `x.x` with the version number of the skin you've downloaded.
+2) Run the installer as below. Replace `x.x` with the version number of the skin you've downloaded.
 
 ```
 sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 ```
 
-3) Restart weewx:
+3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
+
+4) Restart weewx:
 
 ```
 sudo /etc/init.d/weewx stop
 sudo /etc/init.d/weewx start
 ```
 
-4) Wait for an archive period, or run `sudo wee_reports` to force an update
+5) Wait for an archive period, or run `sudo wee_reports` to force an update
 
-5) Browse to your website to see the skin. It may be in the belchertown subdirectory.
+6) Browse to your website to see the skin. It may be in a belchertown subdirectory.
 
 ## Belchertown Skin as Default Skin
 
