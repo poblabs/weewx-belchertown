@@ -268,7 +268,7 @@ Here are the default order of the chart plots:
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| mqtt_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT broker (server). In 0.9 use `mqtt_websockets_enabled`.
+| mqtt_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT Websockets broker (server). In 0.9 use `mqtt_websockets_enabled`.
 | mqtt_host | "" | The MQTT broker hostname or IP. In 0.9 use `mqtt_websockets_host`.
 | mqtt_port | 8080 | The port of the MQTT broker's **Websockets** port. Check your broker's documentation. In 0.9 use `mqtt_websockets_port`.
 | mqtt_ssl | 0 | Set to 1 if your broker is using SSL. In 0.9 use `mqtt_websockets_ssl`.
