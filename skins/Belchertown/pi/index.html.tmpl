@@ -11,7 +11,7 @@
     
         <script type="text/javascript">
         var finalRotation;
-        #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
@@ -24,7 +24,7 @@
             #end if
             rotateThis( "$current.windDir.formatted" );
             
-            #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
             ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
             ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
             connect(); // Begin mqtt after weewx initial load
@@ -174,7 +174,7 @@
             cache:false
         });
         
-        #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         //=================================//
         // Live website using MQTT enabled //
         //=================================//
@@ -367,11 +367,11 @@
             jQuery(".offlineMarker").hide();
             jQuery(".loadingMarker").show();
             
-            client = new Paho.MQTT.Client("$Extras.mqtt_host", $Extras.mqtt_port, mqttclient);
+            client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
             var options = {
-                #if $Extras.has_key("mqtt_ssl") and $Extras.mqtt_ssl == '1'
+                #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
                 useSSL: true,
                 #else
                 useSSL: false,
@@ -390,7 +390,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
             jQuery(".loadingMarker").show();            
-            client.subscribe( "$Extras.mqtt_topic" );
+            client.subscribe( "$Extras.mqtt_websockets_topic" );
         }
         
         function onFailure() {

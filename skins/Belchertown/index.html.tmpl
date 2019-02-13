@@ -11,7 +11,7 @@
       
     <script type="text/javascript">
         var finalRotation;
-        #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
@@ -43,7 +43,7 @@
             daily(); // Initial load daily highcharts
             #end if
             
-            #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
             connect(); // Begin mqtt after weewx initial load
             // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
             jQuery(document).on('click', '.restart-interval', function() { 
@@ -393,7 +393,7 @@
         }
         #end if
         
-        #if $Extras.has_key("mqtt_enabled") and $Extras.mqtt_enabled == '1'
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         //============================================//
         // Live website using MQTT Websockets enabled //
         //============================================//
@@ -416,11 +416,11 @@
             jQuery(".offlineMarker").hide();
             jQuery(".loadingMarker").show();
             
-            client = new Paho.MQTT.Client("$Extras.mqtt_host", $Extras.mqtt_port, mqttclient);
+            client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
             var options = {
-                #if $Extras.has_key("mqtt_ssl") and $Extras.mqtt_ssl == '1'
+                #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
                 useSSL: true,
                 #else
                 useSSL: false,
@@ -439,7 +439,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
             jQuery(".loadingMarker").show();            
-            client.subscribe( "$Extras.mqtt_topic" );
+            client.subscribe( "$Extras.mqtt_websockets_topic" );
             #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
             var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
             #end if
