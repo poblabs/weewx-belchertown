@@ -132,7 +132,7 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
 * Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
     * These files take full HTML, so you can get fancy if you want. 
     * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
-* Then restart weewx for the changes to take effect, and wait for an archive interval for the pages to be generated.
+* Wait for an archive interval for the pages to be generated.
 
 ## Using Metric
 
