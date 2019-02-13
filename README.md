@@ -40,7 +40,7 @@ MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works 
 
 MQTT Websockets allows websites such as this to connect to the MQTT broker to subscribe to a topic and get updates. 
 
-You will to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://github.com/poblabs/weewx-belchertown#install-your-own-mqtt-broker), or use a [public one](https://github.com/poblabs/weewx-belchertown#use-a-public-broker) (some free, some paid). 
+You will need to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://github.com/poblabs/weewx-belchertown#install-your-own-mqtt-broker), or use a [public one](https://github.com/poblabs/weewx-belchertown#use-a-public-broker) (some free, some paid). 
 
 Your weewx server will **publish** it's weather data to a broker and visitors to your website will **subscribe** to those updates using MQTT Websockets. When data is published the subscribers get that data immediately. 
 
