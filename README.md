@@ -68,8 +68,9 @@ Your MQTT broker (server) will need to support MQTT websockets in order for the 
 If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/how-to-setup-your-own-mqtt-broker/). 
 
 #### Use a Public Broker
-These public brokers have been tested as working. If you have others to add the to the list, let me know.
+These public brokers have been tested as working with MQTT and Websockets. If you have others to add the to the list, let me know.
 
+* [HiveMQ Public Broker](http://www.mqtt-dashboard.com)
 * [test.mosquitto.org](http://test.mosquitto.org)
 
 ## Install weewx-belchertown
@@ -262,7 +263,7 @@ Here are the default order of the chart plots:
 | highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 
-## MQTT (for Real Time Streaming) Options
+## MQTT Websockets (for Real Time Streaming) Options
 
 | Name | Default | Description
 | ---- | ------- | -----------
