@@ -34,6 +34,7 @@ Features include:
     + [Earthquake Options](#earthquake-options)
     + [Social Options](#social-options)
   * [Creating About Page and Records Page](#creating-about-page-and-records-page)
+  * [Creating a sitemap.xml File](#creating-a-sitemapxml-file)
   * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
   * [Change (or remove) a Chart](#change-or-remove-a-chart)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
@@ -297,7 +298,7 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
     * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
 * Wait for an archive interval for the pages to be generated.
 
-## Creating a sitemap.xml file
+## Creating a sitemap.xml File
 
 Sitemap files are used to tell search engines where your content is. It is one part of SEO which helps visitors find your website through web searches. The sitemap helps the Search Engine crawlers index your site more efficiently. 
 
