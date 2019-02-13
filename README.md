@@ -325,7 +325,7 @@ Restart weewx for the changes to robots.txt to update.
 
 ## Add Custom Content to the Front Page
 
-There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
+There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Wait for an archive period for the content to update. 
 
 * Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
 * Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
