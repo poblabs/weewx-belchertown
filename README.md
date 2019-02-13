@@ -72,6 +72,7 @@ These public brokers have been tested as working with MQTT and Websockets. If yo
 
 * [HiveMQ Public Broker](http://www.mqtt-dashboard.com)
 * [test.mosquitto.org](http://test.mosquitto.org)
+* [You can also try some from this list](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
 
 ## Install weewx-belchertown
 
