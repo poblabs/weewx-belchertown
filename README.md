@@ -164,6 +164,12 @@ If your weewx and your weather station are configured for metric, you can displa
                 group_temperature = degree_C                
 ```
 
+## A Note About Date and Time Formatting in Your Locale
+
+In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js using JavaScript](https://momentjs.com/docs/#/parsing/string-format/). [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
+
+If you notice that there are date, time and timezone formatting that looks wrong for your locale, please set the proper locale and timezone on your weewx server, and restart your server. 
+
 ## Belchertown Skin Options
 
 The Belchertown skin will work as a very basic skin once installed using the default values in the table below.
@@ -236,7 +242,7 @@ Here are the default order of the chart plots:
 
 | Name | Default | Description
 | ---- | ------- | ----------
-| belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com"
+| belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
