@@ -315,7 +315,6 @@ You can then submit the full URL to your sitemap to search engine tools. Example
 * [Yandex](https://webmaster.yandex.com/)
 * [Baidu](http://zhanzhang.baidu.com/)
 
-
 Then insert the following line at the bottom of the `skins/Belchertown/robots.txt` file, specifying the URL path to your sitemap. 
 
 ```
