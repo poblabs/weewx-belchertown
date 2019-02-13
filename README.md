@@ -26,18 +26,17 @@ Features include:
       - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
       - [Use a Public Broker](#use-a-public-broker)
   * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
-  * [Creating About Page and Records Page](#creating-about-page-and-records-page)
   * [Using Metric](#using-metric)
-  * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
-  * [Belchertown Skin Options](#belchertown-skin-options)
-  * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
-  * [Change (or remove) a Chart](#change-or-remove-a-chart)
   * [Skin Options](#skin-options)
     + [General Options](#general-options)
     + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
     + [Forecast Options](#forecast-options)
     + [Earthquake Options](#earthquake-options)
     + [Social Options](#social-options)
+  * [Creating About Page and Records Page](#creating-about-page-and-records-page)
+  * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
+  * [Change (or remove) a Chart](#change-or-remove-a-chart)
+  * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Donate](#donate)
   * [Credits](#credits)
@@ -154,15 +153,6 @@ I changed it so the standard skin would be in a subfolder, and the main folder h
 
 4. Restart weewx and let it generate the files upon the next archive interval.
 
-## Creating About Page and Records Page
-
-The About Page and Records Page offer some areas for custom HTML to be run. To create or edit these pages, go to the `skins/Belchertown` folder. These files should not be overwritten during skin upgrdades, but it's always best to have a backup just in case!
-
-* Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
-    * These files take full HTML, so you can get fancy if you want. 
-    * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
-* Wait for an archive interval for the pages to be generated.
-
 ## Using Metric
 
 If your weewx and your weather station are configured for metric, you can display the metric values in the skin. Just like with the [Standard weewx skin](http://weewx.com/docs/customizing.htm#[Units]), to change the site to metric you would need to add `[[[Units]]]` and `[[[[Groups]]]]` to the Belchertown skin options in `weewx.conf`, with the appropriate group values. Restart weewx when you have made the changes. For example:
@@ -197,13 +187,7 @@ If your weewx and your weather station are configured for metric, you can displa
                 group_temperature = degree_C                
 ```
 
-## A Note About Date and Time Formatting in Your Locale
-
-In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js using JavaScript](https://momentjs.com/docs/#/parsing/string-format/). [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
-
-If you notice that there are date, time and timezone formatting that looks wrong for your locale, please set the proper locale and timezone on your weewx server, and restart your server. 
-
-## Belchertown Skin Options
+## Skin Options
 
 The Belchertown skin will work as a very basic skin once installed using the default values in the table below.
 
@@ -230,48 +214,6 @@ The benefit to adding these values to `weewx.conf` is that they persist after sk
 Restart weewx once you add your custom options and wait for an archive period to see the results.
 
 For ease of readability I have broken them out into separate tables. However you just add the overrides to the config just like the example above. 
-
-## Add Custom Content to the Front Page
-
-There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
-
-* Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
-* Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
-* Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
-* Below the charts: `skins/belchertown/index_hook_after_charts.inc`
-
-Check out this visual representation:
-
-![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
-
-## Change (or remove) a Chart
-
-You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
-
-If you want to remove a chart, just specify `""`. For example to remove chart 6, you would set `highcharts_graph_6 = ""`. Restart weewx when done.
-
-There are 7 chart plots you can use and they are case sensitive - must be lower case.
-
-* temperatureplot
-* windplot
-* rainplot
-* winddirplot
-* barometerplot
-* radiationplot
-* humidityplot
-
-Here are the default order of the chart plots:
-
-```
-    highcharts_graph_1 = "temperatureplot"
-    highcharts_graph_2 = "windplot"
-    highcharts_graph_3 = "rainplot"
-    highcharts_graph_4 = "winddirplot"
-    highcharts_graph_5 = "barometerplot"
-    highcharts_graph_6 = "radiationplot"
-```
-
-## Skin Options
 
 ### General Options
 
@@ -345,6 +287,61 @@ These are the options for the social media sharing section at the top right of e
 | twitter_enabled | 0 | Enable the Twitter Share button
 | twitter_owner | "" | Your Twitter handle which will be mentioned when the share button is pressed
 | twitter_hashtags | "weewx #weather" | The hashtags to include in the share button's text. 
+
+## Creating About Page and Records Page
+
+The About Page and Records Page offer some areas for custom HTML to be run. To create or edit these pages, go to the `skins/Belchertown` folder. These files should not be overwritten during skin upgrdades, but it's always best to have a backup just in case!
+
+* Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
+    * These files take full HTML, so you can get fancy if you want. 
+    * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
+* Wait for an archive interval for the pages to be generated.
+
+## Add Custom Content to the Front Page
+
+There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
+
+* Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
+* Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
+* Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
+* Below the charts: `skins/belchertown/index_hook_after_charts.inc`
+
+Check out this visual representation:
+
+![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
+
+## Change (or remove) a Chart
+
+You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
+
+If you want to remove a chart, just specify `""`. For example to remove chart 6, you would set `highcharts_graph_6 = ""`. Restart weewx when done.
+
+There are 7 chart plots you can use and they are case sensitive - must be lower case.
+
+* temperatureplot
+* windplot
+* rainplot
+* winddirplot
+* barometerplot
+* radiationplot
+* humidityplot
+
+Here are the default order of the chart plots:
+
+```
+    highcharts_graph_1 = "temperatureplot"
+    highcharts_graph_2 = "windplot"
+    highcharts_graph_3 = "rainplot"
+    highcharts_graph_4 = "winddirplot"
+    highcharts_graph_5 = "barometerplot"
+    highcharts_graph_6 = "radiationplot"
+```
+
+## A Note About Date and Time Formatting in Your Locale
+
+In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js using JavaScript](https://momentjs.com/docs/#/parsing/string-format/). [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
+
+If you notice that there are date, time and timezone formatting that looks wrong for your locale, please set the proper locale and timezone on your weewx server, and restart your server. 
 
 ## Frequently Asked Questions
 
