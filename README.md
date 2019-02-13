@@ -13,6 +13,35 @@ Features include:
 
 ![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
 
+## Table of Contents
+
+- [Belchertown weewx skin](#belchertown-weewx-skin)
+  * [Table of Contents](#table-of-contents)
+  * [Install weewx-belchertown](#install-weewx-belchertown)
+  * [Requirements](#requirements)
+    + [weewx.conf](#weewxconf)
+    + [DarkSky API (optional)](#darksky-api-optional)
+    + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
+    + [MQTT Brokers](#mqtt-brokers)
+      - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
+      - [Use a Public Broker](#use-a-public-broker)
+  * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
+  * [Creating About Page and Records Page](#creating-about-page-and-records-page)
+  * [Using Metric](#using-metric)
+  * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
+  * [Belchertown Skin Options](#belchertown-skin-options)
+  * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
+  * [Change (or remove) a Chart](#change-or-remove-a-chart)
+  * [Skin Options](#skin-options)
+    + [General Options](#general-options)
+    + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
+    + [Forecast Options](#forecast-options)
+    + [Earthquake Options](#earthquake-options)
+    + [Social Options](#social-options)
+  * [Frequently Asked Questions](#frequently-asked-questions)
+  * [Donate](#donate)
+  * [Credits](#credits)
+
 ## Install weewx-belchertown
 
 1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
@@ -25,7 +54,7 @@ sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 
 3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
 
-4) Tailor the skin to meet your needs using the [custom option variables. There's a lot of them](https://github.com/poblabs/weewx-belchertown#general-options).
+4) Tailor the skin to meet your needs using the [custom option variables. There's a lot of them](https://github.com/poblabs/weewx-belchertown#skin-options).
 
 5) Restart weewx:
 
@@ -242,7 +271,9 @@ Here are the default order of the chart plots:
     highcharts_graph_6 = "radiationplot"
 ```
 
-## General Options
+## Skin Options
+
+### General Options
 
 | Name | Default | Description
 | ---- | ------- | ----------
@@ -274,7 +305,7 @@ Here are the default order of the chart plots:
 | highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 
-## MQTT Websockets (for Real Time Streaming) Options
+### MQTT Websockets (for Real Time Streaming) Options
 
 | Name | Default | Description
 | ---- | ------- | -----------
@@ -285,7 +316,7 @@ Here are the default order of the chart plots:
 | mqtt_topic | "" | The topic to subscribe to for your weather data. In 0.9 use `mqtt_websockets_topic`.
 | disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
 
-## Forecast Options
+### Forecast Options
 
 | Name | Default | Description
 | ---- | ------- | -----------
@@ -296,7 +327,7 @@ Here are the default order of the chart plots:
 | forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being billed from DarkSky. Use at your own risk of being billed if you set this too low. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 
 | forecast_alert_enabled | 0 | Set to 1 to enable weather alerts that are included with the DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the DarkSky forecast. 
 
-## Earthquake Options
+### Earthquake Options
 
 | Name | Default | Description
 | ---- | ------- | -----------
@@ -304,7 +335,7 @@ Here are the default order of the chart plots:
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
 
-## Social Options
+### Social Options
 
 These are the options for the social media sharing section at the top right of each page. This does not link your site to anything, instead it gives your visitors a way to spread the word about your page on social media. 
 
