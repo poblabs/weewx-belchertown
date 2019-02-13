@@ -339,7 +339,7 @@ Here are the default order of the chart plots:
 
 ## A Note About Date and Time Formatting in Your Locale
 
-In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js using JavaScript](https://momentjs.com/docs/#/parsing/string-format/). [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
+In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js](https://momentjs.com/docs/#/parsing/string-format/) using JavaScript. [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
 
 If you notice that there are date, time and timezone formatting that looks wrong for your locale, please set the proper locale and timezone on your weewx server, and restart your server. 
 
