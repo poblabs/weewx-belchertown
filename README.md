@@ -297,6 +297,29 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
     * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
 * Wait for an archive interval for the pages to be generated.
 
+## Creating a sitemap.xml file
+
+Sitemap files are used to tell search engines where your content is. It is one part of SEO which helps visitors find your website through web searches. The sitemap helps the Search Engine crawlers index your site more efficiently. 
+
+Currently with the way that weewx creates websites there is no built-in method which can create a sitemap file automatically. 
+
+Instead this is a manual process. You can use one of the many [online sitemap.xml generator tools](https://www.xml-sitemaps.com) to create one for you. It will crawl your website and create a sitemap.xml file. Download it and place the file into your `HTML_ROOT`  directory.
+
+**Note:** Since the NOAA reports update frequently, you may need to determine a process that works for you to update the sitemap.xml if SEO is important to you. 
+
+You can then submit the full URL to your sitemap to search engine tools. Example:
+
+* [Google](https://www.google.com/webmasters/tools/sitemap-list)
+* [Bing](http://www.bing.com/toolbox/webmaster)
+
+Then insert the following line at the bottom of the `skins/Belchertown/robots.txt` file, specifying the URL path to your sitemap. 
+
+```
+Sitemap: http://YOURWEBSITE/sitemap.xml
+```
+
+Restart weewx for the changes to robots.txt to update.
+
 ## Add Custom Content to the Front Page
 
 There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Restart weewx and wait for an archive period for the content to update. 
