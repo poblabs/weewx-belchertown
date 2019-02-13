@@ -7,6 +7,7 @@
 * Added the option to show indoor temperature (inTemp) to the temperature charts. This option is disabled by default and is setup exactly like apparent temperature. Once you opt-in to show this data, it is only available for the day and week charts.
 * Added a manifest.json file which allows you to install your weather website like an "app" on your smart devices. Thanks user WhiteNoseThunderPants for the initial work on this.
 * Added the matching Apple config so you can add your weather website like an "app" on your Apple devices. 
+* Added $footer_disclaimer_text option to update the footer disclaimer.
 * Switched to the new Google Analytics method of tracking with gtag.js.
 * Added forecast windspeed next to the (existing) wind gust.
 * Updated windspeed forecast CSS on mobile.
