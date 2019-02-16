@@ -302,9 +302,11 @@ The About Page and Records Page offer some areas for custom HTML to be run. To c
 
 Sitemap files are part of the SEO strategy which helps the Search Engine crawlers index your site more efficiently. The result (in addition with other SEO practices) helps visitors find your website through web searches.
 
-Currently with the way that weewx creates websites there is no built-in method which can create a sitemap file automatically. 
+Currently with the way that weewx creates websites there is no built-in method which can create a sitemap file automatically.
 
-Instead this is a manual process. You can use one of the many [online sitemap.xml generator tools](https://www.xml-sitemaps.com) to create one for you. It will crawl your website and create a sitemap.xml file. Download it and place the file into your `HTML_ROOT`  directory.
+I have [forked and updated a sitemap generator script which will crawl your website and generate the sitemap.xml for you](https://github.com/poblabs/sitemap-generator). Run it on the same server as your webserver, and add it to your crontab for automatic sitemap.xml updates.
+
+There's also the option to use one of the many [online sitemap.xml generator tools](https://www.xml-sitemaps.com) to create one for you. They will do the same thing by crawling your website and creating a sitemap.xml file that you download and place into your `HTML_ROOT`  directory.
 
 **Note:** Since the NOAA reports update frequently, you may need to determine a process that works for you to update the sitemap.xml if SEO is important to you. 
 
