@@ -1,4 +1,4 @@
-0.9 February ??, 2019
+0.9 February 28, 2019
 * !! BREAKING CHANGE !! - Updated all mqtt_* skin options to mqtt_websockets_* to reduce confusion. The skin needs MQTT Websockets in order to work. These variable names should help.
 * A lot of work focused on locale for time formatting. All time should be auto-detected by the locale on your server and displayed in your locale format.
 * Charts hover tooltips are now in station's locale format.
