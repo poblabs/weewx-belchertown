@@ -224,9 +224,9 @@ For ease of readability I have broken them out into separate tables. However you
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
-| footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer. (available in 0.9)
-| manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device (available in 0.9)
-| manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app (available in 0.9)
+| footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
+| manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
+| manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
 | reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
 | records_page_header | "Weather Observation Records" | The header text to show on the Records page
@@ -237,7 +237,7 @@ For ease of readability I have broken them out into separate tables. However you
 | show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
-| highcharts_show_intemp | 0 | Show the indoor temperature chart on the temperatureplot. Available only on day and week plots. (available in 0.9)
+| highcharts_show_intemp | 0 | Show the indoor temperature chart on the temperatureplot. Available only on day and week plots.
 | highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
 | highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
 | highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
@@ -252,11 +252,11 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| mqtt_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT Websockets broker (server). In 0.9 use `mqtt_websockets_enabled`.
-| mqtt_host | "" | The MQTT broker hostname or IP. In 0.9 use `mqtt_websockets_host`.
-| mqtt_port | 8080 | The port of the MQTT broker's **Websockets** port. Check your broker's documentation. In 0.9 use `mqtt_websockets_port`.
-| mqtt_ssl | 0 | Set to 1 if your broker is using SSL. In 0.9 use `mqtt_websockets_ssl`.
-| mqtt_topic | "" | The topic to subscribe to for your weather data. In 0.9 use `mqtt_websockets_topic`.
+| mqtt_websockets_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT Websockets broker (server). **Versions 0.8.2 and prior** this option is called `mqtt_enabled`
+| mqtt_websockets_host | "" | The MQTT broker hostname or IP. **Versions 0.8.2 and prior** this option is called `mqtt_host`
+| mqtt_websockets_port | 8080 | The port of the MQTT broker's **Websockets** port. Check your broker's documentation. **Versions 0.8.2 and prior** this option is called `mqtt_port`
+| mqtt_websockets_ssl | 0 | Set to 1 if your broker is using SSL. **Versions 0.8.2 and prior** this option is called `mqtt_ssl`
+| mqtt_websockets_topic | "" | The topic to subscribe to for your weather data. **Versions 0.8.2 and prior** this option is called `mqtt_topic`
 | disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
 
 ### Forecast Options
