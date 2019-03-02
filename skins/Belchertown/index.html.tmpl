@@ -1075,15 +1075,18 @@
                                 Today's charts. <a href="$belchertown_root_url/graphs">View more here</a>.
                             </div>
                             
+                            #if $Extras.has_key("highcharts_graph_1") and $Extras.highcharts_graph_1 != '' or  $Extras.has_key("highcharts_graph_2") and $Extras.highcharts_graph_2 != ''
                             <div class="col-sm-6">
                                 <div id="$Extras.highcharts_graph_1" style="width:100%; height:350px;"></div>
                             </div>
                             <div class="col-sm-6">
                                 <div id="$Extras.highcharts_graph_2" style="width:100%; height:350px;"></div>
                             </div>
+                            #end if
                         </div>
                         <!-- End of fourth row -->
                         
+                        #if $Extras.has_key("highcharts_graph_3") and $Extras.highcharts_graph_3 != '' or  $Extras.has_key("highcharts_graph_4") and $Extras.highcharts_graph_4 != ''
                         <!-- Begin fifth row -->
                         <div class="row highcharts-row graph">
                             <div class="col-sm-6">
@@ -1094,7 +1097,9 @@
                             </div>
                         </div>
                         <!-- End of fifth row -->
+                        #end if
                         
+                        #if $Extras.has_key("highcharts_graph_5") and $Extras.highcharts_graph_5 != '' or  $Extras.has_key("highcharts_graph_6") and $Extras.highcharts_graph_6 != ''
                         <!-- Begin sixth row -->
                         <div class="row highcharts-row graph">
                             <div class="col-sm-6">
@@ -1105,6 +1110,7 @@
                             </div>
                         </div>
                         <!-- End of sixth row -->
+                        #end if
                         #end if
                         
                         <div class="clear"></div>
