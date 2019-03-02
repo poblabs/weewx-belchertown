@@ -1,3 +1,9 @@
+0.9.1 March ??, 2019
+* Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
+* Update non-MQTT page timestamp to use moment.js to fall in line with other datetime stamp locale formatting.
+* On the front page, if both charts are hidden, hide the full row to save on whitespace.
+* On the charts page hide the chart if it's hidden in skin options. 
+
 0.9 February 28, 2019
 * !! BREAKING CHANGE !! - Updated all mqtt_* skin options to mqtt_websockets_* to reduce confusion. The skin needs MQTT Websockets in order to work. These variable names should help.
 * A lot of work focused on locale for time formatting. All time should be auto-detected by the locale on your server and displayed in your locale format.
