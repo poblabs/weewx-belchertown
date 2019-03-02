@@ -56,17 +56,29 @@
                         </div>
                         <!-- End row -->
                                     
+                        #if $Extras.has_key("highcharts_graph_1") and $Extras.highcharts_graph_1 != ''
                         <div id="$Extras.highcharts_graph_1" style="width:100%; height:350px;"></div>
-
+                        #end if
+                        
+                        #if $Extras.has_key("highcharts_graph_2") and $Extras.highcharts_graph_2 != ''
                         <div id="$Extras.highcharts_graph_2" style="width:100%; height:350px;"></div>
+                        #end if
 
+                        #if $Extras.has_key("highcharts_graph_3") and $Extras.highcharts_graph_3 != ''
                         <div id="$Extras.highcharts_graph_3" style="width:100%; height:350px;"></div>
+                        #end if
 
+                        #if $Extras.has_key("highcharts_graph_4") and $Extras.highcharts_graph_4 != ''
                         <div id="$Extras.highcharts_graph_4" style="width:100%; height:350px;"></div>
+                        #end if
 
+                        #if $Extras.has_key("highcharts_graph_5") and $Extras.highcharts_graph_5 != ''
                         <div id="$Extras.highcharts_graph_5" style="width:100%; height:350px;"></div>
+                        #end if
 
+                        #if $Extras.has_key("highcharts_graph_6") and $Extras.highcharts_graph_6 != ''
                         <div id="$Extras.highcharts_graph_6" style="width:100%; height:350px;"></div>
+                        #end if
                                 
                         <div class="clear"></div>
                     
