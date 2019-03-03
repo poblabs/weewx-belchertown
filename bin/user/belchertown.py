@@ -91,6 +91,9 @@ class getData(SearchList):
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
+        # Get the archive interval for the highcharts gapsize
+        highcharts_archive_interval = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+        
         """
         Build the all time stats.
         """
@@ -596,6 +599,7 @@ class getData(SearchList):
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
                                   'system_locale': system_locale,
                                   'radar_html': radar_html,
+                                  'highcharts_archive_interval': highcharts_archive_interval,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,
