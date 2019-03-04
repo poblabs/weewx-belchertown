@@ -1,6 +1,7 @@
 0.9.1 March ??, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
 * Fixed a bug with the chart gapSize on the day charts to use the `archive_interval` and not an arbirary 5 minute setting. 
+* Fixed a bug with windDir vectors not being consistent.
 * Update non-MQTT page timestamp to use moment.js to fall in line with other datetime stamp locale formatting.
 * On the front page, if both charts are hidden, hide the full row to save on whitespace.
 * On the charts page hide the chart if it's hidden in skin options. 
