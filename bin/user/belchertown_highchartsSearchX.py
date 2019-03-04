@@ -430,7 +430,7 @@ class highchartsWeek(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'max', 3600)
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'avg', 3600)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "1f")[-2])
@@ -1028,7 +1028,7 @@ class highchartsYear(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_start_vt[0]]
         
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'max', 86400)
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, _end_ts), 'windDir', 'avg', 86400)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "1f")[-2])
