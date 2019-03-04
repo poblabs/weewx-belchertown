@@ -222,10 +222,7 @@
             } else {
                 jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
             }
-            
-            // Current wind gust
-            jQuery(".curwindgust").text( parseFloat( data["current"]["windGust"] ).toFixed(1) );
-            
+                        
             // Daily max gust span
             jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
             
