@@ -15,7 +15,7 @@
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
-        var moment_locale = "$system_locale".replace(/_/g, '-'); // Replace underscore with dash (e.g. "en_US" becomes "en-US") which is a format that moment.js needs for locale
+        var moment_locale = "$system_locale_js";
         moment.locale(moment_locale);
         
         ajaxweewx(); // Initial call. Load from weewx (date, daily high, low, etc)
@@ -222,7 +222,7 @@
             } else {
                 jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
             }
-                        
+            
             // Daily max gust span
             jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
             
