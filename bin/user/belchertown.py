@@ -82,6 +82,7 @@ class getData(SearchList):
         
         # Get the system locale for use with moment.js, and the system decimal for use with highcharts
         system_locale, locale_encoding = locale.getdefaultlocale()
+        system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
         highcharts_decimal = locale.localeconv()["decimal_point"]
         
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
@@ -599,6 +600,7 @@ class getData(SearchList):
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
                                   'system_locale': system_locale,
+                                  'system_locale_js': system_locale_js,
                                   'locale_encoding': locale_encoding,
                                   'highcharts_decimal': highcharts_decimal,
                                   'radar_html': radar_html,
