@@ -38,7 +38,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.9.1rc3"
+VERSION = "0.9.1rc2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -432,7 +432,7 @@ class getData(SearchList):
                 data = json.load( read_file )
             
             current_obs_summary = data["currently"]["summary"]
-            visibility = data["currently"]["visibility"]
+            visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
             
             if data["currently"]["icon"] == "partly-cloudy-night":
                 current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/partly-cloudy-night.png">'
