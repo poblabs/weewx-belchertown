@@ -83,6 +83,7 @@
         
         // Change the color of the outTemp_F variable
         function update_outtemp_F( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
                 jQuery(".temp").css( "color", "#1278c8" );
             } else if ( outTemp <= 25 ) {
@@ -118,6 +119,7 @@
         
         // Change the color of the outTemp_C variable
         function update_outtemp_C( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
                 jQuery(".temp").css( "color", "#1278c8" );
             } else if ( outTemp <= -3.8 ) {
@@ -517,61 +519,64 @@
             
             // Temperature F
             if ( data.hasOwnProperty("outTemp_F") ) {
-                outTemp = parseFloat( data["outTemp_F"] ).toFixed(1);
+                // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
+                // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
+                outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
                 update_outtemp_F( outTemp );
                 jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
             
                 // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
                 //if ( data["outTemp_F"] <= 50 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["windchill_F"] ).toFixed(1) + " $unit.label.outTemp" );
+                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["windchill_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
                 //} else if ( data["outTemp_F"] >= 80 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["heatindex_F"] ).toFixed(1) + " $unit.label.outTemp" );
+                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["heatindex_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
                 //} else {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["outTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
+                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
                 //}
-            }
-            
-            // Apparent Temperature US
-            if ( data.hasOwnProperty("appTemp_F") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
-            }
-
-            // Dewpoint US
-            if ( data.hasOwnProperty("dewpoint_F") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
             }
             
             // Temperature C
             if ( data.hasOwnProperty("outTemp_C") ) {
-                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
+                outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
                 update_outtemp_C( outTemp );
                 jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
             }
             
+            // Apparent Temperature US
+            if ( data.hasOwnProperty("appTemp_F") ) {
+                jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
+            }
+
+            // Dewpoint US
+            if ( data.hasOwnProperty("dewpoint_F") ) {
+                jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+            }
+            
             // Apparent Temperature Metric
             if ( data.hasOwnProperty("appTemp_C") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
+                jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
             }
             
             #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
             // Cloud Base US
             if ( data.hasOwnProperty("cloudbase_foot") ) {
-                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_foot"] ).toFixed(0) + " $unit.label.cloudbase" );
+                jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_foot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
             }
 
             // Cloud Base Metric
             if ( data.hasOwnProperty("cloudbase_meter") ) {
-                jQuery(".wx-cloudbase-value").html( parseFloat( data["cloudbase_meter"] ).toFixed(0) + " $unit.label.cloudbase" );
+                jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_meter"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
             }
             #end if
 
             // Dewpoint Metric
             if ( data.hasOwnProperty("dewpoint_C") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_C"]).toFixed(1) + " $unit.label.outTemp" );
+                jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
             }            
             
             // Wind
             if ( data.hasOwnProperty("windDir") ) {
+                // No toLocaleString() here since there is no float decimal needed.
                 rotateThis( data["windDir"] );
                 //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
                 jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
@@ -579,88 +584,88 @@
             }
             // Windspeed US
             if ( data.hasOwnProperty("windSpeed_mph") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mph"] ).toFixed(1) );
+                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             // Windspeed Metric
             if ( data.hasOwnProperty("windSpeed_kph") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_kph"] ).toFixed(1) );
+                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             // Windspeed METRICWX
             if ( data.hasOwnProperty("windSpeed_mps") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mps"] ).toFixed(1) );
+                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             
             // Wind Gust US
             // May not be provided in mqtt, but just in case.
             if ( data.hasOwnProperty("windGust_mph") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_mph"] ).toFixed(1) );
+                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             // Wind Gust Metric
             if ( data.hasOwnProperty("windGust_kph") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_kph"] ).toFixed(1) );
+                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             // Wind Gust METRICWX
             if ( data.hasOwnProperty("windGust_mps") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_mps"] ).toFixed(1) );
+                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             
             // Barometer US
             if ( data.hasOwnProperty("barometer_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_inHg"] ).toFixed(2) + " $unit.label.pressure" );
+                jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
             }
             // Barometer Metric
             if ( data.hasOwnProperty("barometer_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["barometer_mbar"] ).toFixed(2) + " $unit.label.pressure" );
+                jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
             }
             
             // Humidity
             if ( data.hasOwnProperty("outHumidity") ) {
-                jQuery(".wx-humidity-value").text( parseFloat( data["outHumidity"] ).toFixed(1) + "$unit.label.outHumidity" );
+                jQuery(".wx-humidity-value").text( parseFloat(parseFloat(data["outHumidity"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 1}) + "$unit.label.outHumidity" );
             }
             
             // Windchill US
             if ( data.hasOwnProperty("windchill") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill"] ).toFixed(1) + "$unit.label.outTemp" );
+                jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
             }
             // Windchill Metric
             if ( data.hasOwnProperty("windchill_C") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill_C"] ).toFixed(1) + "$unit.label.outTemp" );
+                jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
             }
             
             // Rain Day US
             if ( data.hasOwnProperty("dayRain_in") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_in"] ).toFixed(2) + " $unit.label.rain" );
+                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_in"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
             }
             // Rain Day Metric
             if ( data.hasOwnProperty("dayRain_cm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_cm"] ).toFixed(2) + " $unit.label.rain" );
+                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_cm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
             }
             // Rain Day METRICWX
             if ( data.hasOwnProperty("dayRain_mm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_mm"] ).toFixed(2) + " $unit.label.rain" );
+                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_mm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
             }
             
             // Rain rate US
             if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_inch_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
             }
             // Rain rate Metric
             if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_cm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
             }
             // Rain rate METRICWX
             if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_mm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
             }
             
             // UV
             if ( data.hasOwnProperty("UV") ) {
-                jQuery(".wx-uv-value").text( parseFloat( data["UV"] ).toFixed(2) );
+                jQuery(".wx-uv-value").text( parseFloat(parseFloat(data["UV"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
             }
             
             // Sun Radiation
             if ( data.hasOwnProperty("radiation_Wpm2") ) {
-                jQuery(".wx-radiation-value").html( parseFloat( data["radiation_Wpm2"] ).toFixed(2) + " $unit.label.radiation" );
+                jQuery(".wx-radiation-value").html( parseFloat(parseFloat(data["radiation_Wpm2"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 2}) + " $unit.label.radiation" );
             }
         };
         #end if
