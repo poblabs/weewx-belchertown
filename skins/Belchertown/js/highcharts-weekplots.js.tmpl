@@ -54,6 +54,9 @@ Highcharts.setOptions({
         //useUTC: false
         timezoneOffset: $highcharts_timezoneoffset 
     },
+    lang: {
+        decimalPoint: '$highcharts_decimal'
+    }
 });
 
 function weekly() {
@@ -141,7 +144,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
@@ -235,7 +238,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
@@ -334,7 +337,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
@@ -429,7 +432,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
@@ -523,7 +526,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
@@ -631,7 +634,7 @@ function weekly() {
             enabled: true,
             //pointFormat: '{series.name}: <b>{point.y}</b>',
             formatter: function() {
-                return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(2) ) + ' (' + parseFloat(this.point.y).toFixed(2) + '\xBA)';
+                return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
             },
             valueDecimals: 2,
             dateTimeLabelFormats: {
@@ -747,7 +750,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + parseFloat(point.y).toFixed(2);
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y, 2);
                     })
                 );
             },
@@ -848,7 +851,7 @@ function weekly() {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },

@@ -80,8 +80,9 @@ class getData(SearchList):
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
         
-        # Get the system locale for use with moment.js
+        # Get the system locale for use with moment.js, and the system decimal for use with highcharts
         system_locale, locale_encoding = locale.getdefaultlocale()
+        highcharts_decimal = locale.localeconv()["decimal_point"]
         
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
@@ -599,6 +600,7 @@ class getData(SearchList):
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
                                   'system_locale': system_locale,
                                   'locale_encoding': locale_encoding,
+                                  'highcharts_decimal': highcharts_decimal,
                                   'radar_html': radar_html,
                                   'archive_interval_ms': archive_interval_ms,
                                   'alltime' : all_stats,
