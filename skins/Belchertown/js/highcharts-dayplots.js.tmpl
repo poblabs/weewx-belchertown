@@ -531,7 +531,7 @@ function daily () {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL")].concat(
                     this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + point.y;
+                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                     })
                 );
             },
