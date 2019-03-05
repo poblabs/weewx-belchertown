@@ -1,5 +1,6 @@
 0.9.1 March ??, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
+* Fixed a bug where MQTT AJAX page updates weren't in locale decimal. (e.g. comma instead of period for decimal)
 * Fixed a bug with the chart gapSize on the day charts to use the `archive_interval` and not an arbirary 5 minute setting. 
 * Fixed a bug with windDir vectors not being consistent.
 * Now the charts use the system locale decimal point.
