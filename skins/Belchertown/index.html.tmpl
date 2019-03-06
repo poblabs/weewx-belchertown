@@ -513,7 +513,9 @@
                 console.log("MQTT message indicates this is an archive interval.");
                 setTimeout( daily, 30000 ); // Load updated charts
                 setTimeout( ajaxweewx, 10000 ); // Update weewx data
+                #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
                 setTimeout( ajaxforecast, 10000 ); // Update forecast data
+                #end if
                 setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
             }
             
