@@ -111,6 +111,16 @@ class getData(SearchList):
         # Get the archive interval for the highcharts gapsize
         archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
         
+        # Build the chart array for the HTML
+        chart_dict = self.generator.skin_dict['JsonGenerator']
+        #charts = OrderedDict()
+        charts = []
+        for timespan in chart_dict.sections:
+            for plotname in chart_dict[timespan].sections:
+                #charts[plotname] = OrderedDict()
+                if plotname not in charts:
+                    charts.append( plotname )
+
         """
         Build the all time stats.
         """
@@ -620,6 +630,7 @@ class getData(SearchList):
                                   'highcharts_decimal': highcharts_decimal,
                                   'radar_html': radar_html,
                                   'archive_interval_ms': archive_interval_ms,
+                                  'charts': charts,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,
@@ -696,7 +707,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 
         # Loop through each timespan
         for timespan in self.chart_dict.sections:
-            output[timespan] = {}
+            output[timespan] = OrderedDict() # This retains the order in which to load the charts on the page.
             
             # Loop through each chart within the timespan
             for plotname in self.chart_dict[timespan].sections:
@@ -729,6 +740,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 # Get the type of plot ("bar', 'line', 'spline', or 'scatter')
                 plot_type = plot_options.get('plot_type', 'line')
                 output[timespan][plotname]["options"]["plot_type"] = plot_type
+                
+                # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
+                yaxis_min = plot_options.get('yaxis_min', None)
+                if yaxis_min:
+                    output[timespan][plotname]["options"]["yaxis_min"] = yaxis_min
+                yaxis_max = plot_options.get('yaxis_max', None)
+                if yaxis_max:
+                    output[timespan][plotname]["options"]["yaxis_max"] = yaxis_max
                 
                 # Loop through each observation within the chart timespan
                 for line_name in self.chart_dict[timespan][plotname].sections:
