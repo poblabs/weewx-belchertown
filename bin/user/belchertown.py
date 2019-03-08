@@ -764,6 +764,15 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % var_type)
                             continue
                     
+                    # Set the color for this observation
+                    color = line_options.get('color', None)
+                    if color:
+                        output[timespan][plotname]["series"][line_name]["color"] = color
+                    
+                    # Set the z-index for the chart
+                    z_index = line_options.get('z_index', None)
+                    if z_index:
+                        output[timespan][plotname]["series"][line_name]["zIndex"] = z_index
                     
                     # Generate this observation's data
                     output[timespan][plotname]["series"][line_name]["name"] = label
