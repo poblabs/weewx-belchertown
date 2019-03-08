@@ -1073,48 +1073,20 @@
                         #end if                          
                         
                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                        <!-- Begin of fourth row -->
+                        <!-- Begin of fourth row - dynamic charts -->
                         <div class="row highcharts-row graph">
                             <div class="col-sm-12 wx-graph-front">
                                 Today's charts. <a href="$belchertown_root_url/graphs">View more here</a>.
                             </div>
                             
-                            #if $Extras.has_key("highcharts_graph_1") and $Extras.highcharts_graph_1 != '' or  $Extras.has_key("highcharts_graph_2") and $Extras.highcharts_graph_2 != ''
+                            #for $plotname in $charts
                             <div class="col-sm-6">
-                                <div id="chart1" style="width:100%; height:350px;"></div>
+                                <div id="$plotname" style="width:100%; height:350px;"></div>
                             </div>
-                            <div class="col-sm-6">
-                                <div id="chart2" style="width:100%; height:350px;"></div>
-                            </div>
-                            #end if
+                            #end for
+                            
                         </div>
                         <!-- End of fourth row -->
-                        
-                        #if $Extras.has_key("highcharts_graph_3") and $Extras.highcharts_graph_3 != '' or  $Extras.has_key("highcharts_graph_4") and $Extras.highcharts_graph_4 != ''
-                        <!-- Begin fifth row -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-6">
-                                <div id="chart3" style="width:100%; height:350px;"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="chart4" style="width:100%; height:350px;"></div>
-                            </div>
-                        </div>
-                        <!-- End of fifth row -->
-                        #end if
-                        
-                        #if $Extras.has_key("highcharts_graph_5") and $Extras.highcharts_graph_5 != '' or  $Extras.has_key("highcharts_graph_6") and $Extras.highcharts_graph_6 != ''
-                        <!-- Begin sixth row -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-6">
-                                <div id="chart5" style="width:100%; height:350px;"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="chart6" style="width:100%; height:350px;"></div>
-                            </div>
-                        </div>
-                        <!-- End of sixth row -->
-                        #end if
                         #end if
                         
                         <div class="clear"></div>
