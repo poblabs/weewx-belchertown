@@ -27,6 +27,7 @@ import weewx.tags
 import weeplot.genplot
 import weeplot.utilities
 
+from collections import OrderedDict
 
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
@@ -700,9 +701,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             # Loop through each chart within the timespan
             for plotname in self.chart_dict[timespan].sections:
                 output[timespan][plotname] = {}
-                output[timespan][plotname]["series"] = {}
+                output[timespan][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
                 output[timespan][plotname]["options"] = {}
-                #output[timespan][plotname]["options"]["renderTo"] = timespan + "_" + plotname
                 output[timespan][plotname]["options"]["renderTo"] = plotname
                 
                 plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname])
@@ -790,7 +790,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                                      "json")
             json_filename = html_dest_dir + "/" + timespan + ".json"
             with open(json_filename, mode='w') as fd:
-                    fd.write( json.dumps(output[timespan], sort_keys=True) )
+                    fd.write( json.dumps( output[timespan] ) )
 
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
