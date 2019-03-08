@@ -19,15 +19,10 @@ class ExfoliationInstaller(ExtensionInstaller):
                     'Belchertown': {
                         'skin':'Belchertown',
                         'HTML_ROOT':'belchertown'
-                    },
-                    'Highcharts_Belchertown': {
-                        'skin':'Highcharts_Belchertown',
-                        'HTML_ROOT':'belchertown'
                     }
                 }
             },
-            files=[('bin/user', ['bin/user/belchertown.py',
-                                 'bin/user/belchertown_highchartsSearchX.py'
+            files=[('bin/user', ['bin/user/belchertown.py'
                                 ]
                     ),
                    ('skins/Belchertown', ['skins/Belchertown/favicon.ico',
@@ -92,14 +87,6 @@ class ExfoliationInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/wind.png',
                                                  'skins/Belchertown/images/index.html'
                                                 ]
-                    ),
-                   ('skins/Highcharts_Belchertown', ['skins/Highcharts_Belchertown/skin.conf']
-                    ),
-                   ('skins/Highcharts_Belchertown/json', ['skins/Highcharts_Belchertown/json/day.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/week.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/month.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/year.json.tmpl',
-                                                         ]
                     )
                    ]
         )
