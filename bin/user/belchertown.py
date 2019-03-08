@@ -4,21 +4,35 @@
 #
 # Pat O'Brien, August 19, 2018
 
+from __future__ import with_statement
 import datetime
 import time
 import calendar
 import json
 import os
+import os.path
 import syslog
 import sys
 import locale
 
 import weewx
 import weecfg
+import configobj
+import weedb
+import weeutil.weeutil
+import weewx.reportengine
+import weewx.station
+import weewx.units
+import weewx.tags
+import weeplot.genplot
+import weeplot.utilities
+
 
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
-from weeutil.weeutil import TimeSpan
+from weeutil.weeutil import to_bool, TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string
+from weeutil.config import search_up
+
 
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
 reload(sys)
@@ -637,3 +651,177 @@ class getData(SearchList):
 
         # Finally, return our extension as a list:
         return [search_list_extension]
+
+# =============================================================================
+# JsonGenerator
+# =============================================================================
+
+class JsonGenerator(weewx.reportengine.ReportGenerator):
+    """Class for generating JSON files for the Highcharts. 
+    Adapted from the ImageGenerator class.
+    
+    Useful attributes (some inherited from ReportGenerator):
+
+        config_dict:      The weewx configuration dictionary 
+        skin_dict:        The dictionary for this skin
+        gen_ts:           The generation time
+        first_run:        Is this the first time the generator has been run?
+        stn_info:         An instance of weewx.station.StationInfo
+        record:           A copy of the "current" record. May be None.
+        formatter:        An instance of weewx.units.Formatter
+        converter:        An instance of weewx.units.Converter
+        search_list_objs: A list holding search list extensions
+        db_binder:        An instance of weewx.manager.DBBinder from which the
+                          data should be extracted
+    """
+    
+    def run(self):
+        """Main entry point for file generation using Cheetah Templates."""
+        
+        self.chart_dict = self.skin_dict['JsonGenerator']
+        self.converter = weewx.units.Converter.fromSkinDict(self.chart_dict)
+        self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
+        self.db_lookup = self.db_binder.bind_default()
+        
+        # Setup title dict for plot titles
+        try:
+            d = self.skin_dict['Labels']['Generic']
+        except KeyError:
+            d = {}
+        title_dict = weeutil.weeutil.KeyDict(d)
+        
+        # Final output dict
+        output = {}
+                
+        # Loop through each timespan
+        for timespan in self.chart_dict.sections:
+            output[timespan] = {}
+            
+            # Loop through each chart within the timespan
+            for plotname in self.chart_dict[timespan].sections:
+                output[timespan][plotname] = {}
+                output[timespan][plotname]["series"] = {}
+                output[timespan][plotname]["options"] = {}
+                #output[timespan][plotname]["options"]["renderTo"] = timespan + "_" + plotname
+                output[timespan][plotname]["options"]["renderTo"] = plotname
+                
+                plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname])
+                
+                plotgen_ts = self.gen_ts
+                if not plotgen_ts:
+                    binding = plot_options.get('data_binding', 'wx_binding') # TODO is this valid?
+                    archive = self.db_binder.get_manager(binding)
+                    plotgen_ts = archive.lastGoodStamp()
+                    if not plotgen_ts:
+                        plotgen_ts = time.time()
+                
+                # Need to determine start, stop times
+                # TODO, startofday()
+                # TODO, start of week
+                # TODO, day 1 of month
+                # TODO, day 1 of year
+                # TODO or rolling window for all of it
+                (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(plot_options.get('time_length', 86400)), plotgen_ts)
+                
+                chart_title = plot_options.get('title', "")
+                output[timespan][plotname]["options"]["title"] = chart_title
+                
+                # Get the type of plot ("bar', 'line', 'spline', or 'scatter')
+                plot_type = plot_options.get('plot_type', 'line')
+                output[timespan][plotname]["options"]["plot_type"] = plot_type
+                
+                # Loop through each observation within the chart timespan
+                for line_name in self.chart_dict[timespan][plotname].sections:
+                    output[timespan][plotname]["series"][line_name] = {}
+                    
+                    line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname][line_name])
+                    
+                    var_type = line_options.get('data_type', line_name)
+                    
+                    label = line_options.get('label')
+                    if not label:
+                        # No explicit label. Look up a generic one. NB: title_dict is a KeyDict which
+                        # will substitute the key if the value is not in the dictionary.
+                        label = title_dict[var_type]
+                    
+                    # See what SQL variable type (schema name) to use for this line. By default, use the section name.
+                    var_type = line_options.get('data_type', line_name)
+                    
+                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, var_type))
+                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    
+                    # Look for aggregation type:
+                    aggregate_type = line_options.get('aggregate_type')
+                    if aggregate_type in (None, '', 'None', 'none'):
+                        # No aggregation specified.
+                        aggregate_type = aggregate_interval = None
+                    else:
+                        try:
+                            # Aggregation specified. Get the interval.
+                            aggregate_interval = line_options.as_int('aggregate_interval')
+                        except KeyError:
+                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: aggregate interval required for aggregate type %s" % aggregate_type)
+                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % var_type)
+                            continue
+                    
+                    
+                    # Generate this observation's data
+                    output[timespan][plotname]["series"][line_name]["name"] = label
+                    output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(var_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
+            
+            # Finish extra chart and JSON data
+            # TODO May not be needed since it's in the SLE for the .js.tmpl
+            #plotgen_ts_struct = time.localtime( plotgen_ts )
+            #utc_offset = (calendar.timegm(plotgen_ts_struct) - calendar.timegm(time.gmtime(time.mktime(plotgen_ts_struct))))/60
+            #output[timespan]["utcoffset"] = utc_offset
+            
+            # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT
+            html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
+                                     self.skin_dict['HTML_ROOT'],
+                                     "json")
+            json_filename = html_dest_dir + "/" + timespan + ".json"
+            with open(json_filename, mode='w') as fd:
+                    fd.write( json.dumps(output[timespan], sort_keys=True) )
+
+    def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
+        """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
+        
+        (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), observation, aggregate_type, aggregate_interval)
+        obs_vt = self.converter.convert(obs_vt)
+        
+        # Special handling for the rain. TODO, is this really needed?
+        if observation == "rain":
+            rain_count = 0
+            rain_total = []
+            for rain in obs_vt[0]:
+                # If the rain value is None or "", add it as 0.0
+                if rain is None or rain == "":
+                    rain = 0.0
+                rain_count = rain_count + rain
+                rain_total.append( round( rain_count, 2 ) )
+                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+                data = zip(time_ms, rain_total)
+        elif observation == "rainRate":
+            rain_round = []
+            for rainRate in obs_vt[0]:
+                rain_round.append( rainRate )
+                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+                data = zip(time_ms, rain_round)
+        else:        
+            # Send all other observations through the usual process
+            usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "1f")[-2])
+            obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
+            time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+            data = zip(time_ms, obsRound_vt)
+        
+        return data
+        
+    def _roundNone(self, value, places):
+        """Round value to 'places' places but also permit a value of None"""
+        if value is not None:
+            try:
+                value = round(value, places)
+            except Exception, e:
+                value = None
+        return value
+        
