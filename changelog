@@ -1,3 +1,7 @@
+1.0 ????, 2019
+* Complete overhaul of the chart system. Please see the readme for all the new configuration options
+* Added belchertown_debug to aid in debugging the skin's options
+
 0.9.1 March ??, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
 * Fixed a bug where MQTT AJAX page updates weren't in locale decimal. (e.g. comma instead of period for decimal). Can't use parseFloat() on it's own if the culture is a comma for decimals. Need to use toLocaleString(). This requires converting the string to an int, to a float, back to a string.
