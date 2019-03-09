@@ -755,19 +755,17 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname][line_name])
                     
-                    var_type = line_options.get('data_type', line_name)
+                    # Find the observation type.
+                    obs_type = line_options.get('data_type', line_name)
                     
-                    label = line_options.get('label')
-                    if not label:
-                        # No explicit label. Look up a generic one. NB: title_dict is a KeyDict which
+                    # Get any custom names for this observation 
+                    name = line_options.get('name', None)
+                    if not name:
+                        # No explicit name. Look up a generic one. NB: title_dict is a KeyDict which
                         # will substitute the key if the value is not in the dictionary.
-                        label = title_dict[var_type]
-                    
-                    # See what SQL variable type (schema name) to use for this line. By default, use the section name.
-                    var_type = line_options.get('data_type', line_name)
-                    
-                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, var_type))
-                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                        name = title_dict[obs_type]
+                                        
+                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, obs_type))
                     
                     # Look for aggregation type:
                     aggregate_type = line_options.get('aggregate_type')
@@ -780,28 +778,18 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             aggregate_interval = line_options.as_int('aggregate_interval')
                         except KeyError:
                             syslog.syslog(syslog.LOG_ERR, "JsonGenerator: aggregate interval required for aggregate type %s" % aggregate_type)
-                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % var_type)
+                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % obs_type)
                             continue
                     
-                    # Set the color for this observation
-                    color = line_options.get('color', None)
-                    if color:
-                        output[timespan][plotname]["series"][line_name]["color"] = color
+                    # Build the final array items. 
+                    # First for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  
+                    for highcharts_config, highcharts_value in self.chart_dict[timespan][plotname][line_name].items():
+                        output[timespan][plotname]["series"][line_name][highcharts_config] = highcharts_value
                     
-                    # Set the z-index for the chart
-                    z_index = line_options.get('z_index', None)
-                    if z_index:
-                        output[timespan][plotname]["series"][line_name]["zIndex"] = z_index
-                    
-                    # Generate this observation's data
-                    output[timespan][plotname]["series"][line_name]["name"] = label
-                    output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(var_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
-            
-            # Finish extra chart and JSON data
-            # TODO May not be needed since it's in the SLE for the .js.tmpl
-            #plotgen_ts_struct = time.localtime( plotgen_ts )
-            #utc_offset = (calendar.timegm(plotgen_ts_struct) - calendar.timegm(time.gmtime(time.mktime(plotgen_ts_struct))))/60
-            #output[timespan]["utcoffset"] = utc_offset
+                    # Override any highcharts series configs with standardized data, then generate the data output
+                    output[timespan][plotname]["series"][line_name]["name"] = name
+                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
             # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
