@@ -825,9 +825,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
                 data = zip(time_ms, rain_round)
         else:        
-            # Send all other observations through the usual process
-            usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "1f")[-2])
-            obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
+            # Send all other observations through the usual process, except Barometer for finer detail
+            if observation == "barometer":
+                usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[1], "1f")[-2])
+                obsRound_vt = [round(x,usageRound) if x is not None else None for x in obs_vt[0]]
+            else:
+                usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "1f")[-2])
+                obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
             time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
             data = zip(time_ms, obsRound_vt)
         
