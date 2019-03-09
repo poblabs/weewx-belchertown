@@ -343,7 +343,7 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
 
     // Loop through each chart name (e.g. chart1, chart2, chart3)
     jQuery.each(data, function (plotname, obsname) {
-        var yaxis_min, yaxis_max = undefined;
+        var observation_type, yaxis_min, yaxis_max = undefined;
         
         // Loop through each chart options
         jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
@@ -384,8 +384,9 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
         // Build the series
         var i = 0;
         jQuery.each(data[plotname]["series"], function (seriesName, seriesVal) {
-           options.series[i] = data[plotname]["series"][seriesName];
-           i++;
+            observation_type = data[plotname]["series"][seriesName]["obsType"];
+            options.series[i] = data[plotname]["series"][seriesName];
+            i++;
         });
         
         // Create the chart object
@@ -401,6 +402,17 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
             chart.yAxis[0].setExtremes(yaxis_min, yaxis_max);
         }
         
+        // Barometer chart plots get a higher precision yAxis tick
+        if (observation_type == "barometer") {
+            chart.yAxis[0].update({
+                tickInterval: 0.01
+            });
+        } else {
+            chart.yAxis[0].update({
+                tickInterval: null
+            });            
+        }
+        
         // How to dynamically add a 2nd axis if there's more than 1 plot type
         // TODO figure this out?
         // chart.addAxis({ // Secondary yAxis
@@ -412,38 +424,31 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
             // opposite: true
         // });
         
-        // TODO make this not apply to every chart ever
-        // if (renderTo == "barometer") {
-            // chart.yAxis[0].update({
-                // tickInterval: 0.01
-            // });
-        // }
         
-        // Special handling for the windDir scatter plot. TODO guarantee this is on the winddir chart only?
-        // if (plot_type == "scatter") {
-            // chart.update({
-                // plotOptions: { series: { marker: { radius: 2 }, } }, // TODO make this user customizable? No complaints on it yet, and it suffers the same problem as yaxis extreme
-                // tooltip: {
-                    // formatter: function() {
-                        // return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
-                    // }
-                // },
-                // yAxis: {
-                    // tickInterval: 90,
-                    // showLastLabel: true,
-                    // labels: {
-                        // formatter: function() {
-                            // var value = weatherdirection[this.value];
-                            // return value !== 'undefined' ? value : this.value;
-                        // }
-                    // }
-                // }
-            // });
-        // }
-        
-        // spline, column
-        
-        
+        // Special handling for the windDir plot's tool tips, radius and yAxis
+        if (observation_type == "windDir") {
+            chart.update({
+                plotOptions: { series: { marker: { radius: 2 }, } }, // TODO make this user customizable? No complaints on it yet, and it suffers the same problem as yaxis extreme
+                tooltip: {
+                    formatter: function() {
+                        return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
+                    }
+                },
+                yAxis: {
+                    tickInterval: 90,
+                    showLastLabel: true,
+                    labels: {
+                        formatter: function() {
+                            var value = weatherdirection[this.value];
+                            return value !== 'undefined' ? value : this.value;
+                        }
+                    }
+                }
+            });
+        } else {
+            // THIS IS SUCH A HACK. Any chart AFTER windDir has it's yAxis labels removed. This resets them back. 
+            chart.update({ yAxis: { labels: { formatter: function() { return this.value; } } } });
+        }
         
     });
 });
