@@ -181,8 +181,9 @@ function daily () {
             });
             
             // Build the chart here with the data
-            
-            console.log( renderTo + ": building a " + type + " chart" ); // TODO: add to skin logging option
+            #if $belchertown_debug > 0
+            console.log( renderTo + ": building a " + type + " chart" );
+            #end if
             
             // Set the chart render div and title
             options.chart.renderTo = renderTo;
@@ -208,8 +209,9 @@ function daily () {
             
             // Some charts may require a defined min/max on the yAxis
             if (yaxis_min || yaxis_max) {
-                // TODO change this to skin level logging
+                #if $belchertown_debug > 0
                 console.log( renderTo + ": this chart has yAxis min or max set" );
+                #end if
                 chart.yAxis[0].setExtremes(yaxis_min, yaxis_max);
             }
             
@@ -257,7 +259,7 @@ function daily () {
                     }
                 });
             } else {
-                // THIS IS SUCH A HACK. Any chart AFTER windDir has it's yAxis labels removed. This resets them back. 
+                // Any chart AFTER windDir has it's yAxis labels removed. This resets them back. 
                 chart.update({ yAxis: { labels: { formatter: function() { return this.value; } } } });
             }
             
