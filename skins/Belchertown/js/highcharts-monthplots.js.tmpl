@@ -891,38 +891,6 @@ function monthly() {
         optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
         optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
 
-        // Load a chart based on whats selected in options
-        #if $Extras.highcharts_graph_1 == 'windchillplot' or $Extras.highcharts_graph_2 == 'windchillplot' or $Extras.highcharts_graph_3 == 'windchillplot' or $Extras.highcharts_graph_4 == 'windchillplot' or $Extras.highcharts_graph_5 == 'windchillplot' or $Extras.highcharts_graph_6 == 'windchillplot'
-        var chart = new Highcharts.StockChart(optionsWindchill);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'humidityplot' or $Extras.highcharts_graph_2 == 'humidityplot' or $Extras.highcharts_graph_3 == 'humidityplot' or $Extras.highcharts_graph_4 == 'humidityplot' or $Extras.highcharts_graph_5 == 'humidityplot' or $Extras.highcharts_graph_6 == 'humidityplot'
-        var chart = new Highcharts.StockChart(optionsHumidity);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'temperatureplot' or $Extras.highcharts_graph_2 == 'temperatureplot' or $Extras.highcharts_graph_3 == 'temperatureplot' or $Extras.highcharts_graph_4 == 'temperatureplot' or $Extras.highcharts_graph_5 == 'temperatureplot' or $Extras.highcharts_graph_6 == 'temperatureplot'
-        var chart = new Highcharts.StockChart(optionsTemp);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'barometerplot' or $Extras.highcharts_graph_2 == 'barometerplot' or $Extras.highcharts_graph_3 == 'barometerplot' or $Extras.highcharts_graph_4 == 'barometerplot' or $Extras.highcharts_graph_5 == 'barometerplot' or $Extras.highcharts_graph_6 == 'barometerplot'
-        var chart = new Highcharts.StockChart(optionsBarometer);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'windplot' or $Extras.highcharts_graph_2 == 'windplot' or $Extras.highcharts_graph_3 == 'windplot' or $Extras.highcharts_graph_4 == 'windplot' or $Extras.highcharts_graph_5 == 'windplot' or $Extras.highcharts_graph_6 == 'windplot'
-        var chart = new Highcharts.StockChart(optionsWind);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'winddirplot' or $Extras.highcharts_graph_2 == 'winddirplot' or $Extras.highcharts_graph_3 == 'winddirplot' or $Extras.highcharts_graph_4 == 'winddirplot' or $Extras.highcharts_graph_5 == 'winddirplot' or $Extras.highcharts_graph_6 == 'winddirplot'
-        var chart = new Highcharts.StockChart(optionsWindDir);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'rainplot' or $Extras.highcharts_graph_2 == 'rainplot' or $Extras.highcharts_graph_3 == 'rainplot' or $Extras.highcharts_graph_4 == 'rainplot' or $Extras.highcharts_graph_5 == 'rainplot' or $Extras.highcharts_graph_6 == 'rainplot'
-        var chart = new Highcharts.StockChart(optionsRain);
-        #end if
-        
-        #if $Extras.highcharts_graph_1 == 'radiationplot' or $Extras.highcharts_graph_2 == 'radiationplot' or $Extras.highcharts_graph_3 == 'radiationplot' or $Extras.highcharts_graph_4 == 'radiationplot' or $Extras.highcharts_graph_5 == 'radiationplot' or $Extras.highcharts_graph_6 == 'radiationplot'
-        var chart = new Highcharts.StockChart(optionsRadiation);
-        #end if        
 
     });
 

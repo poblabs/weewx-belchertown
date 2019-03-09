@@ -401,6 +401,17 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
             chart.yAxis[0].setExtremes(yaxis_min, yaxis_max);
         }
         
+        // How to dynamically add a 2nd axis if there's more than 1 plot type
+        // TODO figure this out?
+        // chart.addAxis({ // Secondary yAxis
+            // title: {
+                // text: 'Rainfall'
+            // },
+            // lineWidth: 2,
+            // lineColor: '#08F',
+            // opposite: true
+        // });
+        
         // TODO make this not apply to every chart ever
         // if (renderTo == "barometer") {
             // chart.yAxis[0].update({
