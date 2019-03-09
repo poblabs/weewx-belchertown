@@ -1,8 +1,10 @@
-0.9.1 March ??, 2019
+0.9.1 March 9, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
 * Fixed a bug where MQTT AJAX page updates weren't in locale decimal. (e.g. comma instead of period for decimal). Can't use parseFloat() on it's own if the culture is a comma for decimals. Need to use toLocaleString(). This requires converting the string to an int, to a float, back to a string.
 * Fixed a bug with the chart gapSize on the day charts to use the `archive_interval` and not an arbirary 5 minute setting. 
 * Fixed a bug with windDir vectors not being consistent.
+* Fixed a bug with the forecast breaking the page if it wasn't enabled, but MQTT Websockets was.
+* Fixed a bug with DarkSky visibility units, since they don't seem to provide this themselves. So it's their bug that I'm trying to work around.
 * Now the charts use the system locale decimal point.
 * Update non-MQTT page timestamp to use moment.js to fall in line with other datetime stamp locale formatting.
 * On the front page, if both charts are hidden, hide the full row to save on whitespace.
