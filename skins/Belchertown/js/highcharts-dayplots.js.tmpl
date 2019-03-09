@@ -348,8 +348,8 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
         // Loop through each chart options
         jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
             switch(optionName) {
-                case "plot_type":
-                    plot_type = optionVal;
+                case "type":
+                    type = optionVal;
                     break;
                 case "renderTo":
                     renderTo = optionVal;
@@ -371,11 +371,11 @@ jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
         
         // Build the chart here with the data
         
-        console.log( renderTo + ": building a " + plot_type + " chart" ); // TODO: add to skin logging option
+        console.log( renderTo + ": building a " + type + " chart" ); // TODO: add to skin logging option
         
         // Set the chart render div and title
         options.chart.renderTo = renderTo;
-        options.chart.type = plot_type;
+        options.chart.type = type;
         options.title.text = title;
         
         // Reset the series everytime we loop.

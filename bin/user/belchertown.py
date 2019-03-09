@@ -738,8 +738,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 output[timespan][plotname]["options"]["title"] = chart_title
                 
                 # Get the type of plot ("bar', 'line', 'spline', or 'scatter')
-                plot_type = plot_options.get('plot_type', 'line')
-                output[timespan][plotname]["options"]["plot_type"] = plot_type
+                type = plot_options.get('type', 'line')
+                output[timespan][plotname]["options"]["type"] = type
                 
                 # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
                 yaxis_min = plot_options.get('yaxis_min', None)
@@ -752,6 +752,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 # Loop through each observation within the chart timespan
                 for line_name in self.chart_dict[timespan][plotname].sections:
                     output[timespan][plotname]["series"][line_name] = {}
+                    output[timespan][plotname]["series"][line_name]["obsType"] = line_name
                     
                     line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname][line_name])
                     
