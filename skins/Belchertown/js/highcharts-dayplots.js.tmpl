@@ -1,3 +1,5 @@
+var belchertown_debug = $belchertown_debug;
+
 var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
@@ -181,9 +183,9 @@ function daily () {
             });
             
             // Build the chart here with the data
-            #if $belchertown_debug > 0
-            console.log( renderTo + ": building a " + type + " chart" );
-            #end if
+            if (belchertown_debug > 0) {
+                console.log( renderTo + ": building a " + type + " chart" );
+            }
             
             // Set the chart render div and title
             options.chart.renderTo = renderTo;
@@ -209,9 +211,9 @@ function daily () {
             
             // Some charts may require a defined min/max on the yAxis
             if (yaxis_min || yaxis_max) {
-                #if $belchertown_debug > 0
+                if (belchertown_debug > 0) {
                 console.log( renderTo + ": this chart has yAxis min or max set" );
-                #end if
+                }
                 chart.yAxis[0].setExtremes(yaxis_min, yaxis_max);
             }
             
