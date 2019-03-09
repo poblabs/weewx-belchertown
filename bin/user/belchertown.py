@@ -75,6 +75,8 @@ class getData(SearchList):
             belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
         else:
             belchertown_root_url = ""
+            
+        belchertown_debug = self.generator.skin_dict['Extras'].get('belchertown_debug', 0)
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
@@ -622,6 +624,7 @@ class getData(SearchList):
         # Build the search list with the new values
         search_list_extension = { 'belchertown_version': VERSION,
                                   'belchertown_root_url': belchertown_root_url,
+                                  'belchertown_debug': belchertown_debug,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
                                   'system_locale': system_locale,
