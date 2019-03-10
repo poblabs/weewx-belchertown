@@ -722,7 +722,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 output[timespan][plotname] = {}
                 output[timespan][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
                 output[timespan][plotname]["options"] = {}
-                output[timespan][plotname]["options"]["renderTo"] = plotname
+                output[timespan][plotname]["options"]["renderTo"] = timespan + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different timespans
                 
                 plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname])
                 
