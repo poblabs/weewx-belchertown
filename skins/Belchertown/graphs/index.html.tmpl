@@ -13,43 +13,44 @@
                         <script type="text/javascript">
                             // Document ready calls        
                             jQuery(document).ready(function() {
-                            
+
                                 daily(); // Initial load daily highcharts
-                                
+                                jQuery(".chart_day").show();
+    
                                 jQuery('button.wx-btn-today').click(function() {
                                     daily(); // Load daily highcharts
                                     jQuery(".wx-graph-text").text("today");
-                                    jQuery(".chartday").show();
-                                    jQuery(".chartweek").hide();
-                                    jQuery(".chartmonth").hide();
-                                    jQuery(".chartyear").hide();
+                                    jQuery(".chart_day").show();
+                                    jQuery(".chart_week").hide();
+                                    jQuery(".chart_month").hide();
+                                    jQuery(".chart_year").hide();
                                 });
                                 
                                 jQuery('button.wx-btn-week').click(function() {
                                     weekly(); // Load weekly highcharts
                                     jQuery(".wx-graph-text").text("this week");
-                                    jQuery(".chartday").hide();
-                                    jQuery(".chartweek").show();
-                                    jQuery(".chartmonth").hide();
-                                    jQuery(".chartyear").hide();
+                                    jQuery(".chart_day").hide();
+                                    jQuery(".chart_week").show();
+                                    jQuery(".chart_month").hide();
+                                    jQuery(".chart_year").hide();
                                 });
                                 
                                 jQuery('button.wx-btn-month').click(function() {
                                     monthly(); // Load monthly highcharts
                                     jQuery(".wx-graph-text").text("this month");
-                                    jQuery(".chartday").hide();
-                                    jQuery(".chartweek").hide();
-                                    jQuery(".chartmonth").show();
-                                    jQuery(".chartyear").hide();
+                                    jQuery(".chart_day").hide();
+                                    jQuery(".chart_week").hide();
+                                    jQuery(".chart_month").show();
+                                    jQuery(".chart_year").hide();
                                 });
                                 
                                 jQuery('button.wx-btn-year').click(function() {
                                     yearly(); // Load yearly highcharts
                                     jQuery(".wx-graph-text").text("this year");
-                                    jQuery(".chartday").hide();
-                                    jQuery(".chartweek").hide();
-                                    jQuery(".chartmonth").hide();
-                                    jQuery(".chartyear").show();
+                                    jQuery(".chart_day").hide();
+                                    jQuery(".chart_week").hide();
+                                    jQuery(".chart_month").hide();
+                                    jQuery(".chart_year").show();
                                 });
                             });
                                 
@@ -68,22 +69,14 @@
                         </div>
                         <!-- End row -->
                         
-                        #for $plotname in $charts["day"]
-                        <div id="$plotname" class="chartday" style="width:100%; height:350px;"></div>
+                        #for $timespan in $charts
+                        
+                        #for $plotname in $charts[$timespan]
+                        <div id="$timespan$plotname" class="chart_$timespan" style="width:100%; height:350px; display:none;"></div>
                         #end for
                         
-                        #for $plotname in $charts["week"]
-                        <div id="$plotname" class="chartweek" style="width:100%; height:350px; display:none;"></div>
                         #end for
                         
-                        #for $plotname in $charts["month"]
-                        <div id="$plotname" class="chartmonth" style="width:100%; height:350px; display:none;"></div>
-                        #end for
-                        
-                        #for $plotname in $charts["year"]
-                        <div id="$plotname" class="chartyear" style="width:100%; height:350px; display:none;"></div>
-                        #end for
-                                
                         <div class="clear"></div>
                     
                     </div>
