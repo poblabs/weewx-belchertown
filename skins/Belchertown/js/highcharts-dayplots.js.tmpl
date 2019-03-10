@@ -152,7 +152,7 @@ function daily () {
 
     };
 
-    jQuery.getJSON('http://weewxlab/btownwx/json/day.json', function(data) {
+    jQuery.getJSON('$belchertown_root_url/json/day.json', function(data) {
 
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
