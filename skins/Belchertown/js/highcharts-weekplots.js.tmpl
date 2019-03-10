@@ -1,3 +1,5 @@
+var belchertown_debug = $belchertown_debug;
+
 var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
@@ -52,32 +54,25 @@ function get_cardinal_direction(degree) {
 Highcharts.setOptions({
     global: {
         //useUTC: false
-        timezoneOffset: $highcharts_timezoneoffset 
+        timezoneOffset: $highcharts_timezoneoffset
     },
     lang: {
         decimalPoint: '$highcharts_decimal'
     }
 });
 
-function weekly() {
-
-    var optionsTemp = {
+function weekly () {
+    
+    var options = {
         chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'temperatureplot',
+            renderTo: '',
             spacing: [5, 10, 10, 0],
-            type: 'line',
+            type: '',
             zoomType: 'x'
         },
 
         title: {
-            text: 'Temperature'
+            text: ''
         },
 
         legend: {
@@ -99,7 +94,7 @@ function weekly() {
                 }
             },
             ordinal: false,
-            type: 'datetime',
+            type: 'datetime'
         },
 
         yAxis: {
@@ -107,6 +102,7 @@ function weekly() {
             lineColor: '#555',
             minorGridLineWidth: 0,
             startOnTick: true,
+            showLastLabel: true,
             title: {
             },
 			opposite: false
@@ -140,6 +136,7 @@ function weekly() {
             dateTimeLabelFormats: {
                 hour: '%e %b %H:%M'
             },
+            // For locale control with moment.js - https://api.highcharts.com/highcharts/tooltip.split
             formatter: function () {
                 // The first returned item is the header, subsequent items are the points
                 return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
@@ -155,735 +152,120 @@ function weekly() {
 
     };
 
-    var optionsWindchill = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'windchillplot',
-            spacing: [5, 10, 10, 0],
-            type: 'line',
-            zoomType: 'x'
-        },
+    jQuery.getJSON('$belchertown_root_url/json/week.json', function(data) {
 
-        title: {
-            text: 'Wind Chill/Heat Index'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+        // Loop through each chart name (e.g. chart1, chart2, chart3)
+        jQuery.each(data, function (plotname, obsname) {
+            var observation_type, yaxis_min, yaxis_max = undefined;
+            
+            // Loop through each chart options
+            jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
+                switch(optionName) {
+                    case "type":
+                        type = optionVal;
+                        break;
+                    case "renderTo":
+                        renderTo = optionVal;
+                        break;
+                    case "title":
+                        title = optionVal;
+                        break;
+                    case "yAxisLabel":
+                        yAxisLabel = optionVal;
+                        break;
+                    case "yaxis_min":
+                        yaxis_min = optionVal;
+                        break;
+                    case "yaxis_max":
+                        yaxis_max = optionVal;
+                        break;
                 }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-
-        yAxis: {
-            endOnTick: true,
-            lineColor: '#555',
-            minorGridLineWidth: 0,
-            startOnTick: true,
-            title: {
-            },
-            opposite: false
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 2,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',                
-                marker: {
-                    enabled: false
-                }
+            });
+            
+            // Build the chart here with the data
+            if (belchertown_debug > 0) {
+                console.log( renderTo + ": building a " + type + " chart" );
             }
-        },
-		// Define the plot colors in order as they are loaded below
-		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
+            
+            // Set the chart render div and title
+            options.chart.renderTo = renderTo;
+            options.chart.type = type;
+            options.title.text = title;
+            
+            // Reset the series everytime we loop.
+            options.series = [];
 
-        tooltip: {
-            enabled: true,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-
-    var optionsHumidity = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'humidityplot',
-            spacing: [5, 10, 10, 0],
-            type: 'line',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Humidity'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            // startOnTick: true,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+            // Build the series
+            var i = 0;
+            jQuery.each(data[plotname]["series"], function (seriesName, seriesVal) {
+                observation_type = data[plotname]["series"][seriesName]["obsType"];
+                options.series[i] = data[plotname]["series"][seriesName];
+                i++;
+            });
+            
+            // Create the chart object
+            var chart = new Highcharts.StockChart(options);
+            
+            // Set the chart yAxis label after the chart is created.
+            chart.yAxis[0].setTitle({ text: yAxisLabel });
+            
+            // Some charts may require a defined min/max on the yAxis
+            if (yaxis_min || yaxis_max) {
+                if (belchertown_debug > 0) {
+                console.log( renderTo + ": this chart has yAxis min or max set" );
                 }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-
-        yAxis: {
-            endOnTick: true,
-            lineColor: '#555',
-            minorGridLineWidth: 0,
-            startOnTick: true,
-            title:  {
-                text: '(%)'
-            },
-            opposite: false
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 2,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',
-                marker: {
-                    enabled: false
-                }
-            },
-            series: {
-                color: '#4242B4'
+                chart.yAxis[0].setExtremes(yaxis_min, yaxis_max);
             }
-        },
-		// Define the plot colors in order as they are loaded below
-		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-        tooltip: {
-            enabled: true,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-
-	var optionsBarometer = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'barometerplot',
-            spacing: [5, 10, 10, 0],
-            type: 'line',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Barometer'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-                }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-
-        yAxis: {
-			tickInterval: 0.01, 
-            endOnTick: true,
-            lineColor: '#555',
-            minorGridLineWidth: 0,
-            startOnTick: true,
-            title: {
-            },
-			opposite: false
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 2,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',
-                marker: {
-                    enabled: false
-                },
+            
+            // Barometer chart plots get a higher precision yAxis tick
+            if (observation_type == "barometer") {
+                chart.yAxis[0].update({
+                    tickInterval: 0.01
+                });
+            } else {
+                chart.yAxis[0].update({
+                    tickInterval: null
+                });            
             }
-        },
-		// Define the plot colors in order as they are loaded below
-		colors: ['#BECC00'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-        tooltip: {
-            enabled: true,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-	
-	var optionsWind = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'windplot',
-            spacing: [5, 10, 10, 0],
-            type: 'line',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Wind / Gust Speed'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-                }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-
-        yAxis: {
-            endOnTick: true,
-            lineColor: '#555',
-            minorGridLineWidth: 0,
-            startOnTick: true,
-            title: {
-            },
-			opposite: false
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 2,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',                
-                marker: {
-                    enabled: false
-                },
+            
+            // How to dynamically add a 2nd axis if there's more than 1 plot type
+            // TODO figure this out?
+            // chart.addAxis({ // Secondary yAxis
+                // title: {
+                    // text: 'Rainfall'
+                // },
+                // lineWidth: 2,
+                // lineColor: '#08F',
+                // opposite: true
+            // });
+            
+            
+            // Special handling for the windDir plot's tool tips, radius and yAxis
+            if (observation_type == "windDir") {
+                chart.update({
+                    plotOptions: { series: { marker: { radius: 2 }, } }, // TODO make this user customizable? No complaints on it yet, and it suffers the same problem as yaxis extreme
+                    tooltip: {
+                        formatter: function() {
+                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
+                        }
+                    },
+                    yAxis: {
+                        tickInterval: 90,
+                        showLastLabel: true,
+                        labels: {
+                            formatter: function() {
+                                var value = weatherdirection[this.value];
+                                return value !== 'undefined' ? value : this.value;
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Any chart AFTER windDir has it's yAxis labels removed. This resets them back. 
+                chart.update({ yAxis: { labels: { formatter: function() { return this.value; } } } });
             }
-        },
-		// Define the plot colors in order as they are loaded below
-		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-        tooltip: {
-            enabled: true,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-
-    var optionsWindDir = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'winddirplot',
-            spacing: [5, 10, 10, 0],
-            type: 'scatter',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Wind Direction'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-                }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-		
-        yAxis: {
-            endOnTick: true,
-            lineColor: '#555',
-            max: 360,
-            min: 0,
-            minorGridLineWidth: 0,
-            startOnTick: true,
-            tickInterval: 90,
-			opposite: false,
-			showLastLabel: true, 
-            title:  {
-                //text: '(\u00B0)'
-                text: 'Wind Direction'
-            }, 
-			labels: {
-				formatter: function() {
-					var value = weatherdirection[this.value];
-					return value !== 'undefined' ? value : this.value;
-				}
-			}
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 1,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',
-                marker: {
-                    enabled: true
-                }
-            },
-            series: {
-                marker: {
-                    radius: 2
-                },
-                color: '#4242B4'
-            }
-        },
-		
-		// Define the plot colors in order as they are loaded below
-		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-        tooltip: {
-            enabled: true,
-            //pointFormat: '{series.name}: <b>{point.y}</b>',
-            formatter: function() {
-                return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
-            },
-            valueDecimals: 2,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            }
-        },
-
-        series: [{
-            marker: {
-                lineWidth: 0,
-                lineColor: null, // inherit from series
-                radius: 10
-            }
-        }]
-
-    };
-
-    var optionsRain = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'rainplot',
-            spacing: [5, 10, 10, 0],
-            //type: 'line',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Weekly Rainfall'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            // minRange: 86400000,
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-                }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-		
-        yAxis: {
-            endOnTick: true,
-            lineColor: '#555',
-            min: 0,
-            minRange: 0.05,
-            minorGridLineWidth: 1,
-            startOnTick: true,
-            title:  {
-            },
-			opposite: false
-
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 2,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',
-                marker: {
-                    enabled: false
-                },
-            },        
-            column: {
-                color: '#72B2C4',
-                borderWidth: 0,
-            },
-            series: {
-                pointPadding: 0,
-                groupPadding: 0,
-                borderWidth: 0
-            }
-        },
-		
-		// Define the plot colors in order as they are loaded below
-		//colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-        tooltip: {
-            enabled: true,
-            valueDecimals: 2,
-            dateTimeLabelFormats: {
-                hour: '%e %b'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y, 2);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-
-    var optionsRadiation = {
-        chart: {
-            //plotBackgroundColor: {
-            //    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            //    stops: [
-            //        [0, '#FCFFC5'],
-            //        [1, '#E0E0FF']
-            //    ]
-            //},
-            renderTo: 'radiationplot',
-            spacing: [5, 10, 10, 0],
-            type: 'line',
-            zoomType: 'x'
-        },
-
-        title: {
-            text: 'Solar Radiation'
-        },
-
-        legend: {
-            enabled: true
-        },
-
-        xAxis: {
-            dateTimeLabelFormats: {
-                day: '%e %b',
-                week: '%e %b',
-                month: '%b %y',
-            },
-            lineColor: '#555',
-            minRange: 900000,
-            minTickInterval: 900000,
-            title: {
-                style: {
-                    font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-                }
-            },
-            ordinal: false,
-            type: 'datetime',
-        },
-
-        yAxis: {
-            startOnTick: true,
-            endOnTick: true,
-            lineColor: '#555',
-            min: 0,
-            minorGridLineWidth: 0,
-			opposite: false,
-            title:  {
-                text: '(W/m\u00B2)'
-            }
-        },
-
-        plotOptions: {
-            line: {
-                lineWidth: 1,
-                gapSize: 3600000, // 1 hour in milliseconds
-                gapUnit: 'value',
-                marker: {
-                    enabled: false
-                }
-            },
-            series: {
-                color: '#4242B4'
-            }
-        },
-		
-		// Define the plot colors in order as they are loaded below
-		colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-		
-		scrollbar: {
-			enabled: false
-        },
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			enabled: false
-		},
-
-
-        tooltip: {
-            enabled: true,
-            dateTimeLabelFormats: {
-                hour: '%e %b %H:%M'
-            },
-            formatter: function () {
-                // The first returned item is the header, subsequent items are the points
-                return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLLL")].concat(
-                    this.points.map(function (point) {
-                        return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                    })
-                );
-            },
-            split: true,
-        },
-
-        series: [{}]
-
-    };
-
-    jQuery.getJSON('$belchertown_root_url/json/week.json', function(seriesData) {
-        optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
-        optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
-        //optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
-        optionsWindchill.yAxis.title.text = seriesData[0].windchillplot.yAxisLabel.text;
-        optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
-        optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
-        optionsBarometer.yAxis.title.text = seriesData[0].barometerplot.yAxisLabel.text;
-        optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
-        optionsWind.series[1] = seriesData[0].windplot.series.windGust;
-        optionsWind.yAxis.title.text = seriesData[0].windplot.yAxisLabel.text;
-        optionsWindDir.series[0] = seriesData[0].winddirplot.series.windDir;
-        optionsRain.series[0] = seriesData[0].rainplot.series.rain;
-        optionsRain.series[1] = seriesData[0].rainplottotal.series.rain;
-        optionsRain.series[0].type = 'line';
-        optionsRain.series[1].type = 'line';
-        optionsRain.series[1].color = '#000';
-        optionsRain.yAxis.title.text = seriesData[0].rainplot.yAxisLabel.text;
-        optionsRain.yAxis.title.text = seriesData[0].rainplottotal.yAxisLabel.text;
-        optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
-
-
+            
+        });
     });
 
 };
