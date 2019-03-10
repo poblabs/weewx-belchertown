@@ -111,7 +111,7 @@ class getData(SearchList):
         # ('week', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6']),
         # ('month', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6', 'chart7']), 
         # ('year', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5'])])
-        chart_dict = self.generator.skin_dict['JsonGenerator']
+        chart_dict = self.generator.skin_dict['Charts']
         charts = OrderedDict()
         for timespan in chart_dict.sections:
             timespan_chart_list = []
@@ -698,7 +698,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
     def run(self):
         """Main entry point for file generation using Cheetah Templates."""
         
-        self.chart_dict = self.skin_dict['JsonGenerator']
+        self.chart_dict = self.skin_dict['Charts']
         self.converter = weewx.units.Converter.fromSkinDict(self.chart_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
         self.db_lookup = self.db_binder.bind_default()
