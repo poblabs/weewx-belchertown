@@ -811,13 +811,18 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
-        (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), observation, aggregate_type, aggregate_interval)
+        # Special Belchertown Skin rain counter
+        if observation == "rainTotal":
+            obs_lookup = "rain"
+        else:
+            obs_lookup = observation
+                
+        (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
         obs_vt = self.converter.convert(obs_vt)
-        
+                
         # Special handling for the rain.
-        if observation == "rain":
-            # TODO rename this to a special rainCount?
-            # Rain is really "bucket tips". This increments the bucket tips over timespan to return a more interesting chart.
+        if observation == "rainTotal":
+            # The weewx "rain" observation is really "bucket tips". This special counter increments the bucket tips over timespan to return rain total.
             rain_count = 0
             rain_total = []
             for rain in obs_vt[0]:
@@ -841,7 +846,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[1], "1f")[-2])
                 obsRound_vt = [round(x,usageRound) if x is not None else None for x in obs_vt[0]]
             else:
-                usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "1f")[-2])
+                usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
             time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
             data = zip(time_ms, obsRound_vt)

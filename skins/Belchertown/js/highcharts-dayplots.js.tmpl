@@ -228,6 +228,21 @@ function daily () {
                 });            
             }
             
+            // Rain, RainRate and rainTotal (special Belchertown skin observation) get yAxis precision
+            if (observation_type == "rain" || observation_type == "rainRate" || observation_type == "rainTotal") {
+                chart.yAxis[0].update({
+                    min: 0,
+                    minRange: 0.01,
+                    minorGridLineWidth: 1,
+                });
+            } else {
+                chart.yAxis[0].update({
+                    min: null,
+                    minRange: null,
+                    minorGridLineWidth: null,
+                });
+            }
+            
             // How to dynamically add a 2nd axis if there's more than 1 plot type
             // TODO figure this out?
             // chart.addAxis({ // Secondary yAxis
