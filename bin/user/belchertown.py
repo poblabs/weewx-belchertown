@@ -106,7 +106,7 @@ class getData(SearchList):
         archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
         
         # Build the chart array for the HTML
-        # Outputs a dict of nests lists which allow you to have different charts for different timespans on the site
+        # Outputs a dict of nested lists which allow you to have different charts for different timespans on the site.
         # OrderedDict([('day', ['chart1', 'chart2', 'chart3', 'chart4']), 
         # ('week', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6']),
         # ('month', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6', 'chart7']), 
@@ -114,11 +114,11 @@ class getData(SearchList):
         chart_dict = self.generator.skin_dict['JsonGenerator']
         charts = OrderedDict()
         for timespan in chart_dict.sections:
-            timespanlist = []
+            timespan_chart_list = []
             for plotname in chart_dict[timespan].sections:
-                if plotname not in timespanlist:
-                    timespanlist.append( plotname )
-            charts[timespan] = timespanlist
+                if plotname not in timespan_chart_list:
+                    timespan_chart_list.append( plotname )
+            charts[timespan] = timespan_chart_list
             
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
