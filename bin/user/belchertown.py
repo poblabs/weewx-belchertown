@@ -814,8 +814,10 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), observation, aggregate_type, aggregate_interval)
         obs_vt = self.converter.convert(obs_vt)
         
-        # Special handling for the rain. TODO, is this really needed?
+        # Special handling for the rain.
         if observation == "rain":
+            # TODO rename this to a special rainCount?
+            # Rain is really "bucket tips". This increments the bucket tips over timespan to return a more interesting chart.
             rain_count = 0
             rain_total = []
             for rain in obs_vt[0]:
@@ -827,11 +829,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
                 data = zip(time_ms, rain_total)
         elif observation == "rainRate":
-            rain_round = []
+            # Instead of using the _roundNone to round rainRate, we just return the rainRate untouched.
+            rainrate_holder = []
             for rainRate in obs_vt[0]:
-                rain_round.append( rainRate )
+                rainrate_holder.append( rainRate )
                 time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
-                data = zip(time_ms, rain_round)
+                data = zip(time_ms, rainrate_holder)
         else:        
             # Send all other observations through the usual process, except Barometer for finer detail
             if observation == "barometer":
