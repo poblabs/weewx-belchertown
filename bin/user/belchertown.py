@@ -696,7 +696,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
     """
     
     def run(self):
-        """Main entry point for file generation using Cheetah Templates."""
+        """Main entry point for file generation."""
         
         self.chart_dict = self.skin_dict['Charts']
         self.converter = weewx.units.Converter.fromSkinDict(self.chart_dict)
@@ -764,8 +764,9 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname][line_name])
                     
-                    # Find the observation type.
-                    obs_type = line_options.get('data_type', line_name)
+                    # Find the observation type. (e.g. outTemp, rainFall, windDir, etc.)
+                    #obs_type = line_options.get('data_type', line_name) # TODO I don't think this is needed.
+                    obs_type = line_name
                     
                     # Get any custom names for this observation 
                     name = line_options.get('name', None)
@@ -791,16 +792,19 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             continue
                     
                     # Build the final array items. 
-                    # First for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  
+                    
+                    # This for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  
                     for highcharts_config, highcharts_value in self.chart_dict[timespan][plotname][line_name].items():
                         output[timespan][plotname]["series"][line_name][highcharts_config] = highcharts_value
                     
                     # Override any highcharts series configs with standardized data, then generate the data output
                     output[timespan][plotname]["series"][line_name]["name"] = name
-                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    if "yAxisLabel" not in output[timespan][plotname]["options"]:
+                        # Prevent empty yAxis unit labels
+                        output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
                     output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
-            # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT
+            # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
                                      self.skin_dict['HTML_ROOT'],
                                      "json")
