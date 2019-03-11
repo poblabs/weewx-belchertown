@@ -13,15 +13,15 @@
                         <script type="text/javascript">
                             // Document ready calls        
                             jQuery(document).ready(function() {
-                                var chart = getSearchParams("chart");
+                                var graph = getSearchParams("graph");
                                 
-                                if ( chart == "today" ) {
+                                if ( graph == "today" ) {
                                     showToday();
-                                } else if ( chart == "week" ) {
+                                } else if ( graph == "week" ) {
                                     showWeek();
-                                } else if ( chart == "month" ) {
+                                } else if ( graph == "month" ) {
                                     showMonth();
-                                } else if ( chart == "year" ) {
+                                } else if ( graph == "year" ) {
                                     showYear();
                                 } else {
                                     // No match, show daily
