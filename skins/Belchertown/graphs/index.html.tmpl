@@ -13,46 +13,80 @@
                         <script type="text/javascript">
                             // Document ready calls        
                             jQuery(document).ready(function() {
-
-                                daily(); // Initial load daily highcharts
-                                jQuery(".chart_day").show();
-    
+                                var chart = getSearchParams("chart");
+                                
+                                if ( chart == "today" ) {
+                                    showToday();
+                                } else if ( chart == "week" ) {
+                                    showWeek();
+                                } else if ( chart == "month" ) {
+                                    showMonth();
+                                } else if ( chart == "year" ) {
+                                    showYear();
+                                } else {
+                                    // No match, show daily
+                                    showToday();
+                                }
                                 jQuery('button.wx-btn-today').click(function() {
-                                    daily(); // Load daily highcharts
-                                    jQuery(".wx-graph-text").text("today");
-                                    jQuery(".chart_day").show();
-                                    jQuery(".chart_week").hide();
-                                    jQuery(".chart_month").hide();
-                                    jQuery(".chart_year").hide();
+                                    showToday();
                                 });
                                 
                                 jQuery('button.wx-btn-week').click(function() {
-                                    weekly(); // Load weekly highcharts
-                                    jQuery(".wx-graph-text").text("this week");
-                                    jQuery(".chart_day").hide();
-                                    jQuery(".chart_week").show();
-                                    jQuery(".chart_month").hide();
-                                    jQuery(".chart_year").hide();
+                                    showWeek();
                                 });
                                 
                                 jQuery('button.wx-btn-month').click(function() {
-                                    monthly(); // Load monthly highcharts
-                                    jQuery(".wx-graph-text").text("this month");
-                                    jQuery(".chart_day").hide();
-                                    jQuery(".chart_week").hide();
-                                    jQuery(".chart_month").show();
-                                    jQuery(".chart_year").hide();
+                                    showMonth();
                                 });
                                 
                                 jQuery('button.wx-btn-year').click(function() {
-                                    yearly(); // Load yearly highcharts
-                                    jQuery(".wx-graph-text").text("this year");
-                                    jQuery(".chart_day").hide();
-                                    jQuery(".chart_week").hide();
-                                    jQuery(".chart_month").hide();
-                                    jQuery(".chart_year").show();
+                                    showYear();
                                 });
                             });
+                            
+                            // Get the URL Var so we can show the right NOAA file.
+                            // Source: https://stackoverflow.com/a/26744533/1177153
+                            function getSearchParams(k) {
+                                var p={};
+                                location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
+                                return k?p[k]:p;
+                            }
+                            
+                            function showToday() {
+                                daily(); // Load daily highcharts
+                                jQuery(".wx-graph-text").text("today");
+                                jQuery(".chart_day").show();
+                                jQuery(".chart_week").hide();
+                                jQuery(".chart_month").hide();
+                                jQuery(".chart_year").hide();
+                            }
+                            
+                            function showWeek() {
+                                weekly(); // Load weekly highcharts
+                                jQuery(".wx-graph-text").text("this week");
+                                jQuery(".chart_day").hide();
+                                jQuery(".chart_week").show();
+                                jQuery(".chart_month").hide();
+                                jQuery(".chart_year").hide();
+                            }
+                            
+                            function showMonth() {
+                                monthly(); // Load monthly highcharts
+                                jQuery(".wx-graph-text").text("this month");
+                                jQuery(".chart_day").hide();
+                                jQuery(".chart_week").hide();
+                                jQuery(".chart_month").show();
+                                jQuery(".chart_year").hide();
+                            }
+                            
+                            function showYear() {
+                                yearly(); // Load yearly highcharts
+                                jQuery(".wx-graph-text").text("this year");
+                                jQuery(".chart_day").hide();
+                                jQuery(".chart_week").hide();
+                                jQuery(".chart_month").hide();
+                                jQuery(".chart_year").show();
+                            }
                                 
                         </script>
                         
@@ -72,7 +106,11 @@
                         #for $timespan in $charts
                         
                         #for $plotname in $charts[$timespan]
-                        <div id="$timespan$plotname" class="chart_$timespan" style="width:100%; height:350px; display:none;"></div>
+                        #if $timespan == "day"
+                        <div id="$timespan$plotname" class="chart_$timespan" style="width:100%; height:350px;"></div>
+                        #else
+                        <div id="$timespan$plotname" class="chart_$timespan" style="width:100%; height:350px;display:none;"></div>
+                        #end if
                         #end for
                         
                         #end for
