@@ -1,5 +1,6 @@
 1.0 ????, 2019
 * Complete overhaul of the chart system. Please see the readme for all the new configuration options
+* Added rainTotal observation, unique to Belchertown, which aggregates the "rain" observation (bucket tips) over a timespan to return total rainfall for that time period.
 * Added belchertown_debug to aid in debugging the skin's options
 * Added permalink to the graphs page. For example to link to your weekly graphs, use http://yoursite/graphs/?graph=week, for month, it's ?graph=month, and year is ?graph=year. 
 
