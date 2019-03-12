@@ -172,13 +172,18 @@ function yearly() {
                         hour: '%e %b %H:%M'
                     },
                     // For locale control with moment.js - https://api.highcharts.com/highcharts/tooltip.split
-                    formatter: function () {
-                        // The first returned item is the header, subsequent items are the points
-                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL")].concat(
-                            this.points.map(function (point) {
-                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
-                            })
-                        );
+                    formatter: function (tooltip) {
+                                   try {
+                                        // The first returned item is the header, subsequent items are the points
+                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL")].concat(
+                                            this.points.map(function (point) {
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
+                                            })
+                                        );
+                                    } catch(e) {
+                                        // There's an error (typically points.map doesn't apply to the chart), so revert back to default tooltip
+                                        return tooltip.defaultFormatter.call(this, tooltip);
+                                    }
                     },
                     split: true,
                 },
@@ -238,18 +243,17 @@ function yearly() {
             // Finally show the chart
             var chart = new Highcharts.StockChart(options);
             
-            
             // How to dynamically add a 2nd axis if there's more than 1 plot type
             // TODO figure this out?
-            // chart.addAxis({ // Secondary yAxis
-                // title: {
-                    // text: 'Rainfall'
-                // },
-                // lineWidth: 2,
-                // lineColor: '#08F',
-                // opposite: true
-            // });
-            
+            if ( data[plotname]["options"]["yAxis2Label"] ) {
+                chart.addAxis({ // Secondary yAxis
+                    id: 'rain',
+                    title: {
+                        text: data[plotname]["options"]["yAxis2Label"]
+                    },
+                    opposite: true
+                });
+            }
             
         });
     
