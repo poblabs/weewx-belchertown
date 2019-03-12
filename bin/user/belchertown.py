@@ -34,7 +34,6 @@ from weewx.tags import TimespanBinder
 from weeutil.weeutil import to_bool, TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string
 from weeutil.config import search_up
 
-
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -113,13 +112,13 @@ class getData(SearchList):
         # ('year', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5'])])
         chart_dict = self.generator.skin_dict['Charts']
         charts = OrderedDict()
-        for timespan in chart_dict.sections:
+        for chart_timespan in chart_dict.sections:
             timespan_chart_list = []
-            for plotname in chart_dict[timespan].sections:
+            for plotname in chart_dict[chart_timespan].sections:
                 if plotname not in timespan_chart_list:
                     timespan_chart_list.append( plotname )
-            charts[timespan] = timespan_chart_list
-            
+            charts[chart_timespan] = timespan_chart_list
+        
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
             lat = self.generator.config_dict['Station']['latitude']
@@ -872,4 +871,4 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception, e:
                 value = None
         return value
-        
+
