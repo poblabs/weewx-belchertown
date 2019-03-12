@@ -757,6 +757,10 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 if yaxis_max:
                     output[timespan][plotname]["options"]["yaxis_max"] = yaxis_max
                 
+                polar = plot_options.get('polar', None)
+                if polar:
+                    output[timespan][plotname]["polar"] = polar
+                
                 # Loop through each observation within the chart timespan
                 for line_name in self.chart_dict[timespan][plotname].sections:
                     output[timespan][plotname]["series"][line_name] = {}
@@ -775,7 +779,11 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         # will substitute the key if the value is not in the dictionary.
                         name = title_dict[obs_type]
                                         
-                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, obs_type))
+                    if obs_type == "rainTotal":
+                        obs_label = "rain"
+                    else:
+                        obs_label = obs_type
+                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
                     
                     # Look for aggregation type:
                     aggregate_type = line_options.get('aggregate_type')
@@ -799,9 +807,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     # Override any highcharts series configs with standardized data, then generate the data output
                     output[timespan][plotname]["series"][line_name]["name"] = name
-                    if "yAxisLabel" not in output[timespan][plotname]["options"]:
-                        # Prevent empty yAxis unit labels
-                        output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+
+                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
                     output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
             # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
