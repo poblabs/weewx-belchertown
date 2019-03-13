@@ -748,14 +748,6 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 type = plot_options.get('type', 'line')
                 output[timespan][plotname]["options"]["type"] = type
                 
-                # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
-                yaxis_min = plot_options.get('yaxis_min', None)
-                if yaxis_min:
-                    output[timespan][plotname]["options"]["yaxis_min"] = yaxis_min
-                yaxis_max = plot_options.get('yaxis_max', None)
-                if yaxis_max:
-                    output[timespan][plotname]["options"]["yaxis_max"] = yaxis_max
-                
                 polar = plot_options.get('polar', None)
                 if polar:
                     output[timespan][plotname]["polar"] = polar
@@ -807,7 +799,19 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     # Override any highcharts series configs with standardized data, then generate the data output
                     output[timespan][plotname]["series"][line_name]["name"] = name
 
+                    # yAxis customizations. Place into series for custom JavaScript. Highcharts will ignore these by default
                     output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    output[timespan][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                                    
+                    # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
+                    yaxis_min = plot_options.get('yaxis_min', None)
+                    if yaxis_min:
+                        output[timespan][plotname]["series"][line_name]["yaxis_min"] = yaxis_min
+                    yaxis_max = plot_options.get('yaxis_max', None)
+                    if yaxis_max:
+                        output[timespan][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
+                    
+                    # Build series data
                     output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
             # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
