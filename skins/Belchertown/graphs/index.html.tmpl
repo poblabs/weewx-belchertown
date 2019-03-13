@@ -54,7 +54,8 @@
                             
                             function showToday() {
                                 daily(); // Load daily highcharts
-                                jQuery(".wx-graph-text").text("today");
+                                //jQuery(".wx-graph-text").text("today");
+                                jQuery(".wx-graph-text").html("<a href='./?graph=today'>today</a>");
                                 jQuery(".chart_day").show();
                                 jQuery(".chart_week").hide();
                                 jQuery(".chart_month").hide();
@@ -63,7 +64,8 @@
                             
                             function showWeek() {
                                 weekly(); // Load weekly highcharts
-                                jQuery(".wx-graph-text").text("this week");
+                                //jQuery(".wx-graph-text").text("this week");
+                                jQuery(".wx-graph-text").html("<a href='./?graph=week'>this week</a>");
                                 jQuery(".chart_day").hide();
                                 jQuery(".chart_week").show();
                                 jQuery(".chart_month").hide();
@@ -72,7 +74,8 @@
                             
                             function showMonth() {
                                 monthly(); // Load monthly highcharts
-                                jQuery(".wx-graph-text").text("this month");
+                                //jQuery(".wx-graph-text").text("this month");
+                                jQuery(".wx-graph-text").html("<a href='./?graph=month'>this month</a>");
                                 jQuery(".chart_day").hide();
                                 jQuery(".chart_week").hide();
                                 jQuery(".chart_month").show();
@@ -81,7 +84,8 @@
                             
                             function showYear() {
                                 yearly(); // Load yearly highcharts
-                                jQuery(".wx-graph-text").text("this year");
+                                //jQuery(".wx-graph-text").text("this year");
+                                jQuery(".wx-graph-text").html("<a href='./?graph=year'>this year</a>");
                                 jQuery(".chart_day").hide();
                                 jQuery(".chart_week").hide();
                                 jQuery(".chart_month").hide();
@@ -98,7 +102,7 @@
                                 <button type="button" class="btn btn-primary wx-btn-today">Today</button> <button type="button" class="btn btn-primary wx-btn-week">Week</button> <button type="button" class="btn btn-primary wx-btn-month">Month</button> <button type="button" class="btn btn-primary wx-btn-year">Year</button>
                             </div>
                             <div class="col-sm-12 wx-buttons-description">
-                                Graphs for <span class='wx-graph-text'>today</span>
+                                Graphs for <span class='wx-graph-text'><a href='./?graph=today'>today</a></span>
                             </div>
                         </div>
                         <!-- End row -->
