@@ -127,7 +127,7 @@ function weekly() {
                     type: 'datetime'
                 },
 
-                yAxis: {
+                yAxis: [{
                     endOnTick: true,
                     lineColor: '#555',
                     minorGridLineWidth: 0,
@@ -136,7 +136,7 @@ function weekly() {
                     title: {
                     },
                     opposite: false
-                },
+                }],
 
                 plotOptions: {
                     line: {
@@ -201,7 +201,7 @@ function weekly() {
             options.chart.renderTo = renderTo;
             options.chart.type = type;
             options.title.text = title;
-            options.yAxis.title.text = yAxisLabel;
+            //options.yAxis[0].title.text = yAxisLabel;
             
             // Reset the series everytime we loop.
             options.series = [];
@@ -215,19 +215,19 @@ function weekly() {
             });
             
             // Some charts may require a defined min/max on the yAxis
-            options.yAxis.min = yaxis_min ? yaxis_min : null;
-            options.yAxis.max = yaxis_max ? yaxis_max : null;
+            options.yAxis[0].min = yaxis_min ? yaxis_min : null;
+            options.yAxis[0].max = yaxis_max ? yaxis_max : null;
 
             // Barometer chart plots get a higher precision yAxis tick
             if (observation_type == "barometer") {
-                options.yAxis.tickInterval = 0.01;
+                options.yAxis[0].tickInterval = 0.01;
             }
             
             // Rain, RainRate and rainTotal (special Belchertown skin observation) get yAxis precision
             if (observation_type == "rain" || observation_type == "rainRate" || observation_type == "rainTotal") {
-                options.yAxis.min = 0;
-                options.yAxis.minRange = 0.01;
-                options.yAxis.minorGridLineWidth = 1;
+                options.yAxis[0].min = 0;
+                options.yAxis[0].minRange = 0.01;
+                options.yAxis[0].minorGridLineWidth = 1;
             }
             
             // Special handling for the windDir plot's tool tips, radius and yAxis
@@ -235,25 +235,42 @@ function weekly() {
                 options.tooltip.formatter = function() {
                             return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
                         };
-                options.yAxis.tickInterval = 90;
-                options.yAxis.labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                options.yAxis[0].tickInterval = 90;
+                options.yAxis[0].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
                 
             } 
+            
+            // if yAxis = 1 is set for the observation, associate that observation to the right side of the chart
+            options.series.forEach(s => {
+                console.log(s.yAxis);
+                if (s.yAxis == "1") {
+                    // Add a new yAxis
+                    options.yAxis.push( { // Secondary yAxis for rain rate
+                                opposite: true,
+                                title: {
+                                    text: s.yAxisLabel,
+                                },
+                            }
+                        ),
+                    s.yAxis = 1
+                } else {
+                   // Apply the yAxis 0's label
+                   options.yAxis[0].title.text = s.yAxisLabel;
+                   s.yAxis = 0
+                }
+                // TODO Future option?
+                // if (s.obsType == "windDir") {
+                    // console.log( "winddiraxis" );
+                    // axis = s.yAxis
+                    // options.yAxis[axis].tickInterval = 90;
+                    // options.yAxis[axis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                    // options.yAxis[axis].min = yaxis_min ? yaxis_min : null;
+                    // options.yAxis[axis].max = yaxis_max ? yaxis_max : null;
+                // }
+            });
 
             // Finally show the chart
             var chart = new Highcharts.StockChart(options);
-            
-            // How to dynamically add a 2nd axis if there's more than 1 plot type
-            // TODO figure this out?
-            if ( data[plotname]["options"]["yAxis2Label"] ) {
-                chart.addAxis({ // Secondary yAxis
-                    id: 'rain',
-                    title: {
-                        text: data[plotname]["options"]["yAxis2Label"]
-                    },
-                    opposite: true
-                });
-            }
             
         });
     
