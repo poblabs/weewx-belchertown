@@ -214,17 +214,17 @@ function weekly() {
                         };
             }
             
-            // if yAxis = 1 is set for the observation, associate that observation to the right side of the chart
+            // If yAxis = 1 is set for the observation, associate that observation to the right side of the chart
             options.series.forEach(s => {
                 if (s.yAxis == "1") {
                     // Add a new yAxis
-                    options.yAxis.push( { // Secondary yAxis for rain rate
+                    options.yAxis.push({ // Secondary yAxis
                                 opposite: true,
                                 title: {
                                     text: s.yAxisLabel,
                                 },
-                            }
-                        ),
+                            }),
+                    // Associate this series to the new yAxis
                     s.yAxis = 1
                 } else {
                    // Apply the yAxis 0's label
@@ -234,6 +234,10 @@ function weekly() {
                 
                 // Run yAxis customizations
                 this_yAxis = s.yAxis;
+                
+                if (belchertown_debug > 0) {
+                    console.log( renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
+                }
                 
                 // Some charts may require a defined min/max on the yAxis
                 options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
