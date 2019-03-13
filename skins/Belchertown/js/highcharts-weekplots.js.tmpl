@@ -67,7 +67,7 @@ function weekly() {
 
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
-            var observation_type, yaxis_min, yaxis_max = undefined;
+            var observation_type = undefined;
             
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
@@ -83,12 +83,6 @@ function weekly() {
                         break;
                     case "yAxisLabel":
                         yAxisLabel = optionVal;
-                        break;
-                    case "yaxis_min":
-                        yaxis_min = optionVal;
-                        break;
-                    case "yaxis_max":
-                        yaxis_max = optionVal;
                         break;
                 }
             });
@@ -151,7 +145,7 @@ function weekly() {
                         marker: {
                             radius: 2
                         },
-                    },                    
+                    },
                 },
                 // Define the plot colors in order as they are loaded below
                 colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
@@ -201,7 +195,6 @@ function weekly() {
             options.chart.renderTo = renderTo;
             options.chart.type = type;
             options.title.text = title;
-            //options.yAxis[0].title.text = yAxisLabel;
             
             // Reset the series everytime we loop.
             options.series = [];
@@ -213,36 +206,16 @@ function weekly() {
                 options.series[i] = data[plotname]["series"][seriesName];
                 i++;
             });
-            
-            // Some charts may require a defined min/max on the yAxis
-            options.yAxis[0].min = yaxis_min ? yaxis_min : null;
-            options.yAxis[0].max = yaxis_max ? yaxis_max : null;
 
-            // Barometer chart plots get a higher precision yAxis tick
-            if (observation_type == "barometer") {
-                options.yAxis[0].tickInterval = 0.01;
-            }
-            
-            // Rain, RainRate and rainTotal (special Belchertown skin observation) get yAxis precision
-            if (observation_type == "rain" || observation_type == "rainRate" || observation_type == "rainTotal") {
-                options.yAxis[0].min = 0;
-                options.yAxis[0].minRange = 0.01;
-                options.yAxis[0].minorGridLineWidth = 1;
-            }
-            
-            // Special handling for the windDir plot's tool tips, radius and yAxis
+            // Special handling for the windDir plot's tool tips
             if (observation_type == "windDir") {
                 options.tooltip.formatter = function() {
                             return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
                         };
-                options.yAxis[0].tickInterval = 90;
-                options.yAxis[0].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
-                
-            } 
+            }
             
             // if yAxis = 1 is set for the observation, associate that observation to the right side of the chart
             options.series.forEach(s => {
-                console.log(s.yAxis);
                 if (s.yAxis == "1") {
                     // Add a new yAxis
                     options.yAxis.push( { // Secondary yAxis for rain rate
@@ -258,20 +231,36 @@ function weekly() {
                    options.yAxis[0].title.text = s.yAxisLabel;
                    s.yAxis = 0
                 }
-                // TODO Future option?
-                // if (s.obsType == "windDir") {
-                    // console.log( "winddiraxis" );
-                    // axis = s.yAxis
-                    // options.yAxis[axis].tickInterval = 90;
-                    // options.yAxis[axis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
-                    // options.yAxis[axis].min = yaxis_min ? yaxis_min : null;
-                    // options.yAxis[axis].max = yaxis_max ? yaxis_max : null;
-                // }
-            });
+                
+                // Run yAxis customizations
+                this_yAxis = s.yAxis;
+                
+                // Some charts may require a defined min/max on the yAxis
+                options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
+                options.yAxis[this_yAxis].max = s.yaxis_max ? s.yaxis_max : null;
 
+                // Barometer chart plots get a higher precision yAxis tick
+                if (s.obsType == "barometer") {
+                    options.yAxis[this_yAxis].tickInterval = 0.01;
+                }
+                
+                // Rain, RainRate and rainTotal (special Belchertown skin observation) get yAxis precision
+                if (s.obsType == "rain" || s.obsType == "rainRate" || s.obsType == "rainTotal") {
+                    options.yAxis[this_yAxis].min = 0;
+                    options.yAxis[this_yAxis].minRange = 0.01;
+                    options.yAxis[this_yAxis].minorGridLineWidth = 1;
+                }
+
+                if (s.obsType == "windDir") {
+                    options.yAxis[this_yAxis].tickInterval = 90;
+                    options.yAxis[this_yAxis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                }
+                
+            });
+            
             // Finally show the chart
             var chart = new Highcharts.StockChart(options);
-            
+
         });
     
     });
