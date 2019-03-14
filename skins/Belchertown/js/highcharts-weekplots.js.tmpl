@@ -214,22 +214,51 @@ function weekly() {
                         };
             }
             
-            // If yAxis = 1 is set for the observation, associate that observation to the right side of the chart
+            /* yAxis customization handler and label handling
+            Take the following example. 
+            yAxis is in observation 0 (rainTotal), so that label is caught and set by yAxis1_active. 
+            If you move yAxis to observation 1 (rainRate), then the label is caught and set by yAxis_index.
+            There may be a more efficient way to do this. If so, please submit a pull request :)
+            [[[chart3]]]
+                title = Rain
+                [[[[rainTotal]]]]
+                    name = Rain Total
+                    yAxis = 1
+                [[[[rainRate]]]]
+            */
+            
+            var yAxis1_active = undefined;
+            
+            // Find if any series have yAxis = 1. If so, save the array number so we can set labels correctly. We really care if yAxis is in array 1+, so we can go back and set yAxis 0 to the right label
+            var yAxis_index = options.series.findIndex( function(item){ return item.yAxis == 1 } )
+            
             options.series.forEach(s => {
                 if (s.yAxis == "1") {
-                    // Add a new yAxis
+                    // If yAxis = 1 is set for the observation, add a new yAxis and associate that observation to the right side of the chart
+                    yAxis1_active = true;
                     options.yAxis.push({ // Secondary yAxis
                                 opposite: true,
                                 title: {
-                                    text: s.yAxisLabel,
+                                    text: s.name + " " + s.yAxisLabel,
                                 },
                             }),
-                    // Associate this series to the new yAxis
+                    // Associate this series to the new yAxis 1
                     s.yAxis = 1
+                                        
+                    // We may have already passed through array 0 in the series without setting the "multi axis label", go back and explicitly define it.
+                    if ( yAxis_index >= 1 ) {
+                        options.yAxis[0].title.text = options.series[0].name + " " + options.series[0].yAxisLabel;
+                    } 
                 } else {
-                   // Apply the yAxis 0's label
-                   options.yAxis[0].title.text = s.yAxisLabel;
-                   s.yAxis = 0
+                    if ( yAxis1_active ) {
+                        // This yAxis is first in the data series, so we can set labels without needing to double back
+                        options.yAxis[0].title.text = s.name + " " + s.yAxisLabel;
+                    } else {
+                        // Apply the normal yAxis 0's label without observation name
+                        options.yAxis[0].title.text = s.yAxisLabel;
+                    }
+                    // Associate this series to yAxis 1
+                    s.yAxis = 0;
                 }
                 
                 // Run yAxis customizations
