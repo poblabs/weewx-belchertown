@@ -150,6 +150,476 @@ function titleCase(str) {
     }).join(' ');
 }
 
+function ajaxweewx() {
+    jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
+};
+
+// Update weewx data elements
+function update_weewx_data( data ) {
+    console.log("Updating weewx data");
+    // Daily High Low
+    high = data["day"]["outTemp"]["max"];
+    low = data["day"]["outTemp"]["min"];
+    jQuery(".high").html( high );
+    jQuery(".low").html( low );
+    
+    // Barometer trending by finding a negative number
+    count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
+    
+    if ( count >= 1 ) {
+        jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
+    } else {
+        jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
+    }
+    
+    // Daily max gust span
+    jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
+    
+    // Daily stats section
+    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, LL' ) );
+    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM YYYY' ) );
+    jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
+    jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
+    jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
+    jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
+    jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
+    jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
+    
+    // Sunrise and Sunset            
+    jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
+    jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
+    
+    // Moon icon, phase and illumination percent
+    switch ( data["almanac"]["moon"]["moon_phase"] ) {
+        case "New Moon":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
+            break;
+        case "Waxing Crescent":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
+            break;
+        case "First Quarter":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+            break;
+        case "Waxing Gibbous":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
+            break;
+        case "Full Moon":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
+            break;
+        case "Waning Gibbous":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
+            break;
+        case "Last Quarter":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+            break;
+        case "Waning Crescent":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
+            break;
+    }
+    jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
+    jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
+}
+
+#if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+function ajaxforecast() {
+    jQuery.getJSON("$forecast_json_url", update_forecast_data);
+};
+
+function update_forecast_data( data ) {
+    console.log("Updating forecast data");
+    // WX Icon
+    if ( data['currently']['icon'] == "partly-cloudy-night" ) {
+        // partly-cloudy-night could also be clear-day
+        jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
+    } else {
+        jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
+    }
+    
+    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+    // Weather Alerts
+    if ( data['alerts'] ) {
+        var i, forecast_alert_text;
+        forecast_alert_text = "";
+        for ( i = 0; i < data['alerts'].length; i++ ) { 
+            alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'LLL' );
+            forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " in effect until " + alert_expires + "</a><br>";
+        }
+        jQuery(".wx-stn-alert-text").html( forecast_alert_text );
+        jQuery(".wx-stn-alert").show();
+    } else {
+        jQuery(".wx-stn-alert").hide();
+    }
+    #end if
+    
+    // Current observation text
+    jQuery(".current-obs-text").html( data["currently"]["summary"] );
+    
+    // 8 day forecast
+    var output_html = "";
+    for (i = 0; i < data["daily"]["data"].length; i++) {
+        var forecastDay = data["daily"]["data"][i];
+        if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
+            var image_url = "$belchertown_root_url/images/clear-day.png";
+        } else { 
+            var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
+        }
+        
+        var condition_text = "";
+        switch ( data["daily"]["data"][i]["icon"] ) {
+            case "clear-day":
+                condition_text = "Clear";
+                break;
+            case "clear-night":
+                condition_text = "Clear";
+                break;
+            case "rain":
+                condition_text = "Rain";
+                break;
+            case "snow":
+                condition_text = "Snow";
+                break;
+            case "sleet":
+                condition_text = "Sleet";
+                break;
+            case "wind":
+                condition_text = "Windy";
+                break;
+            case "fog":
+                condition_text = "Fog";
+                break;
+            case "cloudy":
+                condition_text = "Overcast";
+                break;
+            case "partly-cloudy-day":
+                condition_text = "Partly Cloudy";
+                break;
+            case "partly-cloudy-night":
+                condition_text = "Clear"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
+                break;
+            case "hail":
+                condition_text = "Hail";
+                break;
+            case "thunderstorm":
+                condition_text = "Thunderstorm";
+                break;
+            case "tornado":
+                condition_text = "Tornado";
+                break;
+        }
+        
+        if ( i == 0 ) {
+            output_html += '<div class="col-sm-1-5 wuforecast">';
+            var weekday = "Today";
+        } else {
+            output_html += '<div class="col-sm-1-5 wuforecast border-left">';
+            var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
+        }
+        output_html += '<span id="weekday">'+weekday+'</span>';
+        output_html += '<br>';
+        output_html += '<div class="forecast-conditions">';
+        output_html += '<img id="icon" src="'+image_url+'">';
+        output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
+        output_html += '</div>';
+        output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
+        output_html += '<br>';
+        output_html += '<div class="forecast-precip">';
+        if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
+            output_html += '<div class="snow-precip">';
+            output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
+            output_html += '</div>';
+        } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
+            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
+        } else {
+            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>';
+        }
+        output_html += '</div>';
+        output_html += '<div class="forecast-wind">';
+        output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
+        output_html += '</div>';
+        output_html += '</div>';
+    }
+    forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
+    jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
+    jQuery(".forecasts").html( output_html );
+}
+#end if
+
+#if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+//============================================//
+// Live website using MQTT Websockets enabled //
+//============================================//
+
+function ajaxradar() {
+    // This function only runs if the radar-map element has an img src.
+    if ( document.querySelectorAll(".radar-map img").length > 0 ) {
+        console.log("Updating radar image");
+        var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+        jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
+    }
+}
+
+// mqtt connect
+function connect(){
+    console.log("Connecting to MQTT");
+    reported = "Connecting to weather station real time data.";
+    jQuery(".updated").text( reported );
+    jQuery(".onlineMarker").hide();
+    jQuery(".offlineMarker").hide();
+    jQuery(".loadingMarker").show();
+    
+    client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+    var options = {
+        #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+        useSSL: true,
+        #else
+        useSSL: false,
+        #end if
+        onSuccess:onConnect,
+        onFailure:onFailure
+      }
+    client.connect( options );
+}
+
+// mqtt connect callback
+function onConnect() {
+    console.log("MQTT Connected. Subscribing.");
+    reported = "Connected. Waiting for data.";
+    jQuery(".updated").text( reported );
+    jQuery(".onlineMarker").hide();
+    jQuery(".offlineMarker").hide();
+    jQuery(".loadingMarker").show();            
+    client.subscribe( "$Extras.mqtt_websockets_topic" );
+    #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
+    var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
+    #end if
+}
+
+function onFailure() {
+    var d = new Date();
+    jQuery(".onlineMarker").hide();
+    jQuery(".offlineMarker").show();
+    jQuery(".loadingMarker").hide();
+    epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
+    console.log( updated + ": Cannot connect to MQTT broker" );
+}
+
+// mqtt connection lost
+function onConnectionLost(responseObject) {
+    var d = new Date();
+    jQuery(".onlineMarker").hide();
+    jQuery(".offlineMarker").show();
+    jQuery(".loadingMarker").hide();
+    epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
+    if (responseObject.errorCode !== 0) {
+        console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
+    }
+}
+
+// new message from mqtt, process it
+function onMessageArrived(message) {
+    update_current_wx( message.payloadString );
+}
+
+function inactive(){
+    client.disconnect(); // Disconnect mqtt
+    console.log("Inactive timer expired. MQTT Disconnected");
+    jQuery(".onlineMarker").hide(); // Hide online beacon
+    jQuery(".offlineMarker").show(); // Show offline beacon
+    jQuery(".loadingMarker").hide(); // Hide loading beacon
+    jQuery(".updated").html( "Live updates have stopped. <button type='button' class='btn btn-primary restart-interval'>Continue live updates</button>" );
+}
+
+// Handle MQTT message
+function update_current_wx(data) {
+    //console.log( data );
+    data = jQuery.parseJSON( data );
+    
+    #if $Extras.has_key('googleAnalyticsId')
+    // Send a pageview
+    gtag('config', '$Extras.googleAnalyticsId');
+    #end if
+    
+    // Updated time
+    epoch = parseFloat( data["dateTime"] ).toFixed(0);
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    updated_text = "Connected to weather station live. Data received " + updated;
+    jQuery(".updated").html( updated_text );
+    jQuery(".onlineMarker").show(); // Show the online beacon
+    jQuery(".offlineMarker").hide(); // Hide offline beacon
+    jQuery(".loadingMarker").hide(); // Hide loading beacon
+    
+    // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
+    if ( data.hasOwnProperty("interval_minute") ) {
+        // Delays are recommended to allow the other skins to complete processing
+        console.log("MQTT message indicates this is an archive interval.");
+        setTimeout( daily, 30000 ); // Load updated charts
+        setTimeout( ajaxweewx, 10000 ); // Update weewx data
+        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+        setTimeout( ajaxforecast, 10000 ); // Update forecast data
+        #end if
+        setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
+    }
+    
+    // Temperature F
+    if ( data.hasOwnProperty("outTemp_F") ) {
+        // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
+        // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
+        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+        update_outtemp_F( outTemp );
+        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+    
+        // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
+        //if ( data["outTemp_F"] <= 50 ) {
+        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["windchill_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //} else if ( data["outTemp_F"] >= 80 ) {
+        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["heatindex_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //} else {
+        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //}
+    }
+    
+    // Temperature C
+    if ( data.hasOwnProperty("outTemp_C") ) {
+        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+        update_outtemp_C( outTemp );
+        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+    }
+    
+    // Apparent Temperature US
+    if ( data.hasOwnProperty("appTemp_F") ) {
+        jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
+    }
+
+    // Dewpoint US
+    if ( data.hasOwnProperty("dewpoint_F") ) {
+        jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+    }
+    
+    // Apparent Temperature Metric
+    if ( data.hasOwnProperty("appTemp_C") ) {
+        jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+    }
+    
+    #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+    // Cloud Base US
+    if ( data.hasOwnProperty("cloudbase_foot") ) {
+        jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_foot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
+    }
+
+    // Cloud Base Metric
+    if ( data.hasOwnProperty("cloudbase_meter") ) {
+        jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_meter"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
+    }
+    #end if
+
+    // Dewpoint Metric
+    if ( data.hasOwnProperty("dewpoint_C") ) {
+        jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+    }            
+    
+    // Wind
+    if ( data.hasOwnProperty("windDir") ) {
+        // No toLocaleString() here since there is no float decimal needed.
+        rotateThis( data["windDir"] );
+        //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
+        jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+        jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
+    }
+    // Windspeed US
+    if ( data.hasOwnProperty("windSpeed_mph") ) {
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    // Windspeed Metric
+    if ( data.hasOwnProperty("windSpeed_kph") ) {
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    // Windspeed METRICWX
+    if ( data.hasOwnProperty("windSpeed_mps") ) {
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    
+    // Wind Gust US
+    // May not be provided in mqtt, but just in case.
+    if ( data.hasOwnProperty("windGust_mph") ) {
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    // Wind Gust Metric
+    if ( data.hasOwnProperty("windGust_kph") ) {
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    // Wind Gust METRICWX
+    if ( data.hasOwnProperty("windGust_mps") ) {
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    
+    // Barometer US
+    if ( data.hasOwnProperty("barometer_inHg") ) {
+        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
+    }
+    // Barometer Metric
+    if ( data.hasOwnProperty("barometer_mbar") ) {
+        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
+    }
+    
+    // Humidity
+    if ( data.hasOwnProperty("outHumidity") ) {
+        jQuery(".wx-humidity-value").text( parseFloat(parseFloat(data["outHumidity"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 1}) + "$unit.label.outHumidity" );
+    }
+    
+    // Windchill US
+    if ( data.hasOwnProperty("windchill") ) {
+        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+    }
+    // Windchill Metric
+    if ( data.hasOwnProperty("windchill_C") ) {
+        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+    }
+    
+    // Rain Day US
+    if ( data.hasOwnProperty("dayRain_in") ) {
+        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_in"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
+    }
+    // Rain Day Metric
+    if ( data.hasOwnProperty("dayRain_cm") ) {
+        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_cm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
+    }
+    // Rain Day METRICWX
+    if ( data.hasOwnProperty("dayRain_mm") ) {
+        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_mm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
+    }
+    
+    // Rain rate US
+    if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
+        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_inch_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
+    }
+    // Rain rate Metric
+    if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
+        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_cm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
+    }
+    // Rain rate METRICWX
+    if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
+        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_mm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
+    }
+    
+    // UV
+    if ( data.hasOwnProperty("UV") ) {
+        jQuery(".wx-uv-value").text( parseFloat(parseFloat(data["UV"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+    }
+    
+    // Sun Radiation
+    if ( data.hasOwnProperty("radiation_Wpm2") ) {
+        jQuery(".wx-radiation-value").html( parseFloat(parseFloat(data["radiation_Wpm2"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 2}) + " $unit.label.radiation" );
+    }
+};
+#end if
+
+
 Highcharts.setOptions({
     global: {
         //useUTC: false
