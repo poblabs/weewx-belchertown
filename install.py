@@ -50,7 +50,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                     ),                    
                    ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
                    ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
-                   ('skins/Belchertown/js', ['skins/Belchertown/js/highcharts-widget.js.tmpl',
+                   ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown_highcharts.js.tmpl',
                    ('skins/Belchertown/js', ['skins/Belchertown/js/highcharts-dayplots.js.tmpl',
                                              'skins/Belchertown/js/highcharts-weekplots.js.tmpl',
                                              'skins/Belchertown/js/highcharts-monthplots.js.tmpl',
