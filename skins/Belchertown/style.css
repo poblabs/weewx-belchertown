@@ -2239,7 +2239,7 @@ li.comment {
 /* Custom Raspberry Pi Kiosk Page */
     
     body.pi {
-        font-family:initial;
+        /* font-family:initial; */
         padding: 0px;
         overflow: hidden;
         overflow-x: hidden;
