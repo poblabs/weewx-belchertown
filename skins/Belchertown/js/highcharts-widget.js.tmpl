@@ -61,7 +61,27 @@ Highcharts.setOptions({
     }
 });
 
-function highchartsWidget(json_file) {
+function daily() {
+    highchartsWidget("day.json", $archive_interval_ms);
+}
+
+function weekly() {
+    highchartsWidget("week.json", 3600000); // gapsize is 1 hour in millis
+}
+
+function monthly() {
+    highchartsWidget("month.json", 86400000); // gapsize is 24 hours in millis
+}
+
+function yearly() {
+    highchartsWidget("year.json", 86400000); // gapsize is 24 hours in millis
+}
+
+function highchartsWidget(json_file, gapsize) {
+    
+    if (gapsize === undefined) {
+        gapsize = $archive_interval_ms; // archive_interval in milliseconds
+    }
     
     jQuery.getJSON('$belchertown_root_url/json/' + json_file, function(data) {
 
@@ -135,7 +155,7 @@ function highchartsWidget(json_file) {
                 plotOptions: {
                     line: {
                         lineWidth: 2,
-                        gapSize: $archive_interval_ms, // archive_interval in milliseconds
+                        gapSize: gapsize,
                         gapUnit: 'value',
                         marker: {
                             enabled: false
