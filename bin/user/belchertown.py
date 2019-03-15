@@ -701,7 +701,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         self.converter = weewx.units.Converter.fromSkinDict(self.chart_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
         self.db_lookup = self.db_binder.bind_default()
-        
+        binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
+        archive = self.db_binder.get_manager(binding)
+        start_ts = archive.firstGoodStamp()
+        stop_ts = archive.lastGoodStamp()
+        timespan = weeutil.weeutil.TimeSpan(start_ts, stop_ts)
+
         # Setup title dict for plot titles
         try:
             d = self.skin_dict['Labels']['Generic']
@@ -713,51 +718,55 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         output = {}
                 
         # Loop through each timespan
-        for timespan in self.chart_dict.sections:
-            output[timespan] = OrderedDict() # This retains the order in which to load the charts on the page.
+        for chart_group in self.chart_dict.sections:
+            output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
             
-            # Loop through each chart within the timespan
-            for plotname in self.chart_dict[timespan].sections:
-                output[timespan][plotname] = {}
-                output[timespan][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
-                output[timespan][plotname]["options"] = {}
-                output[timespan][plotname]["options"]["renderTo"] = timespan + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different timespans
+            # Loop through each chart within the chart_group
+            for plotname in self.chart_dict[chart_group].sections:
+                output[chart_group][plotname] = {}
+                output[chart_group][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
+                output[chart_group][plotname]["options"] = {}
+                output[chart_group][plotname]["options"]["renderTo"] = chart_group + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
                 
-                plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname])
+                plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname])
                 
                 plotgen_ts = self.gen_ts
                 if not plotgen_ts:
-                    binding = plot_options.get('data_binding', 'wx_binding') # TODO is this valid?
-                    archive = self.db_binder.get_manager(binding)
-                    plotgen_ts = archive.lastGoodStamp()
+                    plotgen_ts = stop_ts
                     if not plotgen_ts:
                         plotgen_ts = time.time()
                 
-                # Need to determine start, stop times
-                # TODO, startofday()
-                # TODO, start of week
-                # TODO, day 1 of month
-                # TODO, day 1 of year
-                # TODO or rolling window for all of it
-                (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(plot_options.get('time_length', 86400)), plotgen_ts)
-                
-                chart_title = plot_options.get('title', "")
-                output[timespan][plotname]["options"]["title"] = chart_title
+                # Look for any keyword timespans first and default to those start/stop times for the chart
+                time_length = plot_options.get('time_length', 86400)
+                if time_length == "today":
+                    minstamp, maxstamp = archiveDaySpan( timespan.stop )
+                elif time_length == "week":
+                    minstamp, maxstamp = archiveWeekSpan( timespan.stop )
+                elif time_length == "month":
+                    minstamp, maxstamp = archiveMonthSpan( timespan.stop )
+                elif time_length == "year":
+                    minstamp, maxstamp = archiveYearSpan( timespan.stop )
+                else:
+                    # Rolling timespans using seconds
+                    (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(plot_options.get('time_length', 86400)), plotgen_ts)
+                                
+                chart_title = plot_options.get("title", "")
+                output[chart_group][plotname]["options"]["title"] = chart_title
                 
                 # Get the type of plot ("bar', 'line', 'spline', or 'scatter')
-                type = plot_options.get('type', 'line')
-                output[timespan][plotname]["options"]["type"] = type
+                plottype = plot_options.get('type', 'line')
+                output[chart_group][plotname]["options"]["type"] = plottype
                 
                 polar = plot_options.get('polar', None)
                 if polar:
-                    output[timespan][plotname]["polar"] = polar
+                    output[chart_group][plotname]["polar"] = polar
                 
-                # Loop through each observation within the chart timespan
-                for line_name in self.chart_dict[timespan][plotname].sections:
-                    output[timespan][plotname]["series"][line_name] = {}
-                    output[timespan][plotname]["series"][line_name]["obsType"] = line_name
+                # Loop through each observation within the chart chart_group
+                for line_name in self.chart_dict[chart_group][plotname].sections:
+                    output[chart_group][plotname]["series"][line_name] = {}
+                    output[chart_group][plotname]["series"][line_name]["obsType"] = line_name
                     
-                    line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[timespan][plotname][line_name])
+                    line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname][line_name])
                     
                     # Find the observation type. (e.g. outTemp, rainFall, windDir, etc.)
                     #obs_type = line_options.get('data_type', line_name) # TODO I don't think this is needed.
@@ -793,34 +802,34 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     # Build the final array items. 
                     
                     # This for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  
-                    for highcharts_config, highcharts_value in self.chart_dict[timespan][plotname][line_name].items():
-                        output[timespan][plotname]["series"][line_name][highcharts_config] = highcharts_value
+                    for highcharts_config, highcharts_value in self.chart_dict[chart_group][plotname][line_name].items():
+                        output[chart_group][plotname]["series"][line_name][highcharts_config] = highcharts_value
                     
                     # Override any highcharts series configs with standardized data, then generate the data output
-                    output[timespan][plotname]["series"][line_name]["name"] = name
+                    output[chart_group][plotname]["series"][line_name]["name"] = name
 
                     # yAxis customizations. Place into series for custom JavaScript. Highcharts will ignore these by default
-                    output[timespan][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
-                    output[timespan][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    output[chart_group][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
                                     
                     # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
                     yaxis_min = plot_options.get('yaxis_min', None)
                     if yaxis_min:
-                        output[timespan][plotname]["series"][line_name]["yaxis_min"] = yaxis_min
+                        output[chart_group][plotname]["series"][line_name]["yaxis_min"] = yaxis_min
                     yaxis_max = plot_options.get('yaxis_max', None)
                     if yaxis_max:
-                        output[timespan][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
+                        output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
                     
                     # Build series data
-                    output[timespan][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
+                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
-            # This consolidates all timespans into the timespan JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
+            # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
                                      self.skin_dict['HTML_ROOT'],
                                      "json")
-            json_filename = html_dest_dir + "/" + timespan + ".json"
+            json_filename = html_dest_dir + "/" + chart_group + ".json"
             with open(json_filename, mode='w') as fd:
-                    fd.write( json.dumps( output[timespan] ) )
+                    fd.write( json.dumps( output[chart_group] ) )
 
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
