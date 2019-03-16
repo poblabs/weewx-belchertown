@@ -727,6 +727,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 output[chart_group][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
                 output[chart_group][plotname]["options"] = {}
                 output[chart_group][plotname]["options"]["renderTo"] = chart_group + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
+                output[chart_group][plotname]["options"]["chart_group"] = chart_group
                 
                 plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname])
                 
@@ -748,7 +749,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     minstamp, maxstamp = archiveYearSpan( timespan.stop )
                 else:
                     # Rolling timespans using seconds
-                    (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(plot_options.get('time_length', 86400)), plotgen_ts)
+                    (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
                                 
                 chart_title = plot_options.get("title", "")
                 output[chart_group][plotname]["options"]["title"] = chart_title

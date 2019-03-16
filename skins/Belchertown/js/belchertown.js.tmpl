@@ -653,10 +653,10 @@ function showChart(json_file, gapsize) {
     }
     
     jQuery.getJSON('$belchertown_root_url/json/' + json_file, function(data) {
-
+        
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
-            var observation_type = undefined;
+            var observation_type, moment_format = undefined;
             
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
@@ -673,8 +673,21 @@ function showChart(json_file, gapsize) {
                     case "yAxisLabel":
                         yAxisLabel = optionVal;
                         break;
+                    case "chart_group":
+                        chart_group = optionVal;
+                        break;
                 }
             });
+            
+            // Update moment.js locale format
+            if ( chart_group == "day" ) {
+                moment_format = "LLL";
+            } else if ( chart_group == "month" || chart_group == "year" ) {
+                moment_format = "dddd LL";
+            } else {
+                // Week charts and anything else undefined by a standard group
+                moment_format = "LLLL";
+            }
             
             var options = {
                 chart: {
@@ -758,7 +771,7 @@ function showChart(json_file, gapsize) {
                     formatter: function (tooltip) {
                                    try {
                                         // The first returned item is the header, subsequent items are the points
-                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL")].concat(
+                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format )].concat(
                                             this.points.map(function (point) {
                                                 return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                                             })
