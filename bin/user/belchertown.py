@@ -769,21 +769,20 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname][line_name])
                     
-                    # Find the observation type. (e.g. outTemp, rainFall, windDir, etc.)
-                    #obs_type = line_options.get('data_type', line_name) # TODO I don't think this is needed.
-                    obs_type = line_name
+                    # Find the observation type if specified (e.g. more than 1 of the same on a chart). (e.g. outTemp, rainFall, windDir, etc.)
+                    observation_type = line_options.get('observation_type', line_name)
                     
                     # Get any custom names for this observation 
                     name = line_options.get('name', None)
                     if not name:
                         # No explicit name. Look up a generic one. NB: title_dict is a KeyDict which
                         # will substitute the key if the value is not in the dictionary.
-                        name = title_dict[obs_type]
+                        name = title_dict[observation_type]
                                         
-                    if obs_type == "rainTotal":
+                    if observation_type == "rainTotal":
                         obs_label = "rain"
                     else:
-                        obs_label = obs_type
+                        obs_label = observation_type
                     unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
                     
                     # Look for aggregation type:
@@ -797,7 +796,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             aggregate_interval = line_options.as_int('aggregate_interval')
                         except KeyError:
                             syslog.syslog(syslog.LOG_ERR, "JsonGenerator: aggregate interval required for aggregate type %s" % aggregate_type)
-                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % obs_type)
+                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % observation_type)
                             continue
                     
                     # Build the final array items. 
@@ -822,7 +821,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
                     
                     # Build series data
-                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(obs_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
+                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
             # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
