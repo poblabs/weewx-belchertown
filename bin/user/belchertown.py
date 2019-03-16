@@ -837,6 +837,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         # Special Belchertown Skin rain counter
         if observation == "rainTotal":
             obs_lookup = "rain"
+            # Force sum on this observation
+            if aggregate_interval:
+                aggregate_type = "sum"
+        elif observation == "rainRate":
+            obs_lookup = "rainRate"
+            # Force max on this observation
+            if aggregate_interval:
+                aggregate_type = "max"
         else:
             obs_lookup = observation
                 
