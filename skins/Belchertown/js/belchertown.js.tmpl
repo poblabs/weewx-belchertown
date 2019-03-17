@@ -792,8 +792,7 @@ function showChart(json_file, gapsize) {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
                                         } else {
-                                        console.log(this.series);
-                                        return tooltip.defaultFormatter.call(this, tooltip);
+                                            return tooltip.defaultFormatter.call(this, tooltip);
                                         }
                                     }
                     },
