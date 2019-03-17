@@ -787,7 +787,7 @@ function showChart(json_file, gapsize) {
                                     } catch(e) {
                                         // There's an error because points.map doesn't apply to the chart, so check if it's windDir to apply wind direction label, or if it's a scatter. If none of those revert back to default tooltip.
                                         if (this.series.userOptions.obsType == "windDir") {
-                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
+                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
@@ -823,13 +823,6 @@ function showChart(json_file, gapsize) {
                 options.series[i] = data[plotname]["series"][seriesName];
                 i++;
             });
-
-            // Special handling for the windDir plot's tool tips
-            if (observation_type == "windDir") {
-                options.tooltip.formatter = function() {
-                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
-                        };
-            }
             
             /* yAxis customization handler and label handling
             Take the following example. 
