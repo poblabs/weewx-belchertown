@@ -743,6 +743,14 @@ function showChart(json_file, gapsize) {
                             enabled: false
                         },
                     },
+                    spline: {
+                        lineWidth: 2,
+                        gapSize: gapsize,
+                        gapUnit: 'value',
+                        marker: {
+                            enabled: false
+                        },
+                    },
                     scatter: {
                         marker: {
                             radius: 2
@@ -751,19 +759,10 @@ function showChart(json_file, gapsize) {
                 },
                 // Define the plot colors in order as they are loaded below
                 colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1'],
-                
-                scrollbar: {
-                    enabled: false
-                },
-                navigator: {
-                    enabled: false
-                },
-                rangeSelector: {
-                    enabled: false
-                },
 
                 tooltip: {
                     enabled: true,
+                    crosshairs: true,
                     dateTimeLabelFormats: {
                         hour: '%e %b %H:%M'
                     },
@@ -894,7 +893,7 @@ function showChart(json_file, gapsize) {
             });
             
             // Finally show the chart
-            var chart = new Highcharts.StockChart(options);
+            var chart = new Highcharts.chart(options);
 
         });
     
