@@ -735,6 +735,14 @@ function showChart(json_file, gapsize) {
                 }],
 
                 plotOptions: {
+                    area: {
+                        lineWidth: 2,
+                        gapSize: gapsize,
+                        gapUnit: 'value',
+                        marker: {
+                            enabled: false
+                        },
+                    },
                     line: {
                         lineWidth: 2,
                         gapSize: gapsize,
@@ -776,8 +784,12 @@ function showChart(json_file, gapsize) {
                                             })
                                         );
                                     } catch(e) {
-                                        // There's an error (typically points.map doesn't apply to the chart), so revert back to default tooltip
+                                        // There's an error (typically points.map doesn't apply to the chart), so check if it's windDir and if not revert back to default tooltip
+                                        if (this.series.userOptions.obsType == "windDir") {
+                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
+                                        } else {
                                         return tooltip.defaultFormatter.call(this, tooltip);
+                                        }
                                     }
                     },
                     split: true,
