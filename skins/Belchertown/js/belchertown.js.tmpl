@@ -777,17 +777,22 @@ function showChart(json_file, gapsize) {
                     // For locale control with moment.js - https://api.highcharts.com/highcharts/tooltip.split
                     formatter: function (tooltip) {
                                    try {
-                                        // The first returned item is the header, subsequent items are the points
+                                        // The first returned item is the header, subsequent items are the points.
+                                        // Mostly applies to line style charts (line, spline, area)
                                         return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format )].concat(
                                             this.points.map(function (point) {
                                                 return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + Highcharts.numberFormat(point.y);
                                             })
                                         );
                                     } catch(e) {
-                                        // There's an error (typically points.map doesn't apply to the chart), so check if it's windDir and if not revert back to default tooltip
+                                        // There's an error because points.map doesn't apply to the chart, so check if it's windDir to apply wind direction label, or if it's a scatter. If none of those revert back to default tooltip.
                                         if (this.series.userOptions.obsType == "windDir") {
                                             return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format("LLL") +'<br><b>' + get_cardinal_direction( parseFloat(this.point.y).toFixed(0) ) + ' (' + parseFloat(this.point.y).toFixed(0) + '\xBA)';
+                                        } else if (this.series.userOptions.type == "scatter") {
+                                            // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
+                                            return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
                                         } else {
+                                        console.log(this.series);
                                         return tooltip.defaultFormatter.call(this, tooltip);
                                         }
                                     }
