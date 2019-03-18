@@ -2237,20 +2237,27 @@ li.comment {
 /* End custom wx page */
 
 /* Custom Raspberry Pi Kiosk Page */
-    
     body.pi {
         /* font-family:initial; */
+        font-weight: normal;
         padding: 0px;
         overflow: hidden;
         overflow-x: hidden;
     }
+	
+    /* bold kiosk display font if chosen in skin.conf or weewx.conf */	
+	.pi .site-inner-bold {
+		font-weight: bold;
+	}
     
     .pi .wx-stn-info-container {
         padding-bottom: 0px;
     }
     
     .pi .updated-wrapper {
+		padding-left: 25px;
         margin-bottom: 5px;
+		float: none;
     }
     
     .pi .onlineMarkerOuter {
@@ -2276,9 +2283,6 @@ li.comment {
     .pi .wx-content {
         padding-top: 0px;
     }
-    .pi .updated-wrapper {
-        float: none;
-    }
     
     .pi #wxicon {
     display: initial;
@@ -2287,9 +2291,10 @@ li.comment {
 
     .pi .updated {
         padding-top: 0px;
+		padding-left: 5px;
         margin-bottom: 0px;
-        font-size:14px;
-        text-align:center;
+        font-size:16px;
+		float: left;
     }
     
     .pi .obs-group { 
@@ -2307,6 +2312,7 @@ li.comment {
     }
     
     .pi .current-obs-text {
+		font-size: 25px;
         text-align:center;
     }
     
@@ -2332,16 +2338,25 @@ li.comment {
     }
     
     .pi .tempstats {
-        font-size:16px;
+        /*font-size:16px;
+        line-height:20px;*/
+        font-size:18px;
         line-height:20px;
         margin-top:10px;
     }
     
     .pi .feelslike { 
-        font-size:16px;
+        font-size:18px;
         text-align:center;
-        padding-bottom: 6px;
+        padding-bottom: 0px;
     }
+	
+	.pi .highlow { 
+        /*display:inline;*/
+		text-align: center;
+		padding-bottom: 6px;
+		/*margin: 0 auto;*/
+	}
      
     .pi .wind_col { 
         text-align: center; 
@@ -2386,8 +2401,9 @@ li.comment {
     }
    
     .pi .station-observations {
+		font-size: 18px;
         line-height: 20px;
-		margin-top: 15px;
+		margin-top: 25px;
 	}
     
     .pi .small-almanac {
@@ -2395,17 +2411,28 @@ li.comment {
         line-height: 20px;
         padding: 5px 0px 0px 0px;
     }
+	
+	.pi .maxgustouter {
+		font-size: 18px;
+		margin: 5px;
+	}	
+
+	.pi .sunrise-set-image {
+		width:24px;
+		margin-right:6px;
+	}
     
     .pi .moon-container {
+		font-size: 16px;
         margin-top: 5px;
         line-height: 18px;
     }
-    
+   
     .pi .moon, .pi .sun {
         float: none;
         text-align: center;
     }
-    
+	
     .pi .forecastrow .col-lg-12 {
         padding: 0;
     }

@@ -592,9 +592,13 @@
         #end if
     </script>
 
-    
-<div class="site-inner">
-    <div class="content-sidebar-wrap">
+## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which sets the font-style to bold
+ #if $Extras.pi_kiosk_bold == "true"  
+		<div class="site-inner-bold site-inner">
+ #else
+		<div class="site-inner">
+ #end if
+	<div class="content-sidebar-wrap">
 	
 	<article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
 		
@@ -627,7 +631,15 @@
                 
                     <div class="tempstats">
                         <div class="feelslike"></div><!-- AJAX -->
-                        High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span> <!-- AJAX -->
+						<div class="highlow">
+##							<table>
+##								<tbody>
+##									<tr>
+										High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
+##									</tr>
+##								</tbody>
+##							</table>                            
+						</div><!-- AJAX -->
                     </div>
                     
                     <div class="station-observations weather-obs-top">
@@ -667,7 +679,7 @@
                                         </span>
 									</td>
 								</tr>
-                                #if $day.UV.has_data
+                            #if $day.UV.has_data
                                 <tr>
                                     <td>UV</td>
                                     <td>
@@ -676,7 +688,7 @@
                                         </span>
                                     </td>
                                 </tr>
-                                #end if
+                            #end if
                             </tbody>
                         </table>
                     </div>	
@@ -781,3 +793,7 @@
 
     </div>
 </div>
+
+<!-- close div and body tags from pi-header.html.tmpl -->
+</div>
+</body>
