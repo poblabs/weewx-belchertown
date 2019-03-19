@@ -914,7 +914,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         group_2_data.append( windData[0] )
                     elif windData[1] >= 3.4 and windData[1] <= 5.5:
                         group_3_data.append( windData[0] )
-                    elif windData[1] >= 5.5 and windData[1] <= 7.9:
+                    elif windData[1] >= 5.6 and windData[1] <= 7.9:
                         group_4_data.append( windData[0] )
                     elif windData[1] >= 8 and windData[1] <= 10.7:
                         group_5_data.append( windData[0] )
@@ -970,47 +970,68 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 group_5_speedRange = "17-21"
                 group_6_speedRange = "22+"
             
-            group_0_label = "%s %s" % (group_0_speedRange, windSpeedUnitLabel)
-            group_1_label = "%s %s" % (group_1_speedRange, windSpeedUnitLabel)
-            group_2_label = "%s %s" % (group_2_speedRange, windSpeedUnitLabel)
-            group_3_label = "%s %s" % (group_3_speedRange, windSpeedUnitLabel)
-            group_4_label = "%s %s" % (group_4_speedRange, windSpeedUnitLabel)
-            group_5_label = "%s %s" % (group_5_speedRange, windSpeedUnitLabel)
-            group_6_label = "%s %s" % (group_6_speedRange, windSpeedUnitLabel)
+            group_0_name = "%s %s" % (group_0_speedRange, windSpeedUnitLabel)
+            group_1_name = "%s %s" % (group_1_speedRange, windSpeedUnitLabel)
+            group_2_name = "%s %s" % (group_2_speedRange, windSpeedUnitLabel)
+            group_3_name = "%s %s" % (group_3_speedRange, windSpeedUnitLabel)
+            group_4_name = "%s %s" % (group_4_speedRange, windSpeedUnitLabel)
+            group_5_name = "%s %s" % (group_5_speedRange, windSpeedUnitLabel)
+            group_6_name = "%s %s" % (group_6_speedRange, windSpeedUnitLabel)
             
-            group_0 = { "name": group_0_label,            
+            group_0 = { "name": group_0_name,            
                         "type": "column",
                         "_colorIndex": 0,
+                        "zIndex": 106, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_0_data)
                       }
-            group_1 = { "name": group_1_label,            
+            group_1 = { "name": group_1_name,            
                         "type": "column",
                         "_colorIndex": 1,
+                        "zIndex": 105, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_1_data)
                       }
-            group_2 = { "name": group_2_label,            
+            group_2 = { "name": group_2_name,            
                         "type": "column",
                         "_colorIndex": 2,
+                        "zIndex": 104,
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_2_data)
                       }
-            group_3 = { "name": group_3_label,            
+            group_3 = { "name": group_3_name,            
                         "type": "column",
                         "_colorIndex": 3,
+                        "zIndex": 103, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_3_data)
                       }
-            group_4 = { "name": group_4_label,            
+            group_4 = { "name": group_4_name,            
                         "type": "column",
                         "_colorIndex": 4,
+                        "zIndex": 102, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_4_data)
                       }
-            group_5 = { "name": group_5_label,            
+            group_5 = { "name": group_5_name,            
                         "type": "column",
                         "_colorIndex": 5,
+                        "zIndex": 101, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_5_data)
                       }
-            group_6 = { "name": group_6_label,            
+            group_6 = { "name": group_6_name,            
                         "type": "column",
                         "_colorIndex": 6,
+                        "zIndex": 100, 
+                        "stacking": "normal", 
+                        "fillOpacity": 0.75, 
                         "data": sorted(group_6_data)
                       }
             

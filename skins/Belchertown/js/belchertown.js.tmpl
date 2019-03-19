@@ -906,11 +906,13 @@ function showChart(json_file, gapsize) {
                 var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
                 options.chart.type = "column";
                 options.chart.polar = true;
+                options.chart.alignTicks = false;
                 options.pane = { size: '80%' }
                 // Reset xAxis and rebuild
                 options.xAxis = {}
                 options.xAxis.min = 0;
                 options.xAxis.max = 16;
+                options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
                 options.legend.align = "right";
@@ -930,6 +932,8 @@ function showChart(json_file, gapsize) {
                                             pointPlacement: 'on',
                                         }
                                     }
+                options.tooltip = {}
+                options.tooltip.shared = true;
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
