@@ -592,7 +592,7 @@
         #end if
     </script>
 
-## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which sets the font-style to bold
+## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which will set the font-style to bold
  #if $Extras.pi_kiosk_bold == "true"  
 		<div class="site-inner-bold site-inner">
  #else
@@ -632,13 +632,7 @@
                     <div class="tempstats">
                         <div class="feelslike"></div><!-- AJAX -->
 						<div class="highlow">
-##							<table>
-##								<tbody>
-##									<tr>
-										High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
-##									</tr>
-##								</tbody>
-##							</table>                            
+							High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
 						</div><!-- AJAX -->
                     </div>
                     
