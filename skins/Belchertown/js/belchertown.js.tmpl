@@ -901,7 +901,47 @@ function showChart(json_file, gapsize) {
                 
             });
             
-            // Finally show the chart
+            // If windRose is present, configure a special chart to show that data
+            if (observation_type == "windRose") {
+                var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+                options.chart.type = "column";
+                options.chart.polar = true;
+                options.pane = { size: '80%' }
+                // Reset xAxis and rebuild
+                options.xAxis = {}
+                options.xAxis.min = 0;
+                options.xAxis.max = 16;
+                options.xAxis.categories = categories;
+                options.xAxis.tickmarkPlacement = 'on';
+                options.legend.align = "right";
+                options.legend.verticalAlign = "top";
+                options.legend.y = 100;
+                options.legend.layout = "vertical";
+                options.yAxis[0].min = 0;
+                options.yAxis[0].endOnTick = false;
+                options.yAxis[0].reversedStacks = false;
+                options.yAxis[0].title.text = "";
+                options.yAxis[0].gridLineWidth = 0;
+                options.yAxis[0].visible = false;
+                options.plotOptions = { column: {
+                                            stacking: 'normal',
+                                            shadow: false,
+                                            groupPadding: 0,
+                                            pointPlacement: 'on',
+                                        }
+                                    }
+                
+                // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
+                // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
+                // and reapply the windrose data back to the series.
+                var newSeries = options.series[0].data;
+                options.series = [];
+                newSeries.forEach( ns => {
+                    options.series.push(ns);
+                });
+            }
+            
+            // Finally all options are done, now show the chart
             var chart = new Highcharts.chart(options);
 
         });

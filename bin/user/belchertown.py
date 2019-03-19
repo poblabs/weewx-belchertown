@@ -698,7 +698,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         """Main entry point for file generation."""
         
         self.chart_dict = self.skin_dict['Charts']
-        self.converter = weewx.units.Converter.fromSkinDict(self.chart_dict)
+        self.converter = weewx.units.Converter.fromSkinDict(self.skin_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
         self.db_lookup = self.db_binder.bind_default()
         binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
@@ -834,6 +834,197 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
+        if observation == "windRose":
+            # Special Belchertown wind rose with Highcharts aggregator
+            # Wind speeds are split into the first 7 beaufort groups. https://en.wikipedia.org/wiki/Beaufort_scale
+            
+            # TODO: Force no aggregate_type ?
+            #if aggregate_type:
+            #    aggregate_type = "sum"
+            
+            # Get windDir observations.
+            obs_lookup = "windDir"
+            (time_start_vt, time_stop_vt, windDir_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
+            #windDir_vt = self.converter.convert(windDir_vt)
+            #usageRound = int(self.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "0f")[-2])
+            usageRound = 0 # Force round to 0 decimal
+            windDirRound_vt = [self._roundNone(x, usageRound) for x in windDir_vt[0]]
+
+            # Get windSpeed observations.
+            obs_lookup = "windSpeed"
+            (time_start_vt, time_stop_vt, windSpeed_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
+            windSpeed_vt = self.converter.convert(windSpeed_vt)
+            usageRound = int(self.skin_dict['Units']['StringFormats'].get(windSpeed_vt[2], "2f")[-2])
+            windSpeedRound_vt = [self._roundNone(x, usageRound) for x in windSpeed_vt[0]]
+            
+            # Get the unit label from the skin dict for speed. 
+            windSpeedUnit = windSpeed_vt[1]
+            windSpeedUnitLabel = self.skin_dict["Units"]["Labels"][windSpeedUnit]
+
+            # Merge the two outputs so we have a consistent data set to filter on
+            merged = zip(windDirRound_vt, windSpeedRound_vt)
+            
+            # Group the wind directions
+            group_0_data = []
+            group_1_data = []
+            group_2_data = []
+            group_3_data = []
+            group_4_data = []
+            group_5_data = []
+            group_6_data = []
+            
+            # Sort by wind speed and place the wind direction into the correct group
+            for windData in merged:
+                if windSpeedUnit == "mile_per_hour" or windSpeedUnit == "mile_per_hour2":
+                    if windData[1] < 1:
+                        group_0_data.append( windData[0] )
+                    elif windData[1] >= 1 and windData[1] <= 3:
+                        group_1_data.append( windData[0] )
+                    elif windData[1] >= 4 and windData[1] <= 7:
+                        group_2_data.append( windData[0] )
+                    elif windData[1] >= 8 and windData[1] <= 12:
+                        group_3_data.append( windData[0] )
+                    elif windData[1] >= 13 and windData[1] <= 18:
+                        group_4_data.append( windData[0] )
+                    elif windData[1] >= 19 and windData[1] <= 24:
+                        group_5_data.append( windData[0] )
+                    elif windData[1] >= 25:
+                        group_6_data.append( windData[0] )
+                elif windSpeedUnit == "km_per_hour" or windSpeedUnit == "km_per_hour2":
+                    if windData[1] < 2:
+                        group_0_data.append( windData[0] )
+                    elif windData[1] >= 2 and windData[1] <= 5:
+                        group_1_data.append( windData[0] )
+                    elif windData[1] >= 6 and windData[1] <= 11:
+                        group_2_data.append( windData[0] )
+                    elif windData[1] >= 12 and windData[1] <= 19:
+                        group_3_data.append( windData[0] )
+                    elif windData[1] >= 20 and windData[1] <= 28:
+                        group_4_data.append( windData[0] )
+                    elif windData[1] >= 29 and windData[1] <= 38:
+                        group_5_data.append( windData[0] )
+                    elif windData[1] >= 39:
+                        group_6_data.append( windData[0] )
+                elif windSpeedUnit == "meter_per_second" or windSpeedUnit == "meter_per_second2":
+                    if windData[1] < 0.5:
+                        group_0_data.append( windData[0] )
+                    elif windData[1] >= 0.5 and windData[1] <= 1.5:
+                        group_1_data.append( windData[0] )
+                    elif windData[1] >= 1.6 and windData[1] <= 3.3:
+                        group_2_data.append( windData[0] )
+                    elif windData[1] >= 3.4 and windData[1] <= 5.5:
+                        group_3_data.append( windData[0] )
+                    elif windData[1] >= 5.5 and windData[1] <= 7.9:
+                        group_4_data.append( windData[0] )
+                    elif windData[1] >= 8 and windData[1] <= 10.7:
+                        group_5_data.append( windData[0] )
+                    elif windData[1] >= 10.8:
+                        group_6_data.append( windData[0] )
+                elif windSpeedUnit == "knot" or windSpeedUnit == "knot2":
+                    if windData[1] < 1:
+                        group_0_data.append( windData[0] )
+                    elif windData[1] >= 1 and windData[1] <= 3:
+                        group_1_data.append( windData[0] )
+                    elif windData[1] >= 4 and windData[1] <= 6:
+                        group_2_data.append( windData[0] )
+                    elif windData[1] >= 7 and windData[1] <= 10:
+                        group_3_data.append( windData[0] )
+                    elif windData[1] >= 11 and windData[1] <= 16:
+                        group_4_data.append( windData[0] )
+                    elif windData[1] >= 17 and windData[1] <= 21:
+                        group_5_data.append( windData[0] )
+                    elif windData[1] >= 22:
+                        group_6_data.append( windData[0] )
+                
+            # Setup the labels based on unit
+            if windSpeedUnit == "mile_per_hour" or windSpeedUnit == "mile_per_hour2":
+                group_0_speedRange = "< 1"
+                group_1_speedRange = "1-3"
+                group_2_speedRange = "4-7"
+                group_3_speedRange = "8-12"
+                group_4_speedRange = "13-18"
+                group_5_speedRange = "19-24"
+                group_6_speedRange = "25+"
+            elif windSpeedUnit == "km_per_hour" or windSpeedUnit == "km_per_hour2":
+                group_0_speedRange = "< 2"
+                group_1_speedRange = "2-5"
+                group_2_speedRange = "6-11"
+                group_3_speedRange = "12-19"
+                group_4_speedRange = "20-28"
+                group_5_speedRange = "29-38"
+                group_6_speedRange = "39+"
+            elif windSpeedUnit == "meter_per_second" or windSpeedUnit == "meter_per_second2":
+                group_0_speedRange = "< 0.5"
+                group_1_speedRange = "0.5-1.5"
+                group_2_speedRange = "1.6-3.3"
+                group_3_speedRange = "3.4-5.5"
+                group_4_speedRange = "5.5-7.9"
+                group_5_speedRange = "8-10.7"
+                group_6_speedRange = "10.8+"
+            elif windSpeedUnit == "knot" or windSpeedUnit == "knot2":
+                group_0_speedRange = "< 1"
+                group_1_speedRange = "1-3"
+                group_2_speedRange = "4-6"
+                group_3_speedRange = "7-10"
+                group_4_speedRange = "11-16"
+                group_5_speedRange = "17-21"
+                group_6_speedRange = "22+"
+            
+            group_0_label = "%s %s" % (group_0_speedRange, windSpeedUnitLabel)
+            group_1_label = "%s %s" % (group_1_speedRange, windSpeedUnitLabel)
+            group_2_label = "%s %s" % (group_2_speedRange, windSpeedUnitLabel)
+            group_3_label = "%s %s" % (group_3_speedRange, windSpeedUnitLabel)
+            group_4_label = "%s %s" % (group_4_speedRange, windSpeedUnitLabel)
+            group_5_label = "%s %s" % (group_5_speedRange, windSpeedUnitLabel)
+            group_6_label = "%s %s" % (group_6_speedRange, windSpeedUnitLabel)
+            
+            group_0 = { "name": group_0_label,            
+                        "type": "column",
+                        "_colorIndex": 0,
+                        "data": sorted(group_0_data)
+                      }
+            group_1 = { "name": group_1_label,            
+                        "type": "column",
+                        "_colorIndex": 1,
+                        "data": sorted(group_1_data)
+                      }
+            group_2 = { "name": group_2_label,            
+                        "type": "column",
+                        "_colorIndex": 2,
+                        "data": sorted(group_2_data)
+                      }
+            group_3 = { "name": group_3_label,            
+                        "type": "column",
+                        "_colorIndex": 3,
+                        "data": sorted(group_3_data)
+                      }
+            group_4 = { "name": group_4_label,            
+                        "type": "column",
+                        "_colorIndex": 4,
+                        "data": sorted(group_4_data)
+                      }
+            group_5 = { "name": group_5_label,            
+                        "type": "column",
+                        "_colorIndex": 5,
+                        "data": sorted(group_5_data)
+                      }
+            group_6 = { "name": group_6_label,            
+                        "type": "column",
+                        "_colorIndex": 6,
+                        "data": sorted(group_6_data)
+                      }
+            
+            # Append everything into a list and return right away, do not process rest of function
+            series = []
+            series.append(group_0)
+            series.append(group_1)
+            series.append(group_2)
+            series.append(group_3)
+            series.append(group_4)
+            series.append(group_5)
+            series.append(group_6)
+            return series
+        
         # Special Belchertown Skin rain counter
         if observation == "rainTotal":
             obs_lookup = "rain"
@@ -847,7 +1038,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_type = "max"
         else:
             obs_lookup = observation
-                
+        
+        # Begin standard observation lookups
         (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
         obs_vt = self.converter.convert(obs_vt)
                 
@@ -892,4 +1084,3 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception, e:
                 value = None
         return value
-
