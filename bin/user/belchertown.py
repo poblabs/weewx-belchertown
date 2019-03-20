@@ -984,7 +984,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 106, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_0_data)
+                        "data": group_0_data
                       }
             group_1 = { "name": group_1_name,            
                         "type": "column",
@@ -992,7 +992,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 105, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_1_data)
+                        "data": group_1_data
                       }
             group_2 = { "name": group_2_name,            
                         "type": "column",
@@ -1000,7 +1000,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 104,
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_2_data)
+                        "data": group_2_data
                       }
             group_3 = { "name": group_3_name,            
                         "type": "column",
@@ -1008,7 +1008,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 103, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_3_data)
+                        "data": group_3_data
                       }
             group_4 = { "name": group_4_name,            
                         "type": "column",
@@ -1016,7 +1016,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 102, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_4_data)
+                        "data": group_4_data
                       }
             group_5 = { "name": group_5_name,            
                         "type": "column",
@@ -1024,7 +1024,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 101, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_5_data)
+                        "data": group_5_data
                       }
             group_6 = { "name": group_6_name,            
                         "type": "column",
@@ -1032,7 +1032,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 100, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": sorted(group_6_data)
+                        "data": group_6_data
                       }
             
             # Append everything into a list and return right away, do not process rest of function
