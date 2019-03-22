@@ -808,7 +808,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     # Override any highcharts series configs with standardized data, then generate the data output
                     output[chart_group][plotname]["series"][line_name]["name"] = name
 
-                    # yAxis customizations. Place into series for custom JavaScript. Highcharts will ignore these by default
+                    # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
                     output[chart_group][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
                     output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
                                     
@@ -819,7 +819,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     yaxis_max = plot_options.get('yaxis_max', None)
                     if yaxis_max:
                         output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
-                    
+                        
                     # Build series data
                     output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
             
@@ -839,8 +839,11 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             # Wind speeds are split into the first 7 beaufort groups. https://en.wikipedia.org/wiki/Beaufort_scale
             
             # TODO: Force no aggregate_type ?
-            #if aggregate_type:
-            #    aggregate_type = "sum"
+            if aggregate_type:
+                aggregate_type = None
+                
+            if aggregate_interval:
+                aggregate_interval = None
             
             # Get windDir observations.
             obs_lookup = "windDir"
@@ -849,6 +852,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             #usageRound = int(self.skin_dict['Units']['StringFormats'].get(windDir_vt[2], "0f")[-2])
             usageRound = 0 # Force round to 0 decimal
             windDirRound_vt = [self._roundNone(x, usageRound) for x in windDir_vt[0]]
+            #windDirRound_vt = [0.0 if v is None else v for v in windDirRound_vt]
 
             # Get windSpeed observations.
             obs_lookup = "windSpeed"
@@ -864,78 +868,107 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             # Merge the two outputs so we have a consistent data set to filter on
             merged = zip(windDirRound_vt, windSpeedRound_vt)
             
-            # Group the wind directions
-            group_0_data = []
-            group_1_data = []
-            group_2_data = []
-            group_3_data = []
-            group_4_data = []
-            group_5_data = []
-            group_6_data = []
-            
-            # Sort by wind speed and place the wind direction into the correct group
+            # Sort by beaufort wind speeds
+            group_0_windDir, group_0_windSpeed, group_1_windDir, group_1_windSpeed, group_2_windDir, group_2_windSpeed, group_3_windDir, group_3_windSpeed, group_4_windDir, group_4_windSpeed, group_5_windDir, group_5_windSpeed, group_6_windDir, group_6_windSpeed = ([] for i in range(14))
             for windData in merged:
                 if windSpeedUnit == "mile_per_hour" or windSpeedUnit == "mile_per_hour2":
                     if windData[1] < 1:
-                        group_0_data.append( windData[0] )
+                        group_0_windDir.append( windData[0] )
+                        group_0_windSpeed.append( windData[1] )
                     elif windData[1] >= 1 and windData[1] <= 3:
-                        group_1_data.append( windData[0] )
+                        group_1_windDir.append( windData[0] )
+                        group_1_windSpeed.append( windData[1] )
                     elif windData[1] >= 4 and windData[1] <= 7:
-                        group_2_data.append( windData[0] )
+                        group_2_windDir.append( windData[0] )
+                        group_2_windSpeed.append( windData[1] )
                     elif windData[1] >= 8 and windData[1] <= 12:
-                        group_3_data.append( windData[0] )
+                        group_3_windDir.append( windData[0] )
+                        group_3_windSpeed.append( windData[1] )
                     elif windData[1] >= 13 and windData[1] <= 18:
-                        group_4_data.append( windData[0] )
+                        group_4_windDir.append( windData[0] )
+                        group_4_windSpeed.append( windData[1] )
                     elif windData[1] >= 19 and windData[1] <= 24:
-                        group_5_data.append( windData[0] )
+                        group_5_windDir.append( windData[0] )
+                        group_5_windSpeed.append( windData[1] )
                     elif windData[1] >= 25:
-                        group_6_data.append( windData[0] )
+                        group_6_windDir.append( windData[0] )
+                        group_6_windSpeed.append( windData[1] )
                 elif windSpeedUnit == "km_per_hour" or windSpeedUnit == "km_per_hour2":
                     if windData[1] < 2:
-                        group_0_data.append( windData[0] )
+                        group_0_windDir.append( windData[0] )
+                        group_0_windSpeed.append( windData[1] )
                     elif windData[1] >= 2 and windData[1] <= 5:
-                        group_1_data.append( windData[0] )
+                        group_1_windDir.append( windData[0] )
+                        group_1_windSpeed.append( windData[1] )
                     elif windData[1] >= 6 and windData[1] <= 11:
-                        group_2_data.append( windData[0] )
+                        group_2_windDir.append( windData[0] )
+                        group_2_windSpeed.append( windData[1] )
                     elif windData[1] >= 12 and windData[1] <= 19:
-                        group_3_data.append( windData[0] )
+                        group_3_windDir.append( windData[0] )
+                        group_3_windSpeed.append( windData[1] )
                     elif windData[1] >= 20 and windData[1] <= 28:
-                        group_4_data.append( windData[0] )
+                        group_4_windDir.append( windData[0] )
+                        group_4_windSpeed.append( windData[1] )
                     elif windData[1] >= 29 and windData[1] <= 38:
-                        group_5_data.append( windData[0] )
+                        group_5_windDir.append( windData[0] )
+                        group_5_windSpeed.append( windData[1] )
                     elif windData[1] >= 39:
-                        group_6_data.append( windData[0] )
+                        group_6_windDir.append( windData[0] )
+                        group_6_windSpeed.append( windData[1] )
                 elif windSpeedUnit == "meter_per_second" or windSpeedUnit == "meter_per_second2":
                     if windData[1] < 0.5:
-                        group_0_data.append( windData[0] )
+                        group_0_windDir.append( windData[0] )
+                        group_0_windSpeed.append( windData[1] )
                     elif windData[1] >= 0.5 and windData[1] <= 1.5:
-                        group_1_data.append( windData[0] )
+                        group_1_windDir.append( windData[0] )
+                        group_1_windSpeed.append( windData[1] )
                     elif windData[1] >= 1.6 and windData[1] <= 3.3:
-                        group_2_data.append( windData[0] )
+                        group_2_windDir.append( windData[0] )
+                        group_2_windSpeed.append( windData[1] )
                     elif windData[1] >= 3.4 and windData[1] <= 5.5:
-                        group_3_data.append( windData[0] )
+                        group_3_windDir.append( windData[0] )
+                        group_3_windSpeed.append( windData[1] )
                     elif windData[1] >= 5.6 and windData[1] <= 7.9:
-                        group_4_data.append( windData[0] )
+                        group_4_windDir.append( windData[0] )
+                        group_4_windSpeed.append( windData[1] )
                     elif windData[1] >= 8 and windData[1] <= 10.7:
-                        group_5_data.append( windData[0] )
+                        group_5_windDir.append( windData[0] )
+                        group_5_windSpeed.append( windData[1] )
                     elif windData[1] >= 10.8:
-                        group_6_data.append( windData[0] )
+                        group_6_windDir.append( windData[0] )
+                        group_6_windSpeed.append( windData[1] )
                 elif windSpeedUnit == "knot" or windSpeedUnit == "knot2":
                     if windData[1] < 1:
-                        group_0_data.append( windData[0] )
+                        group_0_windDir.append( windData[0] )
+                        group_0_windSpeed.append( windData[1] )
                     elif windData[1] >= 1 and windData[1] <= 3:
-                        group_1_data.append( windData[0] )
+                        group_1_windDir.append( windData[0] )
+                        group_1_windSpeed.append( windData[1] )
                     elif windData[1] >= 4 and windData[1] <= 6:
-                        group_2_data.append( windData[0] )
+                        group_2_windDir.append( windData[0] )
+                        group_2_windSpeed.append( windData[1] )
                     elif windData[1] >= 7 and windData[1] <= 10:
-                        group_3_data.append( windData[0] )
+                        group_3_windDir.append( windData[0] )
+                        group_3_windSpeed.append( windData[1] )
                     elif windData[1] >= 11 and windData[1] <= 16:
-                        group_4_data.append( windData[0] )
+                        group_4_windDir.append( windData[0] )
+                        group_4_windSpeed.append( windData[1] )
                     elif windData[1] >= 17 and windData[1] <= 21:
-                        group_5_data.append( windData[0] )
+                        group_5_windDir.append( windData[0] )
+                        group_5_windSpeed.append( windData[1] )
                     elif windData[1] >= 22:
-                        group_6_data.append( windData[0] )
-                
+                        group_6_windDir.append( windData[0] )
+                        group_6_windSpeed.append( windData[1] )
+
+            # Get the windRose data
+            group_0_series_data = self._create_windRose_data( group_0_windDir, group_0_windSpeed )
+            group_1_series_data = self._create_windRose_data( group_1_windDir, group_1_windSpeed )
+            group_2_series_data = self._create_windRose_data( group_2_windDir, group_2_windSpeed )
+            group_3_series_data = self._create_windRose_data( group_3_windDir, group_3_windSpeed )
+            group_4_series_data = self._create_windRose_data( group_4_windDir, group_4_windSpeed )
+            group_5_series_data = self._create_windRose_data( group_5_windDir, group_5_windSpeed )
+            group_6_series_data = self._create_windRose_data( group_6_windDir, group_6_windSpeed )
+            
             # Setup the labels based on unit
             if windSpeedUnit == "mile_per_hour" or windSpeedUnit == "mile_per_hour2":
                 group_0_speedRange = "< 1"
@@ -977,14 +1010,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             group_4_name = "%s %s" % (group_4_speedRange, windSpeedUnitLabel)
             group_5_name = "%s %s" % (group_5_speedRange, windSpeedUnitLabel)
             group_6_name = "%s %s" % (group_6_speedRange, windSpeedUnitLabel)
-            
+                                        
             group_0 = { "name": group_0_name,            
                         "type": "column",
                         "_colorIndex": 0,
                         "zIndex": 106, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_0_data
+                        "data": group_0_series_data
                       }
             group_1 = { "name": group_1_name,            
                         "type": "column",
@@ -992,7 +1025,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 105, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_1_data
+                        "data": group_1_series_data
                       }
             group_2 = { "name": group_2_name,            
                         "type": "column",
@@ -1000,7 +1033,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 104,
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_2_data
+                        "data": group_2_series_data
                       }
             group_3 = { "name": group_3_name,            
                         "type": "column",
@@ -1008,7 +1041,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 103, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_3_data
+                        "data": group_3_series_data
                       }
             group_4 = { "name": group_4_name,            
                         "type": "column",
@@ -1016,7 +1049,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 102, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_4_data
+                        "data": group_4_series_data
                       }
             group_5 = { "name": group_5_name,            
                         "type": "column",
@@ -1024,7 +1057,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 101, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_5_data
+                        "data": group_5_series_data
                       }
             group_6 = { "name": group_6_name,            
                         "type": "column",
@@ -1032,7 +1065,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         "zIndex": 100, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
-                        "data": group_6_data
+                        "data": group_6_series_data
                       }
             
             # Append everything into a list and return right away, do not process rest of function
@@ -1105,3 +1138,63 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception, e:
                 value = None
         return value
+
+    def _create_windRose_data(self, windDirList, windSpeedList):
+        # List comprehension borrowed from weewx-wd extension
+        # Create windroseList container and initialise to all 0s
+        windroseList=[0.0 for x in range(16)]
+        
+        # Step through each windDir and add corresponding windSpeed to windroseList
+        x = 0
+        while x < len(windDirList):
+            # Only want to add windSpeed if both windSpeed and windDir have a value
+            if windSpeedList[x] != None and windDirList[x] != None:
+                # Add the windSpeed value to the corresponding element of our windrose list
+                windroseList[int((windDirList[x]+11.25)/22.5)%16] += windSpeedList[x]
+            x += 1
+            
+        # Step through our windrose list and round all elements to 1 decimal place
+        y = 0
+        while y < len(windroseList):
+            windroseList[y] = round(windroseList[y],1)
+            y += 1
+        # Need to return a string of the list elements comma separated, no spaces and bounded by [ and ]
+        #windroseData = '[' + ','.join(str(z) for z in windroseList) + ']'
+        return windroseList
+
+    def _get_cardinal_direction(self, degree):
+        if (degree >= 0 and degree <= 11.25):
+            return "N"
+        elif (degree >= 11.26 and degree <= 33.75):
+            return "NNE"
+        elif (degree >= 33.76 and degree <= 56.25):
+            return "NE"
+        elif (degree >= 56.26 and degree <= 78.75):
+            return "ENE"
+        elif (degree >= 78.76 and degree <= 101.25):
+            return "E"
+        elif (degree >= 101.26 and degree <= 123.75):
+            return "ESE"
+        elif (degree >= 123.76 and degree <= 146.25):
+            return "SE"
+        elif (degree >= 146.26 and degree <= 168.75):
+            return "SSE"
+        elif (degree >= 168.76 and degree <= 191.25):
+            return "S"
+        elif (degree >= 191.26 and degree <= 213.75):
+            return "SSW"
+        elif (degree >= 213.76 and degree <= 236.25):
+            return "SW"
+        elif (degree >= 236.26 and degree <= 258.75):
+            return "WSW"
+        elif (degree >= 258.76 and degree <= 281.25):
+            return "W"
+        elif (degree >= 281.26 and degree <= 303.75):
+            return "WNW"
+        elif (degree >= 303.76 and degree <= 326.25):
+            return "NW"
+        elif (degree >= 326.26 and degree <= 348.75):
+            return "NNW"
+        elif (degree >= 348.76 and degree <= 360):
+            return "N"
+    
