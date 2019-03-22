@@ -750,7 +750,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 else:
                     # Rolling timespans using seconds
                     (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
-                                
+                
                 chart_title = plot_options.get("title", "")
                 output[chart_group][plotname]["options"]["title"] = chart_title
                 
@@ -1108,7 +1108,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     rain = 0.0
                 rain_count = rain_count + rain
                 rain_total.append( round( rain_count, 2 ) )
-                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+                time_ms = [float(x) * 1000 for x in time_start_vt[0]]
                 data = zip(time_ms, rain_total)
         elif observation == "rainRate":
             # Instead of using the _roundNone to round rainRate, we just return the rainRate untouched.
@@ -1125,7 +1125,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             else:
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
-            time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
+            time_ms = [float(x) * 1000 for x in time_start_vt[0]]
             data = zip(time_ms, obsRound_vt)
         
         return data
