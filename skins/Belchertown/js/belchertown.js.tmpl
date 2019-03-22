@@ -127,7 +127,7 @@ function get_cardinal_direction(degree, point_obsType) {
         } else if (degree >= 348.76 && degree <= 360) {
             output = "N";
         }
-        return output + " ("+ degree + "\xBA)";
+        return output + " ("+ Math.round(degree) + "\xBA)";
     } else {
         return degree;
     }
