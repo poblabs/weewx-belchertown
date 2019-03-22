@@ -767,10 +767,23 @@ function showChart(json_file, gapsize) {
                         },
                     },
                     scatter: {
+                        gapSize: gapsize,
+                        gapUnit: 'value',
                         marker: {
                             radius: 2
                         },
                     }
+                },
+                
+                // Highstock is needed for gapsize. Disable these 3 to make it look like standard Highcharts
+                scrollbar: {
+                    enabled: false
+                },
+                navigator: {
+                    enabled: false
+                },
+                rangeSelector: {
+                    enabled: false
                 },
 
                 tooltip: {
@@ -938,6 +951,7 @@ function showChart(json_file, gapsize) {
                                             pointPlacement: 'on',
                                         }
                                     }
+                // Reset the tooltip
                 options.tooltip = {}
                 options.tooltip.shared = true;
                 
