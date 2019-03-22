@@ -800,13 +800,13 @@ function showChart(json_file, gapsize) {
                                         return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format )].concat(
                                             this.points.map(function (point) {
                                                 var point_obsType = point.series.userOptions.obsType;
-                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + get_cardinal_direction( Highcharts.numberFormat(point.y), point_obsType );
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + get_cardinal_direction( point.y, point_obsType );
                                             })
                                         );
                                     } catch(e) {
                                         // There's an error so check if it's windDir to apply wind direction label, or if it's a scatter. If none of those revert back to default tooltip.
                                         if (this.series.userOptions.obsType == "windDir") {
-                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + get_cardinal_direction( Highcharts.numberFormat(this.point.y, 0) ) + ' (' + Highcharts.numberFormat(this.point.y, 0) + '\xBA)';
+                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + get_cardinal_direction( this.point.y ) + ' (' + Highcharts.numberFormat(this.point.y, 0) + '\xBA)';
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
