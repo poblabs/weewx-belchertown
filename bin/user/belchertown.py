@@ -1110,13 +1110,6 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 rain_total.append( round( rain_count, 2 ) )
                 time_ms = [float(x) * 1000 for x in time_start_vt[0]]
                 data = zip(time_ms, rain_total)
-        elif observation == "rainRate":
-            # Instead of using the _roundNone to round rainRate, we just return the rainRate untouched.
-            rainrate_holder = []
-            for rainRate in obs_vt[0]:
-                rainrate_holder.append( rainRate )
-                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
-                data = zip(time_ms, rainrate_holder)
         else:        
             # Send all other observations through the usual process, except Barometer for finer detail
             if observation == "barometer":
