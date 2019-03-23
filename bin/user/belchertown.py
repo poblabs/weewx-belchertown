@@ -969,6 +969,37 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             group_5_series_data = self._create_windRose_data( group_5_windDir, group_5_windSpeed )
             group_6_series_data = self._create_windRose_data( group_6_windDir, group_6_windSpeed )
             
+            # Group all together to get wind frequency percentages
+            wind_sum = sum(group_0_series_data + group_1_series_data + group_2_series_data + group_3_series_data + group_4_series_data + group_5_series_data + group_6_series_data)
+            y = 0
+            while y < len(group_0_series_data):
+                group_0_series_data[y] = round(group_0_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_1_series_data):
+                group_1_series_data[y] = round(group_1_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_2_series_data):
+                group_2_series_data[y] = round(group_2_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_3_series_data):
+                group_3_series_data[y] = round(group_3_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_4_series_data):
+                group_4_series_data[y] = round(group_4_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_5_series_data):
+                group_5_series_data[y] = round(group_5_series_data[y] / wind_sum * 100)
+                y += 1
+            y = 0
+            while y < len(group_6_series_data):
+                group_6_series_data[y] = round(group_6_series_data[y] / wind_sum * 100)
+                y += 1
+            
             # Setup the labels based on unit
             if windSpeedUnit == "mile_per_hour" or windSpeedUnit == "mile_per_hour2":
                 group_0_speedRange = "< 1"
