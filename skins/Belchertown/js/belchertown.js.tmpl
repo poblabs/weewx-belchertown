@@ -566,11 +566,11 @@ function update_current_wx(data) {
     
     // Barometer US
     if ( data.hasOwnProperty("barometer_inHg") ) {
-        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
+        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false}) + " $unit.label.pressure" );
     }
     // Barometer Metric
     if ( data.hasOwnProperty("barometer_mbar") ) {
-        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
+        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false}) + " $unit.label.pressure" );
     }
     
     // Humidity
