@@ -37,7 +37,6 @@ from weeutil.config import search_up
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
 reload(sys)
 sys.setdefaultencoding("utf-8")
-locale.setlocale(locale.LC_ALL, "")
 
 def logmsg(level, msg):
     syslog.syslog(level, 'Belchertown Extension: %s' % msg)
