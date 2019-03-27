@@ -5,6 +5,7 @@
 * Add support for wind rose with Highcharts.
 * Added belchertown_debug to aid in debugging the skin's options
 * Added permalink to the graphs page. For example to link to your weekly graphs, use http://yoursite/graphs/?graph=week, for month, it's /?graph=month, for year is /?graph=year and for today you can link to the graphs page, or use /?graph=today
+* Added option reload_hook_images which when enabled will reload any images in the 4 custom content areas on the index page. Useful for webcam images. This option will only work if MQTT Websockets live updates are also enabled.
 
 0.9.1 March 9, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
