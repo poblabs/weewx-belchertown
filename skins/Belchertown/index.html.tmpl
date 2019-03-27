@@ -25,7 +25,6 @@
         ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
         #end if
         
-        
         jQuery(document).ready(function() {
             #if $unit.unit_type.outTemp == "degree_F"
             update_outtemp_F( "$current.outTemp.formatted" );
@@ -51,7 +50,7 @@
                 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                 ajaxforecast(); // Update forecast data
                 #end if
-                ajaxradar(); // Update radar "img src" if present
+                ajaximages(); // Update radar and home page hook "img src" if present
                 connect(); // Restart mqtt after weewx data's re-loaded
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                 daily(); // Update the daily highcharts
@@ -344,7 +343,7 @@
                         
                         #if os.path.exists("index_hook_after_station_info.inc")
                         <!-- Start of index_hook_after_station_info row -->
-                        <div class="row border-bottom">
+                        <div class="row index-hook-after-station-info border-bottom">
                             #include "index_hook_after_station_info.inc"
                         </div>
                         <!-- End of index_hook_after_station_info row -->
@@ -366,7 +365,7 @@
                         
                         #if os.path.exists("index_hook_after_forecast.inc")
                         <!-- Start of index_hook_after_forecast row -->
-                        <div class="row border-bottom">
+                        <div class="row index-hook-after-forecast border-bottom">
                             #include "index_hook_after_forecast.inc"
                         </div>
                         <!-- End of index_hook_after_forecast row -->
@@ -460,7 +459,7 @@
                         
                         #if os.path.exists("index_hook_after_snapshot.inc")
                         <!-- Start of index_hook_after_snapshot row -->
-                        <div class="row border-bottom">
+                        <div class="row index-hook-after-snapshot border-bottom">
                             #include "index_hook_after_snapshot.inc"
                         </div>
                         <!-- End of index_hook_after_snapshot row -->
@@ -487,7 +486,7 @@
                         
                         #if os.path.exists("index_hook_after_charts.inc")
                         <!-- Start of index_hook_after_charts row -->
-                        <div class="row border-top">
+                        <div class="row index-hook-after-charts border-top">
                             #include "index_hook_after_charts.inc"
                         </div>
                         <!-- End of index_hook_after_charts row -->

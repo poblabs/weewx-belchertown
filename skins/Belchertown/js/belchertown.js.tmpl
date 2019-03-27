@@ -375,18 +375,39 @@ function update_forecast_data( data ) {
 // Live website using MQTT Websockets enabled //
 //============================================//
 
-function ajaxradar() {
-    // This function only runs if the radar-map element has an img src.
+function ajaximages() {
+    // This function only runs if the elements have an img src.
     if ( document.querySelectorAll(".radar-map img").length > 0 ) {
         if (belchertown_debug > 0) {
             console.log("Updating radar image");
         }
-        var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-        jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
+        var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+        jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
     }
+    
+    #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
+    // Update images within the hook .inc files
+    jQuery('.index-hook-after-station-info img').each(function(){
+        new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+        jQuery(this).attr('src', new_image_url);
+    });
+    jQuery('.index-hook-after-forecast img').each(function(){
+        new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+        jQuery(this).attr('src', new_image_url);
+    });
+    jQuery('.index-hook-after-snapshot img').each(function(){
+        new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+        jQuery(this).attr('src', new_image_url);
+    });
+    jQuery('.index-hook-after-charts img').each(function(){
+        new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+        jQuery(this).attr('src', new_image_url);
+    });
+    #end if
+    
 }
 
-// mqtt connect
+// MQTT connect
 function connect() {
     if (belchertown_debug > 0) {
         console.log("Connecting to MQTT");
@@ -412,7 +433,7 @@ function connect() {
     client.connect( options );
 }
 
-// mqtt connect callback
+// MQTT connect callback
 function onConnect() {
     if (belchertown_debug > 0) {
         console.log("MQTT Connected. Subscribing.");
@@ -428,6 +449,7 @@ function onConnect() {
     #end if
 }
 
+// MQTT Failure
 function onFailure() {
     var d = new Date();
     jQuery(".onlineMarker").hide();
@@ -439,7 +461,7 @@ function onFailure() {
     console.log( updated + ": Cannot connect to MQTT broker" );
 }
 
-// mqtt connection lost
+// MQTT connection lost
 function onConnectionLost(responseObject) {
     var d = new Date();
     jQuery(".onlineMarker").hide();
@@ -453,7 +475,7 @@ function onConnectionLost(responseObject) {
     }
 }
 
-// new message from mqtt, process it
+// New message from mqtt, process it
 function onMessageArrived(message) {
     update_current_wx( message.payloadString );
 }
@@ -499,7 +521,7 @@ function update_current_wx(data) {
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
         #end if
-        setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
+        setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
     }
     
     // Temperature F
