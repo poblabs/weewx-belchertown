@@ -51,7 +51,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0rc4"
+VERSION = "1.0rc5"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -104,12 +104,25 @@ class getData(SearchList):
         archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
         
         # Build the chart array for the HTML
-        # Outputs a dict of nested lists which allow you to have different charts for different timespans on the site.
+        # Outputs a dict of nested lists which allow you to have different charts for different timespans on the site in different order with different names.
         # OrderedDict([('day', ['chart1', 'chart2', 'chart3', 'chart4']), 
-        # ('week', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6']),
-        # ('month', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart6', 'chart7']), 
+        # ('week', ['chart1', 'chart5', 'chart6', 'chart2', 'chart3', 'chart4']),
+        # ('month', ['this_is_chart1', 'chart2_is_here', 'chart3', 'windSpeed_and_windDir', 'chart5', 'chart6', 'chart7']), 
         # ('year', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5'])])
-        chart_dict = self.generator.skin_dict['Charts']
+        chart_config_path = os.path.join(
+            self.generator.config_dict['WEEWX_ROOT'],
+            self.generator.config_dict['StdReport']['SKIN_ROOT'],
+            self.generator.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            'graphs.conf')
+        default_chart_config_path = os.path.join(
+            self.generator.config_dict['WEEWX_ROOT'],
+            self.generator.config_dict['StdReport']['SKIN_ROOT'],
+            self.generator.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            'graphs.conf.example')
+        if os.path.exists( chart_config_path ):
+            chart_dict = configobj.ConfigObj(chart_config_path, file_error=True)
+        else:
+            chart_dict = configobj.ConfigObj(default_chart_config_path, file_error=True)
         charts = OrderedDict()
         for chart_timespan in chart_dict.sections:
             timespan_chart_list = []
@@ -696,7 +709,21 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
     def run(self):
         """Main entry point for file generation."""
         
-        self.chart_dict = self.skin_dict['Charts']
+        chart_config_path = os.path.join(
+            self.config_dict['WEEWX_ROOT'],
+            self.config_dict['StdReport']['SKIN_ROOT'],
+            self.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            'graphs.conf')
+        default_chart_config_path = os.path.join(
+            self.config_dict['WEEWX_ROOT'],
+            self.config_dict['StdReport']['SKIN_ROOT'],
+            self.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            'graphs.conf.example')
+        if os.path.exists( chart_config_path ):
+            self.chart_dict = configobj.ConfigObj(chart_config_path, file_error=True)
+        else:
+            self.chart_dict = configobj.ConfigObj(default_chart_config_path, file_error=True)
+        
         self.converter = weewx.units.Converter.fromSkinDict(self.skin_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
         self.db_lookup = self.db_binder.bind_default()
@@ -715,7 +742,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         
         # Final output dict
         output = {}
-                
+        
         # Loop through each timespan
         for chart_group in self.chart_dict.sections:
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.

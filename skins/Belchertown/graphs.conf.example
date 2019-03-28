@@ -1,0 +1,312 @@
+# This is the Belchertown skin charting system which utilizes Highcharts to display the chart data. 
+   
+# Chart Types:
+# Supported chart types in the Belchertown skin are line, spline, area, areaspline, scatter (primary for wind direction), column. 
+# To experiement with other chart types that Highcharts has built in, here's a list: https://www.highcharts.com/docs/chart-and-series-types/chart-types
+# Chart types that have a long load time are "gauge", "pie".
+# The "heatmap" charts are not supported.
+
+# Caution!
+# The more charts you have, the slower things can become. This is especially true at the YEAR level. These are interactive charts which have to build plot points from the database on every archive interval. This could result in large file sizes to generate, and for your website visitors to download. You're welcome to customize as many charts as you want, but be warned things could slow down if you do too much!
+# The defaults in this skin have proven to be a good baseline for the number of charts and options without overwhelming your system. 
+
+# Overview of options:
+# A timespan refers to "day", "week", "month" or "year". 
+# The [[day]], [[week]], [[month]], [[year]] sections must remain as they are and cannot be renamed. 
+# The charts under the timespan can be renamed and reorganized. They will display on your website in the order they appear here.
+# Under the chart are the observation names from the WeeWX database. Any item within your database "archive type" can be charted. For a list of "archive types" refer to this chart. http://weewx.com/docs/customizing.htm#archive_types
+# Each observation can be customized with built-in Highcharts "series" options. Popular ones are color, name and zIndex. For a list of Highcharts Series options refer to https://api.highcharts.com/highcharts/series - Each chart type (e.g. area, line, scatter, etc.) has different options that can be modified, so make sure you are applying the right option for the right chart type.
+
+# Special rainTotal Observation Type
+# The built in "rain" observation is really "bucket tips". The chart will show when the bucket tipped and that's it. 
+# Using the special built in "rainTotal" observation - unique to Belchertown - will increment those bucket tips across the timespan, showing you the total rain for that timespan.
+
+# Unsupported Configurations!
+# Line type and scatter type cannot exist on the same chart with working tooltip information. This is a limitation of Highcharts. See: https://stackoverflow.com/a/29604251/1177153 and https://api.highcharts.com/highcharts/tooltip.shared
+# Can't define second yAxis at this time if a chart has more than 1 data series which has different yAxis values. For example, windDir (ordinal yAxis) and windSpeed (speed yAxis). Please keep your charts in a like-for-like data set to have a consistent yAxis.
+
+# Some tricks and tips learned. 
+# A line plot (like windSpeed) and a scatter plot (like windDir) cannot exist on the same chart and have working tooltips (the bubble that pops up). But according to this post, you can "trick" highcharts into doing almost the same thing. https://stackoverflow.com/a/43992380/1177153
+# So this post translates into this configuration to have windDir on the same chart as windSpeed and windGust. Note how windDir is the first observation.
+# AS MENTIONED ABOVE THIS IS NOT A SUPPORTED CONFIGURATION! You will not have compass readouts, not will windDir be attached to an axis. This means your wind observations will be so small they'll be almost useless.
+# [[[[windDir]]]]
+#     type = line
+#     lineWidth = 0
+#     radius = 5
+#     [[[[[marker]]]]]
+#         enabled = true
+#     [[[[[states]]]]]
+#         [[[[[[hover]]]]]]
+#             lineWidthPlus = 0
+# [[[[windSpeed]]]]
+#     zIndex = 1
+# [[[[windGust]]]]
+
+# If a custom option broke your charts:
+# Undo your change and restart weewx. 
+# If that doesn't work, undo ALL changes and go back to the default configuration.
+# There is no guarantee that every customization option will work. 
+
+# Settings Overview:
+
+# aggregate_type 
+# This defines the aggregate of the chart values. Valid options are None, avg, sum, min, max
+    
+# time_length 
+# This is the time length the chart will show. There are two ways to define this.
+# 1. Use a keyword to define the calendar day, week, month or year.
+#   (Default)   today   = calendar day starting at midnight today.
+#               week    = calendar week starting Sunday at midnight.
+#               month   = calendar month starting on the 1st day of the month.
+#   (Default)   year    = calendar year start on 1st day of the year.
+# 2. Use seconds to graph a rolling time period. Some examples are:
+#               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
+#   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
+#   (Default)   2592000     = Use this for month. This will graph the last 30 days as a rolling time period.
+#               31536000    = Use this for year. This will graph the last 365 days as a rolling time period.
+# NOTE: If you do not specify a time_length, the global default will be used and that is set for 90000 seconds (25 hours)
+
+# type 
+# This is the Highcharts chart type. For example, line, spline, area, scatter, etc.
+
+# Title
+# This is the title of your chart.
+
+# observation_type
+# This is important if you want to show the same observation type in 1 chart. For example, to show 2 outTemp readings, you need to name your archive type something unique, like [[[[outTemp2]]]]
+# then beneath that, you specify the observation type with obs_type = outTemp.
+# You do not have to specify observation_type unless you want 2 or more of the same type on a chart. If you do not specify then the archive type will be used. Example: [[[[outTemp]]]]
+# For a fully working example, look at the outTemp charts for the Month and Year groups below.
+
+# Color
+# There is a default color pallette built in. To override it, set the color option under the observation type.
+# Colors can be specified using the hex notation in quotes, like color = "#000000" for black. 
+# Colors can also be specified in English name, such as color = "green"
+
+# Name
+# If you specify a name for the observation, then we will use that.
+# If you do not specify a name, one will be automatically used.
+
+# zIndex
+# This means this observation will always be on top of others. If this is not set, then the last option will be on top.
+
+# yAxis
+# By placing yAxis under the observation type, this means you want to associate that data to a different yAxis. There are two you can use. 
+# This is typically used to show rain totals on left side of the chart, and rain rate on the right side of the chart.
+# PLEASE NOTE: For best results, define your yAxis = 1 in the first observation for the chart. See Rain Chart defaults below.
+# yAxis = 0 (default): observation will show on the left side of the chart.
+# yAxis = 1: observation will show on the right side of the chart. 
+
+# yaxis_min, yaxis_max
+# Certain observations will require a minimum and maximum yAxis value. 
+# For example windDir would be from 0 to 360. Using the yaxis_min and yaxis_max you can define the chart's min and max yAxis values.
+# rxCheckPercent is another one where yAxis min would be 0, and max would be 100. 
+
+# Global Chart Defaults
+# These are fallback options that charts will use if an option is not defined. 
+aggregate_type = None
+time_length = 90000 # Last 25 hours
+type = line
+
+[day]
+    # Chart Timespan Defaults
+    time_length = today
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[dewpoint]]]
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yaxis_min = 0
+        [[[windDir]]]
+            color = "#4242B4"
+            zIndex = 1
+            yAxis = 1
+            yaxis_max = 360
+            lineWidth = 0
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        type = spline
+        [[[barometer]]]
+            color = "#BECC00"
+            
+[week]
+    # Chart Timespan Defaults
+    aggregate_type = max
+    aggregate_interval = 3600 # 1 hour
+    time_length = 604800 # Last 7 days
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[dewpoint]]]
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yaxis_min = 0
+        [[[windDir]]]
+            color = "#4242B4"
+            zIndex = 1
+            yAxis = 1
+            yaxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        [[[barometer]]]
+            color = "#BECC00"
+
+        
+[month]
+    # Chart Timespan Defaults
+    type = spline
+    time_length = 2592000 # Last 30 days
+    aggregate_type = max
+    aggregate_interval = 86400 # 1 day
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Max Temperature
+            color = red
+        [[[outTemp_min]]]
+            name = Min Temperature
+            observation_type = outTemp
+            aggregate_type = min
+            color = "#7cb5ec"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yaxis_min = 0
+        [[[windDir]]]
+            color = "#4242B4"
+            zIndex = 1
+            yAxis = 1
+            yaxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        type = line
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        [[[barometer]]]
+            color = "#BECC00"
+        
+[year]
+    # Chart Timespan Defaults
+    type = spline
+    time_length = year
+    aggregate_type = max
+    aggregate_interval = 86400 # 1 day
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Max Temperature
+            color = red
+        [[[outTemp_min]]]
+            name = Min Temperature
+            observation_type = outTemp
+            aggregate_type = min
+            color = "#7cb5ec"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yaxis_min = 0
+        [[[windDir]]]
+            color = "#4242B4"
+            zIndex = 1
+            yAxis = 1
+            yaxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        type = line
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        [[[barometer]]]
+            color = "#BECC00"
+        
