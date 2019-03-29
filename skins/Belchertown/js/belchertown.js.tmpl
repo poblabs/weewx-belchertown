@@ -980,6 +980,7 @@ function showChart(json_file, gapsize) {
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
                 var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+                options.chart.width = 575;
                 options.chart.type = "column";
                 options.chart.polar = true;
                 options.chart.alignTicks = false;

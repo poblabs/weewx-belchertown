@@ -1932,6 +1932,10 @@ li.comment {
 	/* margin-top:25px; */
 }
 
+.highcharts-container {
+    margin: 0 auto;
+}
+
 .wx-buttons { 
     margin:0 auto;
     text-align:center;
