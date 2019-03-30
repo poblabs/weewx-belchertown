@@ -516,8 +516,7 @@ function update_current_wx(data) {
         if (belchertown_debug > 0) {
             console.log("MQTT message indicates this is an archive interval.");
         }
-        //setTimeout( daily, 30000 ); // Load updated charts
-        setTimeout( showChart(frontpage_graphs), 30000 ); // Load updated charts
+        setTimeout( showChart(homepage_graphgroup), 30000 ); // Load updated charts
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
@@ -688,23 +687,6 @@ Highcharts.setOptions({
         decimalPoint: '$highcharts_decimal'
     }
 });
-
-// TODO Clean this up
-//function daily() {
-//    showChart("day", $archive_interval_ms);
-//}
-
-//function weekly() {
-//    showChart("week", 3600000); // gapsize is 1 hour in millis
-//}
-
-//function monthly() {
-//    showChart("month", 86400000); // gapsize is 24 hours in millis
-//}
-
-//function yearly() {
-//    showChart("year", 86400000); // gapsize is 24 hours in millis
-//}
 
 function showChart(json_file, gapsize) {
     
