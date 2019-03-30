@@ -1932,8 +1932,9 @@ li.comment {
 	/* margin-top:25px; */
 }
 
-.highcharts-container {
-    margin: 0 auto;
+.highcharts-windRose {
+    /* max-width: 575px; */
+    /* margin: 0 auto; */
 }
 
 .wx-buttons { 

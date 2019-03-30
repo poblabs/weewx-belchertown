@@ -18,11 +18,15 @@
         var moment_locale = "$system_locale_js";
         moment.locale(moment_locale);
         
-        ajaxweewx(); // Initial call. Load from weewx (date, daily high, low, etc)
+        var graphgroups_raw = $charts; // All charts and IDs
+        var frontpage_graphs = "day"; // TODO make this an Extras option?
+        var thisPageGraphs = graphgroups_raw[frontpage_graphs]; // Filter all charts down to the ones we want for this page
+        
+        ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
         
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         // Load forecast
-        ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
+        ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
         #end if
         
         jQuery(document).ready(function() {
@@ -39,7 +43,12 @@
             #end if
             
             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-            daily(); // Initial load daily highcharts
+            //daily(); // Initial load daily highcharts
+            // Loop through the graph group for this page and add the graph divs to the page
+            thisPageGraphs.forEach( graphID => {
+                jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;"></div></div>');
+            });
+            showChart(frontpage_graphs);
             #end if
             
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
@@ -53,7 +62,8 @@
                 ajaximages(); // Update radar and home page hook "img src" if present
                 connect(); // Restart mqtt after weewx data's re-loaded
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                daily(); // Update the daily highcharts
+                //daily(); // Update the daily highcharts
+                showChart(frontpage_graphs);
                 #end if
             });
             #else
@@ -472,11 +482,7 @@
                                 Today's graphs. <a href="$belchertown_root_url/graphs">View more here</a>.
                             </div>
                             
-                            #for $plotname in $charts["day"]
-                            <div class="col-sm-6">
-                                <div id="day$plotname" style="width:100%; height:350px;"></div>
-                            </div>
-                            #end for
+                            <div class="graph_outer"></div><!-- JS populated -->
                             
                         </div>
                         <!-- End of fourth row -->

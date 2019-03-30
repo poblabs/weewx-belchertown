@@ -516,7 +516,8 @@ function update_current_wx(data) {
         if (belchertown_debug > 0) {
             console.log("MQTT message indicates this is an archive interval.");
         }
-        setTimeout( daily, 30000 ); // Load updated charts
+        //setTimeout( daily, 30000 ); // Load updated charts
+        setTimeout( showChart(frontpage_graphs), 30000 ); // Load updated charts
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
@@ -688,29 +689,42 @@ Highcharts.setOptions({
     }
 });
 
-function daily() {
-    showChart("day.json", $archive_interval_ms);
-}
+// TODO Clean this up
+//function daily() {
+//    showChart("day", $archive_interval_ms);
+//}
 
-function weekly() {
-    showChart("week.json", 3600000); // gapsize is 1 hour in millis
-}
+//function weekly() {
+//    showChart("week", 3600000); // gapsize is 1 hour in millis
+//}
 
-function monthly() {
-    showChart("month.json", 86400000); // gapsize is 24 hours in millis
-}
+//function monthly() {
+//    showChart("month", 86400000); // gapsize is 24 hours in millis
+//}
 
-function yearly() {
-    showChart("year.json", 86400000); // gapsize is 24 hours in millis
-}
+//function yearly() {
+//    showChart("year", 86400000); // gapsize is 24 hours in millis
+//}
 
 function showChart(json_file, gapsize) {
     
-    if (gapsize === undefined) {
-        gapsize = $archive_interval_ms; // archive_interval in milliseconds
+    // If gapsize is not defined, then define it based on some skin standards
+    if (!gapsize) {
+        if ( json_file == "day" ) {
+            gapsize = $archive_interval_ms;
+        } else if ( json_file == "week" ) {
+            gapsize = 3600000;
+        } else if ( json_file == "month" ) {
+            gapsize = 86400000;
+        } else if ( json_file == "year" ) {
+            gapsize = 86400000;
+        } else {
+            // Default
+            gapsize = $archive_interval_ms; // archive_interval in milliseconds
+        }
     }
     
-    jQuery.getJSON('$belchertown_root_url/json/' + json_file, function(data) {
+    jQuery.getJSON('$belchertown_root_url/json/' + json_file + '.json', function(data) {
         
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
@@ -980,7 +994,9 @@ function showChart(json_file, gapsize) {
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
                 var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-                options.chart.width = 575;
+                //options.chart.className = "highcharts-windRose";
+                //options.chart.width = 575;
+                //options.responsive = { rules: [{ condition: { maxWidth: 575 } }] }
                 options.chart.type = "column";
                 options.chart.polar = true;
                 options.chart.alignTicks = false;
