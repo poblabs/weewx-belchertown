@@ -649,7 +649,7 @@ class getData(SearchList):
                                   'highcharts_decimal': highcharts_decimal,
                                   'radar_html': radar_html,
                                   'archive_interval_ms': archive_interval_ms,
-                                  'charts': charts,
+                                  'charts': json.dumps(charts),
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,
@@ -752,7 +752,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 output[chart_group][plotname] = {}
                 output[chart_group][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
                 output[chart_group][plotname]["options"] = {}
-                output[chart_group][plotname]["options"]["renderTo"] = chart_group + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
+                #output[chart_group][plotname]["options"]["renderTo"] = chart_group + plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
+                output[chart_group][plotname]["options"]["renderTo"] = plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
                 output[chart_group][plotname]["options"]["chart_group"] = chart_group
                 
                 plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname])
