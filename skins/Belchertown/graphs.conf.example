@@ -111,6 +111,7 @@ type = line
 [day]
     # Chart Timespan Defaults
     time_length = today
+    gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
     [[chart1]]
         title = Temperature
@@ -159,6 +160,7 @@ type = line
     aggregate_type = max
     aggregate_interval = 3600 # 1 hour
     time_length = 604800 # Last 7 days
+    gapsize = 3600000 # 1 hour in milliseconds
 
     [[chart1]]
         title = Temperature
@@ -210,6 +212,7 @@ type = line
     time_length = 2592000 # Last 30 days
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
+    gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
         title = Temperature
@@ -263,6 +266,7 @@ type = line
     time_length = year
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
+    gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
         title = Temperature

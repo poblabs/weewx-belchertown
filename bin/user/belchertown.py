@@ -785,9 +785,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 plottype = plot_options.get('type', 'line')
                 output[chart_group][plotname]["options"]["type"] = plottype
                 
+                gapsize = plot_options.get('gapsize', 300000) # Default to 5 minutes in millis TODO is this the right thing to do? or have it in belchertown.js? More testing needed.
+                if gapsize:
+                    output[chart_group][plotname]["options"]["gapsize"] = gapsize
+
                 polar = plot_options.get('polar', None)
                 if polar:
-                    output[chart_group][plotname]["polar"] = polar
+                    output[chart_group][plotname]["polar"] = polar    
                 
                 # Loop through each observation within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
@@ -1166,7 +1170,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     rain = 0.0
                 rain_count = rain_count + rain
                 rain_total.append( round( rain_count, 2 ) )
-                time_ms = [float(x) * 1000 for x in time_start_vt[0]]
+                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
                 data = zip(time_ms, rain_total)
         else:        
             # Send all other observations through the usual process, except Barometer for finer detail
@@ -1176,7 +1180,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             else:
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
-            time_ms = [float(x) * 1000 for x in time_start_vt[0]]
+            time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
             data = zip(time_ms, obsRound_vt)
         
         return data

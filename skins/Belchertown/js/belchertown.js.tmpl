@@ -688,24 +688,8 @@ Highcharts.setOptions({
     }
 });
 
-function showChart(json_file, gapsize) {
-    
-    // If gapsize is not defined, then define it based on some skin standards
-    if (!gapsize) {
-        if ( json_file == "day" ) {
-            gapsize = $archive_interval_ms;
-        } else if ( json_file == "week" ) {
-            gapsize = 3600000;
-        } else if ( json_file == "month" ) {
-            gapsize = 86400000;
-        } else if ( json_file == "year" ) {
-            gapsize = 86400000;
-        } else {
-            // Default
-            gapsize = $archive_interval_ms; // archive_interval in milliseconds
-        }
-    }
-    
+function showChart(json_file) {
+        
     jQuery.getJSON('$belchertown_root_url/json/' + json_file + '.json', function(data) {
         
         // Loop through each chart name (e.g. chart1, chart2, chart3)
@@ -729,6 +713,9 @@ function showChart(json_file, gapsize) {
                         break;
                     case "chart_group":
                         chart_group = optionVal;
+                        break;
+                    case "gapsize":
+                        gapsize = optionVal;
                         break;
                 }
             });
@@ -791,7 +778,7 @@ function showChart(json_file, gapsize) {
                 plotOptions: {
                     area: {
                         lineWidth: 2,
-                        gapSize: gapsize,
+                        gapSize: '',
                         gapUnit: 'value',
                         marker: {
                             enabled: false,
@@ -800,7 +787,7 @@ function showChart(json_file, gapsize) {
                     },
                     line: {
                         lineWidth: 2,
-                        gapSize: gapsize,
+                        gapSize: '',
                         gapUnit: 'value',
                         marker: {
                             enabled: false,
@@ -809,7 +796,7 @@ function showChart(json_file, gapsize) {
                     },
                     spline: {
                         lineWidth: 2,
-                        gapSize: gapsize,
+                        gapSize: '',
                         gapUnit: 'value',
                         marker: {
                             enabled: false,
@@ -817,7 +804,7 @@ function showChart(json_file, gapsize) {
                         },
                     },
                     scatter: {
-                        gapSize: gapsize,
+                        gapSize: '',
                         gapUnit: 'value',
                         marker: {
                             radius: 2
@@ -882,6 +869,10 @@ function showChart(json_file, gapsize) {
             options.chart.renderTo = renderTo;
             options.chart.type = type;
             options.title.text = title;
+            options.plotOptions.area.gapSize = gapsize;
+            options.plotOptions.line.gapSize = gapsize;
+            options.plotOptions.spline.gapSize = gapsize;
+            options.plotOptions.scatter.gapSize = gapsize;
             
             // Reset the series everytime we loop.
             options.series = [];
@@ -969,6 +960,14 @@ function showChart(json_file, gapsize) {
                 if (s.obsType == "windDir") {
                     options.yAxis[this_yAxis].tickInterval = 90;
                     options.yAxis[this_yAxis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                }
+                
+                // Check if this series has a gapsize override
+                if (s.gapsize) {
+                    options.plotOptions.area.gapSize = s.gapsize;
+                    options.plotOptions.line.gapSize = s.gapsize;
+                    options.plotOptions.spline.gapSize = s.gapsize;
+                    options.plotOptions.scatter.gapSize = s.gapsize;
                 }
                 
             });
