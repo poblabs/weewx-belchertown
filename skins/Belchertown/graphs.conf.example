@@ -209,9 +209,9 @@ type = line
 [month]
     # Chart Timespan Defaults
     type = spline
-    time_length = 2592000 # Last 30 days
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
+    time_length = 2592000 # Last 30 days
     gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
@@ -263,9 +263,9 @@ type = line
 [year]
     # Chart Timespan Defaults
     type = spline
-    time_length = year
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
+    time_length = year
     gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
