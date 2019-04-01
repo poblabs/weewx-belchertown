@@ -18,6 +18,14 @@
     color: #fff !important;
 }
 
+.records-header {
+    background:#ebebeb !important;
+}
+
+.records-header-alltime {
+    background:#375a7f !important;
+}
+
 /* Highcharts */
 /* Adapted from Highcharts Dark Unica */
 
