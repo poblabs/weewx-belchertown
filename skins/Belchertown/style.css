@@ -1834,7 +1834,8 @@ p.entry-meta {
 
 .records-header-alltime {
     text-align:center;
-    background:#1f3365;
+    /* background:#1f3365; */
+    background:#337ab7;
     color:#fff;
     font-weight:400;
 }
