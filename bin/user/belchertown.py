@@ -769,7 +769,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 if time_length == "today":
                     minstamp, maxstamp = archiveDaySpan( timespan.stop )
                 elif time_length == "week":
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop )
+                    week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
+                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start )
                 elif time_length == "month":
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                 elif time_length == "year":
@@ -852,7 +853,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
                         
                     # Build series data
-                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval)
+                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length)
             
             # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
@@ -862,7 +863,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             with open(json_filename, mode='w') as fd:
                     fd.write( json.dumps( output[chart_group] ) )
 
-    def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval):
+    def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
         if observation == "windRose":
@@ -1163,16 +1164,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         if observation == "rainTotal":
             # The weewx "rain" observation is really "bucket tips". This special counter increments the bucket tips over timespan to return rain total.
             rain_count = 0
-            rain_total = []
+            obsRound_vt = []
             for rain in obs_vt[0]:
                 # If the rain value is None or "", add it as 0.0
                 if rain is None or rain == "":
                     rain = 0.0
                 rain_count = rain_count + rain
-                rain_total.append( round( rain_count, 2 ) )
-                time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
-                data = zip(time_ms, rain_total)
-        else:        
+                obsRound_vt.append( round( rain_count, 2 ) )
+        else:
             # Send all other observations through the usual process, except Barometer for finer detail
             if observation == "barometer":
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[1], "1f")[-2])
@@ -1180,8 +1179,16 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             else:
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
-            time_ms = [float(x) * 1000 for x in time_stop_vt[0]]
-            data = zip(time_ms, obsRound_vt)
+            
+        # "Today" charts have the point timestamp on the stop time so we don't see the previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
+        # Everything else has it on the start time so we don't see the next day in the tooltip (e.g. Jan 2 instead of Jan 1)
+        if time_length == "today":
+            point_timestamp = time_stop_vt
+        else:
+            point_timestamp = time_start_vt
+        
+        time_ms = [float(x) * 1000 for x in point_timestamp[0]]
+        data = zip(time_ms, obsRound_vt)
         
         return data
         
