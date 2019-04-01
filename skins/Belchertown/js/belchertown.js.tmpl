@@ -171,6 +171,21 @@ function titleCase(str) {
     }).join(' ');
 }
 
+function changeTheme(themeName) {
+    if ( themeName == "dark" ) {
+        // Apply dark theme
+        jQuery("#bootstrapStyle").attr('href', '//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css?ver=' + new Date().getTime() ); 
+        jQuery("#highchartsStyle").attr('href', '$belchertown_root_url/belchertown-dark.css?ver=' + new Date().getTime() );
+        // Re-apply standard Belchertown styles to override bootstrap
+        jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime() );
+    } else {
+        jQuery("#bootstrapStyle").attr('href', '//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css?ver=' + new Date().getTime() ); 
+        jQuery("#highchartsStyle").attr('href', '//cdnjs.cloudflare.com/ajax/libs/highcharts/7.0.3/css/highcharts.css?ver=' + new Date().getTime() );
+        // Re-apply standard Belchertown styles to override bootstrap
+        jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime());
+    }
+}
+
 function ajaxweewx() {
     jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
 };

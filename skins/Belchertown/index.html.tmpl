@@ -45,7 +45,7 @@
             var thisPageGraphs = graphgroups_raw[homepage_graphgroup]; // Filter all charts down to the ones we want for this page
             // Loop through the graph groups for this page and add the graph divs to the page
             thisPageGraphs.forEach( graphID => {
-                jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;"></div></div>');
+                jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div></div>');
             });
             showChart(homepage_graphgroup);
             #end if

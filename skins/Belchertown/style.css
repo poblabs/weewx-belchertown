@@ -66,8 +66,9 @@ input[type="search"] {
 
 body {
 	/* background-color: #f5f5f5; */
-	background-color: #fff;
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+    /* background-color: #fff; */
+	/* color: #333; */
 	font-family: Lato, sans-serif;
 	font-size: 18px;
 	font-weight: 300;
@@ -106,7 +107,9 @@ a {
 }
 
 a:hover {
-	color: #333;
+	/* color: #333; */
+    /* Removed in favor for dark mode dynamic switching */
+	color: #e5554e;
 }
 
 p {
@@ -160,7 +163,8 @@ h3,
 h4,
 h5,
 h6 {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-family: Lato, sans-serif;
 	font-weight: 400;
 	line-height: 1.2;
@@ -212,9 +216,9 @@ img {
 input,
 select,
 textarea {
-	background-color: #fff;
 	border: 1px solid #ddd;
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-size: 18px;
 	font-weight: 300;
 	padding: 16px;
@@ -234,13 +238,15 @@ input[type="radio"] {
 }
 
 ::-moz-placeholder {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-weight: 300;
 	opacity: 1;
 }
 
 ::-webkit-input-placeholder {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-weight: 300;
 }
 
@@ -249,7 +255,8 @@ input[type="button"],
 input[type="reset"],
 input[type="submit"],
 .button {
-	background-color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #333; */
 	border: none;
 	color: #fff;
 	cursor: pointer;
@@ -265,12 +272,14 @@ input:hover[type="button"],
 input:hover[type="reset"],
 input:hover[type="submit"],
 .button:hover {
-	background-color: #e5554e;
-	color: #fff;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #e5554e; */
+	/* color: #fff; */
 }
 
 .entry-content .button:hover {
-	color: #fff;
+    /* Removed in favor for dark mode dynamic switching */
+    /* color: #fff; */
 }
 
 .button {
@@ -457,79 +466,6 @@ th {
 /* # Common Classes
 ---------------------------------------------------------------------------------------------------- */
 
-/* ## Avatar
---------------------------------------------- */
-
-.avatar {
-	float: left;
-}
-
-.alignleft .avatar,
-.author-box .avatar {
-	margin-right: 24px;
-}
-
-.alignright .avatar {
-	margin-left: 24px;
-}
-
-.comment .avatar {
-	margin: 0 16px 24px 0;
-}
-
-/* ## Genesis
---------------------------------------------- */
-
-.breadcrumb {
-	margin-bottom: 20px;
-}
-
-.archive-description,
-.author-box {
-	background-color: #fff;
-	font-size: 16px;
-	margin-bottom: 40px;
-	padding: 40px;
-}
-
-.author-box-title {
-	font-size: 16px;
-	margin-bottom: 4px;
-}
-
-.archive-description p:last-child,
-.author-box p:last-child {
-	margin-bottom: 0;
-}
-
-/* ## Search Form
---------------------------------------------- */
-
-.search-form {
-	overflow: hidden;
-}
-
-.site-header .search-form {
-	float: right;
-	margin-top: 12px;
-}
-
-.entry-content .search-form,
-.site-header .search-form {
-	width: 50%;
-}
-
-.genesis-nav-menu .search input[type="submit"],
-.widget_search input[type="submit"] {
-	border: 0;
-	clip: rect(0, 0, 0, 0);
-	height: 1px;
-	margin: -1px;
-	padding: 0;
-	position: absolute;
-	width: 1px;
-}
-
 /* ## Titles
 --------------------------------------------- */
 
@@ -543,7 +479,8 @@ th {
 
 .entry-title a,
 .sidebar .widget-title a {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .entry-title a:hover {
@@ -606,7 +543,6 @@ img.alignright {
 ---------------------------------------------------------------------------------------------------- */
 
 .site-header {
-	background-color: #fff;
 	min-height: 75px;
 }
 
@@ -636,11 +572,12 @@ img.alignright {
 
 .site-title a,
 .site-title a:hover {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .header-image .site-title > a {
-	background: url('https://belchertownweather.com/images/content/btownwx-logo-slim.png') no-repeat left;
+	background: url('') no-repeat left;
 	float: left;
 	min-height: 80px;
 	width: 100%;
@@ -714,7 +651,6 @@ img.alignright {
 }
 
 .genesis-nav-menu .sub-menu a {
-	background-color: #fff;
 	border: 1px solid #eee;
 	border-top: none;
 	font-size: 14px;
@@ -783,7 +719,7 @@ img.alignright {
 --------------------------------------------- */
 
 .nav-primary {
-	background-color: #333;
+	/* background-color: #333; */
 }
 
 .nav-primary .genesis-nav-menu a {
@@ -791,7 +727,8 @@ img.alignright {
 }
 
 .nav-primary .genesis-nav-menu .sub-menu a {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .nav-primary .genesis-nav-menu a:hover,
@@ -804,7 +741,6 @@ img.alignright {
 --------------------------------------------- */
 
 .nav-secondary {
-	background-color: #fff;
 }
 
 
@@ -821,7 +757,6 @@ img.alignright {
 }
 
 .content .entry {
-	background-color: #fff;
 }
 
 .entry-content ol,
@@ -844,8 +779,9 @@ img.alignright {
 }
 
 .entry-content code {
-	background-color: #333;
-	color: #ddd;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #333; */
+	/* color: #ddd; */
 }
 
 /* ## Entry Meta
@@ -892,7 +828,7 @@ p.entry-meta {
 }
 
 .archive-pagination li a {
-	background-color: #333;
+	/* background-color: #333; */
 	color: #fff;
 	cursor: pointer;
 	display: inline-block;
@@ -904,77 +840,6 @@ p.entry-meta {
 .archive-pagination .active a {
 	background-color: #e5554e;
 }
-
-/* ## Comments
---------------------------------------------- */
-
-.comment-respond,
-.entry-comments,
-.entry-pings {
-	background-color: #fff;
-	margin-bottom: 40px;
-}
-
-.comment-respond,
-.entry-pings {
-	padding: 40px 40px 16px;
-}
-
-.entry-comments {
-	padding: 40px;
-}
-
-.comment-header {
-	font-size: 16px;
-}
-
-li.comment {
-	background-color: #f5f5f5;
-	border: 2px solid #fff;
-	border-right: none;
-}
-
-.comment-content {
-	clear: both;
-}
-
-.comment-list li {
-	margin-top: 24px;
-	padding: 32px;
-}
-
-.comment-list li li {
-	margin-right: -32px;
-}
-
-.comment-respond input[type="email"],
-.comment-respond input[type="text"],
-.comment-respond input[type="url"] {
-	width: 50%;
-}
-
-.comment-respond label {
-	display: block;
-	margin-right: 12px;
-}
-
-.entry-comments .comment-author {
-	margin-bottom: 0;
-}
-
-.entry-pings .reply {
-	display: none;
-}
-
-.bypostauthor {
-}
-
-.form-allowed-tags {
-	background-color: #f5f5f5;
-	font-size: 16px;
-	padding: 24px;
-}
-
 
 /* # Sidebars
 ---------------------------------------------------------------------------------------------------- */
@@ -995,7 +860,6 @@ li.comment {
 }
 
 .sidebar .widget {
-	background-color: #fff;
 	margin-bottom: 40px;
 	padding: 40px;
 }
@@ -1181,7 +1045,6 @@ li.comment {
 	body, html { overflow-x:hidden; }
 	body { 
 		padding:5px; 
-		background-color: #fff;
 		font-size: 16px;
 	}
 	
@@ -1315,7 +1178,6 @@ li.comment {
 	.genesis-nav-menu.responsive-menu li a,
 	.genesis-nav-menu.responsive-menu li a:hover,
 	.genesis-nav-menu.responsive-menu li.current-menu-item > a {
-		background: none;
 		display: block;
 		line-height: 1;
 		padding: 12px 0;
@@ -1366,7 +1228,6 @@ li.comment {
 	
 	.genesis-nav-menu.responsive-menu .sub-menu li a,
 	.genesis-nav-menu.responsive-menu .sub-menu li a:hover {
-		background: none;
 		border: none;
 		box-shadow: none;
 		padding: 12px 0;
@@ -1385,7 +1246,6 @@ li.comment {
 	}
 	
 	.nav-primary .genesis-nav-menu.responsive-menu li a:hover {
-		background: none;
 		color: red;
 	}
 
@@ -1702,7 +1562,6 @@ li.comment {
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    background: white;
 	color:#808080;
     border: 3px solid #808080;
     behavior: url(PIE.htc); /* remove if you don't care about IE8 */

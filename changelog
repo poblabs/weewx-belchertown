@@ -3,9 +3,14 @@
 ** Overview of the new chart system include ability to move charts around, remove charts, configure multiple observations per chart, and add a 2nd yAxis to associate an observation to for better readability.
 * Added rainTotal observation, unique to Belchertown, which aggregates the "rain" observation (bucket tips) over a timespan to return total rainfall for that time period.
 * Add support for wind rose with Highcharts.
+* Upgrade to Bootstrap 3.4.1 and change to new bootstrap stackpath CDN
+* Added new Dark Theme. This is a combination of Bootstrap's "darkly" (on CDN) and Highcharts Dark Unica theme (hosted locally), and Belchertown overrides to remain consistent.
+* Initial JavaScript CSS switcher function. This will change the entire site's CSS dynamically.
 * Added belchertown_debug to aid in debugging the skin's options
 * Added permalink to the graphs page. For example to link to your weekly graphs, use http://yoursite/graphs/?graph=week, for month, it's /?graph=month, for year is /?graph=year and for today you can link to the graphs page, or use /?graph=today
 * Added option reload_hook_images which when enabled will reload any images in the 4 custom content areas on the index page. Useful for webcam images. This option will only work if MQTT Websockets live updates are also enabled.
+* Upgrade Font Awesome to 4.7.0
+* Clean up of some old CSS
 
 0.9.1 March 9, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
