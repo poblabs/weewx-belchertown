@@ -18,12 +18,22 @@
     color: #fff !important;
 }
 
+.records table {
+    border: 1px solid #aaa;
+}
+
 .records-header {
-    background:#ebebeb !important;
+    background:#aaa !important;
 }
 
 .records-header-alltime {
     background:#375a7f !important;
+}
+
+pre { 
+	color: #aaa; 
+    background-color: #222;
+	white-space: pre; 
 }
 
 /* Highcharts */
