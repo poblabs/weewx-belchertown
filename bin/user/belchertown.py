@@ -746,6 +746,10 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         # Loop through each timespan
         for chart_group in self.chart_dict.sections:
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
+            chart_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group])
+                
+            colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") # Default back to Highcharts standards
+            output[chart_group]["colors"] = colors
             
             # Loop through each chart within the chart_group
             for plotname in self.chart_dict[chart_group].sections:

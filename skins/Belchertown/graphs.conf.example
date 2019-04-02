@@ -79,7 +79,8 @@
 # For a fully working example, look at the outTemp charts for the Month and Year groups below.
 
 # Color
-# There is a default color pallette built in. To override it, set the color option under the observation type.
+# The colors listed in the Global Chart Defaults are the default color palette. This palette works with both light and dark mode, and they are applied in the order they are listed to the charts. 
+# To override a specific observation plot with it's own unique color you can set the color option under the observation type.
 # Colors can be specified using the hex notation in quotes, like color = "#000000" for black. 
 # Colors can also be specified in English name, such as color = "green"
 
@@ -107,6 +108,7 @@
 aggregate_type = None
 time_length = 90000 # Last 25 hours
 type = line
+colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8, #8d4653, #91e8e1"
 
 [day]
     # Chart Timespan Defaults
@@ -128,7 +130,6 @@ type = line
         title = Wind Speed and Direction
         yaxis_min = 0
         [[[windDir]]]
-            color = "#4242B4"
             zIndex = 1
             yAxis = 1
             yaxis_max = 360
@@ -177,7 +178,6 @@ type = line
         title = Wind Speed and Direction
         yaxis_min = 0
         [[[windDir]]]
-            color = "#4242B4"
             zIndex = 1
             yAxis = 1
             yaxis_max = 360
@@ -231,7 +231,6 @@ type = line
         title = Wind Speed and Direction
         yaxis_min = 0
         [[[windDir]]]
-            color = "#4242B4"
             zIndex = 1
             yAxis = 1
             yaxis_max = 360
@@ -285,7 +284,6 @@ type = line
         title = Wind Speed and Direction
         yaxis_min = 0
         [[[windDir]]]
-            color = "#4242B4"
             zIndex = 1
             yAxis = 1
             yaxis_max = 360

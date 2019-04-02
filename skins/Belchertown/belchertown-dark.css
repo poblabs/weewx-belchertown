@@ -257,9 +257,9 @@
 
 .highcharts-graph {
   fill: none !important;
-  stroke-width: 2px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  /* stroke-width: 2px; */
+  /* stroke-linecap: round; */
+  /* stroke-linejoin: round; */
 }
 
 .highcharts-state-hover .highcharts-graph {
@@ -293,60 +293,61 @@ g.highcharts-series,
 
 /* Series options */
 /* Default colors */
-.highcharts-color-0 {
-  fill: #2b908f !important;
-  stroke: #2b908f !important;
-}
+/* Disabled in Belchertown skin, kept for reference if needed */
+/* .highcharts-color-0 { */
+  /* fill: #2b908f; */
+  /* stroke: #2b908f; */
+/* } */
 
-.highcharts-color-1 {
-  fill: #90ee7e !important;
-  stroke: #90ee7e !important;
-}
+/* .highcharts-color-1 { */
+  /* fill: #90ee7e; */
+  /* stroke: #90ee7e; */
+/* } */
 
-.highcharts-color-2 {
-  fill: #f45b5b !important;
-  stroke: #f45b5b !important;
-}
+/* .highcharts-color-2 { */
+  /* fill: #f45b5b; */
+  /* stroke: #f45b5b; */
+/* } */
 
-.highcharts-color-3 {
-  fill: #7798BF !important;
-  stroke: #7798BF !important;
-}
+/* .highcharts-color-3 { */
+  /* fill: #7798BF; */
+  /* stroke: #7798BF; */
+/* } */
 
-.highcharts-color-4 {
-  fill: #aaeeee !important;
-  stroke: #aaeeee !important;
-}
+/* .highcharts-color-4 { */
+  /* fill: #aaeeee; */
+  /* stroke: #aaeeee; */
+/* } */
 
-.highcharts-color-5 {
-  fill: #ff0066 !important;
-  stroke: #ff0066 !important;
-}
+/* .highcharts-color-5 { */
+  /* fill: #ff0066; */
+  /* stroke: #ff0066; */
+/* } */
 
-.highcharts-color-6 {
-  fill: #eeaaee !important;
-  stroke: #eeaaee !important;
-}
+/* .highcharts-color-6 { */
+  /* fill: #eeaaee; */
+  /* stroke: #eeaaee; */
+/* } */
 
-.highcharts-color-7 {
-  fill: #55BF3B !important;
-  stroke: #55BF3B !important;
-}
+/* .highcharts-color-7 { */
+  /* fill: #55BF3B; */
+  /* stroke: #55BF3B; */
+/* } */
 
-.highcharts-color-8 {
-  fill: #DF5353 !important;
-  stroke: #DF5353 !important;
-}
+/* .highcharts-color-8 { */
+  /* fill: #DF5353; */
+  /* stroke: #DF5353; */
+/* } */
 
-.highcharts-color-9 {
-  fill: #7798BF !important;
-  stroke: #7798BF !important;
-}
+/* .highcharts-color-9 { */
+  /* fill: #7798BF; */
+  /* stroke: #7798BF; */
+/* } */
 
-.highcharts-color-10 {
-  fill: #aaeeee !important;
-  stroke: #aaeeee !important;
-}
+/* .highcharts-color-10 { */
+  /* fill: #aaeeee; */
+  /* stroke: #aaeeee; */
+/* } */
 
 .highcharts-area {
   fill-opacity: 0.75 !important;
@@ -354,8 +355,8 @@ g.highcharts-series,
 }
 
 .highcharts-markers {
-  stroke-width: 1px !important;
-  stroke: #2a2a2b !important;
+  /* stroke-width: 1px !important; */
+  /* stroke: #2a2a2b !important; */
 }
 
 .highcharts-point {
@@ -385,7 +386,7 @@ g.highcharts-series,
 }
 
 .highcharts-halo {
-  fill-opacity: 0.25;
+  fill-opacity: 0.75;
   stroke-width: 0;
 }
 

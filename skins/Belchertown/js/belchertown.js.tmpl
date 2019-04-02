@@ -180,7 +180,8 @@ function changeTheme(themeName) {
         jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime() );
     } else {
         jQuery("#bootstrapStyle").attr('href', '//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css?ver=' + new Date().getTime() ); 
-        jQuery("#highchartsStyle").attr('href', '//cdnjs.cloudflare.com/ajax/libs/highcharts/7.0.3/css/highcharts.css?ver=' + new Date().getTime() );
+        //jQuery("#highchartsStyle").attr('href', '//cdnjs.cloudflare.com/ajax/libs/highcharts/7.0.3/css/highcharts.css?ver=' + new Date().getTime() );
+        jQuery("#highchartsStyle").attr('href', '' );
         // Re-apply standard Belchertown styles to override bootstrap
         jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime());
     }
@@ -711,6 +712,12 @@ function showChart(json_file) {
         jQuery.each(data, function (plotname, obsname) {
             var observation_type, moment_format = undefined;
             
+            // Set the chart colors, then return right away since this "plot" has no other options
+            if ( plotname == "colors" ) { 
+                colors = obsname.split(","); 
+                return true;
+            }
+            
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
                 switch(optionName) {
@@ -888,6 +895,7 @@ function showChart(json_file) {
             options.plotOptions.line.gapSize = gapsize;
             options.plotOptions.spline.gapSize = gapsize;
             options.plotOptions.scatter.gapSize = gapsize;
+            options.colors = colors;
             
             // Reset the series everytime we loop.
             options.series = [];
