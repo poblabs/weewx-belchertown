@@ -178,6 +178,8 @@ function titleCase(str) {
     }).join(' ');
 }
 
+function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
+    if (belchertown_debug > 0) {
         console.log("Auto theme: checking to see if theme needs to be switched");
         console.log("Auto theme: current theme is: " + current_theme);
     }
@@ -185,6 +187,19 @@ function titleCase(str) {
     var nowHours = d.getHours();
     var nowMinutes = d.getMinutes();
     if ( sunset_hour && sunrise_hour ) {
+        if ( current_theme == "auto" ) {
+            // Something didn't get set from the header. Skip this time around because otherwise we'll reload the same theme which can "blink" the website.
+            return true;            
+        } else if (nowHours >= sunset_hour || nowHours <= sunrise_hour) {
+            // If time is after or equal to  sunset hour or before or equal to sunrise hour, apply dark theme.
+            // Don't change the theme if it's already set.
+            if ( current_theme == "dark" ) {
+                return true;
+            } else {
+                if (belchertown_debug > 0) {
+                    console.log("Auto theme: setting skin to dark theme");
+                }
+                changeTheme("dark");
                 current_theme = "dark";
             }
         } else {
@@ -192,6 +207,12 @@ function titleCase(str) {
             if ( current_theme == "light" ) {
                 return true;
             } else {
+                if (belchertown_debug > 0) {
+                    console.log("Auto theme: setting skin to light theme");
+                }
+                changeTheme("light");
+                current_theme = "light";
+            }
         }
     }
 }
