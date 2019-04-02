@@ -5,6 +5,7 @@
 * Add support for wind rose with Highcharts.
 * Upgrade to Bootstrap 3.4.1 and change to new bootstrap stackpath CDN
 * Added new Dark Theme. This is a combination of Bootstrap's "darkly" (on CDN) and Highcharts Dark Unica theme (hosted locally), and Belchertown overrides to remain consistent.
+* Added new skin.conf option called "theme". Options are "light", "dark" and "auto". Light (white) website theme. Dark (dark) website theme. Auto switches between the two at sunset (to dark) and sunrise (to light). 
 * Initial JavaScript CSS switcher function. This will change the entire site's CSS dynamically.
 * Added belchertown_debug to aid in debugging the skin's options
 * Added permalink to the graphs page. For example to link to your weekly graphs, use http://yoursite/graphs/?graph=week, for month, it's /?graph=month, for year is /?graph=year and for today you can link to the graphs page, or use /?graph=today
