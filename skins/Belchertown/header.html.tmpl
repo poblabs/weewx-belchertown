@@ -71,6 +71,12 @@
             gtag('config', '$Extras.googleAnalyticsId');
         </script>
         #end if
+        <script>
+            var theme = getURLvar("theme");
+            if ( theme ) {
+                changeTheme(theme);
+            }
+        </script>
 
     </head>
     
