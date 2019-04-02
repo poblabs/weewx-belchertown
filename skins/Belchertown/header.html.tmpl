@@ -23,13 +23,19 @@
         <link rel="alternate" type="application/rss+xml" title="$station.location Weather Conditions &raquo; Feed" href="$belchertown_root_url/feed/" />
 
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
-        #if $Extras.dark_mode == '0'
-        <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' id="bootstrapStyle" />
-        <link rel='stylesheet' href='' type='text/css' media='all' id="highchartsStyle" />
-        #else
-        <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id="bootstrapStyle" />
-        <link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css' type='text/css' media='all' id="highchartsStyle" />
-        #end if
+        <script type='text/javascript'>
+        // JavaScript to detect which theme CSS to load
+        var dark_mode = $Extras.dark_mode;
+        if (window.location.search.indexOf('?theme=dark') === 0 || dark_mode == '1') {
+            // Dark mode CSS
+            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
+            document.write("<link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css' type='text/css' media='all' id='highchartsStyle' />");
+        } else {
+            // Light mode CSS (default)
+            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
+            document.write("<link rel='stylesheet' href='' type='text/css' media='all' id='highchartsStyle' />");
+        }
+        </script>
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
