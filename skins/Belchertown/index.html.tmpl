@@ -310,7 +310,7 @@
                                                         <div class="col-sm-6 moon">
                                                             <div class="moon-container">
                                                                 <span class="moon-icon">
-                                                                    #if $almanac.moon_phase.lower() == "new moon"
+                                                                    #if $almanac.moon_phase.lower() == "new moon" or $almanac.moon_phase.lower() == "new"
                                                                         <div class='wi wi-moon-alt-new'></div>
                                                                     #else if $almanac.moon_phase.lower() == "waxing crescent"
                                                                         <div class='wi wi-moon-alt-waxing-crescent-1'></div>
