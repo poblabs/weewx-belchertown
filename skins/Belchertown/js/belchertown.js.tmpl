@@ -8,6 +8,13 @@ jQuery.ajaxSetup({
     cache:false
 });
 
+// Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
+function getURLvar(k) {
+    var p={};
+    location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
+    return k?p[k]:p;
+}
+
 // http://stackoverflow.com/a/14887961/1177153
 var weatherdirection = {
 	0: 'N',

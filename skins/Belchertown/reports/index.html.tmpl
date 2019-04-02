@@ -6,8 +6,8 @@
     
     <script>        
         jQuery(document).ready(function() {
-            var month = getSearchParams("mo");
-            var year = getSearchParams("yr");
+            var month = getURLvar("mo");
+            var year = getURLvar("yr");
             if ( ( year !== undefined ) && ( month !== undefined ) ) {
                 url = '$belchertown_root_url/NOAA/NOAA-'+year+'-'+month+'.txt';
             } else if ( year !== undefined ) {
@@ -23,14 +23,6 @@
             // Change the direct href link
             jQuery(".noaa_direct_link").attr( "href", url );
         });
-
-        // Get the URL Var so we can show the right NOAA file.
-        // Source: https://stackoverflow.com/a/26744533/1177153
-        function getSearchParams(k) {
-            var p={};
-            location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
-            return k?p[k]:p;
-        }
         
         // Change the div to the right NOAA file
         // I normally use PHP for this, but JavaScript seems to work well for the skin

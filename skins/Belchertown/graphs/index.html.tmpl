@@ -11,13 +11,14 @@
                     <div class="entry-content" itemprop="text">
 
                         <script type="text/javascript">
-                            var graph = getSearchParams("graph");
+                            var graph = getURLvar("graph");
                             if ( graph === undefined ) {
                                 // If no URL VAR, default to today
                                 graph = "day";
                             }
                             var graphgroups_raw = $charts;
                             var thisPageGraphs = graphgroups_raw[graph];
+                            
                             
                             jQuery(document).ready(function() {
                                 // Loop through the graph group for this page and add the graph divs to the page
@@ -27,15 +28,17 @@
                                 
                                 // Render the charts
                                 showChart(graph);
+                                
+                                if ( graph == "day" ) {
+                                    jQuery(".wx-graph-text").html("for today");
+                                } else if ( graph == "week" ) {
+                                    jQuery(".wx-graph-text").html("for this week");
+                                } else if ( graph == "month" ) {
+                                    jQuery(".wx-graph-text").html("for this month");
+                                } else if ( graph == "year" ) {
+                                    jQuery(".wx-graph-text").html("for this year");
+                                }
                             });
-                            
-                            // Get the URL Var so we can show the right graph
-                            // Source: https://stackoverflow.com/a/26744533/1177153
-                            function getSearchParams(k) {
-                                var p={};
-                                location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
-                                return k?p[k]:p;
-                            }
                         </script>
                         
                         #include "page-header.inc"
@@ -46,7 +49,7 @@
                                 <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">Today</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">Week</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">Month</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">Year</button></a>
                             </div>
                             <div class="col-sm-12 wx-buttons-description">
-                                Graphs for <span class='wx-graph-text'>today</span>
+                                Graphs <span class='wx-graph-text'></span>
                             </div>
                         </div>
                         <!-- End row -->
