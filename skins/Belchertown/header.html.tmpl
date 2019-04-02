@@ -25,13 +25,15 @@
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
         <script type='text/javascript'>
         // JavaScript to detect which theme CSS to load
-        var theme = $Extras.theme;
-        if (window.location.search.indexOf('?theme=dark') === 0 || theme == 'dark') {
+        var theme = "$Extras.theme";
+        if (window.location.search.indexOf('?theme=dark') === 0 || theme == "dark") {
             // Dark mode CSS
+            var current_theme = "dark";
             document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
             document.write("<link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css' type='text/css' media='all' id='highchartsStyle' />");
         } else {
-            // Light mode CSS (default)
+            // Light mode CSS (default, even for "auto")
+            var current_theme = "light";
             document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
             document.write("<link rel='stylesheet' href='' type='text/css' media='all' id='highchartsStyle' />");
         }

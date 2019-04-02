@@ -178,6 +178,24 @@ function titleCase(str) {
     }).join(' ');
 }
 
+        console.log("Auto theme: checking to see if theme needs to be switched");
+        console.log("Auto theme: current theme is: " + current_theme);
+    }
+    var d = new Date();
+    var nowHours = d.getHours();
+    var nowMinutes = d.getMinutes();
+    if ( sunset_hour && sunrise_hour ) {
+                current_theme = "dark";
+            }
+        } else {
+            // Else use light theme, but don't set it if it's already set.
+            if ( current_theme == "light" ) {
+                return true;
+            } else {
+        }
+    }
+}
+
 function changeTheme(themeName) {
     if ( themeName == "dark" ) {
         // Apply dark theme
@@ -203,6 +221,12 @@ function update_weewx_data( data ) {
     if (belchertown_debug > 0) {
         console.log("Updating weewx data");
     }
+    
+    #if $Extras.has_key("theme") and $Extras.theme == 'auto'
+    // Auto theme if enabled
+    autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
+    #end if
+    
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
     low = data["day"]["outTemp"]["min"];

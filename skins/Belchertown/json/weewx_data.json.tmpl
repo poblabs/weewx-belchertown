@@ -1,3 +1,4 @@
+#import datetime
 {
     "version": "$station.version",
     "belchertown_version": "$belchertown_version",
@@ -364,8 +365,12 @@
     "almanac": {
         "sunrise": "$almanac.sunrise",
         "sunrise_epoch": "$almanac.sunrise.raw",
+        "sunrise_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#",
+        "sunrise_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#",
         "sunset": "$almanac.sunset",
         "sunset_epoch": "$almanac.sunset.raw",
+        "sunset_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#",
+        "sunset_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#",
         "moon": {
             "moon_fullness": "$almanac.moon_fullness",
             "moon_phase": "$almanac.moon_phase"
