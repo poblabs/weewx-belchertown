@@ -26,14 +26,41 @@
         <script type='text/javascript'>
         // JavaScript to detect which theme CSS to load
         var theme = "$Extras.theme";
-        if (window.location.search.indexOf('?theme=dark') === 0 || theme == "dark") {
-            // Dark mode CSS
-            var current_theme = "dark";
-            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
-            document.write("<link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css' type='text/css' media='all' id='highchartsStyle' />");
+        var current_theme = "$Extras.theme";
+        var belchertown_debug = $belchertown_debug;
+
+        // Determine which theme CSS to load
+        if (window.location.search.indexOf('?theme=dark') === 0) {
+            if (belchertown_debug > 0) {
+                console.log("Header: Setting dark theme because of url override");
+            }
+            current_theme = "dark";
+        } else if (window.location.search.indexOf('?theme=light') === 0) {
+            if (belchertown_debug > 0) {
+                console.log("Header: Setting light theme because of url override");
+            }
+            current_theme = "light";
+        } else if ( theme == "dark" ) {
+            if (belchertown_debug > 0) {
+                console.log("Header: Setting dark theme because of config setting");
+            }
+            current_theme = "dark";
+        } else if ( theme == "light" ) {
+            if (belchertown_debug > 0) {
+                console.log("Header: Setting light theme because of config setting");
+            }
+            current_theme = "light";        
         } else {
-            // Light mode CSS (default, even for "auto")
-            var current_theme = "light";
+            if (belchertown_debug > 0) {
+                console.log("Header: Setting light theme (default) because no other config or url settings present, or site is in auto mode");
+            }
+            current_theme = "light";
+        }
+        
+        if ( current_theme == "dark" ) {
+            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
+            document.write("<link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id='highchartsStyle' />");
+        } else if ( current_theme == "light" ) {
             document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
             document.write("<link rel='stylesheet' href='' type='text/css' media='all' id='highchartsStyle' />");
         }
@@ -82,7 +109,7 @@
 
     </head>
     
-    <body class="home page-template-default page page-id-2 full-width-content" itemscope itemtype="https://schema.org/WebPage">
+    <body class="page-template-default page full-width-content" itemscope itemtype="https://schema.org/WebPage">
 
         <div class="site-container">
             <header class="site-header">
@@ -99,18 +126,18 @@
                         </p>
                     </div>
                     <div class="widget-area header-widget-area">
-                        <section id="nav_menu-2" class="widget widget_nav_menu">
+                        <section id="nav_menu">
                             <div class="widget-wrap">
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
                                     <ul id="menu-menu" class="menu genesis-nav-menu">
                                         <!-- class = current-menu-item -->
-                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">Home</span></a></li>
                                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">Graphs</span></a></li>
+                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">Graphs</span></a></li>
                                         #end if
-                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-36"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
-                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-38"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
-                                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
+                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
                                     </ul>
                                 </nav>
                             </div>

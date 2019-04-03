@@ -183,6 +183,15 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
         console.log("Auto theme: checking to see if theme needs to be switched");
         console.log("Auto theme: current theme is: " + current_theme);
     }
+    // First check if current_theme is auto, and if ?theme= is in URL. If so, bail out and do not change anything. 
+    var urlTheme = getURLvar("theme");
+    if ( urlTheme ) {
+        if (belchertown_debug > 0) {
+            console.log("Auto theme: theme override detected in URL. Skipping auto theme");
+        }
+        return true;
+    }
+    
     var d = new Date();
     var nowHours = d.getHours();
     var nowMinutes = d.getMinutes();
