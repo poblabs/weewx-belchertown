@@ -1,3 +1,27 @@
+## Determine initial skin theme CSS class from config
+## Auto theme setting determines which CSS class to use based on the hour
+#set $bodyTheme = ""
+#set $themeSwitchChecked = ""
+#if $Extras.theme == "dark"
+    #set $bodyTheme = "dark"
+    #set $themeSwitchChecked = "checked"
+#elif $Extras.theme == "light"
+    #set $bodyTheme = "light"
+    #set $themeSwitchChecked = ""
+#elif $Extras.theme == "auto"
+    #import datetime
+    #set $now = datetime.datetime.now()
+    #set $nowHour = $now.hour
+    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
+    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
+        #if $nowHour >= $sunset_hour or $nowHour <= $sunrise_hour
+            #set $bodyTheme = "dark"
+            #set $themeSwitchChecked = "checked"
+        #else
+            #set $bodyTheme = "light"
+            #set $themeSwitchChecked = ""
+        #end if
+#end if
 <!DOCTYPE html>
 <html lang="$system_locale_js" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head >
@@ -23,52 +47,12 @@
         <link rel="alternate" type="application/rss+xml" title="$station.location Weather Conditions &raquo; Feed" href="$belchertown_root_url/feed/" />
 
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
-        <script type='text/javascript'>
-        // JavaScript to detect which theme CSS to load
-        var theme = "$Extras.theme";
-        var current_theme = "$Extras.theme";
-        var belchertown_debug = $belchertown_debug;
-
-        // Determine which theme CSS to load
-        if (window.location.search.indexOf('?theme=dark') === 0) {
-            if (belchertown_debug > 0) {
-                console.log("Header: Setting dark theme because of url override");
-            }
-            current_theme = "dark";
-        } else if (window.location.search.indexOf('?theme=light') === 0) {
-            if (belchertown_debug > 0) {
-                console.log("Header: Setting light theme because of url override");
-            }
-            current_theme = "light";
-        } else if ( theme == "dark" ) {
-            if (belchertown_debug > 0) {
-                console.log("Header: Setting dark theme because of config setting");
-            }
-            current_theme = "dark";
-        } else if ( theme == "light" ) {
-            if (belchertown_debug > 0) {
-                console.log("Header: Setting light theme because of config setting");
-            }
-            current_theme = "light";        
-        } else {
-            if (belchertown_debug > 0) {
-                console.log("Header: Setting light theme (default) because no other config or url settings present, or site is in auto mode");
-            }
-            current_theme = "light";
-        }
-        
-        if ( current_theme == "dark" ) {
-            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
-            document.write("<link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id='highchartsStyle' />");
-        } else if ( current_theme == "light" ) {
-            document.write("<link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' id='bootstrapStyle' />");
-            document.write("<link rel='stylesheet' href='' type='text/css' media='all' id='highchartsStyle' />");
-        }
-        </script>
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+        <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='$belchertown_root_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        <link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
         
         <link rel="manifest" href="$belchertown_root_url/manifest.json">
         <link rel="apple-touch-icon" href="$belchertown_root_url/images/station.png">
@@ -108,8 +92,8 @@
         #end if
 
     </head>
-    
-    <body class="page-template-default page full-width-content" itemscope itemtype="https://schema.org/WebPage">
+
+    <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
 
         <div class="site-container">
             <header class="site-header">
@@ -138,6 +122,12 @@
                                         <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
                                         <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
+                                        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                                        <label class="switch">
+                                            <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
+                                            <span class="slider round"></span>
+                                        </label>
+                                        #end if
                                     </ul>
                                 </nav>
                             </div>
@@ -145,3 +135,5 @@
                     </div>
                 </div>
             </header>
+            
+            

@@ -9,7 +9,7 @@ def loader():
 class ExfoliationInstaller(ExtensionInstaller):
     def __init__(self):
         super(ExfoliationInstaller, self).__init__(
-            version="1.0rc6",
+            version="1.0rc7",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
@@ -36,7 +36,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                                           'skins/Belchertown/records.inc.example',
                                           'skins/Belchertown/robots.txt',
                                           'skins/Belchertown/skin.conf',
-                                          'skins/Belchertown/belchertown-dark.css',
+                                          'skins/Belchertown/belchertown-dark.min.css',
                                           'skins/Belchertown/style.css'
                                          ]
                     ),

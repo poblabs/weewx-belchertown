@@ -3,6 +3,37 @@ var belchertown_debug = $belchertown_debug;
 var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
+jQuery(document).ready(function() {
+        
+    // Change theme if a URL variable is set
+    if ( window.location.search.indexOf('theme') ) {
+        if (window.location.search.indexOf('?theme=dark') === 0) {
+            if (belchertown_debug > 0) {
+                console.log("Theme: Setting dark theme because of URL override");
+            }
+            changeTheme("dark");
+        } else if (window.location.search.indexOf('?theme=light') === 0) {
+            if (belchertown_debug > 0) {
+                console.log("Theme: Setting light theme because of URL override");
+            }
+            changeTheme("light");
+        }
+    }
+
+    #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+    // Dark mode checkbox toggle switcher
+    document.getElementById('themeSwitch').addEventListener('change', function(event){
+        (event.target.checked) ? changeTheme("dark") : changeTheme("light");
+    });
+    #end if
+    
+});
+
+#if $Extras.has_key("theme") and $Extras.theme == 'auto'
+// Run this on every page for dark mode if skin theme is auto
+ajaxweewx();
+#end if
+
 // Disable AJAX caching
 jQuery.ajaxSetup({
     cache:false
@@ -179,66 +210,60 @@ function titleCase(str) {
 }
 
 function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
-    if (belchertown_debug > 0) {
-        console.log("Auto theme: checking to see if theme needs to be switched");
-        console.log("Auto theme: current theme is: " + current_theme);
-    }
-    // First check if current_theme is auto, and if ?theme= is in URL. If so, bail out and do not change anything. 
-    var urlTheme = getURLvar("theme");
-    if ( urlTheme ) {
+    if ( getURLvar("theme") ) {
         if (belchertown_debug > 0) {
             console.log("Auto theme: theme override detected in URL. Skipping auto theme");
         }
         return true;
     }
+    if (belchertown_debug > 0) {
+        console.log("Auto theme: checking to see if theme needs to be switched");
+    }
+    // First check if ?theme= is in URL. If so, bail out and do not change anything. 
     
     var d = new Date();
-    var nowHours = d.getHours();
+    var nowHour = d.getHours();
     var nowMinutes = d.getMinutes();
     if ( sunset_hour && sunrise_hour ) {
-        if ( current_theme == "auto" ) {
-            // Something didn't get set from the header. Skip this time around because otherwise we'll reload the same theme which can "blink" the website.
-            return true;            
-        } else if (nowHours >= sunset_hour || nowHours <= sunrise_hour) {
-            // If time is after or equal to  sunset hour or before or equal to sunrise hour, apply dark theme.
+        if (nowHour >= sunset_hour || nowHour <= sunrise_hour) {
+            // If time is after or equal to sunset hour and before or equal to sunrise hour, apply dark theme.
             // Don't change the theme if it's already set.
-            if ( current_theme == "dark" ) {
-                return true;
-            } else {
+            if ( document.body.classList.contains("light") ) {
                 if (belchertown_debug > 0) {
-                    console.log("Auto theme: setting skin to dark theme");
+                    console.log("Auto theme: setting dark theme. In between sunset and sunrise (night)");
                 }
                 changeTheme("dark");
-                current_theme = "dark";
             }
         } else {
             // Else use light theme, but don't set it if it's already set.
-            if ( current_theme == "light" ) {
-                return true;
-            } else {
+            if ( document.body.classList.contains("dark") ) {
                 if (belchertown_debug > 0) {
-                    console.log("Auto theme: setting skin to light theme");
+                    console.log("Auto theme: setting light theme. In between sunrise and sunset (day)");
                 }
                 changeTheme("light");
-                current_theme = "light";
             }
         }
     }
 }
 
 function changeTheme(themeName) {
+    if (belchertown_debug > 0) {
+        console.log("Theme: Changing to " + themeName);
+    }
     if ( themeName == "dark" ) {
         // Apply dark theme
-        jQuery("#bootstrapStyle").attr('href', '//stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css?ver=' + new Date().getTime() ); 
-        jQuery("#highchartsStyle").attr('href', '$belchertown_root_url/belchertown-dark.css?ver=' + new Date().getTime() );
-        // Re-apply standard Belchertown styles to override bootstrap
-        jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime() );
+        jQuery('body').addClass("dark");
+        jQuery('body').removeClass("light");
+        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+        jQuery("#themeSwitch").prop( "checked", true );
+        #end if
     } else {
-        jQuery("#bootstrapStyle").attr('href', '//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css?ver=' + new Date().getTime() ); 
-        //jQuery("#highchartsStyle").attr('href', '//cdnjs.cloudflare.com/ajax/libs/highcharts/7.0.3/css/highcharts.css?ver=' + new Date().getTime() );
-        jQuery("#highchartsStyle").attr('href', '' );
-        // Re-apply standard Belchertown styles to override bootstrap
-        jQuery("#belchertownStyle").attr('href', '$belchertown_root_url/style.css?ver=' + new Date().getTime());
+        // Apply light theme
+        jQuery('body').addClass("light");
+        jQuery('body').removeClass("dark");
+        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+        jQuery("#themeSwitch").prop( "checked", false );
+        #end if
     }
 }
 
