@@ -1034,6 +1034,10 @@ p.entry-meta {
 	.genesis-nav-menu li.right {
 		display: none;
 	}
+    
+    .themeSwitchLabel {
+        margin-top: 10px;
+    }
 
 }
 
@@ -1130,31 +1134,241 @@ p.entry-meta {
 		padding-right:1px !important;
 	}
 
+    .header-image .site-title > a {
+        background-position-x: center;
+        background-position-y: center;
+        margin-bottom: 20px;
+    }
+    
+	.site-footer { text-align:center !important; }
+	.footerLeft { 
+		float:none !important; 
+		display:block;
+		padding:0px !important;
+	}
+	.footerRight { 
+		float:none !important; 
+		display:block;
+		margin-top:10px;
+		padding:0px !important;
+	}
+    
+    .current_obs_top img {
+        float: left;
+        width: 30%;
+        height: auto;
+    }
+    
+    .current_temp {
+        padding-top: 0px !important;
+    }
+    
+    .current_temp .temp {
+        font-size: 55px;
+    }
+	
+	.wx-content {
+		/* padding-top:25px; */
+	}
+    
+    .windrow {
+        padding-top:0px;
+    }
+	
+	.weewx h1 {
+		font-size:27px;
+	}
+    
+	.breadcrumb { 
+		display:none;
+	}
+
+	.border-left {
+		border-left: 0px !important;
+	}
+	
+	.border-right {
+		border-right: 0px !important;
+	}
+	
+	.wx-stn-info-container {
+		text-align:center;
+	}
+    
+    .obs-header-icon, .obs-header-outtemp {
+        display: inline-block;
+    }
+    
+    .obs-header-icon { width:25%; }
+	
+	.wx-stn-name {
+		float:none;
+	}
+	
+	.wx-stn-share, .wx-stn-info {
+		display:none;
+		float: none !important;
+		text-align:center;
+	}
+	
+    .updated-wrapper {
+        float:none;
+        margin-bottom:5px;
+    }
+    
+	.updated {
+		display: initial;
+	}
+	
+	.station-observations {
+		/* margin-top:15px; */
+	}
+	
+	.current_obs {
+		padding:10px 0px !important;
+	}
+	
+	.windrow {
+		border-bottom:1px solid #D7D7D7;
+		/* padding-bottom:10px; */
+        padding: 20px 0px;
+	}
+	
+	.wind-table { 
+		/* margin-top:15px !important; */
+	}
+    
+    .wind-table td {
+        padding: 0 5px;
+    }
+    
+    .windspeedtable {
+        /* float:left; */
+        float:right;
+    }
+    
+    .current_wind {
+        /* padding: 10px 0px 0px 0px !important; */
+        padding: 0px !important;
+    }
+    
+    .compass {
+        margin-left: 0px;
+        margin-top: 0px;
+        /* margin: 0 auto; */
+        float: left;
+        /* margin: 0 35px; */
+    }
+	
+    .sun { float: left; }
+    .moon { float: right; }
+	
+	.forecast-subtitle {
+		display: block;
+	}
+	
+	.wuforecast {
+		font-size:28px;
+		padding-bottom:15px;
+        min-height: 170px !important;
+		border-bottom:1px solid #D7D7D7;
+	}
+    	
+	.forecast-condition-text {
+		display:block;
+	}
+	
+	.forecast-high, .forecast-low {
+		/* font-size: 30px; */
+		/* font-weight: 500; */
+	}
+	
+	.forecast-precip, .forecast-wind {
+		font-size: 16px;
+		/* display:inline-block !important; */
+	}
+        
+    .forecast-conditions {
+        min-height: 70px;
+    }
+    
+    .forecast-conditions img {
+        width:30%;
+        height:auto;
+    }
+	
+	.earthquake-container {
+        margin-top: 20px;
+		border-top:1px solid #D7D7D7;
+		padding-bottom:10px;
+	}
+	
+	.stn-quick-stats  {
+		padding-left: 0px !important;
+		padding-right: 0px !important;
+        padding-top: 15px;
+	}
+    
+    .records-table {
+        word-break: break-all;
+    }
+    
+    .records table {
+        table-layout: fixed;
+        width: 100%;
+    }
+	
+	/* Responsive tables from: https://css-tricks.com/responsive-data-tables/ */
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+	/* 	display: block;  */
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { 
+		border: 0px;
+	}
+	
+	td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 50%;
+		/* display:block; POB Added */
+	}
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+	}
+    
+    .col-sm-1-5 {
+        padding-left: 0px;
+        padding-right: 0px;
+        width: 45%;
+        font-size: 18px;
+    }
+    
+    .row {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
 }
 
-
-/* # POB Custom Styles
----------------------------------------------------------------------------------------------------- */
-
-/* Responsive Menu
---------------------------------------------- */
-.responsive-menu-icon {
-	cursor: pointer;
-	display: none;
-}
-
-.responsive-menu-icon::before {
-	content: "\f0c9";
-	display: block;
-	font: normal 30px/1 'FontAwesome';
-	margin: 0 auto;
-	padding: 10px;
-	text-align: center;
-	color: #000;
-}
-
-/* # Media Queries
----------------------------------------------------------------------------------------------------- */
 @media only screen and (max-width: 768px) {
 
     .genesis-nav-menu.responsive-menu > .menu-item > .sub-menu,
@@ -1249,6 +1463,27 @@ p.entry-meta {
 		color: red;
 	}
 
+}
+
+
+/* # POB Custom Styles
+---------------------------------------------------------------------------------------------------- */
+
+/* Responsive Menu
+--------------------------------------------- */
+.responsive-menu-icon {
+	cursor: pointer;
+	display: none;
+}
+
+.responsive-menu-icon::before {
+	content: "\f0c9";
+	display: block;
+	font: normal 30px/1 'FontAwesome';
+	margin: 0 auto;
+	padding: 10px;
+	text-align: center;
+	color: #000;
 }
 
 /* Main */
@@ -1868,242 +2103,69 @@ p.entry-meta {
     width: 148px;
 }
 
-@media only screen and (max-width: 800px) {
-	
-    .header-image .site-title > a {
-        background-position-x: center;
-        background-position-y: center;
-        margin-bottom: 20px;
-    }
-    
-	.site-footer { text-align:center !important; }
-	.footerLeft { 
-		float:none !important; 
-		display:block;
-		padding:0px !important;
-	}
-	.footerRight { 
-		float:none !important; 
-		display:block;
-		margin-top:10px;
-		padding:0px !important;
-	}
-    
-    .current_obs_top img {
-        float: left;
-        width: 30%;
-        height: auto;
-    }
-    
-    .current_temp {
-        padding-top: 0px !important;
-    }
-    
-    .current_temp .temp {
-        font-size: 55px;
-    }
-	
-	.wx-content {
-		/* padding-top:25px; */
-	}
-    
-    .windrow {
-        padding-top:0px;
-    }
-	
-	.weewx h1 {
-		font-size:27px;
-	}
-    
-	.breadcrumb { 
-		display:none;
-	}
+/* Dark Mode Switch */
 
-	.border-left {
-		border-left: 0px !important;
-	}
-	
-	.border-right {
-		border-right: 0px !important;
-	}
-	
-	.wx-stn-info-container {
-		text-align:center;
-	}
-    
-    .obs-header-icon, .obs-header-outtemp {
-        display: inline-block;
-    }
-    
-    .obs-header-icon { width:25%; }
-	
-	.wx-stn-name {
-		float:none;
-	}
-	
-	.wx-stn-share, .wx-stn-info {
-		display:none;
-		float: none !important;
-		text-align:center;
-	}
-	
-    .updated-wrapper {
-        float:none;
-        margin-bottom:5px;
-    }
-    
-	.updated {
-		display: initial;
-	}
-	
-	.station-observations {
-		/* margin-top:15px; */
-	}
-	
-	.current_obs {
-		padding:10px 0px !important;
-	}
-	
-	.windrow {
-		border-bottom:1px solid #D7D7D7;
-		/* padding-bottom:10px; */
-        padding: 20px 0px;
-	}
-	
-	.wind-table { 
-		/* margin-top:15px !important; */
-	}
-    
-    .wind-table td {
-        padding: 0 5px;
-    }
-    
-    .windspeedtable {
-        /* float:left; */
-        float:right;
-    }
-    
-    .current_wind {
-        /* padding: 10px 0px 0px 0px !important; */
-        padding: 0px !important;
-    }
-    
-    .compass {
-        margin-left: 0px;
-        margin-top: 0px;
-        /* margin: 0 auto; */
-        float: left;
-        /* margin: 0 35px; */
-    }
-	
-    .sun { float: left; }
-    .moon { float: right; }
-	
-	.forecast-subtitle {
-		display: block;
-	}
-	
-	.wuforecast {
-		font-size:28px;
-		padding-bottom:15px;
-        min-height: 170px !important;
-		border-bottom:1px solid #D7D7D7;
-	}
-    	
-	.forecast-condition-text {
-		display:block;
-	}
-	
-	.forecast-high, .forecast-low {
-		/* font-size: 30px; */
-		/* font-weight: 500; */
-	}
-	
-	.forecast-precip, .forecast-wind {
-		font-size: 16px;
-		/* display:inline-block !important; */
-	}
-        
-    .forecast-conditions {
-        min-height: 70px;
-    }
-    
-    .forecast-conditions img {
-        width:30%;
-        height:auto;
-    }
-	
-	.earthquake-container {
-        margin-top: 20px;
-		border-top:1px solid #D7D7D7;
-		padding-bottom:10px;
-	}
-	
-	.stn-quick-stats  {
-		padding-left: 0px !important;
-		padding-right: 0px !important;
-        padding-top: 15px;
-	}
-    
-    .records-table {
-        word-break: break-all;
-    }
-    
-    .records table {
-        table-layout: fixed;
-        width: 100%;
-    }
-	
-	/* Responsive tables from: https://css-tricks.com/responsive-data-tables/ */
-	/* Force table to not be like tables anymore */
-	table, thead, tbody, th, td, tr { 
-	/* 	display: block;  */
-	}
-	
-	/* Hide table headers (but not display: none;, for accessibility) */
-	thead tr { 
-		position: absolute;
-		top: -9999px;
-		left: -9999px;
-	}
-	
-	tr { 
-		border: 0px;
-	}
-	
-	td { 
-		/* Behave  like a "row" */
-		border: none;
-		border-bottom: 1px solid #eee; 
-		position: relative;
-		padding-left: 50%;
-		/* display:block; POB Added */
-	}
-	
-	td:before { 
-		/* Now like a table header */
-		position: absolute;
-		/* Top/left values mimic padding */
-		top: 6px;
-		left: 6px;
-		width: 45%; 
-		padding-right: 10px; 
-		white-space: nowrap;
-	}
-    
-    .col-sm-1-5 {
-        padding-left: 0px;
-        padding-right: 0px;
-        width: 45%;
-        font-size: 18px;
-    }
-    
-    .row {
-        margin-right: 0px;
-        margin-left: 0px;
-    }
-
+.themeSwitchLabel {
+  position: relative;
+  display: inline-block;
+  width: 35px;
+  height: 19px;
 }
+
+.themeSwitchLabel input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 11px;
+  width: 11px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #375a7f;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #375a7f;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* End Dark Mode Switch */
 
 /* End custom wx page */
 
@@ -2331,68 +2393,4 @@ p.entry-meta {
     .pi .forecastrow {
         border-bottom: 0px;
     }
-    
 
-/* Dark Mode Switch */
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 35px;
-  height: 19px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 11px;
-  width: 11px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #375a7f;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #375a7f;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(16px);
-  -ms-transform: translateX(16px);
-  transform: translateX(16px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-/* End Dark Mode Switch */

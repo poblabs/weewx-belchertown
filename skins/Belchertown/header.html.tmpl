@@ -14,7 +14,7 @@
     #set $nowHour = $now.hour
     #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
     #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
-        #if $nowHour >= $sunset_hour or $nowHour <= $sunrise_hour
+        #if $nowHour >= $sunset_hour and $nowHour <= $sunrise_hour
             #set $bodyTheme = "dark"
             #set $themeSwitchChecked = "checked"
         #else
@@ -123,7 +123,7 @@
                                         <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
                                         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
-                                        <label class="switch">
+                                        <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
                                             <span class="slider round"></span>
                                         </label>

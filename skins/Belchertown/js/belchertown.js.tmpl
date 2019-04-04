@@ -225,7 +225,7 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     var nowHour = d.getHours();
     var nowMinutes = d.getMinutes();
     if ( sunset_hour && sunrise_hour ) {
-        if (nowHour >= sunset_hour || nowHour <= sunrise_hour) {
+        if (nowHour >= sunset_hour && nowHour <= sunrise_hour) {
             // If time is after or equal to sunset hour and before or equal to sunrise hour, apply dark theme.
             // Don't change the theme if it's already set.
             if ( document.body.classList.contains("light") ) {
@@ -1084,7 +1084,7 @@ function showChart(json_file) {
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
                 var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-                //options.chart.className = "highcharts-windRose";
+                options.chart.className = "highcharts-windRose";
                 //options.chart.width = 575;
                 //options.responsive = { rules: [{ condition: { maxWidth: 575 } }] }
                 options.chart.type = "column";
@@ -1117,6 +1117,7 @@ function showChart(json_file) {
                 // Reset the tooltip
                 options.tooltip = {}
                 options.tooltip.shared = true;
+                options.tooltip.valueSuffix = ' %'
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
