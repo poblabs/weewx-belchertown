@@ -225,7 +225,7 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     var nowHour = d.getHours();
     var nowMinutes = d.getMinutes();
     if ( sunset_hour && sunrise_hour ) {
-        if (nowHour >= sunset_hour && nowHour <= sunrise_hour) {
+        if ( (nowHour >= sunset_hour) || (nowHour <= sunrise_hour) ) {
             // If time is after or equal to sunset hour and before or equal to sunrise hour, apply dark theme.
             // Don't change the theme if it's already set.
             if ( document.body.classList.contains("light") ) {

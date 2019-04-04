@@ -14,7 +14,7 @@
     #set $nowHour = $now.hour
     #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
     #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
-        #if $nowHour >= $sunset_hour and $nowHour <= $sunrise_hour
+        #if ($nowHour >= $sunset_hour) or ($nowHour <= $sunrise_hour)
             #set $bodyTheme = "dark"
             #set $themeSwitchChecked = "checked"
         #else
