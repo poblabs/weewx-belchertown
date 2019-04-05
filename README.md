@@ -440,5 +440,7 @@ This project took a lot of coffee to create. If you enjoy this skin and find som
 ## Credits
 * DarkSky API for the weather forecasts.
 * Windy.com for the iFrame embedded weather radar.
-* Gary for the [weewx-highcharts](https://github.com/gjr80/weewx-highcharts) extension. A custom forked version has been packaged with this Belchertown theme. 
+* Bootswatch Darkly for the Bootstrap dark mode.
+* Highcharts Dark Unica CSS for the Highcharts dark mode.
+* Gary for the initial Highcharts help from skin version 0.1 through to 0.9.1. 
 * Brian at [weather34.com](http://weather34.com) for the weather icons from the simplicty 2015 theme. Used with agreement.
