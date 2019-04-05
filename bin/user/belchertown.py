@@ -874,10 +874,11 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             # Special Belchertown wind rose with Highcharts aggregator
             # Wind speeds are split into the first 7 beaufort groups. https://en.wikipedia.org/wiki/Beaufort_scale
             
-            # TODO: Force no aggregate_type ?
+            # Force no aggregate_type
             if aggregate_type:
                 aggregate_type = None
                 
+            # Force no aggregate_interval
             if aggregate_interval:
                 aggregate_interval = None
             
