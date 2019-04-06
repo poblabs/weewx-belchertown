@@ -1785,19 +1785,14 @@ p.entry-meta {
 
 .wx-graph-front {
     font-size:25px;
-    padding-top:20px;
-    padding-bottom:20px;
+    padding-top:10px;
+    padding-bottom:10px;
     text-align:center;
 }
 
 .highcharts-row {
 	/* border-top:1px solid #D7D7D7; */
 	/* margin-top:25px; */
-}
-
-.highcharts-windRose {
-    /* max-width: 575px; */
-    /* margin: 0 auto; */
 }
 
 .wx-buttons { 

@@ -1084,9 +1084,7 @@ function showChart(json_file) {
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
                 var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-                options.chart.className = "highcharts-windRose";
-                //options.chart.width = 575;
-                //options.responsive = { rules: [{ condition: { maxWidth: 575 } }] }
+                options.chart.className = "highcharts-windRose"; // Used for dark mode
                 options.chart.type = "column";
                 options.chart.polar = true;
                 options.chart.alignTicks = false;
@@ -1098,10 +1096,12 @@ function showChart(json_file) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
-                options.legend.align = "right";
+                //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
+                options.legend.x = 210;
                 options.legend.y = 100;
                 options.legend.layout = "vertical";
+                options.legend.floating = true;
                 options.yAxis[0].min = 0;
                 options.yAxis[0].endOnTick = false;
                 options.yAxis[0].reversedStacks = false;
@@ -1117,7 +1117,7 @@ function showChart(json_file) {
                 // Reset the tooltip
                 options.tooltip = {}
                 options.tooltip.shared = true;
-                options.tooltip.valueSuffix = ' %'
+                options.tooltip.valueSuffix = '%'
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
@@ -1128,7 +1128,7 @@ function showChart(json_file) {
                     options.series.push(ns);
                 });
             }
-            
+                        
             // Finally all options are done, now show the chart
             var chart = new Highcharts.chart(options);
 
