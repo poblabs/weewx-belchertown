@@ -1,4 +1,4 @@
-# This is the Belchertown skin charting system which utilizes Highcharts to display the chart data. 
+# This is the Belchertown skin charting system which utilizes Highcharts to display the chart data.
    
 # Chart Types:
 # Supported chart types in the Belchertown skin are line, spline, area, areaspline, scatter (primary for wind direction), column. 
@@ -12,7 +12,7 @@
 
 # Overview of options:
 # A timespan refers to "day", "week", "month" or "year". 
-# The [[day]], [[week]], [[month]], [[year]] sections must remain as they are and cannot be renamed. 
+# The [day], [week], [month], [year] sections must remain as they are and cannot be renamed. 
 # The charts under the timespan can be renamed and reorganized. They will display on your website in the order they appear here.
 # Under the chart are the observation names from the WeeWX database. Any item within your database "archive type" can be charted. For a list of "archive types" refer to this chart. http://weewx.com/docs/customizing.htm#archive_types
 # Each observation can be customized with built-in Highcharts "series" options. Popular ones are color, name and zIndex. For a list of Highcharts Series options refer to https://api.highcharts.com/highcharts/series - Each chart type (e.g. area, line, scatter, etc.) has different options that can be modified, so make sure you are applying the right option for the right chart type.
@@ -29,18 +29,18 @@
 # A line plot (like windSpeed) and a scatter plot (like windDir) cannot exist on the same chart and have working tooltips (the bubble that pops up). But according to this post, you can "trick" highcharts into doing almost the same thing. https://stackoverflow.com/a/43992380/1177153
 # So this post translates into this configuration to have windDir on the same chart as windSpeed and windGust. Note how windDir is the first observation.
 # AS MENTIONED ABOVE THIS IS NOT A SUPPORTED CONFIGURATION! You will not have compass readouts, not will windDir be attached to an axis. This means your wind observations will be so small they'll be almost useless.
-# [[[[windDir]]]]
+# [[[windDir]]]
 #     type = line
 #     lineWidth = 0
 #     radius = 5
-#     [[[[[marker]]]]]
+#     [[[[marker]]]]
 #         enabled = true
-#     [[[[[states]]]]]
-#         [[[[[[hover]]]]]]
+#     [[[[states]]]]
+#         [[[[[hover]]]]]
 #             lineWidthPlus = 0
-# [[[[windSpeed]]]]
+# [[[windSpeed]]]
 #     zIndex = 1
-# [[[[windGust]]]]
+# [[[windGust]]]
 
 # If a custom option broke your charts:
 # Undo your change and restart weewx. 
@@ -73,9 +73,9 @@
 # This is the title of your chart.
 
 # observation_type
-# This is important if you want to show the same observation type in 1 chart. For example, to show 2 outTemp readings, you need to name your archive type something unique, like [[[[outTemp2]]]]
+# This is important if you want to show the same observation type in 1 chart. For example, to show 2 outTemp readings, you need to name your archive type something unique, like [[[outTemp2]]]
 # then beneath that, you specify the observation type with obs_type = outTemp.
-# You do not have to specify observation_type unless you want 2 or more of the same type on a chart. If you do not specify then the archive type will be used. Example: [[[[outTemp]]]]
+# You do not have to specify observation_type unless you want 2 or more of the same type on a chart. If you do not specify then the archive type will be used. Example: [[[outTemp]]]
 # For a fully working example, look at the outTemp charts for the Month and Year groups below.
 
 # Color
