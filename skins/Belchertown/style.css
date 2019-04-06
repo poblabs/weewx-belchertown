@@ -338,6 +338,7 @@ th {
 	/* POB */
 	/* padding-top: 10px; */
 	/* padding-top: 40px; */
+    margin-bottom: 25px;
 }
 
 /* ## Column Widths and Positions
@@ -1255,6 +1256,11 @@ p.entry-meta {
 
 .clear { clear:both; }
 
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
 .center { 
     text-align: center;
     margin: 0 auto;
@@ -1535,6 +1541,7 @@ p.entry-meta {
     /* margin-top: 25px; */
     border-top: 1px solid #D7D7D7;
     padding-top: 10px;
+    margin: 0 -15px 0 -15px;
 }
 
 .curwind {
@@ -1679,6 +1686,7 @@ p.entry-meta {
 	/* padding-top:5px; */
 	border-top:1px solid #D7D7D7;
     padding:15px;
+    margin: 0 -15px 0 -15px;
 }
 
 .sun, .moon {
@@ -1728,10 +1736,6 @@ p.entry-meta {
 
 .forecast-subtitle {
 	font-size:14px;
-}
-
-.wuforecast {
-	min-height:250px !important;
 }
 
 .forecast-conditions {
@@ -1856,16 +1860,21 @@ p.entry-meta {
     /* padding-top:30px; */
 }
 
+#noaa_contents {
+    width: 75%;
+    margin: 0 auto;
+}
+
 /* .col-sm-1-5 { */
 .wuforecast {
     position: relative;
-    min-height: 1px;
-    padding-left: 15px;
-    padding-right: 15px;
+    min-height: 250px;
+    padding-left: 10px;
+    padding-right: 10px;
     /* width: 10%; */
     /* float:left; */
     display: inline-block;
-    width: 148px;
+    width: 142px;
 }
 
 /* Dark Mode Switch */

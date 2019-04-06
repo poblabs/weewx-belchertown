@@ -5,63 +5,59 @@
     #include "header.html.tmpl"
 
     <div class="site-inner">
-        <div class="content-sidebar-wrap">
-            <main class="content">	
-                <article class="weewx graphs page type-page status-publish entry" itemscope itemtype="https://schema.org/CreativeWork">
-                    <div class="entry-content" itemprop="text">
+        <main class="content">	
+            <article class="weewx graphs" itemscope itemtype="https://schema.org/CreativeWork">
 
-                        <script type="text/javascript">
-                            var graph = getURLvar("graph");
-                            if ( graph === undefined ) {
-                                // If no URL VAR, default to today
-                                graph = "day";
-                            }
-                            var graphgroups_raw = $charts;
-                            var thisPageGraphs = graphgroups_raw[graph];
-                            
-                            
-                            jQuery(document).ready(function() {
-                                // Loop through the graph group for this page and add the graph divs to the page
-                                thisPageGraphs.forEach( graphID => {
-                                    jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%; height:350px;"></div>');
-                                });
-                                
-                                // Render the charts
-                                showChart(graph);
-                                
-                                if ( graph == "day" ) {
-                                    jQuery(".wx-graph-text").html("for today");
-                                } else if ( graph == "week" ) {
-                                    jQuery(".wx-graph-text").html("for this week");
-                                } else if ( graph == "month" ) {
-                                    jQuery(".wx-graph-text").html("for this month");
-                                } else if ( graph == "year" ) {
-                                    jQuery(".wx-graph-text").html("for this year");
-                                }
-                            });
-                        </script>
-                        
-                        #include "page-header.inc"
-
-                        <!-- Begin row -->
-                        <div class="row">
-                            <div class="col-sm-12 wx-buttons">
-                                <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">Today</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">Week</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">Month</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">Year</button></a>
-                            </div>
-                            <div class="col-sm-12 wx-buttons-description">
-                                Graphs <span class='wx-graph-text'></span>
-                            </div>
-                        </div>
-                        <!-- End row -->
-                        
-                        <div class="graph_outer"></div><!-- JS populated -->
-                        
-                        <div class="clear"></div>
+                <script type="text/javascript">
+                    var graph = getURLvar("graph");
+                    if ( graph === undefined ) {
+                        // If no URL VAR, default to today
+                        graph = "day";
+                    }
+                    var graphgroups_raw = $charts;
+                    var thisPageGraphs = graphgroups_raw[graph];
                     
+                    
+                    jQuery(document).ready(function() {
+                        // Loop through the graph group for this page and add the graph divs to the page
+                        thisPageGraphs.forEach( graphID => {
+                            jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
+                        });
+                        
+                        // Render the charts
+                        showChart(graph);
+                        
+                        if ( graph == "day" ) {
+                            jQuery(".wx-graph-text").html("for today");
+                        } else if ( graph == "week" ) {
+                            jQuery(".wx-graph-text").html("for this week");
+                        } else if ( graph == "month" ) {
+                            jQuery(".wx-graph-text").html("for this month");
+                        } else if ( graph == "year" ) {
+                            jQuery(".wx-graph-text").html("for this year");
+                        }
+                    });
+                </script>
+                
+                #include "page-header.inc"
+
+                <!-- Begin row -->
+                <div class="row">
+                    <div class="col-sm-12 wx-buttons">
+                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">Today</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">Week</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">Month</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">Year</button></a>
                     </div>
-                </article>
-            </main>
-        </div>
+                    <div class="col-sm-12 wx-buttons-description">
+                        Graphs <span class='wx-graph-text'></span>
+                    </div>
+                </div>
+                <!-- End row -->
+                
+                <div class="graph_outer"></div><!-- JS populated -->
+                
+                <div class="clear"></div>
+                
+            </article>
+        </main>
     </div>
 
 

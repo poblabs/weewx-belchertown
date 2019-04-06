@@ -40,31 +40,27 @@
     </script>
 
     <div class="site-inner">
-        <div class="content-sidebar-wrap">
-            <main class="content">	
-                <article class="weewx reports page type-page status-publish entry" itemscope itemtype="https://schema.org/CreativeWork">
-                    <div class="entry-content" itemprop="text">
+        <main class="content">	
+            <article class="weewx reports" itemscope itemtype="https://schema.org/CreativeWork">
 
-                        #include "page-header.inc"
+                #include "page-header.inc"
 
-                        <div class="noaa_reports">
-                            <H1>NOAA Reports</H1>
-                            <div class="row">
-                                <div class="col-sm-12 wx-year-row">
-                                    $noaa_header_html
-                                </div>
-                            </div>
-                            <a href="#" class="noaa_direct_link">Click here</a> to view this report directly, or click on a month or year to change the NOAA report.
-                            <br><br>
-                            <div class="noaa_report_container">
-                                <pre id="noaa_contents"></pre>
-                            </div> <!-- END noaa_report_container -->
-                        </div> <!-- END noaa_reports -->
-
+                <div class="noaa_reports">
+                    <H1>NOAA Reports</H1>
+                    <div class="row">
+                        <div class="col-sm-12 wx-year-row">
+                            $noaa_header_html
+                        </div>
                     </div>
-                </article>
-            </main>
-        </div>
+                    <a href="#" class="noaa_direct_link">Click here</a> to view this report directly, or click on a month or year to change the NOAA report.
+                    <br><br>
+                    <div class="noaa_report_container">
+                        <pre id="noaa_contents"></pre>
+                    </div> <!-- END noaa_report_container -->
+                </div> <!-- END noaa_reports -->
+
+            </article>
+        </main>
     </div>
 
 

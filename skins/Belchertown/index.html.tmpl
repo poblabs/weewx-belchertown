@@ -75,433 +75,428 @@
     </script>
   
     <div class="site-inner">
-        <div class="content-sidebar-wrap">
-            <main class="content">    
+        <main class="content">    
 
-                <article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
-                    
-                    <div class="entry-content wx-content" itemprop="text">
-                        <!-- Top bar with city and share -->
-                        <div class="wx-stn-info-container">
-                            <div class="wx-stn-name">
-                                <h1>$station.location Weather Conditions</h1>                    
-                            </div>
-                            <div class="wx-stn-info">
-                                Observations are powered by a <a href="about" target="_blank">Personal Weather Station</a>
-                            </div>
-                            <div class="clear"></div>
-                            <!-- Updated time ago -->
-                            <div class="updated-wrapper">
-                                <div class="onlineMarkerOuter">
-                                    <span class="loadingMarker" style="display:none"></span>
-                                    <span class="onlineMarker" style="display:none"></span>
-                                    <span class="offlineMarker" style="display:none"></span>
-                                </div>
-                                <div class="updated"></div><!-- AJAX moment.js -->
-                            </div>
-                            #if $social_html != ""
-                            $social_html
-                            #end if
-                            <div class="clear"></div>
-                            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-                            <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
-                            #end if
+            <article class="weewx frontpage" itemscope="" itemtype="http://schema.org/CreativeWork">
+            
+                <!-- Top bar with city and share -->
+                <div class="wx-stn-info-container">
+                    <div class="wx-stn-name">
+                        <h1>$station.location Weather Conditions</h1>                    
+                    </div>
+                    <div class="wx-stn-info">
+                        Observations are powered by a <a href="about" target="_blank">Personal Weather Station</a>
+                    </div>
+                    <div class="clear"></div>
+                    <!-- Updated time ago -->
+                    <div class="updated-wrapper">
+                        <div class="onlineMarkerOuter">
+                            <span class="loadingMarker" style="display:none"></span>
+                            <span class="onlineMarker" style="display:none"></span>
+                            <span class="offlineMarker" style="display:none"></span>
                         </div>
+                        <div class="updated"></div><!-- AJAX moment.js -->
+                    </div>
+                    #if $social_html != ""
+                    $social_html
+                    #end if
+                    <div class="clear"></div>
+                    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+                    <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
+                    #end if
+                </div>
+                
+                <!-- First row with temperature, observation data and radar -->
+                <div class="row temperature-row">
+                    <div class="col-lg-4 toprow-height">
+                        <div class="row obs-row">
                         
-                        <!-- First row with temperature, observation data and radar -->
-                        <div class="row temperature-row">
-                            <div class="col-lg-4 toprow-height">
-                                <div class="row obs-row">
-                                
-                                    <!-- Temperature -->
-                                    <div class="weather-obs-top">
-                                        <div class="row temp-observation">
-                                            <div class="col-sm-5 current_obs_top">
-                                                $current_obs_icon
-                                            </div>
-                                            <div class="col-sm-7 current_temp">
-                                                <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-5 current-obs-container">
-                                                <div class="current-obs-text">
-                                                    $current_obs_summary
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-7">
-                                                #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
-                                                <div class="feelslike">Feels like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
-                                                #end if
-                                                <div class="stn-high-low">
-                                                    <table class="stn-high-low-table">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="stn-high-low-table-title">High</td>
-                                                                <td class="stn-high-low-table-title border-left">Low</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="high">$day.outTemp.max.format("%.1f")</td>
-                                                                <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <!-- Temperature -->
+                            <div class="weather-obs-top">
+                                <div class="row temp-observation">
+                                    <div class="col-sm-5 current_obs_top">
+                                        $current_obs_icon
+                                    </div>
+                                    <div class="col-sm-7 current_temp">
+                                        <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
                                     </div>
                                 </div>
-                                
-                                <!-- Wind -->
-                                <div class="row windrow">
-                                    <div class="weather-obs-bottom">
-                                    <div class="col-sm-12 current_wind">
-                                        <div class="col-sm-6">
-                                            <div class="compass">
-                                                <div class="direction">
-                                                    <span class="curwinddir">
-                                                    #if $current.windDir.ordinal_compass == "N/A"
-                                                    --
-                                                    #else
-                                                    $current.windDir.ordinal_compass
-                                                    #end if
-                                                    </span>
-                                                    <span class="curwindeg">$current.windDir.format("%.0f")</span>
-                                                </div>
-                                                <div class="arrow"></div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-sm-5 current-obs-container">
+                                        <div class="current-obs-text">
+                                            $current_obs_summary
                                         </div>
-                                        <div class="col-sm-6 windspeedtable">
-                                            <table class="wind-table">
+                                    </div>
+                                    <div class="col-sm-7">
+                                        #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+                                        <div class="feelslike">Feels like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
+                                        #end if
+                                        <div class="stn-high-low">
+                                            <table class="stn-high-low-table">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="windtext">Speed</td>
-                                                        <td class="windtext border-left gust">Gust</td>
+                                                        <td class="stn-high-low-table-title">High</td>
+                                                        <td class="stn-high-low-table-title border-left">Low</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>
-                                                            <span class="curwindspeed">
-                                                                $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
-                                                            </span>
-                                                        </td>
-                                                        <td class="border-left gust">&nbsp;
-                                                            <span class="curwindgust">
-                                                                $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="mph" colspan="3">$unit.label.windSpeed</td>
+                                                        <td class="high">$day.outTemp.max.format("%.1f")</td>
+                                                        <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Station observations -->
-                            <div class="col-lg-3 current-almanac toprow-height border-left border-right">
-                                <div class="station-observations weather-obs-top">
-                                    <table cellpadding="0" cellspacing="0">
+                        </div>
+                        
+                        <!-- Wind -->
+                        <div class="row windrow">
+                            <div class="weather-obs-bottom">
+                            <div class="col-sm-12 current_wind">
+                                <div class="col-sm-6">
+                                    <div class="compass">
+                                        <div class="direction">
+                                            <span class="curwinddir">
+                                            #if $current.windDir.ordinal_compass == "N/A"
+                                            --
+                                            #else
+                                            $current.windDir.ordinal_compass
+                                            #end if
+                                            </span>
+                                            <span class="curwindeg">$current.windDir.format("%.0f")</span>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 windspeedtable">
+                                    <table class="wind-table">
                                         <tbody>
                                             <tr>
-                                                <td>Barometer</td>
-                                                <td>
-                                                    <span class="wx-barometer-data">
-                                                        <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
-                                                    </span>
-                                                    <span class="wx-barometer-trend">
-                                                        #if $trend.barometer == "N/A"
-                                                        &nbsp;
-                                                        #else if "-" in str($trend.barometer)
-                                                        <i class="fa fa-arrow-down barometer-down"></i>
-                                                        #else
-                                                        <i class="fa fa-arrow-up barometer-up"></i>
-                                                        #end if
-                                                    </span>
-                                                </td>
+                                                <td class="windtext">Speed</td>
+                                                <td class="windtext border-left gust">Gust</td>
                                             </tr>
-                                            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                                             <tr>
-                                                <td>Visibility</td>
                                                 <td>
-                                                    <span class="wx-visibility">
-                                                        <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
+                                                    <span class="curwindspeed">
+                                                        $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
                                                     </span>
                                                 </td>
-                                            </tr>
-                                            #end if
-                                            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
-                                            <tr>
-                                                <td>Cloud Base</td>
-                                                <td>
-                                                    <span class="wx-cloudbase">
-                                                        <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
-                                            <tr class="dewpoint_row">
-                                                <td>Dew Point</td>
-                                                <td>
-                                                    <span class="wx-data-dewpoint">
-                                                        <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
+                                                <td class="border-left gust">&nbsp;
+                                                    <span class="curwindgust">
+                                                        $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
                                                     </span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Humidity</td>
-                                                <td>
-                                                    <span class="wx-data-humidity">
-                                                        <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Rainfall</td>
-                                                <td>
-                                                    <span class="wx-rain-data">
-                                                        <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-                                                        <span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #if $day.UV.has_data
-                                            <tr>
-                                                <td>UV</td>
-                                                <td>
-                                                    <span class="wx-uv-data">
-                                                        <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
-                                            #if $day.radiation.has_data
-                                            <tr>
-                                                <td>Solar</td>
-                                                <td>
-                                                    <span class="wx-radiation-data">
-                                                        <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
-                                        </tbody>
-                                    </table>
-                                </div>                        
-                                
-                                <!-- Sun and Moon section -->
-                                <div class="weather-obs-bottom">
-                                    <table cellpadding="0" cellspacing="0">
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <div class="row small-almanac">
-                                                        <div class="sun-moon-title">
-                                                            Sun &amp; Moon
-                                                        </div>
-                                                        <div class="col-sm-6 sun">
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
-                                                            <br>
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
-                                                        </div>
-                                                        <div class="col-sm-6 moon">
-                                                            <div class="moon-container">
-                                                                <span class="moon-icon">
-                                                                    #if $almanac.moon_phase.lower() == "new moon" or $almanac.moon_phase.lower() == "new"
-                                                                        <div class='wi wi-moon-alt-new'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waxing crescent"
-                                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "first quarter"
-                                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waxing gibbous"
-                                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "full moon"
-                                                                        <div class='wi wi-moon-alt-full'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waning gibbous"
-                                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "last quarter"
-                                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waning crescent"
-                                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
-                                                                    #end if
-                                                                </span>
-                                                                <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
-                                                                <br>
-                                                                <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> visible</span><!-- AJAX -->
-                                                            </div>
-                                                        </div>
-                                                        <div class="clear"></div>
-                                                    </div>
-                                                </td>
+                                                <td class="mph" colspan="3">$unit.label.windSpeed</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            
-                            <!-- Radar image -->
-                            <div class="col-lg-5 radar-map toprow-height">
-                                $radar_html
                             </div>
                         </div>
-                        <!-- End of first row -->
-                        
-                        #if os.path.exists("index_hook_after_station_info.inc")
-                        <!-- Start of index_hook_after_station_info row -->
-                        <div class="row index-hook-after-station-info border-bottom">
-                            #include "index_hook_after_station_info.inc"
-                        </div>
-                        <!-- End of index_hook_after_station_info row -->
-                        #end if
-
-                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                        <!-- Start of second row -->
-                        <div class="row forecastrow">
-                            <!-- Forecast -->
-                            <div class="col-lg-12 forecast">
-                                <div class="forecast-title">
-                                    8 Day Forecast <span class="forecast-subtitle"></span><!-- moment.js -->
-                                </div>
-                                <div class="row forecasts"></div><!-- JS -->
-                            </div>        
-                        </div>
-                        <!-- End of second row -->
-                        #end if
-                        
-                        #if os.path.exists("index_hook_after_forecast.inc")
-                        <!-- Start of index_hook_after_forecast row -->
-                        <div class="row index-hook-after-forecast border-bottom">
-                            #include "index_hook_after_forecast.inc"
-                        </div>
-                        <!-- End of index_hook_after_forecast row -->
-                        #end if                        
-                        
-                        <!-- Start of third row -->
-                        <div class="row eq-stats-row">            
-                            <!-- Station history -->
-                            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-                            <div class="col-sm-9 stn-quick-stats">
-                            #else
-                            <div class="col-sm-12 stn-quick-stats">
-                            #end if
-                                
-                                <!-- Quick today stats -->
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="snapshot-records-text">
-                                            Weather Record Snapshots. <a href="records">View all weather records here</a>. 
-                                        </div>
-                                        
-                                        <div class="col-sm-6 stn-quick-stats">
-                                            <div class="stats-title">
-                                                <span class="snapshot-records-today-header"></span><!-- JS and AJAX -->
-                                            </div>
-                                            <table>
-                                                <tr>
-                                                    <td><b>High:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
-                                                    <td><b>Low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
-                                                    <td><b>Highest UV:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Today's Rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
-                                                    <td><b>Highest Rate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
-                                                </tr>
-                                            </table>
-                                        </div>
-
-                                    
-                                        <!-- Quick this month stats -->
-                                        <div class="col-sm-6 stn-quick-stats border-left">
-                                            <div class="stats-title">
-                                                <span class="snapshot-records-month-header">$current.dateTime.format("%B %Y")</span><!-- AJAX -->
-                                            </div>
-                                            <table>
-                                                <tr>
-                                                    <td><b>High:</b></td>    <td>$month.outTemp.max</td>
-                                                    <td><b>Low:</b></td>    <td>$month.outTemp.min</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
-                                                    <td><b>Highest UV:</b></td>        <td>$month.UV.max</td>                                    
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Total Rain:</b></td>        <td>$month.rain.sum</td>
-                                                    <td><b>Highest Rate:</b></td>    <td>$month.rainRate.max</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-                            <!-- Earthquake data -->
-                            <div class="col-sm-3 earthquake-container border-left">
-                                <div class="eq-title">Recent Local Earthquake</div>
-                                <div class="eq-region">
-                                    <span class="earthquake-time"></span><!-- moment.js -->
-                                    #if $earthquake_place != ''
-                                    <br>
-                                    <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <i class="wi wi-earthquake"></i>Magnitude <span class="magnitude">$earthquake_magnitude</span>
-                                        </div>
-                                        <div class="col-sm-6 border-left">
-                                            <span>$earthquake_lat &deg;
-                                            <br>$earthquake_lon &deg;</span>
-                                        </div>
-                                    </div>
-                                    #end if
-                                </div>
-                            </div>
-                            #end if
-                        </div>
-                        <!-- End of third row -->
-                        
-                        #if os.path.exists("index_hook_after_snapshot.inc")
-                        <!-- Start of index_hook_after_snapshot row -->
-                        <div class="row index-hook-after-snapshot border-bottom">
-                            #include "index_hook_after_snapshot.inc"
-                        </div>
-                        <!-- End of index_hook_after_snapshot row -->
-                        #end if                          
-                        
-                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                        <!-- Begin of fourth row - dynamic charts -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-12 wx-graph-front">
-                                Today's graphs. <a href="$belchertown_root_url/graphs">View more here</a>.
-                            </div>
-                            
-                            <div class="graph_outer"></div><!-- JS populated -->
-                            
-                        </div>
-                        <!-- End of fourth row -->
-                        #end if
-                        
-                        <div class="clear"></div>
-                        
-                        #if os.path.exists("index_hook_after_charts.inc")
-                        <!-- Start of index_hook_after_charts row -->
-                        <div class="row index-hook-after-charts border-top">
-                            #include "index_hook_after_charts.inc"
-                        </div>
-                        <!-- End of index_hook_after_charts row -->
-                        #end if  
-                        
-                    </div> <!-- End entry-content -->
+                    </div>
                     
-                </article>
+                    <!-- Station observations -->
+                    <div class="col-lg-3 current-almanac toprow-height border-left border-right">
+                        <div class="station-observations weather-obs-top">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td>Barometer</td>
+                                        <td>
+                                            <span class="wx-barometer-data">
+                                                <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
+                                            </span>
+                                            <span class="wx-barometer-trend">
+                                                #if $trend.barometer == "N/A"
+                                                &nbsp;
+                                                #else if "-" in str($trend.barometer)
+                                                <i class="fa fa-arrow-down barometer-down"></i>
+                                                #else
+                                                <i class="fa fa-arrow-up barometer-up"></i>
+                                                #end if
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                                    <tr>
+                                        <td>Visibility</td>
+                                        <td>
+                                            <span class="wx-visibility">
+                                                <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #end if
+                                    #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
+                                    <tr>
+                                        <td>Cloud Base</td>
+                                        <td>
+                                            <span class="wx-cloudbase">
+                                                <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #end if
+                                    <tr class="dewpoint_row">
+                                        <td>Dew Point</td>
+                                        <td>
+                                            <span class="wx-data-dewpoint">
+                                                <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Humidity</td>
+                                        <td>
+                                            <span class="wx-data-humidity">
+                                                <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rainfall</td>
+                                        <td>
+                                            <span class="wx-rain-data">
+                                                <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
+                                                <span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #if $day.UV.has_data
+                                    <tr>
+                                        <td>UV</td>
+                                        <td>
+                                            <span class="wx-uv-data">
+                                                <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #end if
+                                    #if $day.radiation.has_data
+                                    <tr>
+                                        <td>Solar</td>
+                                        <td>
+                                            <span class="wx-radiation-data">
+                                                <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    #end if
+                                </tbody>
+                            </table>
+                        </div>                        
+                        
+                        <!-- Sun and Moon section -->
+                        <div class="weather-obs-bottom">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="row small-almanac">
+                                                <div class="sun-moon-title">
+                                                    Sun &amp; Moon
+                                                </div>
+                                                <div class="col-sm-6 sun">
+                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
+                                                    <br>
+                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
+                                                </div>
+                                                <div class="col-sm-6 moon">
+                                                    <div class="moon-container">
+                                                        <span class="moon-icon">
+                                                            #if $almanac.moon_phase.lower() == "new moon" or $almanac.moon_phase.lower() == "new"
+                                                                <div class='wi wi-moon-alt-new'></div>
+                                                            #else if $almanac.moon_phase.lower() == "waxing crescent"
+                                                                <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                            #else if $almanac.moon_phase.lower() == "first quarter"
+                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                            #else if $almanac.moon_phase.lower() == "waxing gibbous"
+                                                                <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                            #else if $almanac.moon_phase.lower() == "full moon"
+                                                                <div class='wi wi-moon-alt-full'></div>
+                                                            #else if $almanac.moon_phase.lower() == "waning gibbous"
+                                                                <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                            #else if $almanac.moon_phase.lower() == "last quarter"
+                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                            #else if $almanac.moon_phase.lower() == "waning crescent"
+                                                                <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                            #end if
+                                                        </span>
+                                                        <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
+                                                        <br>
+                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> visible</span><!-- AJAX -->
+                                                    </div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Radar image -->
+                    <div class="col-lg-5 radar-map toprow-height">
+                        $radar_html
+                    </div>
+                </div>
+                <!-- End of first row -->
+                
+                #if os.path.exists("index_hook_after_station_info.inc")
+                <!-- Start of index_hook_after_station_info row -->
+                <div class="row index-hook-after-station-info border-bottom">
+                    #include "index_hook_after_station_info.inc"
+                </div>
+                <!-- End of index_hook_after_station_info row -->
+                #end if
 
-            </main>
-        </div>
+                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                <!-- Start of second row -->
+                <div class="row forecastrow">
+                    <!-- Forecast -->
+                    <div class="col-lg-12 forecast">
+                        <div class="forecast-title">
+                            8 Day Forecast <span class="forecast-subtitle"></span><!-- moment.js -->
+                        </div>
+                        <div class="row forecasts"></div><!-- JS -->
+                    </div>        
+                </div>
+                <!-- End of second row -->
+                #end if
+                
+                #if os.path.exists("index_hook_after_forecast.inc")
+                <!-- Start of index_hook_after_forecast row -->
+                <div class="row index-hook-after-forecast border-bottom">
+                    #include "index_hook_after_forecast.inc"
+                </div>
+                <!-- End of index_hook_after_forecast row -->
+                #end if                        
+                
+                <!-- Start of third row -->
+                <div class="row eq-stats-row">            
+                    <!-- Station history -->
+                    #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                    <div class="col-sm-9 stn-quick-stats">
+                    #else
+                    <div class="col-sm-12 stn-quick-stats">
+                    #end if
+                        
+                        <!-- Quick today stats -->
+                        <div class="row">
+                            <div class="row">
+                                <div class="snapshot-records-text">
+                                    Weather Record Snapshots. <a href="records">View all weather records here</a>. 
+                                </div>
+                                
+                                <div class="col-sm-6 stn-quick-stats">
+                                    <div class="stats-title">
+                                        <span class="snapshot-records-today-header"></span><!-- JS and AJAX -->
+                                    </div>
+                                    <table>
+                                        <tr>
+                                            <td><b>High:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
+                                            <td><b>Low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
+                                        </tr>
+                                        <tr>
+                                            <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
+                                            <td><b>Highest UV:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
+                                        </tr>
+                                        <tr>
+                                            <td><b>Today's Rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
+                                            <td><b>Highest Rate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
+                                        </tr>
+                                    </table>
+                                </div>
+
+                            
+                                <!-- Quick this month stats -->
+                                <div class="col-sm-6 stn-quick-stats border-left">
+                                    <div class="stats-title">
+                                        <span class="snapshot-records-month-header">$current.dateTime.format("%B %Y")</span><!-- AJAX -->
+                                    </div>
+                                    <table>
+                                        <tr>
+                                            <td><b>High:</b></td>    <td>$month.outTemp.max</td>
+                                            <td><b>Low:</b></td>    <td>$month.outTemp.min</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
+                                            <td><b>Highest UV:</b></td>        <td>$month.UV.max</td>                                    
+                                        </tr>
+                                        <tr>
+                                            <td><b>Total Rain:</b></td>        <td>$month.rain.sum</td>
+                                            <td><b>Highest Rate:</b></td>    <td>$month.rainRate.max</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                    <!-- Earthquake data -->
+                    <div class="col-sm-3 earthquake-container border-left">
+                        <div class="eq-title">Recent Local Earthquake</div>
+                        <div class="eq-region">
+                            <span class="earthquake-time"></span><!-- moment.js -->
+                            #if $earthquake_place != ''
+                            <br>
+                            <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <i class="wi wi-earthquake"></i>Magnitude <span class="magnitude">$earthquake_magnitude</span>
+                                </div>
+                                <div class="col-sm-6 border-left">
+                                    <span>$earthquake_lat &deg;
+                                    <br>$earthquake_lon &deg;</span>
+                                </div>
+                            </div>
+                            #end if
+                        </div>
+                    </div>
+                    #end if
+                </div>
+                <!-- End of third row -->
+                
+                #if os.path.exists("index_hook_after_snapshot.inc")
+                <!-- Start of index_hook_after_snapshot row -->
+                <div class="row index-hook-after-snapshot border-bottom">
+                    #include "index_hook_after_snapshot.inc"
+                </div>
+                <!-- End of index_hook_after_snapshot row -->
+                #end if                          
+                
+                #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                <!-- Begin of fourth row - dynamic charts -->
+                <div class="row highcharts-row graph">
+                    <div class="col-sm-12 wx-graph-front">
+                        Today's graphs. <a href="$belchertown_root_url/graphs">View more here</a>.
+                    </div>
+                    
+                    <div class="graph_outer"></div><!-- JS populated -->
+                    
+                </div>
+                <!-- End of fourth row -->
+                #end if
+                
+                <div class="clear"></div>
+                
+                #if os.path.exists("index_hook_after_charts.inc")
+                <!-- Start of index_hook_after_charts row -->
+                <div class="row index-hook-after-charts border-top">
+                    #include "index_hook_after_charts.inc"
+                </div>
+                <!-- End of index_hook_after_charts row -->
+                #end if  
+                
+            </article>
+
+        </main>
     </div>
 
     #include "footer.html.tmpl"

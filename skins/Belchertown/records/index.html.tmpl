@@ -96,266 +96,261 @@
     </script>
 
     <div class="site-inner">
-        <div class="content-sidebar-wrap">
-            <main class="content">	
-                <article class="weewx records page type-page status-publish entry" itemscope itemtype="https://schema.org/CreativeWork">
-                    <div class="entry-content wx-content" itemprop="text">
-                    
-                        #include "page-header.inc"
+        <main class="content">	
+            <article class="weewx records" itemscope itemtype="https://schema.org/CreativeWork">
+            
+                #include "page-header.inc"
 
-                        <!-- Begin row -->
-                        <div class="row">
-                            <div class="col-sm-12 wx-records-description">
-                                #if os.path.exists("records.inc")
-                                #include "records.inc"
-                                #end if
-                            </div>
-                        </div>
-                        <!-- End row -->
-                        
-                        <!-- Records table row -->
-                        <div class="row records-table">
-                            <table class="table-striped">
-                                <tbody>
-                                    <tr>
-                                        <td class="records-header" colspan=5>Temperature Records</td>
-                                    </tr>                        
-                                    <tr>
-                                        <td colspan=1> </td>
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Highest Temperature</td>
-                                        <td class="leftborder">$year.outTemp.max</td>
-                                        <td><span id="year-outtemp-max-ts"></span></td><!-- moment.js -->
-                                        <td class="leftborder"><span id="at-outtemp-max-ts"></span></td><!-- moment.js -->
-                                        <td>$alltime.outTemp.max</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lowest Temperature</td>
-                                        <td class="leftborder">$year.outTemp.min</td>
-                                        <td id="year-outtemp-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-outtemp-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.outTemp.min</td>
-                                    </tr>
-                                    #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
-                                    <tr>
-                                        <td>Highest Apparent Temperature</td>
-                                        <td class="leftborder">$year.appTemp.max</td>
-                                        <td id="year-apptemp-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-apptemp-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.appTemp.max</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lowest Apparent Temperature</td>
-                                        <td class="leftborder">$year.appTemp.min</td>
-                                        <td id="year-apptemp-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-apptemp-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.appTemp.min</td>
-                                    </tr>
-                                    #end if
-                                    <tr>
-                                        <td>Highest Heat Index</td>
-                                        <td class="leftborder">$year.heatindex.max</td>
-                                        <td id="year-heatindex-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-heatindex-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.heatindex.max</td>
-                                    </tr>  
-                                    <tr>
-                                        <td>Lowest Wind Chill</td>
-                                        <td class="leftborder">$year.windchill.min</td>
-                                        <td id="year-windchill-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-windchill-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.windchill.min</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Largest Daily Temperature Range</td>
-                                        <td class="leftborder">$year_outTemp_range_max[1] $unit.label.outTemp</td>
-                                        <td><span id="year-outtemp-range-max-ts"></span><br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                        <td class="leftborder"><span id="at-outtemp-range-max-ts"></span><br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                        <td>$at_outTemp_range_max[1] $unit.label.outTemp</td>
-                                    </tr>                           
-                                    <tr>
-                                        <td>Smallest Daily Temperature Range</td>
-                                        <td class="leftborder">$year_outTemp_range_min[1] $unit.label.outTemp</td>
-                                        <td><span id="year-outtemp-range-min-ts"></span><br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                        <td class="leftborder"><span id="at-outtemp-range-min-ts"></span><br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                        <td>$at_outTemp_range_min[1] $unit.label.outTemp</td>
-                                    </tr>
-                                    
-                                    <tr>
-                                        <td class="records-header" colspan=5>Wind Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan=1> </td>                                    
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                        
-                                    <tr>
-                                        <td>Strongest Wind Gust</td>
-                                        <td class="leftborder">$year.windGust.max</td>
-                                        <td id="year-windGust-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-windGust-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.windGust.max</td>                            
-                                    </tr>
-                                    #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
-                                    <tr>
-                                        <td>Highest Daily Wind Run</td>
-                                        <td class="leftborder">$year.windrun.max</td>
-                                        <td id="year-windrun-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-windrun-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.windrun.max</td>
-                                    </tr>
-                                    #end if
-                                    <tr>
-                                        <td class="records-header" colspan=5>Rain Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan=1> </td>                                    
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                        
-                                    <tr>
-                                        <td>Highest Daily Rainfall</td>
-                                        <td class="leftborder">$rainiest_day[1] $unit.label.rain</td>
-                                        <td id="year-rainiest-day-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-rainiest-day-ts"></td><!-- moment.js -->
-                                        <td>$at_rainiest_day[1] $unit.label.rain</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Highest Daily Rainfall Rate</td>
-                                        <td class="leftborder">$year.rainRate.max</td>
-                                        <td id="year-rainRate-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-rainRate-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.rainRate.max</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Month with Highest Total Rainfall</td>
-                                        <td class="leftborder">$year_rainiest_month[1] $unit.label.rain</td>
-                                        <td>$year_rainiest_month[0]</td>
-                                        <td class="leftborder">$at_rainiest_month[0]</td>
-                                        <td>$at_rainiest_month[1] $unit.label.rain</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Total Rainfall for </td>
-                                        <td class="leftborder">$current.dateTime.format("%Y")</td>
-                                        <td>$year.rain.sum</td>
-                                        <td class="leftborder">$at_rain_highest_year[0]</td>
-                                        <td>$at_rain_highest_year[1] $unit.label.rain</td>
-                                    </tr>                        
-                                    <tr>
-                                        <td>Consecutive Days With Rainfall</td>
-                                        <td class="leftborder">$year_days_with_rain[0] days</td>
-                                        <td>ending <span id="year-days-with-rainfall-ts"></span></td><!-- moment.js -->
-                                        <td class="leftborder">$at_days_with_rain[0] days</td>
-                                        <td id="at-days-with-rainfall-range-ts"></td><!-- moment.js -->
-                                    </tr>                        
-                                    <tr>
-                                        <td>Consecutive Days Without Rainfall</td>
-                                        <td class="leftborder">$year_days_without_rain[0] days</td>
-                                        <td>ending <span id="year-days-without-rainfall-ts"></span></td><!-- moment.js -->
-                                        <td class="leftborder">$at_days_without_rain[0] days</td>
-                                        <td id="at-days-without-rainfall-range-ts"></td><!-- moment.js -->
-                                    </tr>
-                                 
-                                    <tr>
-                                        <td class="records-header" colspan=5>Humidity Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan=1> </td>                                    
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                        
-                                    <tr>
-                                        <td>Highest Humidity</td>
-                                        <td class="leftborder">$year.outHumidity.max</td>
-                                        <td id="year-outHumidity-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-outHumidity-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.outHumidity.max</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lowest Humidity</td>
-                                        <td class="leftborder">$year.outHumidity.min</td>
-                                        <td id="year-outHumidity-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-outHumidity-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.outHumidity.min</td>                            
-                                    </tr>
-                                    <tr>
-                                        <td>Highest Dewpoint</td>
-                                        <td class="leftborder">$year.dewpoint.max</td>
-                                        <td id="year-dewpoint-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-dewpoint-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.dewpoint.max</td>                            
-                                    </tr>
-                                    <tr>
-                                        <td>Lowest Dewpoint</td>
-                                        <td class="leftborder">$year.dewpoint.min</td>
-                                        <td id="year-dewpoint-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-dewpoint-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.dewpoint.min</td>                            
-                                    </tr>
-                                    
-                                    <tr>
-                                        <td class="records-header" colspan=5>Barometer Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan=1> </td>                                    
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>                          
-                                    <tr>
-                                        <td>Highest Barometer</td>
-                                        <td class="leftborder">$year.barometer.max</td>
-                                        <td id="year-barometer-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-barometer-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.barometer.max</td>                            
-                                    </tr>
-                                    <tr>
-                                        <td>Lowest Barometer</td>
-                                        <td class="leftborder">$year.barometer.min</td>
-                                        <td id="year-barometer-min-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-barometer-min-ts"></td><!-- moment.js -->
-                                        <td>$alltime.barometer.min</td>                             
-                                    </tr>
-                                    
-                                    #if $year.radiation.has_data or $year.UV.has_data
-                                    <tr>
-                                        <td class="records-header" colspan=5>Sun Records</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan=1> </td>                                    
-                                        <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                        <td class="records-header-alltime" colspan=2>All Time</td>
-                                    </tr>
-                                    #if $year.radiation.has_data
-                                    <tr>
-                                        <td>Highest Solar Radiation</td>
-                                        <td class="leftborder">$year.radiation.max</td>
-                                        <td id="year-radiation-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.radiation.max</td>
-                                    </tr>
-                                    #end if
-                                    #if $year.UV.has_data
-                                    <tr>
-                                        <td>Highest UV</td>
-                                        <td class="leftborder">$year.UV.max</td>
-                                        <td id="year-uv-max-ts"></td><!-- moment.js -->
-                                        <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
-                                        <td>$alltime.UV.max</td>                             
-                                    </tr>
-                                    #end if
-                                    #end if
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- End records table row -->
-
-                    
+                <!-- Begin row -->
+                <div class="row">
+                    <div class="col-sm-12 wx-records-description">
+                        #if os.path.exists("records.inc")
+                        #include "records.inc"
+                        #end if
                     </div>
-                </article>
-            </main>
+                </div>
+                <!-- End row -->
+                
+                <!-- Records table row -->
+                <div class="row records-table">
+                    <table class="table-striped">
+                        <tbody>
+                            <tr>
+                                <td class="records-header" colspan=5>Temperature Records</td>
+                            </tr>                        
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>
+                            <tr>
+                                <td>Highest Temperature</td>
+                                <td class="leftborder">$year.outTemp.max</td>
+                                <td><span id="year-outtemp-max-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-max-ts"></span></td><!-- moment.js -->
+                                <td>$alltime.outTemp.max</td>
+                            </tr>
+                            <tr>
+                                <td>Lowest Temperature</td>
+                                <td class="leftborder">$year.outTemp.min</td>
+                                <td id="year-outtemp-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outtemp-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.outTemp.min</td>
+                            </tr>
+                            #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+                            <tr>
+                                <td>Highest Apparent Temperature</td>
+                                <td class="leftborder">$year.appTemp.max</td>
+                                <td id="year-apptemp-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-apptemp-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.appTemp.max</td>
+                            </tr>
+                            <tr>
+                                <td>Lowest Apparent Temperature</td>
+                                <td class="leftborder">$year.appTemp.min</td>
+                                <td id="year-apptemp-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-apptemp-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.appTemp.min</td>
+                            </tr>
+                            #end if
+                            <tr>
+                                <td>Highest Heat Index</td>
+                                <td class="leftborder">$year.heatindex.max</td>
+                                <td id="year-heatindex-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-heatindex-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.heatindex.max</td>
+                            </tr>  
+                            <tr>
+                                <td>Lowest Wind Chill</td>
+                                <td class="leftborder">$year.windchill.min</td>
+                                <td id="year-windchill-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windchill-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.windchill.min</td>
+                            </tr>
+                            <tr>
+                                <td>Largest Daily Temperature Range</td>
+                                <td class="leftborder">$year_outTemp_range_max[1] $unit.label.outTemp</td>
+                                <td><span id="year-outtemp-range-max-ts"></span><br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-range-max-ts"></span><br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td>$at_outTemp_range_max[1] $unit.label.outTemp</td>
+                            </tr>                           
+                            <tr>
+                                <td>Smallest Daily Temperature Range</td>
+                                <td class="leftborder">$year_outTemp_range_min[1] $unit.label.outTemp</td>
+                                <td><span id="year-outtemp-range-min-ts"></span><br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-range-min-ts"></span><br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td>$at_outTemp_range_min[1] $unit.label.outTemp</td>
+                            </tr>
+                            
+                            <tr>
+                                <td class="records-header" colspan=5>Wind Records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>                                    
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>                        
+                            <tr>
+                                <td>Strongest Wind Gust</td>
+                                <td class="leftborder">$year.windGust.max</td>
+                                <td id="year-windGust-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windGust-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.windGust.max</td>                            
+                            </tr>
+                            #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
+                            <tr>
+                                <td>Highest Daily Wind Run</td>
+                                <td class="leftborder">$year.windrun.max</td>
+                                <td id="year-windrun-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windrun-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.windrun.max</td>
+                            </tr>
+                            #end if
+                            <tr>
+                                <td class="records-header" colspan=5>Rain Records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>                                    
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>                        
+                            <tr>
+                                <td>Highest Daily Rainfall</td>
+                                <td class="leftborder">$rainiest_day[1] $unit.label.rain</td>
+                                <td id="year-rainiest-day-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-rainiest-day-ts"></td><!-- moment.js -->
+                                <td>$at_rainiest_day[1] $unit.label.rain</td>
+                            </tr>
+                            <tr>
+                                <td>Highest Daily Rainfall Rate</td>
+                                <td class="leftborder">$year.rainRate.max</td>
+                                <td id="year-rainRate-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-rainRate-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.rainRate.max</td>
+                            </tr>
+                            <tr>
+                                <td>Month with Highest Total Rainfall</td>
+                                <td class="leftborder">$year_rainiest_month[1] $unit.label.rain</td>
+                                <td>$year_rainiest_month[0]</td>
+                                <td class="leftborder">$at_rainiest_month[0]</td>
+                                <td>$at_rainiest_month[1] $unit.label.rain</td>
+                            </tr>
+                            <tr>
+                                <td>Total Rainfall for </td>
+                                <td class="leftborder">$current.dateTime.format("%Y")</td>
+                                <td>$year.rain.sum</td>
+                                <td class="leftborder">$at_rain_highest_year[0]</td>
+                                <td>$at_rain_highest_year[1] $unit.label.rain</td>
+                            </tr>                        
+                            <tr>
+                                <td>Consecutive Days With Rainfall</td>
+                                <td class="leftborder">$year_days_with_rain[0] days</td>
+                                <td>ending <span id="year-days-with-rainfall-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder">$at_days_with_rain[0] days</td>
+                                <td id="at-days-with-rainfall-range-ts"></td><!-- moment.js -->
+                            </tr>                        
+                            <tr>
+                                <td>Consecutive Days Without Rainfall</td>
+                                <td class="leftborder">$year_days_without_rain[0] days</td>
+                                <td>ending <span id="year-days-without-rainfall-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder">$at_days_without_rain[0] days</td>
+                                <td id="at-days-without-rainfall-range-ts"></td><!-- moment.js -->
+                            </tr>
+                         
+                            <tr>
+                                <td class="records-header" colspan=5>Humidity Records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>                                    
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>                        
+                            <tr>
+                                <td>Highest Humidity</td>
+                                <td class="leftborder">$year.outHumidity.max</td>
+                                <td id="year-outHumidity-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outHumidity-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.outHumidity.max</td>
+                            </tr>
+                            <tr>
+                                <td>Lowest Humidity</td>
+                                <td class="leftborder">$year.outHumidity.min</td>
+                                <td id="year-outHumidity-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outHumidity-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.outHumidity.min</td>                            
+                            </tr>
+                            <tr>
+                                <td>Highest Dewpoint</td>
+                                <td class="leftborder">$year.dewpoint.max</td>
+                                <td id="year-dewpoint-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-dewpoint-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.dewpoint.max</td>                            
+                            </tr>
+                            <tr>
+                                <td>Lowest Dewpoint</td>
+                                <td class="leftborder">$year.dewpoint.min</td>
+                                <td id="year-dewpoint-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-dewpoint-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.dewpoint.min</td>                            
+                            </tr>
+                            
+                            <tr>
+                                <td class="records-header" colspan=5>Barometer Records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>                                    
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>                          
+                            <tr>
+                                <td>Highest Barometer</td>
+                                <td class="leftborder">$year.barometer.max</td>
+                                <td id="year-barometer-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-barometer-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.barometer.max</td>                            
+                            </tr>
+                            <tr>
+                                <td>Lowest Barometer</td>
+                                <td class="leftborder">$year.barometer.min</td>
+                                <td id="year-barometer-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-barometer-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.barometer.min</td>                             
+                            </tr>
+                            
+                            #if $year.radiation.has_data or $year.UV.has_data
+                            <tr>
+                                <td class="records-header" colspan=5>Sun Records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>                                    
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>All Time</td>
+                            </tr>
+                            #if $year.radiation.has_data
+                            <tr>
+                                <td>Highest Solar Radiation</td>
+                                <td class="leftborder">$year.radiation.max</td>
+                                <td id="year-radiation-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.radiation.max</td>
+                            </tr>
+                            #end if
+                            #if $year.UV.has_data
+                            <tr>
+                                <td>Highest UV</td>
+                                <td class="leftborder">$year.UV.max</td>
+                                <td id="year-uv-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.UV.max</td>                             
+                            </tr>
+                            #end if
+                            #end if
+                        </tbody>
+                    </table>
+                </div>
+                <!-- End records table row -->
+
+            </article>
         </div>
     </div>
 
