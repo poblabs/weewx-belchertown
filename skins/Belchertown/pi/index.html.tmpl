@@ -323,10 +323,10 @@
                 }
                 
                 if ( i == 0 ) {
-                    output_html += '<div class="col-sm-1-5 wuforecast">';
+                    output_html += '<div class="col-sm-1-5 forecast-day">';
                     var weekday = "Today";
                 } else {
-                    output_html += '<div class="col-sm-1-5 wuforecast border-left">';
+                    output_html += '<div class="col-sm-1-5 forecast-day border-left">';
                     var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" ); // Requires moment.js
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';

@@ -453,10 +453,10 @@ function update_forecast_data( data ) {
         }
         
         if ( i == 0 ) {
-            output_html += '<div class="col-sm-1-5 wuforecast">';
+            output_html += '<div class="col-sm-1-5 forecast-day">';
             var weekday = "$obs.label.darksky_forecast_today";
         } else {
-            output_html += '<div class="col-sm-1-5 wuforecast border-left">';
+            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
             var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
         }
         output_html += '<span id="weekday">'+weekday+'</span>';

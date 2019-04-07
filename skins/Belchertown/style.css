@@ -955,7 +955,7 @@ p.entry-meta {
         float: right;
     }
     
-    .forecasts .wuforecast {
+    .forecasts .forecast-day {
         width: 235px;
     }
     
@@ -1861,7 +1861,7 @@ p.entry-meta {
 }
 
 /* .col-sm-1-5 { */
-.wuforecast {
+.forecast-day {
     position: relative;
     min-height: 250px;
     padding-left: 10px;
@@ -2075,14 +2075,14 @@ input:checked + .slider:before {
 		display: block;
 	}
 	
-	.wuforecast {
+	.forecast-day {
 		font-size:28px;
         min-height: 170px !important;
 		/* border-bottom:1px solid #D7D7D7; */
         padding-bottom:15px;
         margin-bottom:15px;
 	}
-    .wuforecast::after {
+    .forecast-day::after {
         background-color: #D7D7D7; 
         bottom: 0;
         content: '';
@@ -2401,7 +2401,7 @@ input:checked + .slider:before {
         height: auto;
     }
 
-    .pi .forecast .wuforecast {
+    .pi .forecast .forecast-day {
         width:24% !important;
         height:100%;
         border-bottom: 0px;
