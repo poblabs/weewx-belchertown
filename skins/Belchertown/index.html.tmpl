@@ -82,7 +82,7 @@
                 <!-- Top bar with city and share -->
                 <div class="wx-stn-info-container">
                     <div class="wx-stn-name">
-                        <h1>$station.location Weather Conditions</h1>                    
+                        <h1>$Extras.home_page_header</h1>                    
                     </div>
                     <div class="wx-stn-info">
                         $Extras.powered_by
@@ -328,7 +328,7 @@
                                                         </span>
                                                         <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
                                                         <br>
-                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> visible</span><!-- AJAX -->
+                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> $obs.label.moon_visible</span><!-- AJAX -->
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
@@ -403,12 +403,12 @@
                                             <td><b>$obs.label.low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
                                         </tr>
                                         <tr>
-                                            <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
-                                            <td><b>Highest UV:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
+                                            <td><b>$obs.label.snapshot_today_high_wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_high_uv:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
                                         </tr>
                                         <tr>
-                                            <td><b>Today's Rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
-                                            <td><b>Highest Rate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_rainrate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
                                         </tr>
                                     </table>
                                 </div>
@@ -425,12 +425,12 @@
                                             <td><b>$obs.label.low:</b></td>    <td>$month.outTemp.min</td>
                                         </tr>
                                         <tr>
-                                            <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
-                                            <td><b>Highest UV:</b></td>        <td>$month.UV.max</td>                                    
+                                            <td><b>$obs.label.snapshot_month_high_wind:</b></td>    <td>$month.wind.max</td>
+                                            <td><b>$obs.label.snapshot_month_high_uv:</b></td>        <td>$month.UV.max</td>                                    
                                         </tr>
                                         <tr>
-                                            <td><b>Total Rain:</b></td>        <td>$month.rain.sum</td>
-                                            <td><b>Highest Rate:</b></td>    <td>$month.rainRate.max</td>
+                                            <td><b>$obs.label.snapshot_month_rain:</b></td>        <td>$month.rain.sum</td>
+                                            <td><b>$obs.label.snapshot_month_rainrate:</b></td>    <td>$month.rainRate.max</td>
                                         </tr>
                                     </table>
                                 </div>

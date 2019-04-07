@@ -28,13 +28,13 @@
                         showChart(graph);
                         
                         if ( graph == "day" ) {
-                            jQuery(".wx-graph-text").html("for today");
+                            jQuery(".wx-graph-text").html("$obs.label.graphs_page_today");
                         } else if ( graph == "week" ) {
-                            jQuery(".wx-graph-text").html("for this week");
+                            jQuery(".wx-graph-text").html("$obs.label.graphs_page_week");
                         } else if ( graph == "month" ) {
-                            jQuery(".wx-graph-text").html("for this month");
+                            jQuery(".wx-graph-text").html("$obs.label.graphs_page_month");
                         } else if ( graph == "year" ) {
-                            jQuery(".wx-graph-text").html("for this year");
+                            jQuery(".wx-graph-text").html("$obs.label.graphs_page_year");
                         }
                     });
                 </script>
@@ -44,10 +44,10 @@
                 <!-- Begin row -->
                 <div class="row">
                     <div class="col-sm-12 wx-buttons">
-                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">Today</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">Week</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">Month</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">Year</button></a>
+                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">$obs.label.graphs_page_today_button</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">$obs.label.graphs_page_week_button</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">$obs.label.graphs_page_month_button</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_year_button</button></a>
                     </div>
                     <div class="col-sm-12 wx-buttons-description">
-                        Graphs <span class='wx-graph-text'></span>
+                        $obs.label.graphs_page_graphs <span class='wx-graph-text'></span>
                     </div>
                 </div>
                 <!-- End row -->

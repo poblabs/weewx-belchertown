@@ -360,7 +360,7 @@ function update_weewx_data( data ) {
             break;
     }
     jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
-    jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
+    jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> $obs.label.moon_visible" );
 }
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
@@ -387,7 +387,7 @@ function update_forecast_data( data ) {
         forecast_alert_text = "";
         for ( i = 0; i < data['alerts'].length; i++ ) { 
             alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'LLL' );
-            forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " in effect until " + alert_expires + "</a><br>";
+            forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
         }
         jQuery(".wx-stn-alert-text").html( forecast_alert_text );
         jQuery(".wx-stn-alert").show();
@@ -412,49 +412,49 @@ function update_forecast_data( data ) {
         var condition_text = "";
         switch ( data["daily"]["data"][i]["icon"] ) {
             case "clear-day":
-                condition_text = "Clear";
+                condition_text = "$obs.label.clear";
                 break;
             case "clear-night":
-                condition_text = "Clear";
+                condition_text = "$obs.label.clear";
                 break;
             case "rain":
-                condition_text = "Rain";
+                condition_text = "$obs.label.rain";
                 break;
             case "snow":
-                condition_text = "Snow";
+                condition_text = "$obs.label.snow";
                 break;
             case "sleet":
-                condition_text = "Sleet";
+                condition_text = "$obs.label.sleet";
                 break;
             case "wind":
-                condition_text = "Windy";
+                condition_text = "$obs.label.windy";
                 break;
             case "fog":
-                condition_text = "Fog";
+                condition_text = "$obs.label.fog";
                 break;
             case "cloudy":
-                condition_text = "Overcast";
+                condition_text = "$obs.label.overcast";
                 break;
             case "partly-cloudy-day":
-                condition_text = "Partly Cloudy";
+                condition_text = "$obs.label.partly_cloudy";
                 break;
             case "partly-cloudy-night":
-                condition_text = "Clear"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
+                condition_text = "$obs.label.clear"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
                 break;
             case "hail":
-                condition_text = "Hail";
+                condition_text = "$obs.label.hail";
                 break;
             case "thunderstorm":
-                condition_text = "Thunderstorm";
+                condition_text = "$obs.label.thunderstorm";
                 break;
             case "tornado":
-                condition_text = "Tornado";
+                condition_text = "$obs.label.tornado";
                 break;
         }
         
         if ( i == 0 ) {
             output_html += '<div class="col-sm-1-5 wuforecast">';
-            var weekday = "Today";
+            var weekday = "$obs.label.darksky_forecast_today";
         } else {
             output_html += '<div class="col-sm-1-5 wuforecast border-left">';
             var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
@@ -485,7 +485,7 @@ function update_forecast_data( data ) {
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
-    jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
+    jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
 #end if
@@ -532,7 +532,7 @@ function connect() {
     if (belchertown_debug > 0) {
         console.log("Connecting to MQTT");
     }
-    reported = "Connecting to weather station real time data.";
+    reported = "$obs.label.mqtt_websockets_connecting";
     jQuery(".updated").text( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -558,7 +558,7 @@ function onConnect() {
     if (belchertown_debug > 0) {
         console.log("MQTT Connected. Subscribing.");
     }
-    reported = "Connected. Waiting for data.";
+    reported = "$obs.label.mqtt_websockets_waiting";
     jQuery(".updated").text( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -577,7 +577,7 @@ function onFailure() {
     jQuery(".loadingMarker").hide();
     epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
     updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-    jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
     console.log( updated + ": Cannot connect to MQTT broker" );
 }
 
@@ -589,7 +589,7 @@ function onConnectionLost(responseObject) {
     jQuery(".loadingMarker").hide();
     epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
     updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-    jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
     if (responseObject.errorCode !== 0) {
         console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
     }
@@ -671,7 +671,7 @@ function update_current_wx(data) {
     
     // Apparent Temperature US
     if ( data.hasOwnProperty("appTemp_F") ) {
-        jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
     }
 
     // Dewpoint US
@@ -681,7 +681,7 @@ function update_current_wx(data) {
     
     // Apparent Temperature Metric
     if ( data.hasOwnProperty("appTemp_C") ) {
-        jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
     }
     
     #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
