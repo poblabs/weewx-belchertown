@@ -481,7 +481,7 @@ function update_forecast_data( data ) {
         output_html += '<div class="forecast-wind">';
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
         output_html += '</div>';
-        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'" target="_blank">Daily Forecast</a>';
+        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
@@ -608,7 +608,7 @@ function inactive(){
     jQuery(".onlineMarker").hide(); // Hide online beacon
     jQuery(".offlineMarker").show(); // Show offline beacon
     jQuery(".loadingMarker").hide(); // Hide loading beacon
-    jQuery(".updated").html( "Live updates have stopped. <button type='button' class='btn btn-primary restart-interval'>Continue live updates</button>" );
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
 }
 
 // Handle MQTT message
@@ -624,7 +624,7 @@ function update_current_wx(data) {
     // Updated time
     epoch = parseFloat( data["dateTime"] ).toFixed(0);
     updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-    updated_text = "Connected to weather station live. Data received " + updated;
+    updated_text = "$obs.label.mqtt_websockets_connected " + updated;
     jQuery(".updated").html( updated_text );
     jQuery(".onlineMarker").show(); // Show the online beacon
     jQuery(".offlineMarker").hide(); // Hide offline beacon

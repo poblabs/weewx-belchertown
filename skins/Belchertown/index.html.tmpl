@@ -85,7 +85,7 @@
                         <h1>$station.location Weather Conditions</h1>                    
                     </div>
                     <div class="wx-stn-info">
-                        Observations are powered by a <a href="about" target="_blank">Personal Weather Station</a>
+                        $Extras.powered_by
                     </div>
                     <div class="clear"></div>
                     <!-- Updated time ago -->
@@ -390,7 +390,7 @@
                         <div class="row">
                             <div class="row">
                                 <div class="snapshot-records-text">
-                                    Weather Record Snapshots. <a href="records">View all weather records here</a>. 
+                                    $obs.label.weather_snapshots <a href="records">$obs.label.weather_snapshots_link</a>
                                 </div>
                                 
                                 <div class="col-sm-6 stn-quick-stats">
@@ -399,8 +399,8 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>High:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
-                                            <td><b>Low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.high:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
                                         </tr>
                                         <tr>
                                             <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
@@ -421,8 +421,8 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>High:</b></td>    <td>$month.outTemp.max</td>
-                                            <td><b>Low:</b></td>    <td>$month.outTemp.min</td>
+                                            <td><b>$obs.label.high:</b></td>    <td>$month.outTemp.max</td>
+                                            <td><b>$obs.label.low:</b></td>    <td>$month.outTemp.min</td>
                                         </tr>
                                         <tr>
                                             <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
@@ -441,7 +441,7 @@
                     #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
                     <!-- Earthquake data -->
                     <div class="col-sm-3 earthquake-container border-left">
-                        <div class="eq-title">Recent Local Earthquake</div>
+                        <div class="eq-title">$obs.label.earthquake_title</div>
                         <div class="eq-region">
                             <span class="earthquake-time"></span><!-- moment.js -->
                             #if $earthquake_place != ''
@@ -449,7 +449,7 @@
                             <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <i class="wi wi-earthquake"></i>Magnitude <span class="magnitude">$earthquake_magnitude</span>
+                                    <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
                                 </div>
                                 <div class="col-sm-6 border-left">
                                     <span>$earthquake_lat &deg;
@@ -475,7 +475,7 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        Today's graphs. <a href="$belchertown_root_url/graphs">View more here</a>.
+                        $obs.label.todays_graphs <a href="$belchertown_root_url/graphs">$obs.label.todays_graphs_link</a>
                     </div>
                     
                     <div class="graph_outer"></div><!-- JS populated -->

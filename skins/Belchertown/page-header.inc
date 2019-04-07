@@ -21,7 +21,7 @@
         </div>
         <div class="col-sm-5" style="float:right;">
             <div class="wx-stn-info">
-                Observations are powered by a <a href="$belchertown_root_url/about" target="_blank">Personal Weather Station</a>
+                $Extras.powered_by
             </div>
             #if $social_html != ""
             <div class="col-sm-10 wx-stn-info-social" style="float:right;">
