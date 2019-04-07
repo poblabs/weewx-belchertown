@@ -14,12 +14,14 @@
     #set $nowHour = $now.hour
     #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
     #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
-        #if ( ($nowHour >= $sunset_hour) or ($nowHour <= $sunrise_hour) )
-            #set $bodyTheme = "dark"
-            #set $themeSwitchChecked = "checked"
-        #else
+        ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
+        #if $sunrise_hour <= $nowHour and $nowHour < $sunset_hour
             #set $bodyTheme = "light"
             #set $themeSwitchChecked = ""
+        #else
+            ## Night time, use dark mode
+            #set $bodyTheme = "dark"
+            #set $themeSwitchChecked = "checked"
         #end if
 #end if
 <!DOCTYPE html>
@@ -43,8 +45,6 @@
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
         <link rel='dns-prefetch' href='//stackpath.bootstrapcdn.com' />
         <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
-
-        <link rel="alternate" type="application/rss+xml" title="$station.location Weather Conditions &raquo; Feed" href="$belchertown_root_url/feed/" />
 
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
@@ -115,13 +115,13 @@
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
                                     <ul id="menu-menu" class="menu genesis-nav-menu">
                                         <!-- class = current-menu-item -->
-                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
                                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">Graphs</span></a></li>
+                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
-                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
-                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
-                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
+                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
                                         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                                         <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>

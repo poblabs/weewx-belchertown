@@ -82,10 +82,10 @@
                 <!-- Top bar with city and share -->
                 <div class="wx-stn-info-container">
                     <div class="wx-stn-name">
-                        <h1>$station.location Weather Conditions</h1>                    
+                        <h1>$Extras.home_page_header</h1>                    
                     </div>
                     <div class="wx-stn-info">
-                        Observations are powered by a <a href="about" target="_blank">Personal Weather Station</a>
+                        $Extras.powered_by
                     </div>
                     <div class="clear"></div>
                     <!-- Updated time ago -->
@@ -129,14 +129,14 @@
                                     </div>
                                     <div class="col-sm-7">
                                         #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
-                                        <div class="feelslike">Feels like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
+                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
                                         #end if
                                         <div class="stn-high-low">
                                             <table class="stn-high-low-table">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="stn-high-low-table-title">High</td>
-                                                        <td class="stn-high-low-table-title border-left">Low</td>
+                                                        <td class="stn-high-low-table-title">$obs.label.high</td>
+                                                        <td class="stn-high-low-table-title border-left">$obs.label.low</td>
                                                     </tr>
                                                     <tr>
                                                         <td class="high">$day.outTemp.max.format("%.1f")</td>
@@ -173,8 +173,8 @@
                                     <table class="wind-table">
                                         <tbody>
                                             <tr>
-                                                <td class="windtext">Speed</td>
-                                                <td class="windtext border-left gust">Gust</td>
+                                                <td class="windtext">$obs.label.wind_speed</td>
+                                                <td class="windtext border-left gust">$obs.label.wind_gust</td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -205,7 +205,7 @@
                             <table cellpadding="0" cellspacing="0">
                                 <tbody>
                                     <tr>
-                                        <td>Barometer</td>
+                                        <td>$obs.label.barometer</td>
                                         <td>
                                             <span class="wx-barometer-data">
                                                 <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
@@ -223,7 +223,7 @@
                                     </tr>
                                     #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                                     <tr>
-                                        <td>Visibility</td>
+                                        <td>$obs.label.visibility</td>
                                         <td>
                                             <span class="wx-visibility">
                                                 <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
@@ -233,7 +233,7 @@
                                     #end if
                                     #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
                                     <tr>
-                                        <td>Cloud Base</td>
+                                        <td>$obs.label.cloudbase</td>
                                         <td>
                                             <span class="wx-cloudbase">
                                                 <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
@@ -242,7 +242,7 @@
                                     </tr>
                                     #end if
                                     <tr class="dewpoint_row">
-                                        <td>Dew Point</td>
+                                        <td>$obs.label.dewpoint</td>
                                         <td>
                                             <span class="wx-data-dewpoint">
                                                 <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
@@ -250,7 +250,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Humidity</td>
+                                        <td>$obs.label.outHumidity</td>
                                         <td>
                                             <span class="wx-data-humidity">
                                                 <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
@@ -258,7 +258,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Rainfall</td>
+                                        <td>$obs.label.rain</td>
                                         <td>
                                             <span class="wx-rain-data">
                                                 <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
@@ -268,7 +268,7 @@
                                     </tr>
                                     #if $day.UV.has_data
                                     <tr>
-                                        <td>UV</td>
+                                        <td>$obs.label.UV</td>
                                         <td>
                                             <span class="wx-uv-data">
                                                 <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
@@ -278,7 +278,7 @@
                                     #end if
                                     #if $day.radiation.has_data
                                     <tr>
-                                        <td>Solar</td>
+                                        <td>$obs.label.radiation</td>
                                         <td>
                                             <span class="wx-radiation-data">
                                                 <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
@@ -298,7 +298,7 @@
                                         <td colspan="2">
                                             <div class="row small-almanac">
                                                 <div class="sun-moon-title">
-                                                    Sun &amp; Moon
+                                                    $obs.label.sun &amp; $obs.label.moon
                                                 </div>
                                                 <div class="col-sm-6 sun">
                                                     <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
@@ -328,7 +328,7 @@
                                                         </span>
                                                         <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
                                                         <br>
-                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> visible</span><!-- AJAX -->
+                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> $obs.label.moon_visible</span><!-- AJAX -->
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
@@ -361,7 +361,7 @@
                     <!-- Forecast -->
                     <div class="col-lg-12 forecast">
                         <div class="forecast-title">
-                            8 Day Forecast <span class="forecast-subtitle"></span><!-- moment.js -->
+                            $obs.label.forecast_header <span class="forecast-subtitle"></span><!-- moment.js -->
                         </div>
                         <div class="row forecasts"></div><!-- JS -->
                     </div>        
@@ -390,7 +390,7 @@
                         <div class="row">
                             <div class="row">
                                 <div class="snapshot-records-text">
-                                    Weather Record Snapshots. <a href="records">View all weather records here</a>. 
+                                    $obs.label.weather_snapshots <a href="records">$obs.label.weather_snapshots_link</a>
                                 </div>
                                 
                                 <div class="col-sm-6 stn-quick-stats">
@@ -399,16 +399,16 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>High:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
-                                            <td><b>Low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.high:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
                                         </tr>
                                         <tr>
-                                            <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
-                                            <td><b>Highest UV:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
+                                            <td><b>$obs.label.snapshot_today_high_wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_high_uv:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
                                         </tr>
                                         <tr>
-                                            <td><b>Today's Rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
-                                            <td><b>Highest Rate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_today_rainrate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
                                         </tr>
                                     </table>
                                 </div>
@@ -421,16 +421,16 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>High:</b></td>    <td>$month.outTemp.max</td>
-                                            <td><b>Low:</b></td>    <td>$month.outTemp.min</td>
+                                            <td><b>$obs.label.high:</b></td>    <td>$month.outTemp.max</td>
+                                            <td><b>$obs.label.low:</b></td>    <td>$month.outTemp.min</td>
                                         </tr>
                                         <tr>
-                                            <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
-                                            <td><b>Highest UV:</b></td>        <td>$month.UV.max</td>                                    
+                                            <td><b>$obs.label.snapshot_month_high_wind:</b></td>    <td>$month.wind.max</td>
+                                            <td><b>$obs.label.snapshot_month_high_uv:</b></td>        <td>$month.UV.max</td>                                    
                                         </tr>
                                         <tr>
-                                            <td><b>Total Rain:</b></td>        <td>$month.rain.sum</td>
-                                            <td><b>Highest Rate:</b></td>    <td>$month.rainRate.max</td>
+                                            <td><b>$obs.label.snapshot_month_rain:</b></td>        <td>$month.rain.sum</td>
+                                            <td><b>$obs.label.snapshot_month_rainrate:</b></td>    <td>$month.rainRate.max</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -441,7 +441,7 @@
                     #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
                     <!-- Earthquake data -->
                     <div class="col-sm-3 earthquake-container border-left">
-                        <div class="eq-title">Recent Local Earthquake</div>
+                        <div class="eq-title">$obs.label.earthquake_title</div>
                         <div class="eq-region">
                             <span class="earthquake-time"></span><!-- moment.js -->
                             #if $earthquake_place != ''
@@ -449,7 +449,7 @@
                             <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <i class="wi wi-earthquake"></i>Magnitude <span class="magnitude">$earthquake_magnitude</span>
+                                    <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
                                 </div>
                                 <div class="col-sm-6 border-left">
                                     <span>$earthquake_lat &deg;
@@ -475,7 +475,7 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        Today's graphs. <a href="$belchertown_root_url/graphs">View more here</a>.
+                        $obs.label.todays_graphs <a href="$belchertown_root_url/graphs">$obs.label.todays_graphs_link</a>
                     </div>
                     
                     <div class="graph_outer"></div><!-- JS populated -->
