@@ -1869,7 +1869,7 @@ p.entry-meta {
     /* width: 10%; */
     /* float:left; */
     display: inline-block;
-    width: 142px;
+    width: 145px;
 }
 
 /* Dark Mode Switch */
@@ -2077,10 +2077,22 @@ input:checked + .slider:before {
 	
 	.wuforecast {
 		font-size:28px;
-		padding-bottom:15px;
         min-height: 170px !important;
-		border-bottom:1px solid #D7D7D7;
+		/* border-bottom:1px solid #D7D7D7; */
+        padding-bottom:15px;
+        margin-bottom:15px;
 	}
+    .wuforecast::after {
+        background-color: #D7D7D7; 
+        bottom: 0;
+        content: '';
+        display: block;
+        height: 1px;
+        left: 50%;
+        position: absolute;
+        transform: translate(-50%,0);
+        width: 85%;
+    }
     	
 	.forecast-condition-text {
 		display:block;
