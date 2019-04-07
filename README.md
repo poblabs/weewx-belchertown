@@ -4,6 +4,7 @@ This skin (or theme, or template) is for the [weewx weather software](http://wee
 
 Features include:
 * Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required)
+* Light and Dark Mode with automatic switching based on sunset and sunrise
 * Forecast data updated every hour without needing to reload the website. (a free DarkSky API key required)
 * Information on your closest Earthquake updated automatically
 * Observation charts that update without needing to reload the website.
@@ -11,7 +12,8 @@ Features include:
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
 * Progressive webapp ready enabling the "Add to homescreen" option so your website feels like an app on your mobile devices. 
 
-![BelchertownWeather.com Homepage](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/homepage_screenshot.jpg)
+![BelchertownWeather.com Homepage in Light and Dark Mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)
+Screenshot of light and dark modes
 
 ## Table of Contents
 
@@ -25,6 +27,7 @@ Features include:
     + [MQTT Brokers](#mqtt-brokers)
       - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
       - [Use a Public Broker](#use-a-public-broker)
+  * [Chart System](#chart-system)
   * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
   * [Using Metric](#using-metric)
   * [Skin Options](#skin-options)
@@ -36,7 +39,7 @@ Features include:
   * [Creating About Page and Records Page](#creating-about-page-and-records-page)
   * [Creating a sitemap.xml File](#creating-a-sitemapxml-file)
   * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
-  * [Change (or remove) a Chart](#change-or-remove-a-chart)
+  * [Translating the Skin](#translating-the-skin)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Donate](#donate)
@@ -77,7 +80,6 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Example: `http://yourwebsite.com` or `http://192.168.1.100`.
 Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this which offer flexibility. See below General Options for more information. You need to only enable 1 option for the skin to work. 
 * `belchertown_root_url` - **This is the preferred option**. Add this to your skin Extras section (see below). 
-* `station_url` - This is the built-in weewx.conf config. 
 
 ### DarkSky API (optional)
 DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
@@ -127,6 +129,12 @@ These public brokers have been tested as working with MQTT and Websockets. If yo
 * [HiveMQ Public Broker](http://www.mqtt-dashboard.com)
 * [test.mosquitto.org](http://test.mosquitto.org)
 * [You can also try some from this list](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
+
+## Chart System
+
+Starting in version 1.0 you have full control over the charts. Version 1.0 comes with 4 charts by default to get you started. There are so many options and things you can do that it's best to read the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation). 
+
+### [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation). 
 
 ## Belchertown Skin as Default Skin
 
@@ -220,7 +228,10 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | ----------
+| belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
 | belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
+| theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
+| theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
@@ -236,17 +247,11 @@ For ease of readability I have broken them out into separate tables. However you
 | show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
 | show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
-| highcharts_show_apptemp | 0 | Show the apparent temperature chart on the temperatureplot. Available only on day and week plots.
-| highcharts_show_intemp | 0 | Show the indoor temperature chart on the temperatureplot. Available only on day and week plots.
-| highcharts_show_windchill | 1 | Show the windchill on the temperature plot.
-| highcharts_show_heatindex | 1 | Show the heat index on the temperature plot.
-| highcharts_graph_1 | "temperatureplot" | Change the observation for chart plot in chart 1. 
-| highcharts_graph_2 | "windplot" | Change the observation for chart plot in chart 2. 
-| highcharts_graph_3 | "rainplot" | Change the observation for chart plot in chart 3. 
-| highcharts_graph_4 | "winddirplot" | Change the observation for chart plot in chart 4. 
-| highcharts_graph_5 | "barometerplot" | Change the observation for chart plot in chart 5. 
-| highcharts_graph_6 | "radiationplot" | Change the observation for chart plot in chart 6.
+| highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
+| powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
+| pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
+| reload_hook_images | 0 | Enable or disable the refreshing of any image within the front page custom hook `.inc` files upon MQTT Websocket page update. Ideal for any weather webcams or custom radar that need to be updated frequently without refreshing the whole page. 
 
 ### MQTT Websockets (for Real Time Streaming) Options
 
@@ -338,32 +343,9 @@ Check out this visual representation:
 
 ![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
-## Change (or remove) a Chart
+## Translating the Skin
 
-You can change the order of your graphs by changing the chart plot name by using the options below in your Extras section. See below in General Options. For example if you wanted chart 6 to be humidity, you set `highcharts_graph_6 = "humidityplot"`. 
-
-If you want to remove a chart, just specify `""`. For example to remove chart 6, you would set `highcharts_graph_6 = ""`. Restart weewx when done.
-
-There are 7 chart plots you can use and they are case sensitive - must be lower case.
-
-* temperatureplot
-* windplot
-* rainplot
-* winddirplot
-* barometerplot
-* radiationplot
-* humidityplot
-
-Here are the default order of the chart plots:
-
-```
-    highcharts_graph_1 = "temperatureplot"
-    highcharts_graph_2 = "windplot"
-    highcharts_graph_3 = "rainplot"
-    highcharts_graph_4 = "winddirplot"
-    highcharts_graph_5 = "barometerplot"
-    highcharts_graph_6 = "radiationplot"
-```
+The skin uses the "default labels" for every text and title on the page. This allows you to translate, or change the words within the skin easily. You can either edit the `[Labels]` `[[Generic]]` section within skin.conf, or (preferred) **copy** these to the weewx.conf's section `[Labels]` `[[Generic]]` and edit them there. If you edit them within skin.conf, your **changes will be lost on upgrades**. 
 
 ## A Note About Date and Time Formatting in Your Locale
 
