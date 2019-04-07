@@ -8,12 +8,13 @@
     "serverLocaleJS": "$system_locale_js",
     "localeEncoding": "$locale_encoding",
     "extras": {
-        #if $Extras.has_key('radar_url')
-        "radar_url": "$Extras.radar_url",
-        #end if
-        #if $Extras.has_key('radar_img')
-        "radarimg": "$Extras.radar_img"
-        #end if
+        "belchertown_theme": "$Extras.theme",
+        "radar_html": "$Extras.radar_html",
+        "reload_hook_images": "$Extras.reload_hook_images",
+        "highcharts_homepage_graphgroup": "$Extras.highcharts_homepage_graphgroup",
+        "show_apptemp": "$Extras.show_apptemp",
+        "show_windrun": "$Extras.show_windrun",
+        "show_cloudbase": "$Extras.show_cloudbase"
     },
     "station": {
         "hardware": "$station.hardware",
