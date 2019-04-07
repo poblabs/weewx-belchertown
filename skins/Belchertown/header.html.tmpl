@@ -46,8 +46,6 @@
         <link rel='dns-prefetch' href='//stackpath.bootstrapcdn.com' />
         <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
 
-        <link rel="alternate" type="application/rss+xml" title="$station.location Weather Conditions &raquo; Feed" href="$belchertown_root_url/feed/" />
-
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
@@ -117,13 +115,13 @@
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
                                     <ul id="menu-menu" class="menu genesis-nav-menu">
                                         <!-- class = current-menu-item -->
-                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
                                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">Graphs</span></a></li>
+                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
-                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">Records</span></a></li>
-                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">Reports</span></a></li>
-                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">About</span></a></li>
+                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
                                         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                                         <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
