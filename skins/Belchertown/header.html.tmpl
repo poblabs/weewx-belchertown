@@ -14,12 +14,14 @@
     #set $nowHour = $now.hour
     #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
     #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
-        #if ( ($nowHour >= $sunset_hour) or ($nowHour <= $sunrise_hour) )
-            #set $bodyTheme = "dark"
-            #set $themeSwitchChecked = "checked"
-        #else
+        ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
+        #if $sunrise_hour <= $nowHour and $nowHour < $sunset_hour
             #set $bodyTheme = "light"
             #set $themeSwitchChecked = ""
+        #else
+            ## Night time, use dark mode
+            #set $bodyTheme = "dark"
+            #set $themeSwitchChecked = "checked"
         #end if
 #end if
 <!DOCTYPE html>

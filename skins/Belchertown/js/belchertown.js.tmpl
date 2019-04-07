@@ -23,6 +23,9 @@ jQuery(document).ready(function() {
     #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
     // Dark mode checkbox toggle switcher
     document.getElementById('themeSwitch').addEventListener('change', function(event){
+        if (belchertown_debug > 0) {
+            console.log("Theme: Toggle button changed");
+        }
         (event.target.checked) ? changeTheme("dark") : changeTheme("light");
     });
     #end if
@@ -210,6 +213,7 @@ function titleCase(str) {
 }
 
 function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
+    // First check if ?theme= is in URL. If so, bail out and do not change anything. 
     if ( getURLvar("theme") ) {
         if (belchertown_debug > 0) {
             console.log("Auto theme: theme override detected in URL. Skipping auto theme");
@@ -219,29 +223,43 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     if (belchertown_debug > 0) {
         console.log("Auto theme: checking to see if theme needs to be switched");
     }
-    // First check if ?theme= is in URL. If so, bail out and do not change anything. 
     
     var d = new Date();
     var nowHour = d.getHours();
     var nowMinutes = d.getMinutes();
-    if ( sunset_hour && sunrise_hour ) {
-        if ( (nowHour >= sunset_hour) || (nowHour <= sunrise_hour) ) {
-            // If time is after or equal to sunset hour and before or equal to sunrise hour, apply dark theme.
-            // Don't change the theme if it's already set.
-            if ( document.body.classList.contains("light") ) {
-                if (belchertown_debug > 0) {
-                    console.log("Auto theme: setting dark theme. In between sunset and sunrise (night)");
-                }
-                changeTheme("dark");
+    nowHour = nowHour;
+    sunrise_hour = sunrise_hour;
+    sunset_hour = sunset_hour;
+    
+    // Determine if it's day time. https://stackoverflow.com/a/14718577/1177153
+    if ( sunrise_hour <= nowHour && nowHour < sunset_hour ) {
+        dayTime = true;
+    } else {
+        dayTime = false;
+    }
+    
+    if (belchertown_debug > 0) {
+        console.log("Auto theme: sunrise: " + sunrise_hour);
+        console.log("Auto theme: now: " + nowHour);
+        console.log("Auto theme: sunset: " + sunset_hour);
+        console.log("Auto theme: are we in daylight hours: " + dayTime);
+    }
+    
+    if ( dayTime ) {
+        // Day time, set light if needed
+        if ( document.body.classList.contains("dark") ) {
+            if (belchertown_debug > 0) {
+                console.log("Auto theme: setting light theme since dayTime variable is true (day)");
             }
-        } else {
-            // Else use light theme, but don't set it if it's already set.
-            if ( document.body.classList.contains("dark") ) {
-                if (belchertown_debug > 0) {
-                    console.log("Auto theme: setting light theme. In between sunrise and sunset (day)");
-                }
-                changeTheme("light");
+            changeTheme("light");
+        }
+    } else {
+        // Night time, set dark if needed
+        if ( document.body.classList.contains("light") ) {
+            if (belchertown_debug > 0) {
+                console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
             }
+            changeTheme("dark");
         }
     }
 }
