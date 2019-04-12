@@ -755,6 +755,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
             chart_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group])
                 
+            output[chart_group]["belchertown_version"] = VERSION
+            
             colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") # Default back to Highcharts standards
             output[chart_group]["colors"] = colors
             

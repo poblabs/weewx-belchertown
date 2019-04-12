@@ -816,6 +816,11 @@ function showChart(json_file) {
         jQuery.each(data, function (plotname, obsname) {
             var observation_type, moment_format = undefined;
             
+            // Ignore the Belchertown Version since this "plot" has no other options
+            if ( plotname == "belchertown_version" ) {
+                return true;
+            }
+            
             // Set the chart colors, then return right away since this "plot" has no other options
             if ( plotname == "colors" ) { 
                 colors = obsname.split(","); 
