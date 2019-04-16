@@ -102,8 +102,16 @@ class getData(SearchList):
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
         
-        # Get the system locale for use with moment.js, and the system decimal for use with highcharts
-        system_locale, locale_encoding = locale.getdefaultlocale()
+        # If theme locale is auto, get the system locale for use with moment.js, and the system decimal for use with highcharts
+        if self.generator.skin_dict['Extras']['belchertown_locale'] == "auto":
+            system_locale, locale_encoding = locale.getdefaultlocale()
+        else:
+            try:
+                # Locale needs to be in locale.encoding format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
+                locale.setlocale(locale.LC_ALL, self.generator.skin_dict['Extras']['belchertown_locale'])
+                system_locale, locale_encoding = locale.getlocale()
+            except Exception as error:
+                raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. This locale needs to be installed onto your Linux system first before Belchertown Skin can use it. Please check Google on how to install this locale onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
         system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
         highcharts_decimal = locale.localeconv()["decimal_point"]
         
