@@ -230,6 +230,7 @@ For ease of readability I have broken them out into separate tables. However you
 | ---- | ------- | ----------
 | belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
 | belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
+| belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. 
 | theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
