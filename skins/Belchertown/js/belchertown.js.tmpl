@@ -319,8 +319,8 @@ function update_weewx_data( data ) {
     jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
     
     // Daily stats section
-    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, LL' ) );
-    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM YYYY' ) );
+    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_today_header' ) );
+    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_month_header' ) );
     jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
     jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
     jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
@@ -329,8 +329,8 @@ function update_weewx_data( data ) {
     jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
     
     // Sunrise and Sunset            
-    jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
-    jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
+    jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_sunrise" ) );
+    jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_sunset" ) );
     
     // Moon icon, phase and illumination percent
     switch ( data["almanac"]["moon"]["moon_phase"] ) {
@@ -386,7 +386,7 @@ function update_forecast_data( data ) {
         var i, forecast_alert_text;
         forecast_alert_text = "";
         for ( i = 0; i < data['alerts'].length; i++ ) { 
-            alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'LLL' );
+            alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( '$obs.label.time_darksky_alert_expires' );
             forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
         }
         jQuery(".wx-stn-alert-text").html( forecast_alert_text );
@@ -454,11 +454,11 @@ function update_forecast_data( data ) {
         
         if ( i == 0 ) {
             output_html += '<div class="col-sm-1-5 forecast-day">';
-            var weekday = "$obs.label.darksky_forecast_today";
         } else {
             output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-            var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
         }
+        //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
+        var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "$obs.label.time_darksky_forecast_date" );
         output_html += '<span id="weekday">'+weekday+'</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-conditions">';
@@ -484,7 +484,7 @@ function update_forecast_data( data ) {
         output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
     }
-    forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
+    forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
     jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
@@ -576,7 +576,7 @@ function onFailure() {
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
     epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
     jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
     console.log( updated + ": Cannot connect to MQTT broker" );
 }
@@ -588,7 +588,7 @@ function onConnectionLost(responseObject) {
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
     epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
     jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
     if (responseObject.errorCode !== 0) {
         console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
@@ -623,7 +623,7 @@ function update_current_wx(data) {
     
     // Updated time
     epoch = parseFloat( data["dateTime"] ).toFixed(0);
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
+    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
     updated_text = "$obs.label.mqtt_websockets_connected " + updated;
     jQuery(".updated").html( updated_text );
     jQuery(".onlineMarker").show(); // Show the online beacon
@@ -853,12 +853,12 @@ function showChart(json_file) {
             
             // Update moment.js locale format
             if ( chart_group == "day" ) {
-                moment_format = "LLL";
+                moment_format = "$obs.label.time_charts_tooltip_day";
             } else if ( chart_group == "month" || chart_group == "year" ) {
-                moment_format = "dddd LL";
+                moment_format = "$obs.label.time_charts_tooltip_month_year";
             } else {
                 // Week charts and anything else undefined by a standard group
-                moment_format = "LLLL";
+                moment_format = "$obs.label.time_charts_tooltip_default";
             }
             
             var options = {
