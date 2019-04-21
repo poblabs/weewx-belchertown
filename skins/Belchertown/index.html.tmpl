@@ -209,7 +209,7 @@
                             <table cellpadding="0" cellspacing="0">
                                 <tbody>
                                     <tr>
-                                        <td>$obs.label.barometer</td>
+                                        <td class="station-observations-label">$obs.label.barometer</td>
                                         <td>
                                             <span class="wx-barometer-data">
                                                 <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
@@ -227,7 +227,7 @@
                                     </tr>
                                     #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                                     <tr>
-                                        <td>$obs.label.visibility</td>
+                                        <td class="station-observations-label">$obs.label.visibility</td>
                                         <td>
                                             <span class="wx-visibility">
                                                 <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
@@ -237,7 +237,7 @@
                                     #end if
                                     #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
                                     <tr>
-                                        <td>$obs.label.cloudbase</td>
+                                        <td class="station-observations-label">$obs.label.cloudbase</td>
                                         <td>
                                             <span class="wx-cloudbase">
                                                 <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
@@ -246,7 +246,7 @@
                                     </tr>
                                     #end if
                                     <tr class="dewpoint_row">
-                                        <td>$obs.label.dewpoint</td>
+                                        <td class="station-observations-label">$obs.label.dewpoint</td>
                                         <td>
                                             <span class="wx-data-dewpoint">
                                                 <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
@@ -254,7 +254,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>$obs.label.outHumidity</td>
+                                        <td class="station-observations-label">$obs.label.outHumidity</td>
                                         <td>
                                             <span class="wx-data-humidity">
                                                 <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
@@ -262,7 +262,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>$obs.label.rain</td>
+                                        <td class="station-observations-label">$obs.label.rain</td>
                                         <td>
                                             <span class="wx-rain-data">
                                                 <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
@@ -272,7 +272,7 @@
                                     </tr>
                                     #if $day.UV.has_data
                                     <tr>
-                                        <td>$obs.label.UV</td>
+                                        <td class="station-observations-label">$obs.label.UV</td>
                                         <td>
                                             <span class="wx-uv-data">
                                                 <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
@@ -282,7 +282,7 @@
                                     #end if
                                     #if $day.radiation.has_data
                                     <tr>
-                                        <td>$obs.label.radiation</td>
+                                        <td class="station-observations-label">$obs.label.radiation</td>
                                         <td>
                                             <span class="wx-radiation-data">
                                                 <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
