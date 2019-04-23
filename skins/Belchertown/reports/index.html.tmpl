@@ -44,6 +44,9 @@
             <article class="weewx reports" itemscope itemtype="https://schema.org/CreativeWork">
 
                 #include "page-header.inc"
+                #if os.path.exists("history.inc")
+                    #include "history.inc"
+                #end if
 
                 <div class="noaa_reports">
                     <H1>$obs.label.reports_title</H1>
