@@ -23,6 +23,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                 }
             },
             files=[('bin/user', ['bin/user/belchertown.py'
+                                 'bin/user/history.py'
                                 ]
                     ),
                    ('skins/Belchertown', ['skins/Belchertown/favicon.ico',
@@ -38,6 +39,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                                           'skins/Belchertown/skin.conf',
                                           'skins/Belchertown/belchertown-dark.min.css',
                                           'skins/Belchertown/style.css'
+                                          'skins/Belchertown/history.inc'
                                          ]
                     ),
                    ('skins/Belchertown/about', ['skins/Belchertown/about/index.html.tmpl']),
