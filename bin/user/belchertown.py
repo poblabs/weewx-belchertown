@@ -66,6 +66,13 @@ class getData(SearchList):
         # Look for the debug flag which can be used to show more logging
         weewx.debug = int(self.generator.config_dict.get('debug', 0))
         
+        # Setup label dict for text and titles
+        try:
+            d = self.generator.skin_dict['Labels']['Generic']
+        except KeyError:
+            d = {}
+        label_dict = weeutil.weeutil.KeyDict(d)
+        
         # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
         if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
             belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
@@ -95,8 +102,16 @@ class getData(SearchList):
         # Multiplying by -1 will reverse the number sign and keep 0 (not -0). https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
         
-        # Get the system locale for use with moment.js, and the system decimal for use with highcharts
-        system_locale, locale_encoding = locale.getdefaultlocale()
+        # If theme locale is auto, get the system locale for use with moment.js, and the system decimal for use with highcharts
+        if self.generator.skin_dict['Extras']['belchertown_locale'] == "auto":
+            system_locale, locale_encoding = locale.getdefaultlocale()
+        else:
+            try:
+                # Locale needs to be in locale.encoding format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
+                locale.setlocale(locale.LC_ALL, self.generator.skin_dict['Extras']['belchertown_locale'])
+                system_locale, locale_encoding = locale.getlocale()
+            except Exception as error:
+                raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. This locale needs to be installed onto your Linux system first before Belchertown Skin can use it. Please check Google on how to install this locale onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
         system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
         highcharts_decimal = locale.localeconv()["decimal_point"]
         
@@ -189,7 +204,7 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             year_outTemp_range_max = [ year_outTemp_max_range_query[0], locale.format("%g", float(year_outTemp_max_range_total)), locale.format("%g", float(year_outTemp_max_range_min)), locale.format("%g", float(year_outTemp_max_range_max)) ]
         else:
-            year_outTemp_range_max = [ calendar.timegm( time.gmtime() ), 0.0, 0.0, 0.0 ]
+            year_outTemp_range_max = [ calendar.timegm( time.gmtime() ), locale.format("%.1f", 0), locale.format("%.1f", 0), locale.format("%.1f", 0) ]
         
         # Smallest Daily Temperature Range Conversions
         # Max temperature for this day
@@ -204,7 +219,7 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             year_outTemp_range_min = [ year_outTemp_min_range_query[0], locale.format("%g", float(year_outTemp_min_range_total)), locale.format("%g", float(year_outTemp_min_range_min)), locale.format("%g", float(year_outTemp_min_range_max)) ]
         else:
-            year_outTemp_range_min = [ calendar.timegm( time.gmtime() ), 0.0, 0.0, 0.0 ]
+            year_outTemp_range_min = [ calendar.timegm( time.gmtime() ), locale.format("%.1f", 0), locale.format("%.1f", 0), locale.format("%.1f", 0) ]
         
         # All Time - Largest Daily Temperature Range Conversions
         # Max temperature
@@ -245,7 +260,7 @@ class getData(SearchList):
             rainiest_day_converted = rain_round % self.generator.converter.convert(rainiest_day_tuple)[0]
             rainiest_day = [ rainiest_day_query[0], rainiest_day_converted ]
         else:
-            rainiest_day = [ calendar.timegm( time.gmtime() ), 0.00 ]
+            rainiest_day = [ calendar.timegm( time.gmtime() ), locale.format("%.2f", 0) ]
             
 
         # All Time Rainiest Day
@@ -322,12 +337,12 @@ class getData(SearchList):
         if year_days_with_rain_output:
             year_days_with_rain = max( zip( year_days_with_rain_output.values(), year_days_with_rain_output.keys() ) )
         else:
-            year_days_with_rain = [ 0.0, calendar.timegm( time.gmtime() ) ]
+            year_days_with_rain = [ locale.format("%.1f", 0), calendar.timegm( time.gmtime() ) ]
             
         if year_days_without_rain_output:
             year_days_without_rain = max( zip( year_days_without_rain_output.values(), year_days_without_rain_output.keys() ) )
         else:
-            year_days_without_rain = [ 0.0, calendar.timegm( time.gmtime() ) ]
+            year_days_without_rain = [ locale.format("%.1f", 0), calendar.timegm( time.gmtime() ) ]
            
         at_days_with_rain_total = 0
         at_days_without_rain_total = 0
@@ -474,7 +489,7 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
             
-            current_obs_summary = data["currently"]["summary"]
+            current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
             visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
             
             if data["currently"]["icon"] == "partly-cloudy-night":
@@ -738,7 +753,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             d = self.skin_dict['Labels']['Generic']
         except KeyError:
             d = {}
-        title_dict = weeutil.weeutil.KeyDict(d)
+        label_dict = weeutil.weeutil.KeyDict(d)
         
         # Final output dict
         output = {}
@@ -748,6 +763,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
             chart_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group])
                 
+            output[chart_group]["belchertown_version"] = VERSION
+            
             colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") # Default back to Highcharts standards
             output[chart_group]["colors"] = colors
             
@@ -811,9 +828,9 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     # Get any custom names for this observation 
                     name = line_options.get('name', None)
                     if not name:
-                        # No explicit name. Look up a generic one. NB: title_dict is a KeyDict which
+                        # No explicit name. Look up a generic one. NB: label_dict is a KeyDict which
                         # will substitute the key if the value is not in the dictionary.
-                        name = title_dict[observation_type]
+                        name = label_dict[observation_type]
                                         
                     if observation_type == "rainTotal":
                         obs_label = "rain"

@@ -110,6 +110,53 @@ time_length = 90000 # Last 25 hours
 type = line
 colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8, #8d4653, #91e8e1"
 
+[homepage]
+    # Chart Timespan Defaults
+    time_length = today
+    gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yaxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yaxis_max = 360
+            lineWidth = 0
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        type = spline
+        [[[barometer]]]
+            color = "#BECC00"
+            
 [day]
     # Chart Timespan Defaults
     time_length = today
@@ -120,10 +167,11 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         [[[outTemp]]]
             zIndex = 1
             name = Temperature
-        [[[dewpoint]]]
         [[[windchill]]]
         [[[heatindex]]]
             color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
     
     [[chart2]]
         # The combined Wind Chart works best in this configuration
@@ -168,10 +216,11 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         [[[outTemp]]]
             zIndex = 1
             name = Temperature
-        [[[dewpoint]]]
         [[[windchill]]]
         [[[heatindex]]]
             color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
     
     [[chart2]]
         # The combined Wind Chart works best in this configuration
