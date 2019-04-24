@@ -3,7 +3,7 @@
    <H1>$HistoryLabels.history_tables.title</H1>
       <center>
         <div class="container" >
-            <div class="col-md-8 main" >
+            <div class="col-sm-12 main" >
              <br><h3>$HistoryLabels.history_tables.min_temp</h3>
                 $min_temp_table
 
