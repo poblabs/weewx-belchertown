@@ -1075,10 +1075,22 @@ function showChart(json_file) {
                 // Some charts may require a defined min/max on the yAxis
                 options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
                 options.yAxis[this_yAxis].max = s.yaxis_max ? s.yaxis_max : null;
+                
+                // Some charts may require a defined soft min/max on the yAxis
+                options.yAxis[this_yAxis].softmin = s.yaxis_softmin ? s.yaxis_softmin : null;
+                options.yAxis[this_yAxis].softmax = s.yaxis_softmax ? s.yaxis_softmax : null;
 
+                // Set the yAxis tick interval. Mostly used for barometer. 
+                if ( s.yaxis_tickinterval ) { 
+                    options.yAxis[this_yAxis].tickInterval = s.yaxis_tickinterval;
+                }
+                
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    options.yAxis[this_yAxis].tickInterval = 0.01;
+                    if ( ! s.yaxis_tickinterval ) { 
+                        // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
+                        options.yAxis[this_yAxis].tickInterval = 0.01;
+                    }
                     options.yAxis[this_yAxis].labels = { format: '{value:.2f}' }
                 }
                 
