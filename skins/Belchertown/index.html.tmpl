@@ -71,7 +71,7 @@
             #else
             // MQTT Websockets not enabled, update the Last Updated timestamp with moment.js
             updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            updated_text = "Last Updated " + updated;
+            updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
             #end if
         });
