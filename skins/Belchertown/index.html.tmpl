@@ -71,7 +71,7 @@
             #else
             // MQTT Websockets not enabled, update the Last Updated timestamp with moment.js
             updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            updated_text = "Last Updated " + updated;
+            updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
             #end if
         });
@@ -139,8 +139,8 @@
                                             <table class="stn-high-low-table">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="stn-high-low-table-title">$obs.label.high</td>
-                                                        <td class="stn-high-low-table-title border-left">$obs.label.low</td>
+                                                        <td class="stn-high-low-table-title">$obs.label.highest_temperature</td>
+                                                        <td class="stn-high-low-table-title border-left">$obs.label.lowest_temperature</td>
                                                     </tr>
                                                     <tr>
                                                         <td class="high">$day.outTemp.max.format("%.1f")</td>
@@ -403,8 +403,8 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>$obs.label.high:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
-                                            <td><b>$obs.label.low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_high:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
+                                            <td><b>$obs.label.snapshot_low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
                                         </tr>
                                         <tr>
                                             <td><b>$obs.label.snapshot_today_high_wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
@@ -425,8 +425,8 @@
                                     </div>
                                     <table>
                                         <tr>
-                                            <td><b>$obs.label.high:</b></td>    <td>$month.outTemp.max</td>
-                                            <td><b>$obs.label.low:</b></td>    <td>$month.outTemp.min</td>
+                                            <td><b>$obs.label.snapshot_high:</b></td>    <td>$month.outTemp.max</td>
+                                            <td><b>$obs.label.snapshot_low:</b></td>    <td>$month.outTemp.min</td>
                                         </tr>
                                         <tr>
                                             <td><b>$obs.label.snapshot_month_high_wind:</b></td>    <td>$month.wind.max</td>

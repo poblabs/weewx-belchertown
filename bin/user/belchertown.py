@@ -123,16 +123,16 @@ class getData(SearchList):
         # OrderedDict([('day', ['chart1', 'chart2', 'chart3', 'chart4']), 
         # ('week', ['chart1', 'chart5', 'chart6', 'chart2', 'chart3', 'chart4']),
         # ('month', ['this_is_chart1', 'chart2_is_here', 'chart3', 'windSpeed_and_windDir', 'chart5', 'chart6', 'chart7']), 
-        # ('year', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5'])])
+        # ('year', ['chart1', 'chart2', 'chart3', 'chart4', 'chart5'])])       
         chart_config_path = os.path.join(
             self.generator.config_dict['WEEWX_ROOT'],
-            self.generator.config_dict['StdReport']['SKIN_ROOT'],
-            self.generator.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            self.generator.skin_dict['SKIN_ROOT'],
+            self.generator.skin_dict.get('skin', ''),
             'graphs.conf')
         default_chart_config_path = os.path.join(
             self.generator.config_dict['WEEWX_ROOT'],
-            self.generator.config_dict['StdReport']['SKIN_ROOT'],
-            self.generator.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            self.generator.skin_dict['SKIN_ROOT'],
+            self.generator.skin_dict.get('skin', ''),
             'graphs.conf.example')
         if os.path.exists( chart_config_path ):
             chart_dict = configobj.ConfigObj(chart_config_path, file_error=True)
@@ -726,13 +726,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         
         chart_config_path = os.path.join(
             self.config_dict['WEEWX_ROOT'],
-            self.config_dict['StdReport']['SKIN_ROOT'],
-            self.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            self.skin_dict['SKIN_ROOT'],
+            self.skin_dict.get('skin', ''),
             'graphs.conf')
         default_chart_config_path = os.path.join(
             self.config_dict['WEEWX_ROOT'],
-            self.config_dict['StdReport']['SKIN_ROOT'],
-            self.config_dict['StdReport']['Belchertown'].get('skin', ''),
+            self.skin_dict['SKIN_ROOT'],
+            self.skin_dict.get('skin', ''),
             'graphs.conf.example')
         if os.path.exists( chart_config_path ):
             self.chart_dict = configobj.ConfigObj(chart_config_path, file_error=True)
