@@ -1076,9 +1076,17 @@ function showChart(json_file) {
                 options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
                 options.yAxis[this_yAxis].max = s.yaxis_max ? s.yaxis_max : null;
 
+                // Set the yAxis tick interval. Mostly used for barometer. 
+                if ( s.yAxis_tickInterval ) { 
+                    options.yAxis[this_yAxis].tickInterval = s.yAxis_tickInterval;
+                }
+                
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    options.yAxis[this_yAxis].tickInterval = 0.01;
+                    if ( ! s.yAxis_tickInterval ) { 
+                        // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
+                        options.yAxis[this_yAxis].tickInterval = 0.01;
+                    }
                     options.yAxis[this_yAxis].labels = { format: '{value:.2f}' }
                 }
                 
