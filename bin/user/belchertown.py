@@ -741,7 +741,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         
         self.converter = weewx.units.Converter.fromSkinDict(self.skin_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
-        self.db_lookup = self.db_binder.bind_default()
+        self.db_lookup = self.db_binder.bind_default(binding)
         binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
         archive = self.db_binder.get_manager(binding)
         start_ts = archive.firstGoodStamp()
