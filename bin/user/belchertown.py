@@ -586,7 +586,7 @@ class getData(SearchList):
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
             except:
                 # No earthquake data
-                eqtime = "No recent earthquake data available!"
+                eqtime = label_dict["earthquake_no_data"]
                 equrl = ""
                 eqplace = ""
                 eqmag = ""
