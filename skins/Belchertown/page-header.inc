@@ -12,8 +12,6 @@
                 <h1>$Extras.records_page_header</h1>
 		#else if $page == "reports"
                 <h1>$Extras.reports_page_header</h1>
-		#else if $page == "records"
-                <h1>$Extras.records_page_header</h1>
 		#else if $page == "about"
                 <h1>$Extras.about_page_header</h1>
 		#end if

@@ -1628,10 +1628,6 @@ p.entry-meta {
 	transform: rotate(315deg);
 }
 
-.wx-rainrate-value {
-	padding-left:5px;
-}
-
 .small-almanac {
 	/* padding-top:5px; */
 	border-top:1px solid #D7D7D7;
