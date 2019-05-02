@@ -73,6 +73,10 @@ class getData(SearchList):
             d = {}
         label_dict = weeutil.weeutil.KeyDict(d)
         
+        # Setup database manager
+        binding = self.generator.config_dict['StdReport'].get('data_binding', 'wx_binding')
+        manager = self.generator.db_binder.get_manager(binding)
+
         # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
         if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
             belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
@@ -111,7 +115,7 @@ class getData(SearchList):
                 locale.setlocale(locale.LC_ALL, self.generator.skin_dict['Extras']['belchertown_locale'])
                 system_locale, locale_encoding = locale.getlocale()
             except Exception as error:
-                raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. This locale needs to be installed onto your Linux system first before Belchertown Skin can use it. Please check Google on how to install this locale onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
+                raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. For example the correct way to define this skin setting is 'en_US.UTF-8'. The locale also needs to be installed onto your system first before Belchertown Skin can use it. Please check Google on how to install locales onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
         system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
         highcharts_decimal = locale.localeconv()["decimal_point"]
         
@@ -380,8 +384,7 @@ class getData(SearchList):
         # Get the unit label from the skin dict for speed. 
         windSpeedUnit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
         windSpeedUnitLabel = self.generator.skin_dict["Units"]["Labels"][windSpeedUnit]
-        
-        
+                
         """
         Get NOAA Data
         """
@@ -601,7 +604,107 @@ class getData(SearchList):
             eqlat = ""
             eqlon = ""
         
-        
+        """
+        Get Current Station Observation Data
+        """
+        station_obs_json = OrderedDict()
+        station_obs_rounding_json = OrderedDict()
+        station_obs_unit_labels_json = OrderedDict()
+        station_obs_trend_json = OrderedDict()
+        station_obs_html = ""
+        station_observations = self.generator.skin_dict['Extras']['station_observations']
+        currentStamp = manager.lastGoodStamp()
+        current = weewx.tags.CurrentObj(db_lookup, None, currentStamp, self.generator.formatter, self.generator.converter)
+        for obs in self.generator.skin_dict['Extras']['station_observations']:
+            if obs == "visibility":
+                try:
+                    obs_output = str(visibility) + " " + str(visibility_unit)
+                    station_obs_unit_labels_json["visibility"] = visibility_unit
+                except:
+                    raise Warning( "Error adding visiblity to station observations table. Check that you have DarkSky forecast data, or remove visibility from your station_observations Extras option." )
+            elif obs == "rainWithRainRate":
+                # rainWithRainRate Rain shows rain daily sum and rain rate
+                obsBinder = weewx.tags.ObservationBinder("rain", archiveDaySpan(currentStamp), db_lookup, None, "day", self.generator.formatter, self.generator.converter)
+                dayRainSum = getattr(obsBinder, "sum")
+                # Need to use dayRain for class name since that is weewx-mqtt payload's name
+                obs_rain_output = "<span class='dayRain'>%s</span><!-- AJAX -->" % str(dayRainSum)
+                obs_rain_output += "&nbsp;<span class='border-left'>&nbsp;</span>"
+                obs_rain_output += "<span class='rainRate'>%s</span><!-- AJAX -->" % str(getattr(current, "rainRate"))
+                
+                # Special rain rounding and label gathering, save as dayRain for JavaScript and MQTT
+                rain_obs_group = weewx.units.obs_group_dict["rain"]
+                rain_obs_unit = converter.group_unit_dict[rain_obs_group]
+                rain_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rain_obs_unit, "0")[2]
+                rain_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rain_obs_unit, "")
+                station_obs_rounding_json["dayRain"] = str(rain_obs_round)
+                station_obs_unit_labels_json["dayRain"] = str(rain_obs_unit_label)
+
+                # Special rainRate rounding and label gathering
+                rainRate_obs_group = weewx.units.obs_group_dict["rainRate"]
+                rainRate_obs_unit = converter.group_unit_dict[rainRate_obs_group]
+                rainRate_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rainRate_obs_unit, "0")[2]
+                rainRate_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rainRate_obs_unit, "")
+                station_obs_rounding_json["rainRate"] = str(rainRate_obs_round)
+                station_obs_unit_labels_json["rainRate"] = str(rainRate_obs_unit_label)
+                
+                # Empty field for the JSON "current" output 
+                obs_output = ""
+            else:
+                obs_output = getattr(current, obs)
+                if "?" in str(obs_output):
+                    # Try to catch those invalid observations, like 'uv' needs to be 'UV'. 
+                    obs_output = "Invalid observation"
+                
+            # Get observation rounding and unit label
+            try: 
+                # Find the group this observation is in 
+                obs_group = weewx.units.obs_group_dict[obs]
+                # Find the group_name for this obs group
+                obs_unit = converter.group_unit_dict[obs_group]
+                # Find the number of decimals to round to based on group name
+                obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
+                # Get the unit's label
+                obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(obs_unit, "")
+            except:
+                obs_round = ""
+                obs_unit_label = ""
+
+            # Build the json "current" array for weewx_data.json for JavaScript
+            if obs not in station_obs_json:
+                station_obs_json[obs] = str(obs_output)
+            # Build the json "rounding" array for weewx_data.json for JavaScript
+            if obs not in station_obs_rounding_json:
+                station_obs_rounding_json[obs] = str(obs_round)
+            # Build the json "unit_labels" array for weewx_data.json for JavaScript
+            if obs not in station_obs_unit_labels_json:
+                station_obs_unit_labels_json[obs] = str(obs_unit_label)
+            
+            # Build the HTML for the front page
+            station_obs_html += "<tr>"
+            station_obs_html += "<td class='station-observations-label'>%s</td>" % label_dict[obs]
+            station_obs_html += "<td>"
+            if obs == "rainWithRainRate":
+                # Add special rain + rainRate one liner
+                station_obs_html += obs_rain_output
+            else:
+                station_obs_html += "<span class=%s>%s</span><!-- AJAX -->" % ( obs, obs_output )
+            if obs == "barometer" or obs == "pressure" or obs == "altimeter":
+                # Append the trend arrow to the pressure observation. Need this for non-mqtt pages
+                trend = weewx.tags.TrendObj(10800, 300, db_lookup, None, currentStamp, self.generator.formatter, self.generator.converter)
+                obs_trend = getattr(trend, obs)
+                station_obs_html += ' <span class="pressure-trend">' # Maintain leading spacing
+                if str(obs_trend) == "N/A":
+                    pass
+                elif "-" in str(obs_trend):
+                    station_obs_html += '<i class="fa fa-arrow-down barometer-down"></i>'
+                    station_obs_trend_json["pressure"] = "down"
+                else:
+                    station_obs_html += '<i class="fa fa-arrow-up barometer-up"></i>'
+                    station_obs_trend_json["pressure"] = "up"
+                station_obs_html += '</span>' # Close the span
+            station_obs_html += "</td>"
+            station_obs_html += "</tr>"
+                
         """
         Social Share
         """
@@ -687,6 +790,11 @@ class getData(SearchList):
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
+                                  'station_obs_json': json.dumps(station_obs_json),
+                                  'station_obs_rounding_json': json.dumps(station_obs_rounding_json),
+                                  'station_obs_unit_labels_json': json.dumps(station_obs_unit_labels_json),
+                                  'station_obs_trend_json': json.dumps(station_obs_trend_json),
+                                  'station_obs_html': station_obs_html,
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,
                                   'earthquake_place': eqplace,
@@ -741,6 +849,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         
         self.converter = weewx.units.Converter.fromSkinDict(self.skin_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
+        # TODO MAKE THIS self.binding and self.archive, etc?
         binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
         self.db_lookup = self.db_binder.bind_default(binding)
         archive = self.db_binder.get_manager(binding)

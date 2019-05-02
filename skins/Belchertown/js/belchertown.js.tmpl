@@ -4,6 +4,11 @@ var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
 jQuery(document).ready(function() {
+
+    // Bootstrap hover tooltips
+    jQuery(function () {
+        jQuery('[data-toggle="tooltip"]').tooltip()
+    })
         
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
@@ -22,12 +27,16 @@ jQuery(document).ready(function() {
 
     #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
     // Dark mode checkbox toggle switcher
+    try {
     document.getElementById('themeSwitch').addEventListener('change', function(event){
         if (belchertown_debug > 0) {
             console.log("Theme: Toggle button changed");
         }
         (event.target.checked) ? changeTheme("dark") : changeTheme("light");
     });
+    } catch(err) {
+        // Silently exit
+    }
     #end if
     
 });
@@ -290,6 +299,7 @@ function ajaxweewx() {
 };
 
 // Update weewx data elements
+var station_obs_array = "";
 function update_weewx_data( data ) {
     if (belchertown_debug > 0) {
         console.log("Updating weewx data");
@@ -299,6 +309,8 @@ function update_weewx_data( data ) {
     // Auto theme if enabled
     autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
     #end if
+    
+    station_obs_array = data["station_observations"];
     
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
@@ -310,9 +322,9 @@ function update_weewx_data( data ) {
     count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
     
     if ( count >= 1 ) {
-        jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
+        jQuery(".pressure-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
     } else {
-        jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
+        jQuery(".pressure-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
     }
     
     // Daily max gust span
@@ -398,6 +410,23 @@ function update_forecast_data( data ) {
     
     // Current observation text
     jQuery(".current-obs-text").html( data["currently"]["summary"] );
+    
+    // Visibility text in station observation table
+    // Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
+    // then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
+    // tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
+    if ( data["flags"]["units"].toLowerCase() == "us" || data["flags"]["units"].toLowerCase() == "uk2" ) {
+        visibility_unit = "miles"
+    } else if ( data["flags"]["units"].toLowerCase() == "si" || data["flags"]["units"].toLowerCase() == "ca" ) {
+        visibility_unit = "km"
+    } else {
+        visibility_unit = ""
+    }
+    try {
+        jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
+    } catch(err) {
+        // Visibility not in the station observation table, so silently exit
+    }
     
     // 8 day forecast
     var output_html = "";
@@ -644,6 +673,35 @@ function update_current_wx(data) {
         setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
     }
     
+    // Update the station observation box elements
+    station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
+    // Get all span elements within the table. This is setup by Python initially
+    jQuery('.station-observations').find("span").each(function () {
+        // The class name is the same as the Extras.station_observations name (weewx schema)
+        thisElementClass = jQuery(this).attr("class")
+        // Loop through each MQTT payload item
+        station_mqtt_data.forEach( mqttdata => {
+            if ( thisElementClass == "rainWithRainRate" ) {
+                // Force dayRain since that's the MQTT payload name
+                thisElementClass = "dayRain";
+            }
+            if ( thisElementClass == "barometer" || thisElementClass == "pressure" || thisElementClass == "altimeter" || thisElementClass == "cloudbase" ) {
+                // Do not group number into thousands,hundreds format
+                localeStringUseGrouping = false;
+            } else {
+                localeStringUseGrouping  = true;
+            }
+            // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
+            if ( mqttdata.startsWith(thisElementClass) ) {
+                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: station_obs_array["rounding"][thisElementClass], maximumFractionDigits: station_obs_array["rounding"][thisElementClass], useGrouping: localeStringUseGrouping}) + station_obs_array["unit_labels"][thisElementClass];
+                
+                // Finally update the element class
+                jQuery("." + thisElementClass).html( html_output );
+            }
+        });  
+    });
+    // End dynamic station observation box
+
     // Temperature F
     if ( data.hasOwnProperty("outTemp_F") ) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
@@ -674,32 +732,10 @@ function update_current_wx(data) {
         jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
     }
 
-    // Dewpoint US
-    if ( data.hasOwnProperty("dewpoint_F") ) {
-        jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-    }
-    
     // Apparent Temperature Metric
     if ( data.hasOwnProperty("appTemp_C") ) {
         jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
     }
-    
-    #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
-    // Cloud Base US
-    if ( data.hasOwnProperty("cloudbase_foot") ) {
-        jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_foot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
-    }
-
-    // Cloud Base Metric
-    if ( data.hasOwnProperty("cloudbase_meter") ) {
-        jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_meter"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
-    }
-    #end if
-
-    // Dewpoint Metric
-    if ( data.hasOwnProperty("dewpoint_C") ) {
-        jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-    }            
     
     // Wind
     if ( data.hasOwnProperty("windDir") ) {
@@ -736,20 +772,6 @@ function update_current_wx(data) {
         jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
     }
     
-    // Barometer US
-    if ( data.hasOwnProperty("barometer_inHg") ) {
-        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false}) + " $unit.label.pressure" );
-    }
-    // Barometer Metric
-    if ( data.hasOwnProperty("barometer_mbar") ) {
-        jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false}) + " $unit.label.pressure" );
-    }
-    
-    // Humidity
-    if ( data.hasOwnProperty("outHumidity") ) {
-        jQuery(".wx-humidity-value").text( parseFloat(parseFloat(data["outHumidity"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 1}) + "$unit.label.outHumidity" );
-    }
-    
     // Windchill US
     if ( data.hasOwnProperty("windchill") ) {
         jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
@@ -757,42 +779,6 @@ function update_current_wx(data) {
     // Windchill Metric
     if ( data.hasOwnProperty("windchill_C") ) {
         jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
-    }
-    
-    // Rain Day US
-    if ( data.hasOwnProperty("dayRain_in") ) {
-        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_in"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-    }
-    // Rain Day Metric
-    if ( data.hasOwnProperty("dayRain_cm") ) {
-        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_cm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-    }
-    // Rain Day METRICWX
-    if ( data.hasOwnProperty("dayRain_mm") ) {
-        jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_mm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-    }
-    
-    // Rain rate US
-    if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_inch_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-    }
-    // Rain rate Metric
-    if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_cm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-    }
-    // Rain rate METRICWX
-    if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-        jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_mm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-    }
-    
-    // UV
-    if ( data.hasOwnProperty("UV") ) {
-        jQuery(".wx-uv-value").text( parseFloat(parseFloat(data["UV"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-    }
-    
-    // Sun Radiation
-    if ( data.hasOwnProperty("radiation_Wpm2") ) {
-        jQuery(".wx-radiation-value").html( parseFloat(parseFloat(data["radiation_Wpm2"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 2}) + " $unit.label.radiation" );
     }
 };
 #end if
@@ -1140,7 +1126,7 @@ function showChart(json_file) {
                 options.yAxis[0].min = 0;
                 options.yAxis[0].endOnTick = false;
                 options.yAxis[0].reversedStacks = false;
-                options.yAxis[0].title.text = "Frequency (%)";
+                options.yAxis[0].title.text = "$obs.label.graphs_windrose_frequency (%)";
                 options.yAxis[0].gridLineWidth = 0;
                 options.plotOptions = { column: {
                                             stacking: 'normal',
