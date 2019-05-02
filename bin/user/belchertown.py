@@ -982,6 +982,20 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     if yaxis_max:
                         output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
                         
+                    # Add rounding from weewx.conf/skin.conf so Highcharts can use it
+                    if observation_type == "rainTotal":
+                        rounding_obs_lookup = "rain"
+                    else:
+                        rounding_obs_lookup = observation_type
+                    try:
+                        obs_group = weewx.units.obs_group_dict[rounding_obs_lookup]
+                        obs_unit = self.converter.group_unit_dict[obs_group]
+                        obs_round = self.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
+                        output[chart_group][plotname]["series"][line_name]["rounding"] = obs_round
+                    except:
+                        # Not a valid weewx schema name - maybe this is rainTotal or windRose or something?
+                        output[chart_group][plotname]["series"][line_name]["rounding"] = "0"
+                    
                     # Build series data
                     output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length)
             
