@@ -188,8 +188,12 @@ function get_cardinal_direction(degree, point_obsType, highchartsReturn=false, r
         data = Highcharts.numberFormat(degree, rounding, "$highcharts_decimal", "");
     } else {
         try {
-            // Try to apply the highcharts numberFormat for locale awareness
-            data = Highcharts.numberFormat(degree);
+            // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf. -1 is set from Python to notate no rounding data available
+            if ( rounding == "-1" ) {
+                data = Highcharts.numberFormat(degree);
+            } else { 
+                data = Highcharts.numberFormat(degree, rounding);
+            }
         } catch(err) {
             // Fall back to just returning the number
             data = degree

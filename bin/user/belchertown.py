@@ -993,8 +993,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         obs_round = self.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
                         output[chart_group][plotname]["series"][line_name]["rounding"] = obs_round
                     except:
-                        # Not a valid weewx schema name - maybe this is rainTotal or windRose or something?
-                        output[chart_group][plotname]["series"][line_name]["rounding"] = "0"
+                        # Not a valid weewx schema name - maybe this is windRose or something?
+                        output[chart_group][plotname]["series"][line_name]["rounding"] = "-1"
                     
                     # Build series data
                     output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length)
