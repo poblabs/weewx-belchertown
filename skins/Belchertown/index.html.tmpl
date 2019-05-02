@@ -36,10 +36,12 @@
             
             rotateThis( "$current.windDir.formatted" );
             
-            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-            if ( parseInt( $earthquake_time ) ) {
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
+            if ( moment.unix( "$earthquake_time" ).isValid() ) {
                 // Check that the time is the time (number) and not the "no earthquake available" wording
-                jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+            } else {
+                jQuery(".earthquake-time").html( "$earthquake_time" );
             }
             #end if
             
