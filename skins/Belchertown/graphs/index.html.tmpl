@@ -17,16 +17,15 @@
                     var graphgroups_raw = $charts;
                     var thisPageGraphs = graphgroups_raw[graph];
                     
-                    
                     jQuery(document).ready(function() {
                         // Loop through the graph group for this page and add the graph divs to the page
                         try {
-                        thisPageGraphs.forEach( graphID => {
-                            jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
-                        });
-                        
-                        // Render the charts
-                        showChart(graph);
+                            thisPageGraphs.forEach( graphID => {
+                                jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
+                            });
+                            
+                            // Render the charts
+                            showChart(graph);
                         } catch(err) {
                             console.log("ERROR: Cannot add graphs from [" + graph + "] graph group: " + err.message);
                         }
