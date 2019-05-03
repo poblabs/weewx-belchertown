@@ -798,7 +798,7 @@ Highcharts.setOptions({
     }
 });
 
-function showChart(json_file) {
+function showChart(json_file, prepend_renderTo=false) {
         
     jQuery.getJSON('$belchertown_root_url/json/' + json_file + '.json', function(data) {
         
@@ -992,7 +992,11 @@ function showChart(json_file) {
             }
             
             // Set the chart render div and title
-            options.chart.renderTo = renderTo;
+            if ( prepend_renderTo ) {
+                options.chart.renderTo = json_file + "_" + renderTo;
+            } else {
+                options.chart.renderTo = renderTo;
+            }
             options.chart.type = type;
             options.title.text = title;
             options.plotOptions.area.gapSize = gapsize;
