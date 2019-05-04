@@ -74,10 +74,10 @@
                 <!-- Begin row -->
                 <div class="row">
                     <div class="col-sm-12 wx-buttons">
-                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">$obs.label.graphs_page_today_button</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">$obs.label.graphs_page_week_button</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">$obs.label.graphs_page_month_button</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_year_button</button></a>
                         #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
                         <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
                         #end if
+                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">$obs.label.graphs_page_today_button</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">$obs.label.graphs_page_week_button</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">$obs.label.graphs_page_month_button</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_year_button</button></a>
                     </div>
                     <div class="col-sm-12 wx-buttons-description">
                         $obs.label.graphs_page_graphs <span class='wx-graph-text'></span>
