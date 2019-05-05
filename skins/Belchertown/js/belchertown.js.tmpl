@@ -811,6 +811,11 @@ function showChart(json_file, prepend_renderTo=false) {
                 return true;
             }
             
+            // Ignore the chartgroup_title since this "plot" has no other options
+            if ( plotname == "chartgroup_title" ) {
+                return true;
+            }            
+            
             // Set the chart colors, then return right away since this "plot" has no other options
             if ( plotname == "colors" ) { 
                 colors = obsname.split(","); 
