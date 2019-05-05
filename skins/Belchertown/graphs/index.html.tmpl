@@ -14,9 +14,7 @@
                         // If no URL VAR, default to the day graph group
                         graph = "day";
                     }
-                    var graphgroups_raw = $charts;
                     var thisPageGraphs = graphgroups_raw[graph];
-                    var graphgroups_titles = $chartgroup_titles;
                     
                     jQuery(document).ready(function() {
                         if (graph == "all") { 
@@ -50,8 +48,8 @@
                                     jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
                                 });
                                 
-                                // Set page title. e.g. "Graphs for Today"
-                                jQuery(".wx-graph-text").html("$obs.label.graphs_page_default_title " + graphgroups_titles[graph]);
+                                // Set page title from graph group's title setting
+                                jQuery(".wx-graph-text").html(graphgroups_titles[graph]);
                                 
                                 // Render the charts
                                 showChart(graph);

@@ -777,6 +777,7 @@ class getData(SearchList):
                                   'archive_interval_ms': archive_interval_ms,
                                   'charts': json.dumps(charts),
                                   'chartgroup_titles': json.dumps(chartgroup_titles),
+                                  'chartgroup_titles_dict': chartgroup_titles,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,
