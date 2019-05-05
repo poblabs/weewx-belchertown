@@ -668,7 +668,7 @@ class getData(SearchList):
                 # Find the group this observation is in 
                 obs_group = weewx.units.obs_group_dict[obs]
                 # Find the group_name for this obs group
-                obs_unit = converter.group_unit_dict[obs_group]
+                obs_unit = self.generator.converter.group_unit_dict[obs_group]
                 # Find the number of decimals to round to based on group name
                 obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
                 # Get the unit's label
