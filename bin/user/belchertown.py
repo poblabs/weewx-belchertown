@@ -162,7 +162,10 @@ class getData(SearchList):
         graph_page_buttons = ""
         graph_page_graphgroup_buttons = self.generator.skin_dict['Extras']['graph_page_graphgroup_buttons']
         for gg in graph_page_graphgroup_buttons:
-            button_text = chart_dict[gg]["button_text"]
+            if "button_text" in chart_dict[gg]:
+                button_text = chart_dict[gg]["button_text"]
+            else:
+                button_text = gg
             graph_page_buttons += '<a href="./?graph='+gg+'"><button type="button" class="btn btn-primary">' + button_text + '</button></a>'
             graph_page_buttons += " " # Spacer between the button
 
