@@ -641,7 +641,7 @@ class getData(SearchList):
                 
                 # Special rain rounding and label gathering, save as dayRain for JavaScript and MQTT
                 rain_obs_group = weewx.units.obs_group_dict["rain"]
-                rain_obs_unit = converter.group_unit_dict[rain_obs_group]
+                rain_obs_unit = self.generator.converter.group_unit_dict[rain_obs_group]
                 rain_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rain_obs_unit, "0")[2]
                 rain_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rain_obs_unit, "")
                 station_obs_rounding_json["dayRain"] = str(rain_obs_round)
@@ -649,7 +649,7 @@ class getData(SearchList):
 
                 # Special rainRate rounding and label gathering
                 rainRate_obs_group = weewx.units.obs_group_dict["rainRate"]
-                rainRate_obs_unit = converter.group_unit_dict[rainRate_obs_group]
+                rainRate_obs_unit = self.generator.converter.group_unit_dict[rainRate_obs_group]
                 rainRate_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rainRate_obs_unit, "0")[2]
                 rainRate_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rainRate_obs_unit, "")
                 station_obs_rounding_json["rainRate"] = str(rainRate_obs_round)
