@@ -49,6 +49,9 @@
 
 # Settings Overview:
 
+# title
+# The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. For example, a title of "This Week" will show "Graphs for This Week" on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
+
 # aggregate_type 
 # This defines the aggregate of the chart values. Valid options are None, avg, sum, min, max
     
@@ -112,6 +115,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
 
 [homepage]
     # Chart Timespan Defaults
+    title = Today
     time_length = today
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
@@ -160,6 +164,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
             
 [day]
     # Chart Timespan Defaults
+    title = Today
     time_length = today
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
@@ -207,6 +212,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
             
 [week]
     # Chart Timespan Defaults
+    title = This Week
     aggregate_type = max
     aggregate_interval = 3600 # 1 hour
     time_length = 604800 # Last 7 days
@@ -258,6 +264,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         
 [month]
     # Chart Timespan Defaults
+    title = This Month
     type = spline
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
@@ -311,6 +318,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         
 [year]
     # Chart Timespan Defaults
+    title = This Year
     type = spline
     aggregate_type = max
     aggregate_interval = 86400 # 1 day

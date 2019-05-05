@@ -1,5 +1,6 @@
 #import datetime
 {
+    "site": "$belchertown_root_url",
     "version": "$station.version",
     "belchertown_version": "$belchertown_version",
     "weewxuptime": "$station.uptime",
@@ -9,11 +10,12 @@
     "localeEncoding": "$locale_encoding",
     "extras": {
         "belchertown_theme": "$Extras.theme",
+        "belchertown_locale": "$Extras.belchertown_locale",
         "reload_hook_images": "$Extras.reload_hook_images",
+        "station_observations": "$Extras.station_observations",
         "highcharts_homepage_graphgroup": "$Extras.highcharts_homepage_graphgroup",
         "show_apptemp": "$Extras.show_apptemp",
-        "show_windrun": "$Extras.show_windrun",
-        "show_cloudbase": "$Extras.show_cloudbase"
+        "show_windrun": "$Extras.show_windrun"
     },
     "station": {
         "hardware": "$station.hardware",
@@ -23,6 +25,12 @@
         "latitude_dd": "$station.stn_info.latitude_f",
         "longitude_dd": "$station.stn_info.longitude_f",
         "altitude": "$station.altitude"
+    },
+    "station_observations": {
+        "current": $station_obs_json,
+        "rounding": $station_obs_rounding_json,
+        "unit_labels": $station_obs_unit_labels_json,
+        "trend": $station_obs_trend_json
     },
     "current": {
         "datetime": "$current.dateTime",
@@ -375,9 +383,5 @@
             "moon_fullness": "$almanac.moon_fullness",
             "moon_phase": "$almanac.moon_phase"
         }
-    },
-
-
-    "site": "$belchertown_root_url"
-
+    }
 }

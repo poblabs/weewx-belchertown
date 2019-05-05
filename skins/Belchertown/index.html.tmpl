@@ -36,8 +36,13 @@
             
             rotateThis( "$current.windDir.formatted" );
             
-            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-            jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
+            if ( moment.unix( "$earthquake_time" ).isValid() ) {
+                // Check that the time is the time (number) and not the "no earthquake available" wording
+                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+            } else {
+                jQuery(".earthquake-time").html( "$earthquake_time" );
+            }
             #end if
             
             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
@@ -208,88 +213,7 @@
                         <div class="station-observations weather-obs-top">
                             <table cellpadding="0" cellspacing="0">
                                 <tbody>
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.barometer</td>
-                                        <td>
-                                            <span class="wx-barometer-data">
-                                                <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
-                                            </span>
-                                            <span class="wx-barometer-trend">
-                                                #if $trend.barometer == "N/A"
-                                                &nbsp;
-                                                #else if "-" in str($trend.barometer)
-                                                <i class="fa fa-arrow-down barometer-down"></i>
-                                                #else
-                                                <i class="fa fa-arrow-up barometer-up"></i>
-                                                #end if
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.visibility</td>
-                                        <td>
-                                            <span class="wx-visibility">
-                                                <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #end if
-                                    #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.cloudbase</td>
-                                        <td>
-                                            <span class="wx-cloudbase">
-                                                <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #end if
-                                    <tr class="dewpoint_row">
-                                        <td class="station-observations-label">$obs.label.dewpoint</td>
-                                        <td>
-                                            <span class="wx-data-dewpoint">
-                                                <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.outHumidity</td>
-                                        <td>
-                                            <span class="wx-data-humidity">
-                                                <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.rain</td>
-                                        <td>
-                                            <span class="wx-rain-data">
-                                                <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-                                                <span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #if $day.UV.has_data
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.UV</td>
-                                        <td>
-                                            <span class="wx-uv-data">
-                                                <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #end if
-                                    #if $day.radiation.has_data
-                                    <tr>
-                                        <td class="station-observations-label">$obs.label.radiation</td>
-                                        <td>
-                                            <span class="wx-radiation-data">
-                                                <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    #end if
+                                    $station_obs_html
                                 </tbody>
                             </table>
                         </div>                        
@@ -302,7 +226,7 @@
                                         <td colspan="2">
                                             <div class="row small-almanac">
                                                 <div class="sun-moon-title">
-                                                    $obs.label.sun &amp; $obs.label.moon
+                                                    $obs.label.sun_and_moon
                                                 </div>
                                                 <div class="col-sm-6 sun">
                                                     <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
@@ -482,7 +406,7 @@
                         $obs.label.todays_graphs <a href="$belchertown_root_url/graphs">$obs.label.todays_graphs_link</a>
                     </div>
                     
-                    <div class="graph_outer"></div><!-- JS populated -->
+                    <div class="graph_outer row"></div><!-- JS populated -->
                     
                 </div>
                 <!-- End of fourth row -->

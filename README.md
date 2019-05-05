@@ -249,6 +249,7 @@ For ease of readability I have broken them out into separate tables. However you
 | show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
+| graph_page_show_all_button | 0 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
