@@ -156,7 +156,15 @@ class getData(SearchList):
             if "title" in chart_dict[chartgroup]:
                 chartgroup_titles[chartgroup] = chart_dict[chartgroup]["title"]
             else:
-                chartgroup_titles[chartgroup] = chartgroup        
+                chartgroup_titles[chartgroup] = chartgroup
+        
+        # Setup the Graphs page button row based on the skin extras option and the button_text from graphs.conf
+        graph_page_buttons = ""
+        graph_page_graphgroup_buttons = self.generator.skin_dict['Extras']['graph_page_graphgroup_buttons']
+        for gg in graph_page_graphgroup_buttons:
+            button_text = chart_dict[gg]["button_text"]
+            graph_page_buttons += '<a href="./?graph='+gg+'"><button type="button" class="btn btn-primary">' + button_text + '</button></a>'
+            graph_page_buttons += " " # Spacer between the button
 
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
         if self.generator.skin_dict['Extras']['radar_html'] == "":
@@ -778,6 +786,7 @@ class getData(SearchList):
                                   'charts': json.dumps(charts),
                                   'chartgroup_titles': json.dumps(chartgroup_titles),
                                   'chartgroup_titles_dict': chartgroup_titles,
+                                  'graph_page_buttons': graph_page_buttons,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,
                                   'year_outTemp_range_min': year_outTemp_range_min,

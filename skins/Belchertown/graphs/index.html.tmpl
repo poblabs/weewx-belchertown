@@ -68,7 +68,7 @@
                         #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
                         <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
                         #end if
-                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-day">$obs.label.graphs_page_day_button</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">$obs.label.graphs_page_week_button</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">$obs.label.graphs_page_month_button</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_year_button</button></a>
+                        $graph_page_buttons
                     </div>
                     <div class="col-sm-12 wx-buttons-description">
                         <span class='wx-graph-text'></span>
