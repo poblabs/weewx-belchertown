@@ -25,7 +25,7 @@
                             for (var graphgroup in graphgroups_raw) {
                                 // Loop through every graph group defined and add a title section
                                 jQuery(".graph_outer").append('<div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">' +
-                                                                '<div class="graph-section-title wx-buttons-description">'+ titleCase(graphgroups_titles[graphgroup]) +'</div>' +
+                                                                '<div class="graph-section-title wx-buttons-description">'+ graphgroups_titles[graphgroup] +'</div>' +
                                                                 '<div class="' + graphgroup + '"></div>' +
                                                               '</div>');
                                 
@@ -51,7 +51,7 @@
                                 });
                                 
                                 // Set page title. e.g. "Graphs for Today"
-                                jQuery(".wx-graph-text").html("$obs.label.graphs_page_default_title " + titleCase(graphgroups_titles[graph]) );
+                                jQuery(".wx-graph-text").html("$obs.label.graphs_page_default_title " + graphgroups_titles[graph]);
                                 
                                 // Render the charts
                                 showChart(graph);
