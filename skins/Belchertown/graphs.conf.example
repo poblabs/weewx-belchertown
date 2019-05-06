@@ -62,16 +62,19 @@
 #               week        = calendar week starting at midnight. Day is defined in weewx.conf Station details.
 #               month       = calendar month starting on the 1st day of the month.
 #   (Default)   year        = calendar year start on 1st day of the year.
-#               yesterday   = calendar day starting at midnight the day before.
-#               last_week   = calendar week starting last week at midnight. Day is defined in weewx.conf Station details.
-#               last_month  = calendar month starting on the 1st day of last month.
-#               last_year   = calendar year starting on 1st day of last year.
+#               day_ago     = calendar day starting at midnight the day before.
+#               week_ago    = calendar week starting last week at midnight. Day is defined in weewx.conf Station details.
+#               month_ago   = calendar month starting on the 1st day of last month.
+#               year_ago    = calendar year starting on 1st day of last year.
 # 2. Use seconds to graph a rolling time period. Some examples are:
 #               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
 #   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
 #   (Default)   2592000     = Use this for month. This will graph the last 30 days as a rolling time period.
 #               31536000    = Use this for year. This will graph the last 365 days as a rolling time period.
 # NOTE: If you do not specify a time_length, the global default will be used and that is set for 90000 seconds (25 hours)
+
+# time_ago
+# If your time_length is one of the "ago" options, you can specify how far back in history you want to go with time_ago. For example if you set "year_ago" for time_length, then you can use "time_ago = 2" to get a graph for 2 years ago. Same for day, week and month. 
 
 # type 
 # This is the Highcharts chart type. For example, line, spline, area, scatter, etc.

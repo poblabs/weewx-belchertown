@@ -51,7 +51,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0rc8"
+VERSION = "1.0rc8.1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -922,6 +922,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 
                 # Look for any keyword timespans first and default to those start/stop times for the chart
                 time_length = plot_options.get('time_length', 86400)
+                time_ago = int(plot_options.get('time_ago', 1))
                 if time_length == "today":
                     minstamp, maxstamp = archiveDaySpan( timespan.stop )
                 elif time_length == "week":
@@ -931,15 +932,15 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                 elif time_length == "year":
                     minstamp, maxstamp = archiveYearSpan( timespan.stop )
-                elif time_length == "yesterday":
-                    minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=1 )
-                elif time_length == "last_week":
+                elif time_length == "day_ago":
+                    minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
+                elif time_length == "week_ago":
                     week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=1 )
-                elif time_length == "last_month":
-                    minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=1 )
-                elif time_length == "last_year":
-                    minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=1 )
+                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=time_ago )
+                elif time_length == "month_ago":
+                    minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
+                elif time_length == "year_ago":
+                    minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
                 else:
                     # Rolling timespans using seconds
                     (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
