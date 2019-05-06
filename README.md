@@ -250,6 +250,7 @@ For ease of readability I have broken them out into separate tables. However you
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | graph_page_graphgroup_buttons | "day", "week", "month", "year" | This setting defines which buttons appear at the top of the Graphs page for visitors to select. Any graph group which exists within graphs.conf can be set to be shown here. Use graphs.conf option button_text to change the text of the button for that group. 
 | graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
+| graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. 
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.

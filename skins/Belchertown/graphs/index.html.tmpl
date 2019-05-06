@@ -11,8 +11,8 @@
                 <script type="text/javascript">
                     var graph = getURLvar("graph");
                     if ( graph === undefined ) {
-                        // If no URL VAR, default to the day graph group
-                        graph = "day";
+                        // If no URL VAR, default to the graph group defined in Extras
+                        graph = "$Extras.graph_page_default_graphgroup";
                     }
                     var thisPageGraphs = graphgroups_raw[graph];
                     
