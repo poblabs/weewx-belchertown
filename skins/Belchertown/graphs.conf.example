@@ -59,13 +59,13 @@
 # This is the time length the chart will show. There are two ways to define this.
 # 1. Use a keyword to define the calendar day, week, month or year.
 #   (Default)   today       = calendar day starting at midnight today.
-#               week        = calendar week starting at midnight. Day is defined in weewx.conf Station details.
+#               week        = calendar week starting at midnight. Week start day is defined in weewx.conf Station details.
 #               month       = calendar month starting on the 1st day of the month.
 #   (Default)   year        = calendar year start on 1st day of the year.
-#               day_ago     = calendar day starting at midnight the day before.
-#               week_ago    = calendar week starting last week at midnight. Day is defined in weewx.conf Station details.
-#               month_ago   = calendar month starting on the 1st day of last month.
-#               year_ago    = calendar year starting on 1st day of last year.
+#               day_ago     = calendar day starting at midnight the day before, or midnight on the day from time_ago.
+#               week_ago    = calendar week starting last week at midnight, or the week ago from time_ago. Week start day is defined in weewx.conf Station details.
+#               month_ago   = calendar month starting on the 1st day of last month, or the month ago from time_ago.
+#               year_ago    = calendar year starting on 1st day of last year, or the year ago from time_ago.
 # 2. Use seconds to graph a rolling time period. Some examples are:
 #               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
 #   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
