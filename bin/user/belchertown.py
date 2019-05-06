@@ -931,6 +931,15 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                 elif time_length == "year":
                     minstamp, maxstamp = archiveYearSpan( timespan.stop )
+                elif time_length == "yesterday":
+                    minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=1 )
+                elif time_length == "last_week":
+                    week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
+                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=1 )
+                elif time_length == "last_month":
+                    minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=1 )
+                elif time_length == "last_year":
+                    minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=1 )
                 else:
                     # Rolling timespans using seconds
                     (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
