@@ -58,14 +58,17 @@
 # time_length 
 # This is the time length the chart will show. There are two ways to define this.
 # 1. Use a keyword to define the calendar day, week, month or year.
-#   (Default)   today       = calendar day starting at midnight today.
-#               week        = calendar week starting at midnight. Week start day is defined in weewx.conf Station details.
-#               month       = calendar month starting on the 1st day of the month.
-#   (Default)   year        = calendar year start on 1st day of the year.
-#               day_ago     = calendar day starting at midnight the day before, or midnight on the day from time_ago.
-#               week_ago    = calendar week starting last week at midnight, or the week ago from time_ago. Week start day is defined in weewx.conf Station details.
-#               month_ago   = calendar month starting on the 1st day of last month, or the month ago from time_ago.
-#               year_ago    = calendar year starting on 1st day of last year, or the year ago from time_ago.
+#   (Default)   today           = calendar day starting at midnight today.
+#               week            = calendar week starting at midnight. Week start day is defined in weewx.conf Station details.
+#               month           = calendar month starting on the 1st day of the month.
+#   (Default)   year            = calendar year start on 1st day of the year.
+#               day_ago         = calendar day starting at midnight the day before, or midnight on the day from time_ago.
+#               week_ago        = calendar week starting last week at midnight, or the week ago from time_ago. Week start day is defined in weewx.conf Station details.
+#               month_ago       = calendar month starting on the 1st day of last month, or the month ago from time_ago.
+#               year_ago        = calendar year starting on 1st day of last year, or the year ago from time_ago.
+#               day_specific    = a specific day which you want to chart. Must be used in combination with options: day_specific, month_specific and year_specific
+#               month_specific  = a specific month which you want to chart. Must be used in combination with options: month_specific and year_specific
+#               year_specific   = a specific year which you want to chart. Must be used in combination with option: year_specific
 # 2. Use seconds to graph a rolling time period. Some examples are:
 #               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
 #   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
@@ -75,6 +78,15 @@
 
 # time_ago
 # If your time_length is one of the "ago" options, you can specify how far back in history you want to go with time_ago. For example if you set "year_ago" for time_length, then you can use "time_ago = 2" to get a graph for 2 years ago. Same for day, week and month. 
+
+# day_specific
+# This is the integer of the day of the month you want to chart for. Must be used with "time_length = day_specific".
+
+# month_specific
+# This is the integer of the month you want to chart for. Must be used with "time_length = month_specific". Also used in "day_specific".
+
+# year_specific
+# This is the year which you want to chart for. Must be used with "time_length = year_specific". Setting "year_specific = 2016" will create charts for 2016. Also used with "day_specific" and "month_specific". 
 
 # type 
 # This is the Highcharts chart type. For example, line, spline, area, scatter, etc.

@@ -923,6 +923,9 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 # Look for any keyword timespans first and default to those start/stop times for the chart
                 time_length = plot_options.get('time_length', 86400)
                 time_ago = int(plot_options.get('time_ago', 1))
+                day_specific = plot_options.get('day_specific', 1) # Force a day so we don't error out
+                month_specific = plot_options.get('month_specific', 8) # Force a month so we don't error out
+                year_specific = plot_options.get('year_specific', 2019) # Force a year so we don't error out
                 if time_length == "today":
                     minstamp, maxstamp = archiveDaySpan( timespan.stop )
                 elif time_length == "week":
@@ -941,6 +944,21 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
                 elif time_length == "year_ago":
                     minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
+                elif time_length == "day_specific":
+                    # Set an arbitrary hour within the specific day to get that full day timespan and not the day before. e.g. 1pm
+                    day_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-' + str(day_specific) + ' 13', '%Y-%m-%d %H')
+                    daystamp = int(time.mktime(day_dt.timetuple()))
+                    minstamp, maxstamp = archiveDaySpan( daystamp )
+                elif time_length == "month_specific":
+                    # Set an arbitrary day within the specific month to get that full month timespan and not the day before. e.g. 5th day
+                    month_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-5', '%Y-%m-%d')
+                    monthstamp = int(time.mktime(month_dt.timetuple()))
+                    minstamp, maxstamp = archiveMonthSpan( monthstamp )
+                elif time_length == "year_specific":
+                    # Get a date in the middle of the year to get the full year epoch so weewx can find the year timespan. 
+                    year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
+                    yearstamp = int(time.mktime(year_dt.timetuple()))
+                    minstamp, maxstamp = archiveYearSpan( yearstamp )
                 else:
                     # Rolling timespans using seconds
                     (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
