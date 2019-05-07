@@ -521,7 +521,7 @@ function update_forecast_data( data ) {
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
-    jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
+    jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
 #end if
@@ -569,7 +569,7 @@ function connect() {
         console.log("Connecting to MQTT");
     }
     reported = "$obs.label.mqtt_websockets_connecting";
-    jQuery(".updated").text( reported );
+    jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
@@ -595,7 +595,7 @@ function onConnect() {
         console.log("MQTT Connected. Subscribing.");
     }
     reported = "$obs.label.mqtt_websockets_waiting";
-    jQuery(".updated").text( reported );
+    jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();            
