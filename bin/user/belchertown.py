@@ -161,6 +161,9 @@ class getData(SearchList):
         # Setup the Graphs page button row based on the skin extras option and the button_text from graphs.conf
         graph_page_buttons = ""
         graph_page_graphgroup_buttons = self.generator.skin_dict['Extras']['graph_page_graphgroup_buttons']
+        # Check if this is a list. If not then we have 1 item, so force it into a list
+        if isinstance(graph_page_graphgroup_buttons, list) is False:
+            graph_page_graphgroup_buttons = graph_page_graphgroup_buttons.split()
         for gg in graph_page_graphgroup_buttons:
             if "button_text" in chart_dict[gg]:
                 button_text = chart_dict[gg]["button_text"]
@@ -632,9 +635,12 @@ class getData(SearchList):
         station_obs_trend_json = OrderedDict()
         station_obs_html = ""
         station_observations = self.generator.skin_dict['Extras']['station_observations']
+        # Check if this is a list. If not then we have 1 item, so force it into a list
+        if isinstance(station_observations, list) is False:
+            station_observations = station_observations.split()
         currentStamp = manager.lastGoodStamp()
         current = weewx.tags.CurrentObj(db_lookup, None, currentStamp, self.generator.formatter, self.generator.converter)
-        for obs in self.generator.skin_dict['Extras']['station_observations']:
+        for obs in station_observations:
             if obs == "visibility":
                 try:
                     obs_output = str(visibility) + " " + str(visibility_unit)
@@ -1091,6 +1097,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             windSpeed_vt = self.converter.convert(windSpeed_vt)
             usageRound = int(self.skin_dict['Units']['StringFormats'].get(windSpeed_vt[2], "2f")[-2])
             windSpeedRound_vt = [self._roundNone(x, usageRound) for x in windSpeed_vt[0]]
+            
+            # Exit if the vectors are None
+            if windDir_vt[1] == None or windSpeed_vt[1] == None:
+                emptyWindRose = [{ "name": "No data available",            
+                    "data": []
+                  }]
+                return emptyWindRose
             
             # Get the unit label from the skin dict for speed. 
             windSpeedUnit = windSpeed_vt[1]
