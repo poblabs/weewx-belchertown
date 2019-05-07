@@ -160,10 +160,10 @@ class getData(SearchList):
         
         # Setup the Graphs page button row based on the skin extras option and the button_text from graphs.conf
         graph_page_buttons = ""
-        graph_page_graphgroup_buttons = self.generator.skin_dict['Extras']['graph_page_graphgroup_buttons']
-        # Check if this is a list. If not then we have 1 item, so force it into a list
-        if isinstance(graph_page_graphgroup_buttons, list) is False:
-            graph_page_graphgroup_buttons = graph_page_graphgroup_buttons.split()
+        graph_page_graphgroup_buttons = []
+        for chartgroup in chart_dict.sections:
+            if "show_button" in chart_dict[chartgroup] and chart_dict[chartgroup]["show_button"].lower() == "true":
+                graph_page_graphgroup_buttons.append(chartgroup)
         for gg in graph_page_graphgroup_buttons:
             if "button_text" in chart_dict[gg]:
                 button_text = chart_dict[gg]["button_text"]
