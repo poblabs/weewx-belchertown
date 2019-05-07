@@ -941,14 +941,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                 elif time_length == "year":
                     minstamp, maxstamp = archiveYearSpan( timespan.stop )
-                elif time_length == "day_ago":
+                elif time_length == "days_ago":
                     minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
-                elif time_length == "week_ago":
+                elif time_length == "weeks_ago":
                     week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
                     minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=time_ago )
-                elif time_length == "month_ago":
+                elif time_length == "months_ago":
                     minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
-                elif time_length == "year_ago":
+                elif time_length == "years_ago":
                     minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
                 elif time_length == "day_specific":
                     # Set an arbitrary hour within the specific day to get that full day timespan and not the day before. e.g. 1pm
