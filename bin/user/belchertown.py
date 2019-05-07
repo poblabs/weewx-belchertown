@@ -1100,7 +1100,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             
             # Exit if the vectors are None
             if windDir_vt[1] == None or windSpeed_vt[1] == None:
-                emptyWindRose = [{ "name": "No data available",            
+                emptyWindRose = [{ "name": "",            
                     "data": []
                   }]
                 return emptyWindRose
