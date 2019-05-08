@@ -278,6 +278,7 @@ For ease of readability I have broken them out into separate tables. However you
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
+| webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
 | reload_hook_images | 0 | Enable or disable the refreshing of any image within the front page custom hook `.inc` files upon MQTT Websocket page update. Ideal for any weather webcams or custom radar that need to be updated frequently without refreshing the whole page. 
 
 ### MQTT Websockets (for Real Time Streaming) Options
