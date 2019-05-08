@@ -31,6 +31,8 @@ Screenshot of light and dark modes
   * [Chart System](#chart-system)
   * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
   * [Using Metric](#using-metric)
+  * [Dark Mode Theme Options](#dark-mode-theme-options)
+    + [Theme Override with URL Option](#theme-override-with-url-option)
   * [Skin Options](#skin-options)
     + [General Options](#general-options)
     + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
@@ -203,6 +205,20 @@ If your weewx version is **older than 3.9.1 (not recommended)**, to change the s
                 group_speed2 = meter_per_second2
                 group_temperature = degree_C
 ```
+
+## Dark Mode Theme Options
+
+There are 3 options for a theme with the skin. **Dark, Light and Auto** modes. Dark mode will set your site in dark mode always. Light mode will set your site in light mode always. Auto mode will use the sunset, and sunrise times in your location (based on `latitude`, `longitude` in your weewx.conf) to automatically change the website from light to dark. Automatic dark mode happens at the sunset hour and automatic light mode happens at the sunrise hour. 
+
+At the top of the website next to the menu bar is a toggle button. This will toggle the site from light to dark modes. 
+
+**A note about auto mode, and the toggle slider**: If you have auto mode enabled for your site, and a visitor clicks the toggle slider, auto mode is disabled for that visitor for their session. To have the visitor restore auto mode, they will need to close the tab and re-open the tab. 
+
+This way when a visitor is on your site and they don't want auto mode but want dark mode always, by using the toggle button to go dark mode 100% it will keep the site on dark mode even after sunrise. Same idea for light mode if a visitor wants only light mode. **Visitors can override your auto setting using the toggle switch.** Closing the tab or the browser will remove this override if the visitor wants to experience auto mode. 
+
+#### Theme Override with URL Option
+
+You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode the tab or browser must be closed and re-opened. 
 
 ## Skin Options
 
