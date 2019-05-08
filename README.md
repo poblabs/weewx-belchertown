@@ -214,11 +214,11 @@ At the top of the website next to the menu bar is a toggle button. This will tog
 
 **A note about auto mode, and the toggle slider**: If you have auto mode enabled for your site, and a visitor clicks the toggle slider, auto mode is disabled for that visitor for their session. To have the visitor restore auto mode, they will need to close the tab and re-open the tab. 
 
-This way when a visitor is on your site and they don't want auto mode but want dark mode always, by using the toggle button to go dark mode 100% it will keep the site on dark mode even after sunrise. Same idea for light mode if a visitor wants only light mode. **Visitors can override your auto setting using the toggle switch.** Closing the tab or the browser will remove this override if the visitor wants to experience auto mode. 
+This way when a visitor is on your site and they don't want auto mode but want dark mode always, by using the toggle button to go dark mode 100% it will keep the site on dark mode even after sunrise. Same idea for light mode if a visitor wants only light mode. **Visitors can override your auto setting using the toggle switch.** Closing the tab or the browser, or adding `?theme=auto` to the end of your URL will remove this override if the visitor wants to go back to auto mode. 
 
 #### Theme Override with URL Option
 
-You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode the tab or browser must be closed and re-opened. 
+You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode, you can add `?theme=auto` to the URL, or the tab or browser must be closed and re-opened. 
 
 ## Skin Options
 
