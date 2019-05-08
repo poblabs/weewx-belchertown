@@ -7,24 +7,32 @@ var graphgroups_raw = $charts;
 var graphgroups_titles = $chartgroup_titles;
 
 jQuery(document).ready(function() {
+    
+    // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
+    if ( sessionStorage.getItem('theme') == "toggleOverride" ) {
+        if (belchertown_debug > 0) {
+            console.log("Theme: sessionStorage override in place.");
+        }
+        changeTheme( sessionStorage.getItem('currentTheme') );
+    }
 
     // Bootstrap hover tooltips
     jQuery(function () {
         jQuery('[data-toggle="tooltip"]').tooltip()
     })
-        
+            
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
         if (window.location.search.indexOf('?theme=dark') === 0) {
             if (belchertown_debug > 0) {
                 console.log("Theme: Setting dark theme because of URL override");
             }
-            changeTheme("dark");
+            changeTheme("dark", true);
         } else if (window.location.search.indexOf('?theme=light') === 0) {
             if (belchertown_debug > 0) {
                 console.log("Theme: Setting light theme because of URL override");
             }
-            changeTheme("light");
+            changeTheme("light", true);
         }
     }
 
@@ -35,7 +43,7 @@ jQuery(document).ready(function() {
         if (belchertown_debug > 0) {
             console.log("Theme: Toggle button changed");
         }
-        (event.target.checked) ? changeTheme("dark") : changeTheme("light");
+        (event.target.checked) ? changeTheme("dark", true) : changeTheme("light", true);
     });
     } catch(err) {
         // Silently exit
@@ -259,30 +267,58 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
         console.log("Auto theme: now: " + nowHour);
         console.log("Auto theme: sunset: " + sunset_hour);
         console.log("Auto theme: are we in daylight hours: " + dayTime);
+        console.log("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
     }
     
     if ( dayTime ) {
         // Day time, set light if needed
         if ( document.body.classList.contains("dark") ) {
             if (belchertown_debug > 0) {
-                console.log("Auto theme: setting light theme since dayTime variable is true (day)");
+                if ( sessionStorage.getItem('theme') == "auto" ) {
+                    console.log("Auto theme: setting light theme since dayTime variable is true (day)");
+                } else {
+                    console.log("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
+                }
             }
-            changeTheme("light");
+            // Only change theme if user has not overridden the auto option with the toggle
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                changeTheme("light");
+            }
         }
     } else {
         // Night time, set dark if needed
         if ( document.body.classList.contains("light") ) {
             if (belchertown_debug > 0) {
-                console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
+                if ( sessionStorage.getItem('theme') == "auto" ) {
+                    console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
+                } else {
+                    console.log("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
+                }
             }
-            changeTheme("dark");
+            // Only change theme if user has not overridden the auto option with the toggle
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                changeTheme("dark");
+            }
         }
     }
 }
 
-function changeTheme(themeName) {
+function changeTheme(themeName, toggleOverride=false) {
     if (belchertown_debug > 0) {
         console.log("Theme: Changing to " + themeName);
+    }
+    // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
+    if ( toggleOverride ) {
+        if (belchertown_debug > 0) {
+            console.log("Theme: toggle override clicked.");
+            console.log("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
+        }
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            sessionStorage.setItem('theme', 'toggleOverride');
+        }
+        if (belchertown_debug > 0) {
+            console.log("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
+        }
     }
     if ( themeName == "dark" ) {
         // Apply dark theme
@@ -291,6 +327,7 @@ function changeTheme(themeName) {
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop( "checked", true );
         #end if
+        sessionStorage.setItem('currentTheme', 'dark');
     } else {
         // Apply light theme
         jQuery('body').addClass("light");
@@ -298,6 +335,7 @@ function changeTheme(themeName) {
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop( "checked", false );
         #end if
+        sessionStorage.setItem('currentTheme', 'light');
     }
 }
 

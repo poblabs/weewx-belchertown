@@ -75,6 +75,15 @@
         <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
         <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
         <script type='text/javascript' src='$belchertown_root_url/js/belchertown.js?#echo int( time.time() )#'></script>
+        <script>
+            // Set the session variables for the theme
+            if ( sessionStorage.getItem('theme') === null ) {
+                sessionStorage.setItem('theme', '$Extras.theme');
+            }
+            if ( sessionStorage.getItem('currentTheme') === null ) {
+                sessionStorage.setItem('currentTheme', '$bodyTheme');
+            }
+        </script>
         
         <link rel='shortlink' href='$belchertown_root_url/' />
                 
