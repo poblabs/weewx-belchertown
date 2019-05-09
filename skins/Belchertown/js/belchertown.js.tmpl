@@ -882,6 +882,9 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "title":
                         title = optionVal;
                         break;
+                    case "subtitle":
+                        subtitle = optionVal;
+                        break;
                     case "yAxisLabel":
                         yAxisLabel = optionVal;
                         break;
@@ -916,6 +919,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
 
                 title: {
+                    text: ''
+                },
+
+                subtitle: {
                     text: ''
                 },
 
@@ -1052,6 +1059,7 @@ function showChart(json_file, prepend_renderTo=false) {
             }
             options.chart.type = type;
             options.title.text = title;
+            options.subtitle.text = subtitle;
             options.plotOptions.area.gapSize = gapsize;
             options.plotOptions.line.gapSize = gapsize;
             options.plotOptions.spline.gapSize = gapsize;
