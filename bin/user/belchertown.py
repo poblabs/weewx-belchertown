@@ -979,9 +979,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 plottype = plot_options.get('type', 'line')
                 output[chart_group][plotname]["options"]["type"] = plottype
                 
-                gapsize = plot_options.get('gapsize', 300000) # Default to 5 minutes in millis TODO is this the right thing to do? or have it in belchertown.js? More testing needed.
+                gapsize = plot_options.get('gapsize', 300000) # Default to 5 minutes in millis
                 if gapsize:
                     output[chart_group][plotname]["options"]["gapsize"] = gapsize
+                    
+                connectNulls = plot_options.get("connectNulls", "false") # Default to 5 minutes in millis
+                output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
 
                 polar = plot_options.get('polar', None)
                 if polar:
