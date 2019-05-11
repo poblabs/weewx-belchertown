@@ -1745,6 +1745,7 @@ p.entry-meta {
     margin:0 auto;
     text-align:center;
     margin-top:20px;
+    line-height: 40px;
 }
 
 .wx-buttons-description {
