@@ -11,12 +11,10 @@
                 <script type="text/javascript">
                     var graph = getURLvar("graph");
                     if ( graph === undefined ) {
-                        // If no URL VAR, default to today
-                        graph = "day";
+                        // If no URL VAR, default to the graph group defined in Extras
+                        graph = "$Extras.graph_page_default_graphgroup";
                     }
-                    var graphgroups_raw = $charts;
                     var thisPageGraphs = graphgroups_raw[graph];
-                    var graphgroups_titles = $chartgroup_titles;
                     
                     jQuery(document).ready(function() {
                         if (graph == "all") { 
@@ -25,7 +23,7 @@
                             for (var graphgroup in graphgroups_raw) {
                                 // Loop through every graph group defined and add a title section
                                 jQuery(".graph_outer").append('<div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">' +
-                                                                '<div class="graph-section-title wx-buttons-description">'+ titleCase(graphgroups_titles[graphgroup]) +'</div>' +
+                                                                '<div class="graph-section-title wx-buttons-description">'+ graphgroups_titles[graphgroup] +'</div>' +
                                                                 '<div class="' + graphgroup + '"></div>' +
                                                               '</div>');
                                 
@@ -50,8 +48,8 @@
                                     jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
                                 });
                                 
-                                // Set page title. e.g. "Graphs for Today"
-                                jQuery(".wx-graph-text").html("$obs.label.graphs_page_default_title " + titleCase(graphgroups_titles[graph]) );
+                                // Set page title from graph group's title setting
+                                jQuery(".wx-graph-text").html(graphgroups_titles[graph]);
                                 
                                 // Render the charts
                                 showChart(graph);
@@ -70,7 +68,7 @@
                         #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
                         <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
                         #end if
-                        <a href="./?graph=day"><button type="button" class="btn btn-primary wx-btn-today">$obs.label.graphs_page_today_button</button></a> <a href="./?graph=week"><button type="button" class="btn btn-primary wx-btn-week">$obs.label.graphs_page_week_button</button></a> <a href="./?graph=month"><button type="button" class="btn btn-primary wx-btn-month">$obs.label.graphs_page_month_button</button></a> <a href="./?graph=year"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_year_button</button></a>
+                        $graph_page_buttons
                     </div>
                     <div class="col-sm-12 wx-buttons-description">
                         <span class='wx-graph-text'></span>

@@ -52,22 +52,47 @@
 # title
 # The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. For example, a title of "This Week" will show "Graphs for This Week" on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
 
+# show_button
+# Values are "true" or "false". This will show or hide the graph button on the Graphs page.
+
+# button_text
+# This is the text of the button on the Graphs page. If no text is specified, the graph group name will be used. 
+
 # aggregate_type 
 # This defines the aggregate of the chart values. Valid options are None, avg, sum, min, max
     
 # time_length 
 # This is the time length the chart will show. There are two ways to define this.
 # 1. Use a keyword to define the calendar day, week, month or year.
-#   (Default)   today   = calendar day starting at midnight today.
-#               week    = calendar week starting Sunday at midnight.
-#               month   = calendar month starting on the 1st day of the month.
-#   (Default)   year    = calendar year start on 1st day of the year.
+#   (Default)   today           = calendar day starting at midnight today.
+#               week            = calendar week starting at midnight. Week start day is defined in weewx.conf Station details.
+#               month           = calendar month starting on the 1st day of the month.
+#   (Default)   year            = calendar year start on 1st day of the year.
+#               day_ago         = calendar day starting at midnight the day before, or midnight on the day from time_ago.
+#               week_ago        = calendar week starting last week at midnight, or the week ago from time_ago. Week start day is defined in weewx.conf Station details.
+#               month_ago       = calendar month starting on the 1st day of last month, or the month ago from time_ago.
+#               year_ago        = calendar year starting on 1st day of last year, or the year ago from time_ago.
+#               day_specific    = a specific day which you want to chart. Must be used in combination with options: day_specific, month_specific and year_specific
+#               month_specific  = a specific month which you want to chart. Must be used in combination with options: month_specific and year_specific
+#               year_specific   = a specific year which you want to chart. Must be used in combination with option: year_specific
 # 2. Use seconds to graph a rolling time period. Some examples are:
 #               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
 #   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
 #   (Default)   2592000     = Use this for month. This will graph the last 30 days as a rolling time period.
 #               31536000    = Use this for year. This will graph the last 365 days as a rolling time period.
 # NOTE: If you do not specify a time_length, the global default will be used and that is set for 90000 seconds (25 hours)
+
+# time_ago
+# If your time_length is one of the "ago" options, you can specify how far back in history you want to go with time_ago. For example if you set "year_ago" for time_length, then you can use "time_ago = 2" to get a graph for 2 years ago. Same for day, week and month. 
+
+# day_specific
+# This is the integer of the day of the month you want to chart for. Must be used with "time_length = day_specific".
+
+# month_specific
+# This is the integer of the month you want to chart for. Must be used with "time_length = month_specific". Also used in "day_specific".
+
+# year_specific
+# This is the year which you want to chart for. Must be used with "time_length = year_specific". Setting "year_specific = 2016" will create charts for 2016. Also used with "day_specific" and "month_specific". 
 
 # type 
 # This is the Highcharts chart type. For example, line, spline, area, scatter, etc.
@@ -115,7 +140,9 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
 
 [homepage]
     # Chart Timespan Defaults
-    title = Today
+    title = "Today"
+    show_button = true
+    button_text = "Homepage"
     time_length = today
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
@@ -164,7 +191,9 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
             
 [day]
     # Chart Timespan Defaults
-    title = Today
+    title = "Today"
+    show_button = true
+    button_text = "Day"
     time_length = today
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
@@ -212,7 +241,9 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
             
 [week]
     # Chart Timespan Defaults
-    title = This Week
+    title = "This Week"
+    show_button = true
+    button_text = "Week"
     aggregate_type = max
     aggregate_interval = 3600 # 1 hour
     time_length = 604800 # Last 7 days
@@ -264,7 +295,9 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         
 [month]
     # Chart Timespan Defaults
-    title = This Month
+    title = "This Month"
+    show_button = true
+    button_text = "Month"
     type = spline
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
@@ -318,7 +351,9 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
         
 [year]
     # Chart Timespan Defaults
-    title = This Year
+    title = "This Year"
+    show_button = true
+    button_text = "Year"
     type = spline
     aggregate_type = max
     aggregate_interval = 86400 # 1 day

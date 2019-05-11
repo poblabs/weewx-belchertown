@@ -1,27 +1,45 @@
+#import datetime
 var belchertown_debug = $belchertown_debug;
 
 var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
+var graphgroups_raw = $charts;
+var graphgroups_titles = $chartgroup_titles;
+
 jQuery(document).ready(function() {
+    
+    // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
+    if ( sessionStorage.getItem('theme') == "toggleOverride" ) {
+        if (belchertown_debug > 0) {
+            console.log("Theme: sessionStorage override in place.");
+        }
+        changeTheme( sessionStorage.getItem('currentTheme') );
+    }
 
     // Bootstrap hover tooltips
     jQuery(function () {
         jQuery('[data-toggle="tooltip"]').tooltip()
     })
-        
+            
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
         if (window.location.search.indexOf('?theme=dark') === 0) {
             if (belchertown_debug > 0) {
                 console.log("Theme: Setting dark theme because of URL override");
             }
-            changeTheme("dark");
+            changeTheme("dark", true);
         } else if (window.location.search.indexOf('?theme=light') === 0) {
             if (belchertown_debug > 0) {
                 console.log("Theme: Setting light theme because of URL override");
             }
-            changeTheme("light");
+            changeTheme("light", true);
+        } else if (window.location.search.indexOf('?theme=auto') === 0) {
+            if (belchertown_debug > 0) {
+                console.log("Theme: Setting auto theme because of URL override");
+            }
+            sessionStorage.setItem('theme', 'auto')
+            autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
         }
     }
 
@@ -32,7 +50,7 @@ jQuery(document).ready(function() {
         if (belchertown_debug > 0) {
             console.log("Theme: Toggle button changed");
         }
-        (event.target.checked) ? changeTheme("dark") : changeTheme("light");
+        (event.target.checked) ? changeTheme("dark", true) : changeTheme("light", true);
     });
     } catch(err) {
         // Silently exit
@@ -227,7 +245,7 @@ function titleCase(str) {
 
 function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     // First check if ?theme= is in URL. If so, bail out and do not change anything. 
-    if ( getURLvar("theme") ) {
+    if ( getURLvar("theme") && getURLvar("theme") != "auto" ) {
         if (belchertown_debug > 0) {
             console.log("Auto theme: theme override detected in URL. Skipping auto theme");
         }
@@ -256,30 +274,58 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
         console.log("Auto theme: now: " + nowHour);
         console.log("Auto theme: sunset: " + sunset_hour);
         console.log("Auto theme: are we in daylight hours: " + dayTime);
+        console.log("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
     }
     
     if ( dayTime ) {
         // Day time, set light if needed
         if ( document.body.classList.contains("dark") ) {
             if (belchertown_debug > 0) {
-                console.log("Auto theme: setting light theme since dayTime variable is true (day)");
+                if ( sessionStorage.getItem('theme') == "auto" ) {
+                    console.log("Auto theme: setting light theme since dayTime variable is true (day)");
+                } else {
+                    console.log("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
+                }
             }
-            changeTheme("light");
+            // Only change theme if user has not overridden the auto option with the toggle
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                changeTheme("light");
+            }
         }
     } else {
         // Night time, set dark if needed
         if ( document.body.classList.contains("light") ) {
             if (belchertown_debug > 0) {
-                console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
+                if ( sessionStorage.getItem('theme') == "auto" ) {
+                    console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
+                } else {
+                    console.log("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
+                }
             }
-            changeTheme("dark");
+            // Only change theme if user has not overridden the auto option with the toggle
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                changeTheme("dark");
+            }
         }
     }
 }
 
-function changeTheme(themeName) {
+function changeTheme(themeName, toggleOverride=false) {
     if (belchertown_debug > 0) {
         console.log("Theme: Changing to " + themeName);
+    }
+    // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
+    if ( toggleOverride ) {
+        if (belchertown_debug > 0) {
+            console.log("Theme: toggle override clicked.");
+            console.log("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
+        }
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            sessionStorage.setItem('theme', 'toggleOverride');
+        }
+        if (belchertown_debug > 0) {
+            console.log("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
+        }
     }
     if ( themeName == "dark" ) {
         // Apply dark theme
@@ -288,13 +334,15 @@ function changeTheme(themeName) {
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop( "checked", true );
         #end if
-    } else {
+        sessionStorage.setItem('currentTheme', 'dark');
+    } else if ( themeName == "light" ) {
         // Apply light theme
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop( "checked", false );
         #end if
+        sessionStorage.setItem('currentTheme', 'light');
     }
 }
 
@@ -518,7 +566,7 @@ function update_forecast_data( data ) {
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
-    jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
+    jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
 #end if
@@ -566,7 +614,7 @@ function connect() {
         console.log("Connecting to MQTT");
     }
     reported = "$obs.label.mqtt_websockets_connecting";
-    jQuery(".updated").text( reported );
+    jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
@@ -592,7 +640,7 @@ function onConnect() {
         console.log("MQTT Connected. Subscribing.");
     }
     reported = "$obs.label.mqtt_websockets_waiting";
-    jQuery(".updated").text( reported );
+    jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();            
@@ -834,6 +882,9 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "title":
                         title = optionVal;
                         break;
+                    case "subtitle":
+                        subtitle = optionVal;
+                        break;
                     case "yAxisLabel":
                         yAxisLabel = optionVal;
                         break;
@@ -842,6 +893,9 @@ function showChart(json_file, prepend_renderTo=false) {
                         break;
                     case "gapsize":
                         gapsize = optionVal;
+                        break; 
+                    case "connectNulls":
+                        connectNulls = optionVal;
                         break;
                     case "rounding":
                         rounding = optionVal;
@@ -868,6 +922,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
 
                 title: {
+                    text: ''
+                },
+
+                subtitle: {
                     text: ''
                 },
 
@@ -1004,10 +1062,14 @@ function showChart(json_file, prepend_renderTo=false) {
             }
             options.chart.type = type;
             options.title.text = title;
+            options.subtitle.text = subtitle;
             options.plotOptions.area.gapSize = gapsize;
             options.plotOptions.line.gapSize = gapsize;
             options.plotOptions.spline.gapSize = gapsize;
             options.plotOptions.scatter.gapSize = gapsize;
+            if ( connectNulls == "true" ) {
+                options.plotOptions.series = { connectNulls: connectNulls };
+            }
             options.colors = colors;
             
             // Reset the series everytime we loop.

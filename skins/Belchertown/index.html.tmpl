@@ -27,6 +27,14 @@
         ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
         #end if
         
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
+        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+        #end if
+        
         jQuery(document).ready(function() {
             #if $unit.unit_type.outTemp == "degree_F"
             update_outtemp_F( "$current.outTemp.formatted" );
@@ -403,7 +411,7 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        $obs.label.todays_graphs <a href="$belchertown_root_url/graphs">$obs.label.todays_graphs_link</a>
+                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$belchertown_root_url/graphs">$obs.label.homepage_graphs_link</a>
                     </div>
                     
                     <div class="graph_outer row"></div><!-- JS populated -->

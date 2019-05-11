@@ -1,13 +1,14 @@
+
 # Belchertown weewx skin
 
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
 
 Features include:
-* Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required)
-* Light and Dark Mode with automatic switching based on sunset and sunrise
-* Forecast data updated every hour without needing to reload the website. (a free DarkSky API key required)
-* Information on your closest Earthquake updated automatically
-* Observation charts that update without needing to reload the website.
+* Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required.)
+* Extensive graphing system with full customized control on observations, historical timescale, grouping and more. Graphs also update automatically without needing to reload the website.
+* Light and Dark Mode with automatic switching based on sunset and sunrise.
+* Forecast data updated every hour without needing to reload the website. (A free DarkSky API key required.)
+* Information on your closest Earthquake updated automatically.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
 * Progressive webapp ready enabling the "Add to homescreen" option so your website feels like an app on your mobile devices. 
@@ -30,6 +31,8 @@ Screenshot of light and dark modes
   * [Chart System](#chart-system)
   * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
   * [Using Metric](#using-metric)
+  * [Dark Mode Theme Options](#dark-mode-theme-options)
+    + [Theme Override with URL Option](#theme-override-with-url-option)
   * [Skin Options](#skin-options)
     + [General Options](#general-options)
     + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
@@ -92,17 +95,17 @@ DarkSky API is where the forecast data comes from. The skin will work without Da
 * Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
 
 ### MQTT and MQTT Websockets (optional)
-MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live website. 
+MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
 
 MQTT Websockets allows websites such as this to connect to the MQTT broker to subscribe to a topic and get updates. 
 
 You will need to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://github.com/poblabs/weewx-belchertown#install-your-own-mqtt-broker), or use a [public one](https://github.com/poblabs/weewx-belchertown#use-a-public-broker) (some free, some paid). 
 
-Your weewx server will **publish** it's weather data to a broker and visitors to your website will **subscribe** to those updates using MQTT Websockets. When data is published the subscribers get that data immediately. 
+Your weewx server will **publish** it's weather data to a broker (using the [weewx-mqtt](https://github.com/weewx/weewx/wiki/mqtt) extension) and visitors to your website will **subscribe** to those updates using MQTT Websockets built in to this skin. When data is published the subscribers get that data immediately by way of the website updating without reloading. 
 
 With the [`weewx-mqtt` extension](https://github.com/weewx/weewx/wiki/mqtt) installed, everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
 
-A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS.
+A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS. Update the `unit_system` if needed.
 
 ```
     [[MQTT]]
@@ -116,7 +119,7 @@ A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic
             ca_certs = /etc/ssl/certs/ca-certificates.crt
 ```
 
-**I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
+**Note: I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
 
 ### MQTT Brokers
 
@@ -164,7 +167,27 @@ I changed it so the standard skin would be in a subfolder, and the main folder h
 
 ## Using Metric
 
-If your weewx and your weather station are configured for metric, you can display the metric values in the skin. Just like with the [Standard weewx skin](http://weewx.com/docs/customizing.htm#[Units]), to change the site to metric you would need to add `[[[Units]]]` and `[[[[Groups]]]]` to the Belchertown skin options in `weewx.conf`, with the appropriate group values. Restart weewx when you have made the changes. For example:
+If you want to use metric units in your website,you can display the metric values in the skin. Just like with the Standard weewx skins, [there are group units available to switch to](http://weewx.com/docs/customizing.htm#[Units]). 
+
+If your weewx version is 3.9.1 or newer, to change your site to metric you would modify `weewx.conf` `[StdReport]` section. Here's an example:
+
+```
+[StdReport]
+    [[Defaults]]
+        [[[Units]]]
+            [[[[Groups]]]]
+                group_altitude = meter
+                group_degree_day = degree_C_day
+                group_pressure = mbar
+                group_rain = mm
+                group_rainrate = mm_per_hour
+                group_speed = meter_per_second
+                group_speed2 = meter_per_second2
+                group_temperature = degree_C
+```
+Restart weewx when you've made these changes.
+
+If your weewx version is **older than 3.9.1 (not recommended)**, to change the site to metric you would need a configuration in `weewx.conf`, like below. Restart weewx when you have made the changes.
 
 ```
 [StdReport]
@@ -181,20 +204,21 @@ If your weewx and your weather station are configured for metric, you can displa
                 group_speed = meter_per_second
                 group_speed2 = meter_per_second2
                 group_temperature = degree_C
-    [[Highcharts_Belchertown]]
-        skin = Highcharts_Belchertown
-        HTML_ROOT = belchertown
-        [[[Units]]]
-            [[[[Groups]]]]
-                group_altitude = meter
-                group_degree_day = degree_C_day
-                group_pressure = mbar
-                group_rain = mm
-                group_rainrate = mm_per_hour
-                group_speed = meter_per_second
-                group_speed2 = meter_per_second2
-                group_temperature = degree_C                
 ```
+
+## Dark Mode Theme Options
+
+There are 3 options for a theme with the skin. **Dark, Light and Auto** modes. Dark mode will set your site in dark mode always. Light mode will set your site in light mode always. Auto mode will use the sunset, and sunrise times in your location (based on `latitude`, `longitude` in your weewx.conf) to automatically change the website from light to dark. Automatic dark mode happens at the sunset hour and automatic light mode happens at the sunrise hour. 
+
+At the top of the website next to the menu bar is a toggle button. This will toggle the site from light to dark modes. 
+
+**A note about auto mode, and the toggle slider**: If you have auto mode enabled for your site, and a visitor clicks the toggle slider, auto mode is disabled for that visitor for their session. To have the visitor restore auto mode, they will need to close the tab and re-open the tab. 
+
+This way when a visitor is on your site and they don't want auto mode but want dark mode always, by using the toggle button to go dark mode 100% it will keep the site on dark mode even after sunrise. Same idea for light mode if a visitor wants only light mode. **Visitors can override your auto setting using the toggle switch.** Closing the tab or the browser, or adding `?theme=auto` to the end of your URL will remove this override if the visitor wants to go back to auto mode. 
+
+#### Theme Override with URL Option
+
+You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode, you can add `?theme=auto` to the URL, or the tab or browser must be closed and re-opened. 
 
 ## Skin Options
 
@@ -215,7 +239,6 @@ To override a default setting add the setting name and value to the Extras secti
             darksky_secret_key = "your_key"
             earthquake_enabled = 1
             twitter_enabled = 1
-            twitter_owner = PatOBrienPhoto
 ```
 
 The benefit to adding these values to `weewx.conf` is that they persist after skin upgrades, whereas `skin.conf` could get replaced on skin upgrades. Always have a backup of `weewx.conf` and `skin.conf` just in case! 
@@ -233,10 +256,11 @@ For ease of readability I have broken them out into separate tables. However you
 | belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  
 | theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
-| logo_image | "" | The URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS
+| logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
 | footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
+ |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
@@ -248,11 +272,13 @@ For ease of readability I have broken them out into separate tables. However you
 | show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
 | show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
+| graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
+| graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
-| graph_page_show_all_button | 0 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
+| webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
 | reload_hook_images | 0 | Enable or disable the refreshing of any image within the front page custom hook `.inc` files upon MQTT Websocket page update. Ideal for any weather webcams or custom radar that need to be updated frequently without refreshing the whole page. 
 
 ### MQTT Websockets (for Real Time Streaming) Options
