@@ -23,7 +23,7 @@
                             for (var graphgroup in graphgroups_raw) {
                                 // Loop through every graph group defined and add a title section
                                 jQuery(".graph_outer").append('<div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">' +
-                                                                '<div class="graph-section-title wx-buttons-description">'+ graphgroups_titles[graphgroup] +'</div>' +
+                                                                '<div class="graph-section-title wx-buttons-description"><a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a></div>' +
                                                                 '<div class="' + graphgroup + '"></div>' +
                                                               '</div>');
                                 
