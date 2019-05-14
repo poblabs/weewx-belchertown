@@ -31,7 +31,7 @@ from collections import OrderedDict
 
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
-from weeutil.weeutil import to_bool, TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string
+from weeutil.weeutil import to_bool, TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string, option_as_list
 from weeutil.config import search_up
 
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
@@ -122,6 +122,13 @@ class getData(SearchList):
         # Get the archive interval for the highcharts gapsize
         archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
         
+        # Get the ordinal labels
+        default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
+        try:
+            ordinate_names = weeutil.weeutil.option_as_list(self.generator.skin_dict['Units']['Ordinates']['directions'])
+        except KeyError:
+            ordinate_names = default_ordinate_names
+            
         # Build the chart array for the HTML
         # Outputs a dict of nested lists which allow you to have different charts for different timespans on the site in different order with different names.
         # OrderedDict([('day', ['chart1', 'chart2', 'chart3', 'chart4']), 
@@ -792,6 +799,7 @@ class getData(SearchList):
                                   'highcharts_decimal': highcharts_decimal,
                                   'radar_html': radar_html,
                                   'archive_interval_ms': archive_interval_ms,
+                                  'ordinate_names': ordinate_names,
                                   'charts': json.dumps(charts),
                                   'chartgroup_titles': json.dumps(chartgroup_titles),
                                   'chartgroup_titles_dict': chartgroup_titles,

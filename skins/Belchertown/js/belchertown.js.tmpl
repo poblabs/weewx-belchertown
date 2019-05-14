@@ -1184,7 +1184,7 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
-                var categories = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+                var categories = $ordinate_names;
                 options.chart.className = "highcharts-windRose"; // Used for dark mode
                 options.chart.type = "column";
                 options.chart.polar = true;
