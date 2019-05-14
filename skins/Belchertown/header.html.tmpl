@@ -24,22 +24,36 @@
             #set $themeSwitchChecked = "checked"
         #end if
 #end if
+
+## Setup the header labels, setting a default if not defined
+#if $obs.label.html_site_title == "" 
+#set $head_title = $station.location + " Weather Conditions"
+#else
+#set $head_title = $obs.label.html_site_title
+#end if
+
+#if $obs.label.html_site_description == "" 
+#set $head_desc = "Weather conditions for " + $station.location + " as observed by a personal weather station and the weewx weather software"
+#else
+#set $head_desc = $obs.label.html_site_description
+#end if
+
 <!DOCTYPE html>
 <html lang="$system_locale_js" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head >
         <meta charset="UTF-8" />
-        <title>$station.location Weather Conditions</title>
+        <title>$head_title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <meta name="description" content="Weather conditions for $station.location as observed by a personal weather station and the weewx weather software"/>
+        <meta name="description" content="$head_desc"/>
         <meta name="robots" content="noodp"/>
         <link rel="canonical" href="$belchertown_root_url/" />
         <meta property="og:locale" content="en_US" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="$station.location Weather Conditions" />
-        <meta property="og:description" content="Weather conditions for $station.location as observed by a personal weather station and the weewx weather software" />
+        <meta property="og:title" content="$head_title" />
+        <meta property="og:description" content="$head_desc" />
         <meta property="og:url" content="$belchertown_root_url/" />
-        <meta property="og:site_name" content="$station.location Weather Conditions" />
+        <meta property="og:site_name" content="$head_title" />
 
         <link rel='dns-prefetch' href='//code.highcharts.com' />
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
@@ -111,7 +125,7 @@
                         <p class="site-title" itemprop="headline">
                             <a href="$belchertown_root_url/">
                                 #if $Extras.has_key("logo_image") and $Extras.logo_image != ''
-                                <img src="$Extras.logo_image" title="$station.location Weather Conditions" alt="$station.location Weather Conditions">
+                                <img src="$Extras.logo_image" title="$head_title" alt="$head_title">
                                 #else if $Extras.has_key("site_title") and $Extras.site_title != ''
                                 $Extras.site_title
                                 #end if
