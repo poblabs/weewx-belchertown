@@ -51,7 +51,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0rc8.4"
+VERSION = "1.0rc9"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -885,13 +885,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         
         self.converter = weewx.units.Converter.fromSkinDict(self.skin_dict)
         self.formatter = weewx.units.Formatter.fromSkinDict(self.skin_dict)
-        # TODO MAKE THIS self.binding and self.archive, etc?
-        binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
-        self.db_lookup = self.db_binder.bind_default(binding)
-        archive = self.db_binder.get_manager(binding)
-        start_ts = archive.firstGoodStamp()
-        stop_ts = archive.lastGoodStamp()
-        timespan = weeutil.weeutil.TimeSpan(start_ts, stop_ts)
+        self.binding = self.config_dict['StdReport'].get('data_binding', 'wx_binding')
+        self.db_lookup = self.db_binder.bind_default(self.binding)
+        self.archive = self.db_binder.get_manager(self.binding)
+        self.start_ts = self.archive.firstGoodStamp()
+        self.stop_ts = self.archive.lastGoodStamp()
+        self.timespan = weeutil.weeutil.TimeSpan(self.start_ts, self.stop_ts)
 
         # Setup title dict for plot titles
         try:
@@ -909,6 +908,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             chart_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group])
                 
             output[chart_group]["belchertown_version"] = VERSION
+            output[chart_group]["generated_timestamp"] = time.strftime('%m/%d/%Y %H:%M:%S')
             
             colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") # Default back to Highcharts standards
             output[chart_group]["colors"] = colors
@@ -930,7 +930,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 
                 plotgen_ts = self.gen_ts
                 if not plotgen_ts:
-                    plotgen_ts = stop_ts
+                    plotgen_ts = self.stop_ts
                     if not plotgen_ts:
                         plotgen_ts = time.time()
                 
@@ -941,23 +941,23 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 month_specific = plot_options.get('month_specific', 8) # Force a month so we don't error out
                 year_specific = plot_options.get('year_specific', 2019) # Force a year so we don't error out
                 if time_length == "today":
-                    minstamp, maxstamp = archiveDaySpan( timespan.stop )
+                    minstamp, maxstamp = archiveDaySpan( self.timespan.stop )
                 elif time_length == "week":
                     week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start )
+                    minstamp, maxstamp = archiveWeekSpan( self.timespan.stop, week_start )
                 elif time_length == "month":
-                    minstamp, maxstamp = archiveMonthSpan( timespan.stop )
+                    minstamp, maxstamp = archiveMonthSpan( self.timespan.stop )
                 elif time_length == "year":
-                    minstamp, maxstamp = archiveYearSpan( timespan.stop )
+                    minstamp, maxstamp = archiveYearSpan( self.timespan.stop )
                 elif time_length == "days_ago":
-                    minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
+                    minstamp, maxstamp = archiveDaySpan( self.timespan.stop, days_ago=time_ago )
                 elif time_length == "weeks_ago":
                     week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=time_ago )
+                    minstamp, maxstamp = archiveWeekSpan( self.timespan.stop, week_start, weeks_ago=time_ago )
                 elif time_length == "months_ago":
-                    minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
+                    minstamp, maxstamp = archiveMonthSpan( self.timespan.stop, months_ago=time_ago )
                 elif time_length == "years_ago":
-                    minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
+                    minstamp, maxstamp = archiveYearSpan( self.timespan.stop, years_ago=time_ago )
                 elif time_length == "day_specific":
                     # Set an arbitrary hour within the specific day to get that full day timespan and not the day before. e.g. 1pm
                     day_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-' + str(day_specific) + ' 13', '%Y-%m-%d %H')
@@ -973,6 +973,9 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
                     yearstamp = int(time.mktime(year_dt.timetuple()))
                     minstamp, maxstamp = archiveYearSpan( yearstamp )
+                elif time_length == "all":
+                    minstamp = self.start_ts
+                    maxstamp = self.stop_ts
                 else:
                     # Rolling timespans using seconds
                     (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
@@ -997,6 +1000,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 polar = plot_options.get('polar', None)
                 if polar:
                     output[chart_group][plotname]["polar"] = polar
+                    
+                xaxis_groupby = plot_options.get('xaxis_groupby', None)
+                xaxis_categories = plot_options.get('xaxis_categories', "")
+                # Check if this is a list. If not then we have 1 item, so force it into a list
+                if isinstance(xaxis_categories, list) is False:
+                    xaxis_categories = xaxis_categories.split()
+                output[chart_group][plotname]["options"]["xaxis_categories"] = xaxis_categories
                                 
                 # Loop through each observation within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
@@ -1035,6 +1045,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % observation_type)
                             continue
                     
+                    mirrored_value = line_options.get('mirrored_value', None)
+                    
                     # Build the final array items. 
                     
                     # This for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  
@@ -1071,7 +1083,19 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name]["rounding"] = "-1"
                     
                     # Build series data
-                    output[chart_group][plotname]["series"][line_name]["data"] = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length)
+                    series_data = self._getObservationData(observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value)
+
+                    # Build the final series data JSON
+                    if isinstance(series_data, dict):
+                        # If the returned type is a dict, then it's from the xaxis groupby section containing labels. Need to repack data, and update xaxis_categories.
+                        # Use SQL Labels?
+                        if series_data["use_sql_labels"]:
+                            output[chart_group][plotname]["options"]["xaxis_categories"] = series_data["xaxis_groupby_labels"]
+                        # No matter what, reset data back to just the series data and not a dict of values
+                        output[chart_group][plotname]["series"][line_name]["data"] = series_data["xaxis_groupby_data"]
+                    else:
+                        # No custom series data overrides, so just add series_data to the chart series data
+                        output[chart_group][plotname]["series"][line_name]["data"] = series_data
             
             # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
@@ -1081,7 +1105,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             with open(json_filename, mode='w') as fd:
                     fd.write( json.dumps( output[chart_group] ) )
 
-    def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length):
+    def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
         if observation == "windRose":
@@ -1383,6 +1407,48 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         else:
             obs_lookup = observation
         
+        if ( xaxis_groupby or len(xaxis_categories) >= 1 ):
+            # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
+            dataBinding = self.config_dict['StdArchive']['data_binding']
+            database = self.config_dict['DataBindings'][dataBinding]['database']
+            databaseType = self.config_dict['Databases'][database]['database_type']
+            driver = self.config_dict['DatabaseTypes'][databaseType]['driver']
+            xaxis_labels = []
+            obsvalues = []
+            
+            # Define the xaxis group by for the sql query. Default to month
+            if xaxis_groupby == "month":
+                strformat = "%m"
+            elif xaxis_groupby == "year":
+                strformat = "%Y"
+            elif xaxis_groupby == "":
+                strformat = "%m"
+            else:
+                strformat = "%m"
+                
+            if driver == "weedb.sqlite":
+                sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
+            elif driver == "weedb.mysql":
+                sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
+                
+            query = self.archive.genSql( sql_lookup )
+            for row in query:
+                xaxis_labels.append( row[0] )
+                obsvalues.append( row[1] )
+
+            # If the values are to be mirrored, we need to make them negative
+            if mirrored_value:
+                for i in range(len(obsvalues)):
+                    if obsvalues[i] is not None:
+                        obsvalues[i] = -obsvalues[i]
+
+            # Return a dict which has the value for if we need to add labels from sql or not. 
+            if len(xaxis_categories) == 0:
+                data = {"use_sql_labels": True, "xaxis_groupby_labels": xaxis_labels, "xaxis_groupby_data": obsvalues}
+            else:
+                data = {"use_sql_labels": False, "xaxis_groupby_labels": "", "xaxis_groupby_data": obsvalues}
+            return data
+        
         # Begin standard observation lookups
         (time_start_vt, time_stop_vt, obs_vt) = self.db_lookup().getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
         obs_vt = self.converter.convert(obs_vt)
@@ -1414,6 +1480,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
         else:
             point_timestamp = time_start_vt
         
+        # If the values are to be mirrored, we need to make them negative
+        if mirrored_value:
+            for i in range(len(obsRound_vt)):
+                if obsRound_vt[i] is not None:
+                    obsRound_vt[i] = -obsRound_vt[i]
+                
         time_ms = [float(x) * 1000 for x in point_timestamp[0]]
         data = zip(time_ms, obsRound_vt)
         

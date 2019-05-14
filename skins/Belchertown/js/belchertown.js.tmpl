@@ -157,67 +157,75 @@ function update_outtemp_C( outTemp ) {
     }
 }
 
-function get_cardinal_direction(degree, point_obsType, highchartsReturn=false, rounding) {
-    // highchartsReturn returns the full string for highcharts tooltips
+function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false) {
+    // Mirrored values have the negative sign removed
+    if ( mirrored ) {
+        obsvalue = Math.abs( obsvalue );
+    }
+    
     if ( point_obsType == "windDir" ) {
-        if (degree >= 0 && degree <= 11.25) {
-            output = "N";
-        } else if (degree >= 11.26 && degree <= 33.75) {
-            output = "NNE";
-        } else if (degree >= 33.76 && degree <= 56.25) {
-            output = "NE";
-        } else if (degree >= 56.26 && degree <= 78.75) {
-            output = "ENE";
-        } else if (degree >= 78.76 && degree <= 101.25) {
-            output = "E";
-        } else if (degree >= 101.26 && degree <= 123.75) {
-            output = "ESE";
-        } else if (degree >= 123.76 && degree <= 146.25) {
-            output = "SE";
-        } else if (degree >= 146.26 && degree <= 168.75) {
-            output = "SSE";
-        } else if (degree >= 168.76 && degree <= 191.25) {
-            output = "S";
-        } else if (degree >= 191.26 && degree <= 213.75) {
-            output = "SSW";
-        } else if (degree >= 213.76 && degree <= 236.25) {
-            output = "SW";
-        } else if (degree >= 236.26 && degree <= 258.75) {
-            output = "WSW";
-        } else if (degree >= 258.76 && degree <= 281.25) {
-            output = "W";
-        } else if (degree >= 281.26 && degree <= 303.75) {
-            output = "WNW";
-        } else if (degree >= 303.76 && degree <= 326.25) {
-            output = "NW";
-        } else if (degree >= 326.26 && degree <= 348.75) {
-            output = "NNW";
-        } else if (degree >= 348.76 && degree <= 360) {
-            output = "N";
+        if (obsvalue >= 0 && obsvalue <= 11.25) {
+            ordinal = "N";
+        } else if (obsvalue >= 11.26 && obsvalue <= 33.75) {
+            ordinal = "NNE";
+        } else if (obsvalue >= 33.76 && obsvalue <= 56.25) {
+            ordinal = "NE";
+        } else if (obsvalue >= 56.26 && obsvalue <= 78.75) {
+            ordinal = "ENE";
+        } else if (obsvalue >= 78.76 && obsvalue <= 101.25) {
+            ordinal = "E";
+        } else if (obsvalue >= 101.26 && obsvalue <= 123.75) {
+            ordinal = "ESE";
+        } else if (obsvalue >= 123.76 && obsvalue <= 146.25) {
+            ordinal = "SE";
+        } else if (obsvalue >= 146.26 && obsvalue <= 168.75) {
+            ordinal = "SSE";
+        } else if (obsvalue >= 168.76 && obsvalue <= 191.25) {
+            ordinal = "S";
+        } else if (obsvalue >= 191.26 && obsvalue <= 213.75) {
+            ordinal = "SSW";
+        } else if (obsvalue >= 213.76 && obsvalue <= 236.25) {
+            ordinal = "SW";
+        } else if (obsvalue >= 236.26 && obsvalue <= 258.75) {
+            ordinal = "WSW";
+        } else if (obsvalue >= 258.76 && obsvalue <= 281.25) {
+            ordinal = "W";
+        } else if (obsvalue >= 281.26 && obsvalue <= 303.75) {
+            ordinal = "WNW";
+        } else if (obsvalue >= 303.76 && obsvalue <= 326.25) {
+            ordinal = "NW";
+        } else if (obsvalue >= 326.26 && obsvalue <= 348.75) {
+            ordinal = "NNW";
+        } else if (obsvalue >= 348.76 && obsvalue <= 360) {
+            ordinal = "N";
         }
+        
+        // highchartsReturn returns the full wind direction string for highcharts tooltips. e.g "NNW (337)"
         if ( highchartsReturn ) {
-            data = output + " ("+ Math.round(degree) + "\xBA)";
+            output = ordinal + " ("+ Math.round(obsvalue) + "\xBA)";
         } else {
-            data = output;
+            output = ordinal;
         }
+        
     } else if ( point_obsType == "barometer" ) {
         // No thousands separator on barometer metric, and remove the white space in thousands separator, use float format decimals from weewx.conf
         // https://api.highcharts.com/class-reference/Highcharts#.numberFormat
-        data = Highcharts.numberFormat(degree, rounding, "$highcharts_decimal", "");
+        output = Highcharts.numberFormat(obsvalue, rounding, "$highcharts_decimal", "");
     } else {
         try {
             // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf. -1 is set from Python to notate no rounding data available
             if ( rounding == "-1" ) {
-                data = Highcharts.numberFormat(degree);
+                output = Highcharts.numberFormat(obsvalue);
             } else { 
-                data = Highcharts.numberFormat(degree, rounding);
+                output = Highcharts.numberFormat(obsvalue, rounding);
             }
         } catch(err) {
-            // Fall back to just returning the number
-            data = degree
+            // Fall back to just returning the highcharts point number value
+            output = obsvalue
         }
     }
-    return data;
+    
+    return output;
 }
 
 // Handle wind arrow rotation with the ability to "rollover" past 0 
@@ -795,7 +803,7 @@ function update_current_wx(data) {
         rotateThis( data["windDir"] );
         //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
         jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
-        jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
+        jQuery(".curwinddir").text( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
     // Windspeed US
     if ( data.hasOwnProperty("windSpeed_mph") ) {
@@ -858,6 +866,11 @@ function showChart(json_file, prepend_renderTo=false) {
             if ( plotname == "belchertown_version" ) {
                 return true;
             }
+
+            // Ignore the generated timestamp since this "plot" has no other options
+            if ( plotname == "generated_timestamp" ) {
+                return true;
+            }
             
             // Ignore the chartgroup_title since this "plot" has no other options
             if ( plotname == "chartgroup_title" ) {
@@ -899,6 +912,9 @@ function showChart(json_file, prepend_renderTo=false) {
                         break;
                     case "rounding":
                         rounding = optionVal;
+                        break;
+                    case "xaxis_categories":
+                        xaxis_categories = optionVal;
                         break;
                 }
             });
@@ -1023,17 +1039,21 @@ function showChart(json_file, prepend_renderTo=false) {
                                         // Mostly applies to line style charts (line, spline, area)
                                         return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format )].concat(
                                             this.points.map(function (point) {
-                                                var point_obsType = point.series.userOptions.obsType;
+                                                // If observation_type is in the series array, use that otherwise use the obsType
+                                                var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
                                                 var rounding = point.series.userOptions.rounding;
-                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + get_cardinal_direction( point.y, point_obsType, true, rounding );
+                                                var mirrored = point.series.userOptions.mirrored_value;
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored );
                                             })
                                         );
                                     } catch(e) {
                                         // There's an error so check if it's windDir to apply wind direction label, or if it's a scatter. If none of those revert back to default tooltip.
-                                        if (this.series.userOptions.obsType == "windDir") {
-                                            var point_obsType = this.series.userOptions.obsType;
+                                        if (this.series.userOptions.obsType == "windDir" || this.series.userOptions.observation_type == "windDir") {
+                                            // If observation_type is in the series array, use that otherwise use the obsType
+                                            var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
                                             var rounding = this.series.userOptions.rounding;
-                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + get_cardinal_direction( this.point.y, point_obsType, true, rounding ) + ' (' + Highcharts.numberFormat(this.point.y, 0) + '\xBA)';
+                                            var mirrored = this.series.userOptions.mirrored_value;
+                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
@@ -1049,10 +1069,7 @@ function showChart(json_file, prepend_renderTo=false) {
 
             };
             
-            // Build the chart here with the data
-            if (belchertown_debug > 0) {
-                console.log( renderTo + ": building a " + type + " chart" );
-            }
+            // Default options completed, build overrides from JSON and graphs.conf
             
             // Set the chart render div and title
             if ( prepend_renderTo ) {
@@ -1060,6 +1077,11 @@ function showChart(json_file, prepend_renderTo=false) {
             } else {
                 options.chart.renderTo = renderTo;
             }
+            
+            if (belchertown_debug > 0) {
+                console.log( options.chart.renderTo + ": building a " + type + " chart" );
+            }
+            
             options.chart.type = type;
             options.title.text = title;
             options.subtitle.text = subtitle;
@@ -1071,6 +1093,33 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.plotOptions.series = { connectNulls: connectNulls };
             }
             options.colors = colors;
+            
+            // If we have xAxis categories, reset xAxis and populate it from these options. Also need to reset tooltip since there's no datetime for moment.js to use.
+            if ( xaxis_categories.length >= 1 ) {
+                if (belchertown_debug > 0) {
+                    console.log( options.chart.renderTo + ": has " + xaxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
+                }
+                options.xAxis = {}
+                options.xAxis.categories = xaxis_categories;
+                options.tooltip = {}
+                options.tooltip = {
+                    enabled: true,
+                    crosshairs: true,
+                    split: true,
+                    formatter: function () {
+                        // The first returned item is the header, subsequent items are the points
+                        return [this.x].concat(
+                            this.points.map(function (point) {
+                                // If observation_type is in the series array, use that otherwise use the obsType
+                                var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+                                var rounding = point.series.userOptions.rounding;
+                                var mirrored = point.series.userOptions.mirrored_value;
+                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored );
+                            })
+                        );
+                    },
+                }
+            }
             
             // Reset the series everytime we loop.
             options.series = [];
@@ -1102,6 +1151,7 @@ function showChart(json_file, prepend_renderTo=false) {
             // We really care if yAxis is in array 1+, so we can go back and set yAxis 0 to the right label.
             var yAxis_index = options.series.findIndex( function(item){ return item.yAxis == 1 } )
             
+            // Handle series specific data, overrides and non-Highcharts options that we passed through
             options.series.forEach(s => {
                 if (s.yAxis == "1") {
                     // If yAxis = 1 is set for the observation, add a new yAxis and associate that observation to the right side of the chart
@@ -1135,7 +1185,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 this_yAxis = s.yAxis;
                 
                 if (belchertown_debug > 0) {
-                    console.log( renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
+                    console.log( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
                 }
                 
                 // Some charts may require a defined min/max on the yAxis
@@ -1178,6 +1228,14 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.plotOptions.line.gapSize = s.gapsize;
                     options.plotOptions.spline.gapSize = s.gapsize;
                     options.plotOptions.scatter.gapSize = s.gapsize;
+                }
+                
+                // If this chart is a mirrored chart, make the yAxis labels non-negative
+                if ( s.mirrored_value ) {
+                    if (belchertown_debug = 0) {
+                        console.log( options.chart.renderTo + ": mirrored chart due to mirrored_value = true" );
+                    }
+                    options.yAxis[s.yAxis].labels = { formatter: function() { return Math.abs(this.value); } }
                 }
                 
             });
