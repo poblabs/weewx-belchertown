@@ -52,6 +52,10 @@
 # title
 # The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. For example, a title of "This Week" will show "Graphs for This Week" on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
 
+# tooltip_date_format
+# The tooltip is the box that shows up when your mouse hovers over the chart. The tooltip date and time uses moment.js to format dates into your locale. You can change your date and time format by using the string formats from the moment.js documentation at https://momentjs.com/docs/#/parsing/string-format/ 
+# You can apply the tooltip_date_format at the graph group level, and at the individual chart level.
+
 # show_button
 # Values are "true" or "false". This will show or hide the graph button on the Graphs page.
 
@@ -137,13 +141,15 @@ aggregate_type = None
 time_length = 90000 # Last 25 hours
 type = line
 colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8, #8d4653, #91e8e1"
+tooltip_date_format = "LLL"
 
 [homepage]
     # Chart Timespan Defaults
-    title = "Today"
+    title = "Homepage"
     show_button = true
     button_text = "Homepage"
     time_length = today
+    tooltip_date_format = "LLL"
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
     [[chart1]]
@@ -195,6 +201,7 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
     show_button = true
     button_text = "Day"
     time_length = today
+    tooltip_date_format = "LLL"
     gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
 
     [[chart1]]
@@ -244,9 +251,10 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
     title = "This Week"
     show_button = true
     button_text = "Week"
+    time_length = 604800 # Last 7 days
+    tooltip_date_format = "LLLL"
     aggregate_type = max
     aggregate_interval = 3600 # 1 hour
-    time_length = 604800 # Last 7 days
     gapsize = 3600000 # 1 hour in milliseconds
 
     [[chart1]]
@@ -299,9 +307,10 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
     show_button = true
     button_text = "Month"
     type = spline
+    time_length = 2592000 # Last 30 days
+    tooltip_date_format = "dddd LL"
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
-    time_length = 2592000 # Last 30 days
     gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
@@ -355,9 +364,10 @@ colors = "#268bd2, #90ed7d, #f7a35c, #d33682, #8085e9, #e4d354, #f15c80, #8085e8
     show_button = true
     button_text = "Year"
     type = spline
+    time_length = year
+    tooltip_date_format = "dddd LL"
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
-    time_length = year
     gapsize = 86400000 # 1 day in milliseconds
 
     [[chart1]]
