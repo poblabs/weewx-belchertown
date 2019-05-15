@@ -157,12 +157,12 @@ function update_outtemp_C( outTemp ) {
     }
 }
 
-function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false) {
+function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false, numberFormat) {
     // Mirrored values have the negative sign removed
     if ( mirrored ) {
         obsvalue = Math.abs( obsvalue );
     }
-    
+            
     if ( point_obsType == "windDir" ) {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
             ordinal = "N";
@@ -206,22 +206,30 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
         } else {
             output = ordinal;
         }
-        
-    } else if ( point_obsType == "barometer" ) {
-        // No thousands separator on barometer metric, and remove the white space in thousands separator, use float format decimals from weewx.conf
-        // https://api.highcharts.com/class-reference/Highcharts#.numberFormat
-        output = Highcharts.numberFormat(obsvalue, rounding, "$highcharts_decimal", "");
     } else {
         try {
-            // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf. -1 is set from Python to notate no rounding data available
-            if ( rounding == "-1" ) {
+            // Setup any graphs.conf overrides on formatting
+            var { decimals, decimalPoint, thousandsSep } = numberFormat;
+            
+            // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf StringFormats.
+            // -1 is set from Python to notate no rounding data available and decimals from graphs.conf is undefined.
+            if ( rounding == "-1" && typeof decimals === "undefined" ) {
                 output = Highcharts.numberFormat(obsvalue);
-            } else { 
-                output = Highcharts.numberFormat(obsvalue, rounding);
+            } else {
+                // If the amount of decimal is defined, use that instead since rounding is provided to the function.
+                if ( typeof decimals !== "undefined" ) {
+                    rounding = decimals;
+                }
+                // If decimalPoint is undefined, use the auto detect from the skin since this comes from the skin.
+                if ( typeof decimalPoint === "undefined" ) {
+                    decimalPoint = "$highcharts_decimal";
+                }
+                    
+                output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
             }
         } catch(err) {
-            // Fall back to just returning the highcharts point number value
-            output = obsvalue
+            // Fall back to just returning the highcharts point number value, which is a best guess.
+            output = Highcharts.numberFormat(obsvalue);
         }
     }
     
@@ -860,7 +868,7 @@ function showChart(json_file, prepend_renderTo=false) {
         
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
-            var observation_type, moment_format = undefined;
+            var observation_type = undefined;
             
             // Ignore the Belchertown Version since this "plot" has no other options
             if ( plotname == "belchertown_version" ) {
@@ -874,6 +882,12 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // Ignore the chartgroup_title since this "plot" has no other options
             if ( plotname == "chartgroup_title" ) {
+                return true;
+            }
+            
+            // Set the chart's tooltip date time format, then return since this "plot" has no other options
+            if ( plotname == "tooltip_date_format" ) {
+                tooltip_date_format = obsname;
                 return true;
             }            
             
@@ -916,17 +930,15 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "xaxis_categories":
                         xaxis_categories = optionVal;
                         break;
+                    case "plot_tooltip_date_format":
+                        plot_tooltip_date_format = optionVal;
+                        break;
                 }
             });
             
-            // Update moment.js locale format
-            if ( chart_group == "day" ) {
-                moment_format = "$obs.label.time_charts_tooltip_day";
-            } else if ( chart_group == "month" || chart_group == "year" ) {
-                moment_format = "$obs.label.time_charts_tooltip_month_year";
-            } else {
-                // Week charts and anything else undefined by a standard group
-                moment_format = "$obs.label.time_charts_tooltip_default";
+            // Handle any per-chart date time format override
+            if ( typeof plot_tooltip_date_format !== "undefined" ) {
+                var tooltip_date_format = plot_tooltip_date_format;
             }
             
             var options = {
@@ -1037,13 +1049,14 @@ function showChart(json_file, prepend_renderTo=false) {
                                     try {
                                         // The first returned item is the header, subsequent items are the points.
                                         // Mostly applies to line style charts (line, spline, area)
-                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format )].concat(
+                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format )].concat(
                                             this.points.map(function (point) {
                                                 // If observation_type is in the series array, use that otherwise use the obsType
                                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
                                                 var rounding = point.series.userOptions.rounding;
                                                 var mirrored = point.series.userOptions.mirrored_value;
-                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored );
+                                                var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat );
                                             })
                                         );
                                     } catch(e) {
@@ -1053,7 +1066,7 @@ function showChart(json_file, prepend_renderTo=false) {
                                             var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
                                             var rounding = this.series.userOptions.rounding;
                                             var mirrored = this.series.userOptions.mirrored_value;
-                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( moment_format ) +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );
+                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
@@ -1236,6 +1249,12 @@ function showChart(json_file, prepend_renderTo=false) {
                         console.log( options.chart.renderTo + ": mirrored chart due to mirrored_value = true" );
                     }
                     options.yAxis[s.yAxis].labels = { formatter: function() { return Math.abs(this.value); } }
+                }
+                
+                // Lastly, apply any numberFormat label overrides
+                if ( typeof s.numberFormat !== "undefined" && Object.keys(s.numberFormat).length >= 1 ) {
+                    var { decimals, decimalPoint, thousandsSep } = s.numberFormat
+                    options.yAxis[this_yAxis].labels = { formatter: function () { return Highcharts.numberFormat(this.value, decimals, decimalPoint, thousandsSep); } }                    
                 }
                 
             });

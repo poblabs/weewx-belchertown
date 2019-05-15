@@ -910,12 +910,18 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             output[chart_group]["belchertown_version"] = VERSION
             output[chart_group]["generated_timestamp"] = time.strftime('%m/%d/%Y %H:%M:%S')
             
-            colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") # Default back to Highcharts standards
+            # Default back to Highcharts standards
+            colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") 
             output[chart_group]["colors"] = colors
             
-            chartgroup_title = chart_options.get('title', None) # chartgroup_title is used on the graphs page
+            # chartgroup_title is used on the graphs page
+            chartgroup_title = chart_options.get('title', None) 
             if chartgroup_title:
                 output[chart_group]["chartgroup_title"] = chartgroup_title
+
+            # Define the default tooltip datetime format from the global options
+            tooltip_date_format = chart_options.get('tooltip_date_format', "LLLL")
+            output[chart_group]["tooltip_date_format"] = tooltip_date_format
             
             # Loop through each chart within the chart_group
             for plotname in self.chart_dict[chart_group].sections:
@@ -1007,7 +1013,11 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 if isinstance(xaxis_categories, list) is False:
                     xaxis_categories = xaxis_categories.split()
                 output[chart_group][plotname]["options"]["xaxis_categories"] = xaxis_categories
-                                
+                
+                # Grab any per-chart tooltip date format overrides
+                plot_tooltip_date_format = plot_options.get('tooltip_date_format', None)
+                output[chart_group][plotname]["options"]["plot_tooltip_date_format"] = plot_tooltip_date_format
+                
                 # Loop through each observation within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}
