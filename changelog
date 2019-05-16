@@ -1,4 +1,19 @@
 1.0 ????, 2019
+
+**BREAKING CHANGES**: 
+* Chart system is 100% re-written. See below for details.
+* In an effort to provide more options for translations, the following Extra's settings have moved to Labels --> Default. 
+** home_page_header
+** graphs_page_header
+** records_page_header
+** reports_page_header
+** about_page_header
+** powered_by
+** footer_copyright_text
+** footer_disclaimer_text
+
+# Full list of Changes
+
 * Complete overhaul of the chart system and introduction of graphs.conf. Please see the readme and wiki for all the new configuration options.
 ** Overview of the new chart system include ability to move charts around, remove charts, configure multiple observations per chart, and add a 2nd yAxis to associate an observation to for better readability.
 ** You can also define which graph group from graphs.conf to show on the Graphs page. Show them All, show only the 1 you want. It's your choice!
@@ -6,7 +21,7 @@
 * Add support for wind rose with Highcharts.
 * Change the Station Observation table on the homepage to an Extras option for greater control of *current* weather station observations. You can add/remove and change the order of the observations.
 * Locale now has an option to be auto detected by the system, or the ability to change it to a locale the site owner wants as long as that locale is installed on the server first.
-* Add support for translating portions of the skin through the use of Default Labels in skin.conf (which can be used in weewx.conf, too).
+* Add support for translating the skin through the use of Default Labels in skin.conf (which can be used in weewx.conf, too).
 * Upgrade to Bootstrap 3.4.1 and change to new bootstrap stackpath CDN
 * Added new Dark Theme. This is a combination of Bootstrap's "darkly" (on CDN) and Highcharts Dark Unica theme (hosted locally), and Belchertown overrides to remain consistent.
 * Added new skin.conf option called "theme". Options are "light", "dark" and "auto". Light (white) website theme. Dark (dark) website theme. Auto switches between the two at sunset (to dark) and sunrise (to light). 

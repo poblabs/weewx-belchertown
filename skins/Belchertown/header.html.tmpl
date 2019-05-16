@@ -26,16 +26,16 @@
 #end if
 
 ## Setup the header labels, setting a default if not defined
-#if $obs.label.html_site_title == "" 
+#if $obs.label.html_title == "" 
 #set $head_title = $station.location + " Weather Conditions"
 #else
-#set $head_title = $obs.label.html_site_title
+#set $head_title = $obs.label.html_title
 #end if
 
-#if $obs.label.html_site_description == "" 
+#if $obs.label.html_description == "" 
 #set $head_desc = "Weather conditions for " + $station.location + " as observed by a personal weather station and the weewx weather software"
 #else
-#set $head_desc = $obs.label.html_site_description
+#set $head_desc = $obs.label.html_description
 #end if
 
 <!DOCTYPE html>
