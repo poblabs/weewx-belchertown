@@ -485,7 +485,10 @@ function update_forecast_data( data ) {
         visibility_unit = ""
     }
     try {
-        jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
+        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " " + visibility_unit;
+
+        jQuery(".station-observations .visibility").html( visibility_output );
+        //jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
     } catch(err) {
         // Visibility not in the station observation table, so silently exit
     }
