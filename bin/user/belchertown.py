@@ -1418,6 +1418,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             obs_lookup = observation
         
         if ( xaxis_groupby or len(xaxis_categories) >= 1 ):
+            # Setup the converter - for some reason self.converter doesn't work for the group_unit_dict in this section
+            # Get the target unit nickname (something like 'US' or 'METRIC'):
+            target_unit_nickname = self.config_dict['StdConvert']['target_unit']
+            # Get the target unit: weewx.US, weewx.METRIC, weewx.METRICWX
+            target_unit = weewx.units.unit_constants[target_unit_nickname.upper()]
+            # Bind to the appropriate standard converter units
+            converter = weewx.units.StdUnitConverters[target_unit]
+            
             # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
             dataBinding = self.config_dict['StdArchive']['data_binding']
             database = self.config_dict['DataBindings'][dataBinding]['database']
@@ -1441,14 +1449,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             elif driver == "weedb.mysql":
                 sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
             
-            # Setup converter
+            # Setup values for the converter
             obs_group = weewx.units.obs_group_dict[obs_lookup]
-            obs_unit = self.converter.group_unit_dict[obs_group]
+            obs_unit_from_target_unit = converter.group_unit_dict[obs_group]
             
             query = self.archive.genSql( sql_lookup )
             for row in query:
                 xaxis_labels.append( row[0] )
-                row_tuple = (row[1], obs_unit, obs_group)
+                row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
                 row_converted = self.converter.convert( row_tuple )
                 obsvalues.append( row_converted[0] )
 
