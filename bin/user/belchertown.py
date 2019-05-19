@@ -1450,8 +1450,13 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                 sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
             
             # Setup values for the converter
-            obs_group = weewx.units.obs_group_dict[obs_lookup]
-            obs_unit_from_target_unit = converter.group_unit_dict[obs_group]
+            try:
+                obs_group = weewx.units.obs_group_dict[obs_lookup]
+                obs_unit_from_target_unit = converter.group_unit_dict[obs_group]
+            except:
+                # This observation doesn't exist within weewx schema so nothing to convert, so set None type
+                obs_group = None
+                obs_unit_from_target_unit = None
             
             query = self.archive.genSql( sql_lookup )
             for row in query:
