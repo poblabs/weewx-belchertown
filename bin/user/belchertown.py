@@ -1067,8 +1067,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name]["name"] = name
 
                     # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
-                    output[chart_group][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
-                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    yAxisLabel = plot_options.get('yAxisLabel', None)
+                    if yAxisLabel is None:
+                        yAxisLabel = "(" + unit_label.strip() + ")"
+                    output[chart_group][plotname]["options"]["yAxisLabel"] = yAxisLabel
+                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = yAxisLabel
+                        
                                     
                     # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
                     yaxis_min = plot_options.get('yaxis_min', None)
