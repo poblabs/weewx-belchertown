@@ -233,9 +233,11 @@
                                     <tr>
                                         <td colspan="2">
                                             <div class="row small-almanac">
+                                                #if $obs.label.sun_and_moon and $obs.label.sun_and_moon != ''
                                                 <div class="sun-moon-title">
                                                     $obs.label.sun_and_moon
                                                 </div>
+                                                #end if
                                                 <div class="col-sm-6 sun">
                                                     <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
                                                     <br>
@@ -268,6 +270,28 @@
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
+                                                #if os.path.exists("celestial.inc")
+                                                <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
+                                                <!-- Almanac Modal -->
+                                                <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                <h5 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h5>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                #include "celestial.inc"
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-primary" data-dismiss="modal">$obs.label.close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                #end if
                                             </div>
                                         </td>
                                     </tr>
