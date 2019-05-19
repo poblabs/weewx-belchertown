@@ -21,6 +21,7 @@
 * Add support for wind rose with Highcharts.
 * Change the Station Observation table on the homepage to an Extras option for greater control of *current* weather station observations. You can add/remove and change the order of the observations.
 * Locale now has an option to be auto detected by the system, or the ability to change it to a locale the site owner wants as long as that locale is installed on the server first.
+* Added pyephem almanac modal to the "Sun & Moon" section. Thanks to Seasons skin for the quick work. 
 * Add support for translating the skin through the use of Default Labels in skin.conf (which can be used in weewx.conf, too).
 * Upgrade to Bootstrap 3.4.1 and change to new bootstrap stackpath CDN
 * Added new Dark Theme. This is a combination of Bootstrap's "darkly" (on CDN) and Highcharts Dark Unica theme (hosted locally), and Belchertown overrides to remain consistent.
