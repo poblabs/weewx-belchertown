@@ -1448,6 +1448,10 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             else:
                 strformat = "%m"
                 
+            # Default catch all in case the aggregate_type isn't defined, default to sum
+            if aggregate_type is None:
+                aggregate_type = "sum"
+                
             if driver == "weedb.sqlite":
                 sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
             elif driver == "weedb.mysql":
