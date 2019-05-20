@@ -330,9 +330,9 @@ function changeTheme(themeName, toggleOverride=false) {
             console.log("Theme: toggle override clicked.");
             console.log("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
         }
-        if ( sessionStorage.getItem('theme') == "auto" ) {
-            sessionStorage.setItem('theme', 'toggleOverride');
-        }
+        // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
+        //if ( sessionStorage.getItem('theme') == "auto" ) { }
+        sessionStorage.setItem('theme', 'toggleOverride');
         if (belchertown_debug > 0) {
             console.log("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
         }
