@@ -159,39 +159,39 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
             
     if ( point_obsType == "windDir" ) {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
-            ordinal = "N";
+            ordinal = "$ordinate_names[0]"; // N
         } else if (obsvalue >= 11.26 && obsvalue <= 33.75) {
-            ordinal = "NNE";
+            ordinal = "$ordinate_names[1]"; // NNE
         } else if (obsvalue >= 33.76 && obsvalue <= 56.25) {
-            ordinal = "NE";
+            ordinal = "$ordinate_names[2]"; // NE
         } else if (obsvalue >= 56.26 && obsvalue <= 78.75) {
-            ordinal = "ENE";
+            ordinal = "$ordinate_names[3]"; // ENE
         } else if (obsvalue >= 78.76 && obsvalue <= 101.25) {
-            ordinal = "E";
+            ordinal = "$ordinate_names[4]"; // E
         } else if (obsvalue >= 101.26 && obsvalue <= 123.75) {
-            ordinal = "ESE";
+            ordinal = "$ordinate_names[5]"; // ESE
         } else if (obsvalue >= 123.76 && obsvalue <= 146.25) {
-            ordinal = "SE";
+            ordinal = "$ordinate_names[6]"; // SE
         } else if (obsvalue >= 146.26 && obsvalue <= 168.75) {
-            ordinal = "SSE";
+            ordinal = "$ordinate_names[7]"; // SSE
         } else if (obsvalue >= 168.76 && obsvalue <= 191.25) {
-            ordinal = "S";
+            ordinal = "$ordinate_names[8]"; // S
         } else if (obsvalue >= 191.26 && obsvalue <= 213.75) {
-            ordinal = "SSW";
+            ordinal = "$ordinate_names[9]"; // SSW
         } else if (obsvalue >= 213.76 && obsvalue <= 236.25) {
-            ordinal = "SW";
+            ordinal = "$ordinate_names[10]"; // SW
         } else if (obsvalue >= 236.26 && obsvalue <= 258.75) {
-            ordinal = "WSW";
+            ordinal = "$ordinate_names[11]"; // WSW
         } else if (obsvalue >= 258.76 && obsvalue <= 281.25) {
-            ordinal = "W";
+            ordinal = "$ordinate_names[12]"; // W
         } else if (obsvalue >= 281.26 && obsvalue <= 303.75) {
-            ordinal = "WNW";
+            ordinal = "$ordinate_names[13]"; // WNW
         } else if (obsvalue >= 303.76 && obsvalue <= 326.25) {
-            ordinal = "NW";
+            ordinal = "$ordinate_names[14]"; // NW
         } else if (obsvalue >= 326.26 && obsvalue <= 348.75) {
-            ordinal = "NNW";
+            ordinal = "$ordinate_names[15]"; // NNW
         } else if (obsvalue >= 348.76 && obsvalue <= 360) {
-            ordinal = "N";
+            ordinal = "$ordinate_names[0]"; // N
         }
         
         // highchartsReturn returns the full wind direction string for highcharts tooltips. e.g "NNW (337)"
