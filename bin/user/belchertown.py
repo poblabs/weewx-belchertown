@@ -51,7 +51,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0rc9.1"
+VERSION = "1.0rc9.2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -740,11 +740,11 @@ class getData(SearchList):
         """
         Social Share
         """
-        station_location = self.generator.config_dict["Station"]["location"]
         facebook_enabled = self.generator.skin_dict['Extras']['facebook_enabled']
         twitter_enabled = self.generator.skin_dict['Extras']['twitter_enabled']
-        twitter_owner = self.generator.skin_dict['Extras']['twitter_owner']
-        twitter_hashtags = self.generator.skin_dict['Extras']['twitter_hashtags']
+        twitter_text = label_dict["twitter_text"]
+        twitter_owner = label_dict["twitter_owner"]
+        twitter_hashtags = label_dict["twitter_hashtags"]
                 
         if facebook_enabled == "1": 
             facebook_html = """
@@ -766,8 +766,8 @@ class getData(SearchList):
                 <script>
                     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
                 </script>
-                <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s Weather Conditions" data-via="%s" data-hashtags="%s">Tweet</a>
-            """ % ( belchertown_root_url, station_location, twitter_owner, twitter_hashtags )
+                <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s" data-via="%s" data-hashtags="%s">Tweet</a>
+            """ % ( belchertown_root_url, twitter_text, twitter_owner, twitter_hashtags )
         else:
             twitter_html = ""
         
@@ -1067,8 +1067,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name]["name"] = name
 
                     # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
-                    output[chart_group][plotname]["options"]["yAxisLabel"] = "(" + unit_label.strip() + ")"
-                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = "(" + unit_label.strip() + ")"
+                    yAxisLabel = plot_options.get('yAxisLabel', None)
+                    if yAxisLabel is None:
+                        yAxisLabel = "(" + unit_label.strip() + ")"
+                    output[chart_group][plotname]["options"]["yAxisLabel"] = yAxisLabel
+                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = yAxisLabel
+                        
                                     
                     # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
                     yaxis_min = plot_options.get('yaxis_min', None)
@@ -1418,6 +1422,14 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             obs_lookup = observation
         
         if ( xaxis_groupby or len(xaxis_categories) >= 1 ):
+            # Setup the converter - for some reason self.converter doesn't work for the group_unit_dict in this section
+            # Get the target unit nickname (something like 'US' or 'METRIC'):
+            target_unit_nickname = self.config_dict['StdConvert']['target_unit']
+            # Get the target unit: weewx.US, weewx.METRIC, weewx.METRICWX
+            target_unit = weewx.units.unit_constants[target_unit_nickname.upper()]
+            # Bind to the appropriate standard converter units
+            converter = weewx.units.StdUnitConverters[target_unit]
+            
             # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
             dataBinding = self.config_dict['StdArchive']['data_binding']
             database = self.config_dict['DataBindings'][dataBinding]['database']
@@ -1436,15 +1448,30 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             else:
                 strformat = "%m"
                 
+            # Default catch all in case the aggregate_type isn't defined, default to sum
+            if aggregate_type is None:
+                aggregate_type = "sum"
+                
             if driver == "weedb.sqlite":
                 sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
             elif driver == "weedb.mysql":
                 sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
-                
+            
+            # Setup values for the converter
+            try:
+                obs_group = weewx.units.obs_group_dict[obs_lookup]
+                obs_unit_from_target_unit = converter.group_unit_dict[obs_group]
+            except:
+                # This observation doesn't exist within weewx schema so nothing to convert, so set None type
+                obs_group = None
+                obs_unit_from_target_unit = None
+            
             query = self.archive.genSql( sql_lookup )
             for row in query:
                 xaxis_labels.append( row[0] )
-                obsvalues.append( row[1] )
+                row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
+                row_converted = self.converter.convert( row_tuple )
+                obsvalues.append( row_converted[0] )
 
             # If the values are to be mirrored, we need to make them negative
             if mirrored_value:

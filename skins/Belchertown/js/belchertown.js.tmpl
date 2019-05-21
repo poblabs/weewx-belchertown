@@ -159,39 +159,39 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
             
     if ( point_obsType == "windDir" ) {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
-            ordinal = "N";
+            ordinal = "$ordinate_names[0]"; // N
         } else if (obsvalue >= 11.26 && obsvalue <= 33.75) {
-            ordinal = "NNE";
+            ordinal = "$ordinate_names[1]"; // NNE
         } else if (obsvalue >= 33.76 && obsvalue <= 56.25) {
-            ordinal = "NE";
+            ordinal = "$ordinate_names[2]"; // NE
         } else if (obsvalue >= 56.26 && obsvalue <= 78.75) {
-            ordinal = "ENE";
+            ordinal = "$ordinate_names[3]"; // ENE
         } else if (obsvalue >= 78.76 && obsvalue <= 101.25) {
-            ordinal = "E";
+            ordinal = "$ordinate_names[4]"; // E
         } else if (obsvalue >= 101.26 && obsvalue <= 123.75) {
-            ordinal = "ESE";
+            ordinal = "$ordinate_names[5]"; // ESE
         } else if (obsvalue >= 123.76 && obsvalue <= 146.25) {
-            ordinal = "SE";
+            ordinal = "$ordinate_names[6]"; // SE
         } else if (obsvalue >= 146.26 && obsvalue <= 168.75) {
-            ordinal = "SSE";
+            ordinal = "$ordinate_names[7]"; // SSE
         } else if (obsvalue >= 168.76 && obsvalue <= 191.25) {
-            ordinal = "S";
+            ordinal = "$ordinate_names[8]"; // S
         } else if (obsvalue >= 191.26 && obsvalue <= 213.75) {
-            ordinal = "SSW";
+            ordinal = "$ordinate_names[9]"; // SSW
         } else if (obsvalue >= 213.76 && obsvalue <= 236.25) {
-            ordinal = "SW";
+            ordinal = "$ordinate_names[10]"; // SW
         } else if (obsvalue >= 236.26 && obsvalue <= 258.75) {
-            ordinal = "WSW";
+            ordinal = "$ordinate_names[11]"; // WSW
         } else if (obsvalue >= 258.76 && obsvalue <= 281.25) {
-            ordinal = "W";
+            ordinal = "$ordinate_names[12]"; // W
         } else if (obsvalue >= 281.26 && obsvalue <= 303.75) {
-            ordinal = "WNW";
+            ordinal = "$ordinate_names[13]"; // WNW
         } else if (obsvalue >= 303.76 && obsvalue <= 326.25) {
-            ordinal = "NW";
+            ordinal = "$ordinate_names[14]"; // NW
         } else if (obsvalue >= 326.26 && obsvalue <= 348.75) {
-            ordinal = "NNW";
+            ordinal = "$ordinate_names[15]"; // NNW
         } else if (obsvalue >= 348.76 && obsvalue <= 360) {
-            ordinal = "N";
+            ordinal = "$ordinate_names[0]"; // N
         }
         
         // highchartsReturn returns the full wind direction string for highcharts tooltips. e.g "NNW (337)"
@@ -330,9 +330,9 @@ function changeTheme(themeName, toggleOverride=false) {
             console.log("Theme: toggle override clicked.");
             console.log("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
         }
-        if ( sessionStorage.getItem('theme') == "auto" ) {
-            sessionStorage.setItem('theme', 'toggleOverride');
-        }
+        // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
+        //if ( sessionStorage.getItem('theme') == "auto" ) { }
+        sessionStorage.setItem('theme', 'toggleOverride');
         if (belchertown_debug > 0) {
             console.log("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
         }
@@ -485,7 +485,10 @@ function update_forecast_data( data ) {
         visibility_unit = ""
     }
     try {
-        jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
+        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " " + visibility_unit;
+
+        jQuery(".station-observations .visibility").html( visibility_output );
+        //jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
     } catch(err) {
         // Visibility not in the station observation table, so silently exit
     }
@@ -572,7 +575,8 @@ function update_forecast_data( data ) {
         output_html += '<div class="forecast-wind">';
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
         output_html += '</div>';
-        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'" target="_blank">$obs.label.daily_forecast</a>';
+        var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
+        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
@@ -1210,11 +1214,16 @@ function showChart(json_file, prepend_renderTo=false) {
                 
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    if ( ! s.yaxis_tickinterval ) { 
+                    if ( typeof s.yaxis_tickinterval === "undefined" ) { 
                         // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
                         options.yAxis[this_yAxis].tickInterval = 0.01;
                     }
-                    options.yAxis[this_yAxis].labels = { format: '{value:.2f}' }
+                    // Define yAxis label float format if rounding is defined. Default to 2 decimals if nothing defined
+                    if ( typeof s.rounding !== "undefined" ) {
+                        options.yAxis[this_yAxis].labels = { format: '{value:.'+s.rounding+'f}' }
+                    } else {
+                        options.yAxis[this_yAxis].labels = { format: '{value:.2f}' }
+                    }
                 }
                 
                 // Rain, RainRate and rainTotal (special Belchertown skin observation) get yAxis precision
@@ -1289,7 +1298,8 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Reset the tooltip
                 options.tooltip = {}
                 options.tooltip.shared = true;
-                options.tooltip.valueSuffix = '%'
+                options.tooltip.valueSuffix = '%';
+                options.tooltip.followPointer = true;
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 

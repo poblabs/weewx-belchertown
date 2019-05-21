@@ -258,15 +258,9 @@ For ease of readability I have broken them out into separate tables. However you
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
-| footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
-| footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
  |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
-| graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
-| reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
-| records_page_header | "Weather Observation Records" | The header text to show on the Records page
-| about_page_header | "About This Site" | The header text to show on the About page
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
 | show_apptemp | 0 | If you have [enabled Apparent Temperature](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (appTemp) in your database, you can show it on the site by enabling this. 
 | show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
@@ -276,10 +270,23 @@ For ease of readability I have broken them out into separate tables. However you
 | graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
-| powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
 | webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
 | reload_hook_images | 0 | Enable or disable the refreshing of any image within the front page custom hook `.inc` files upon MQTT Websocket page update. Ideal for any weather webcams or custom radar that need to be updated frequently without refreshing the whole page. 
+
+### Common Titles under Labels Section to Change
+| Name | Default | Description
+| ---- | ------- | -----------
+| home_page_header | "My Station Weather Conditions" | The header text to show on the Home page
+| graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
+| reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
+| records_page_header | "Weather Observation Records" | The header text to show on the Records page
+| about_page_header | "About This Site" | The header text to show on the About page
+| powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
+| footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
+| footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
+
+
 
 ### MQTT Websockets (for Real Time Streaming) Options
 
@@ -373,18 +380,59 @@ Check out this visual representation:
 
 ## Translating the Skin
 
-The skin uses the "default labels" for every text and title on the page. This allows you to translate, or change the words within the skin easily. You can either edit the `[Labels]` `[[Generic]]` section within skin.conf, or (preferred) **copy** these to the weewx.conf's section `[Labels]` `[[Generic]]` and edit them there. If you edit them within skin.conf, your **changes will be lost on upgrades**. 
+The skin uses the "default labels" for every text and title on the page. This allows you to translate, or simply just change the words to something else easily. You can either edit the `[Labels]` `[[Generic]]` section within skin.conf, or (**preferred**) **copy** these labels to your `[Belchertown]` skin settings within weewx.conf's. If you edit them within skin.conf, your **changes will be lost on upgrades**. Here is a sample weewx.conf config:
+
+```
+    [[Belchertown]]
+        skin = Belchertown
+        HTML_ROOT = belchertown
+        [[[Extras]]]
+            forecast_enabled = 1
+            ... other Extras options here ...
+        [[[Labels]]]
+            [[[[Generic]]]]
+                home_page_header = "Belchertown Weather Conditions"
+                twitter_owner = PatOBrienPhoto
+                twitter_hashtags = "PWS #weewx #weather #wx"
+                rain = My Custom Rain Label
+                graphs_page_day_button = Today
+```
 
 ## A Note About Date and Time Formatting in Your Locale
 
-In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js](https://momentjs.com/docs/#/parsing/string-format/) using JavaScript. [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. The downside is if you want to change the way it's formatted, you'll need to manually edit the source file to make those updates.
+In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js](https://momentjs.com/docs/#/parsing/string-format/) using JavaScript. [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. 
 
-If you notice that there are date, time and timezone formatting that looks wrong for your locale, please set the proper locale and timezone on your weewx server, and restart your server. 
+You can modify the moment.js string formats using the skin.conf Labels section and look for the moment.js section beneath. For a list of all string formats that moment.js can use, check https://momentjs.com/docs/#/parsing/string-format/
+
+If you notice that there are date, time and timezone formatting that looks wrong for your locale, you can set the proper locale and timezone on your weewx server, and restart your server, or don't use moment.js locale aware string formats and use a manual definition instead. For example if you want `Wednesday 15 May 20:25` you would use this formatting: `dddd DD MMM HH:mm`. 
+
+Explanation (this comes right from the moment.js documentation):
+
+* `dddd` gives you full day name, like Saturday. `ddd` would give you short day name like Sat
+* `DD` would give you the day's date as a number with a leading 0, like 05. If you want just 5 it would be `D`
+* `MMM` gives you the short name of the month like "Jan". If you want "January" it'd be `MMMM`
+* `HH` is the hour in 24 hour format with a leading 0, like 02. If you don't want the leading 0 it would be `H`.
+* `mm` is the minute with a leading 0, like 08. If you don't want the leading 0, use `m`.
 
 ## Frequently Asked Questions
 
-* Q: I don't have a radiation sensor, can I turn that chart off?
-* A: You can change the chart to something else, like `humidityplot`. [Check these instructions](https://github.com/poblabs/weewx-belchertown#change-the-charts-order), and restart weewx once you've made the change.
+* Q: How do I change my site title and page headers? I don't want to be called "My Weather Website"...
+* A: As of version 1.0, the skin has a lot of labels which are used for [Translating the Skin](#translating-the-skin). As a result certain Extras options which were all text are now under Labels so that they are more in line with the other text items which can be translated. Take a look in skin.conf and you'll find all the text items which can be translated under `Labels` --> `Generic`. My advice would be to **copy** the labels you want to change to weewx.conf under `[Belchertown]` so that they are not lost during upgrades since skin.conf gets erased and reinstalled on upgrades. Here's how you do that in weewx.conf:
+```
+    [[Belchertown]]
+        skin = Belchertown
+        HTML_ROOT = belchertown
+        [[[Extras]]]
+            forecast_enabled = 1
+            ... other Extras options here ...
+        [[[Labels]]]
+            [[[[Generic]]]]
+                home_page_header = "Belchertown Weather Conditions"
+                twitter_owner = PatOBrienPhoto
+                twitter_hashtags = "PWS #weewx #weather #wx"
+                rain = My Custom Rain Label
+                graphs_page_day_button = Today
+```
 ---
 * Q: How do I make this skin my default website?
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 

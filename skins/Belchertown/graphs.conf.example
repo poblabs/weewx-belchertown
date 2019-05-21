@@ -50,7 +50,7 @@
 # Settings Overview:
 
 # title
-# The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. For example, a title of "This Week" will show "Graphs for This Week" on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
+# The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
 
 # tooltip_date_format
 # The tooltip is the box that shows up when your mouse hovers over the chart. The tooltip date and time uses moment.js to format dates into your locale. You can change your date and time format by using the string formats from the moment.js documentation at https://momentjs.com/docs/#/parsing/string-format/ 
