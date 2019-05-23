@@ -47,9 +47,6 @@
 #end if
 
 <div id="celestial_widget" class="widget">
-  <div class="widget_title">
-    $obs.label.celestial
-  </div>
   <div class="widget_contents">
   #if $almanac.hasExtras
     <div id="celestial_details">
