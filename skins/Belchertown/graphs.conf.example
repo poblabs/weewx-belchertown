@@ -355,6 +355,7 @@ tooltip_date_format = "LLL"
     
     [[chart4]]
         title = Barometer
+        aggregate_type = max
         [[[barometer]]]
             color = "#BECC00"
         
@@ -412,6 +413,7 @@ tooltip_date_format = "LLL"
     
     [[chart4]]
         title = Barometer
+        aggregate_type = max
         [[[barometer]]]
             color = "#BECC00"
         
