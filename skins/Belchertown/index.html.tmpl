@@ -81,6 +81,39 @@
                 showChart(homepage_graphgroup);
                 #end if
             });
+            
+            #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
+            // Update any images in the radar section or hooks
+        
+            #if $Extras.has_key("reload_images_radar") and $Extras.reload_images_radar != '-1'
+                var reload_radar_timer = $Extras.reload_images_radar * 1000; // convert to millis
+                setTimeout(function() { ajaximages("radar", $Extras.reload_images_radar); }, reload_radar_timer);
+            #end if
+            
+            #if $Extras.has_key("reload_images_hook_asi") and $Extras.reload_images_hook_asi != '-1'
+                var reload_asi_timer = $Extras.reload_images_hook_asi * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-station-info", $Extras.reload_images_hook_asi); }, reload_asi_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_af") and $Extras.reload_images_hook_af != '-1'
+                var reload_af_timer = $Extras.reload_images_hook_af * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-forecast", $Extras.reload_images_hook_af); }, reload_af_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_as") and $Extras.reload_images_hook_as != '-1'
+                var reload_as_timer = $Extras.reload_images_hook_as * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-snapshot", $Extras.reload_images_hook_as); }, reload_as_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_ac") and $Extras.reload_images_hook_ac != '-1'
+                var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
+            #end if
+            
+            #end if
+            
+            
+            
             #else
             // MQTT Websockets not enabled, update the Last Updated timestamp with moment.js
             updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("LL, LTS");
