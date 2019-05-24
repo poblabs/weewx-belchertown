@@ -112,13 +112,26 @@
             
             #end if
             
-            
-            
             #else
-            // MQTT Websockets not enabled, update the Last Updated timestamp with moment.js
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("LL, LTS");
+            // MQTT Websockets not enabled
+
+            #if $Extras.has_key("show_last_updated_alert") and $Extras.show_last_updated_alert == '1'
+            // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
+            if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
+                if (belchertown_debug > 0) {
+                    console.log("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
+                }
+                last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
+                jQuery(".last-updated-alert").html( last_updated_alert_text );
+                jQuery(".last-updated-alert").show();
+            }
+            #end if
+            
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_lastUpdated");
             updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
+            
             #end if
         });
         
@@ -151,6 +164,7 @@
                     $social_html
                     #end if
                     <div class="clear"></div>
+                    <div class="last-updated-alert" style="display:none;"></div><!-- AJAX moment.js -->
                     #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
                     <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
                     #end if
