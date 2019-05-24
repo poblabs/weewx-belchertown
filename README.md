@@ -272,7 +272,15 @@ For ease of readability I have broken them out into separate tables. However you
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
 | webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
-| reload_hook_images | 0 | Enable or disable the refreshing of any image within the front page custom hook `.inc` files upon MQTT Websocket page update. Ideal for any weather webcams or custom radar that need to be updated frequently without refreshing the whole page. 
+| reload_hook_images | 0 | Enable or disable the refreshing of images within the hook areas.
+| reload_images_radar | 300 | Seconds to reload the radar image if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| reload_images_hook_asi | -1 | Seconds to reload images within the `index_hook_after_station_info.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| reload_images_hook_af | -1 | Seconds to reload images within the `index_hook_after_forecast.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| reload_images_hook_as | -1 | Seconds to reload images within the `index_hook_after_snapshot.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| reload_images_hook_ac | -1 | Seconds to reload images within the `index_hook_after_charts.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| show_last_updated_alert | 0 | Enable the alert banner that will show if MQTT Websockets are disabled, and the weewx hasn't updated the website information beyond the threshold (see next option)
+| last_updated_alert_threshold | 1800 | Number of seconds before considering the information on the page stale and showing an alert in the header. `show_last_updated_alert` must be enabled, and MQTT Websockets disabled. 
+
 
 ### Common Titles under Labels Section to Change
 | Name | Default | Description
