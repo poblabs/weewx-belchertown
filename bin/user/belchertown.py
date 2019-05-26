@@ -32,8 +32,16 @@ from collections import OrderedDict
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import to_bool, TimeSpan, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string, option_as_list
-from weeutil.config import search_up
-
+try:
+    from weeutil.config import search_up
+except:
+    # Pass here because chances are we have an old version of weewx which will get caught below. 
+    pass
+    
+# Check weewx version. Many things like search_up, weeutil.weeutil.KeyDict (label_dict) are from 3.9
+if weewx.__version__ < "3.9":
+    raise weewx.UnsupportedFeature("weewx 3.9 and newer is required, found %s" % weewx.__version__)   
+    
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
 reload(sys)
 sys.setdefaultencoding("utf-8")
