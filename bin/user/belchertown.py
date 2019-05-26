@@ -1039,7 +1039,20 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                         obs_label = "rain"
                     else:
                         obs_label = observation_type
-                    unit_label = line_options.get('y_label', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
+                    unit_label = line_options.get('yAxisLabel_unit', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
+                    
+                    # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
+                    yAxisLabel = line_options.get('yAxisLabel', None)
+                    # Set a default yAxis label if graphs.conf yAxisLabel is none and there's a unit_label - e.g. Temperature (F)
+                    if yAxisLabel is None and unit_label:
+                        yAxisLabel = name + " (" + unit_label.strip() + ")"
+                    elif yAxisLabel:
+                        yAxisLabel = yAxisLabel
+                    else:
+                        # Unknown observation, set the default label to ""
+                        yAxisLabel = ""
+                    output[chart_group][plotname]["options"]["yAxisLabel"] = yAxisLabel
+                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = yAxisLabel
                     
                     # Look for aggregation type:
                     aggregate_type = line_options.get('aggregate_type')
@@ -1066,19 +1079,11 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     # Override any highcharts series configs with standardized data, then generate the data output
                     output[chart_group][plotname]["series"][line_name]["name"] = name
 
-                    # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
-                    yAxisLabel = plot_options.get('yAxisLabel', None)
-                    if yAxisLabel is None:
-                        yAxisLabel = "(" + unit_label.strip() + ")"
-                    output[chart_group][plotname]["options"]["yAxisLabel"] = yAxisLabel
-                    output[chart_group][plotname]["series"][line_name]["yAxisLabel"] = yAxisLabel
-                        
-                                    
                     # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
-                    yaxis_min = plot_options.get('yaxis_min', None)
+                    yaxis_min = line_options.get('yaxis_min', None)
                     if yaxis_min:
                         output[chart_group][plotname]["series"][line_name]["yaxis_min"] = yaxis_min
-                    yaxis_max = plot_options.get('yaxis_max', None)
+                    yaxis_max = line_options.get('yaxis_max', None)
                     if yaxis_max:
                         output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
                         

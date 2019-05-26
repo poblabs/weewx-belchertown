@@ -130,6 +130,12 @@
 # yAxis = 0 (default): observation will show on the left side of the chart.
 # yAxis = 1: observation will show on the right side of the chart. 
 
+# yAxisLabel
+# By setting this will give the yAxis label a full custom override from the built-in default. 
+
+# yAxisLabel_unit
+# You can specify a custom unit label for the yAxis label. For example, a value of yAxisLabel_unit = "W/m2" will put the "W/m2" inside the yAxis label's parenthesis. 
+
 # yaxis_min, yaxis_max
 # Certain observations will require a minimum and maximum yAxis value. 
 # For example windDir would be from 0 to 360. Using the yaxis_min and yaxis_max you can define the chart's min and max yAxis values.

@@ -1168,7 +1168,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.yAxis.push({ // Secondary yAxis
                                 opposite: true,
                                 title: {
-                                    text: s.name + " " + s.yAxisLabel,
+                                    text: s.yAxisLabel,
                                 },
                             }),
                     // Associate this series to the new yAxis 1
@@ -1176,12 +1176,12 @@ function showChart(json_file, prepend_renderTo=false) {
                                         
                     // We may have already passed through array 0 in the series without setting the "multi axis label", go back and explicitly define it.
                     if ( yAxis_index >= 1 ) {
-                        options.yAxis[0].title.text = options.series[0].name + " " + options.series[0].yAxisLabel;
+                        options.yAxis[0].title.text = options.series[0].yAxisLabel;
                     } 
                 } else {
                     if ( yAxis1_active ) {
                         // This yAxis is first in the data series, so we can set labels without needing to double back
-                        options.yAxis[0].title.text = s.name + " " + s.yAxisLabel;
+                        options.yAxis[0].title.text = s.yAxisLabel;
                     } else {
                         // Apply the normal yAxis 0's label without observation name
                         options.yAxis[0].title.text = s.yAxisLabel;
