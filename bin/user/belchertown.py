@@ -1042,12 +1042,12 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                     unit_label = line_options.get('yAxisLabel_unit', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
                     
                     # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
-                    yAxisLabel = line_options.get('yAxisLabel', None)
+                    yAxisLabel_config = line_options.get('yAxisLabel', None)
                     # Set a default yAxis label if graphs.conf yAxisLabel is none and there's a unit_label - e.g. Temperature (F)
-                    if yAxisLabel is None and unit_label:
+                    if yAxisLabel_config is None and unit_label:
                         yAxisLabel = name + " (" + unit_label.strip() + ")"
-                    elif yAxisLabel:
-                        yAxisLabel = yAxisLabel
+                    elif yAxisLabel_config:
+                        yAxisLabel = yAxisLabel_config
                     else:
                         # Unknown observation, set the default label to ""
                         yAxisLabel = ""
