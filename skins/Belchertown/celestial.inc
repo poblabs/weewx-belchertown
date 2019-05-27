@@ -27,14 +27,14 @@
     #set $seconds %= 3600
     #set $minutes = $seconds//60
     #set $seconds %= 60
-    #set $daylight_str = "%d hours, %d minutes, %d seconds" % ($hours, $minutes, $seconds)
+    #set $daylight_str = "%d %s, %d %s, %d %s" % ($hours, $obs.label.hours, $minutes, $obs.label.minutes, $seconds, $obs.label.seconds)
 
     #set $yesterday = $now - 24*3600
     #set $yesterday_daylight = $almanac($almanac_time=$yesterday).sun.set.raw - $almanac($almanac_time=$yesterday).sun.rise.raw
     #set $difference = $today_daylight - $yesterday_daylight
     #if $difference
       #set $delta = abs($difference)
-      #set $amt_str = "%s%d seconds" % (str(int($delta) // 60) + ' minutes, ' if ($delta // 60) > 0 else '', $delta % 60 if ($delta // 60) > 0 else $delta)
+      #set $amt_str = "%s%d %s" % (str(int($delta) // 60) + ' ' + $obs.label.minutes + ', ' if ($delta // 60) > 0 else '', $delta % 60 if ($delta // 60) > 0 else $delta, $obs.label.seconds)
       #if $difference > 0
         #set $delta_str = "%s %s" % ( $amt_str, $obs.label.more_than_yesterday )
       #else
