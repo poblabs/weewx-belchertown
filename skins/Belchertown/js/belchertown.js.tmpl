@@ -1,5 +1,13 @@
 #import datetime
-var belchertown_debug = $belchertown_debug;
+
+// Determine if debug is on via URL var or config setting
+if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
+    var belchertown_debug_config = true;
+    belchertown_debug("Debug: URL debug variable enabled");
+} else {
+    var belchertown_debug_config = $belchertown_debug;
+    belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+}
 
 var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
@@ -7,13 +15,17 @@ moment.locale(moment_locale);
 var graphgroups_raw = $charts;
 var graphgroups_titles = $chartgroup_titles;
 
+function belchertown_debug(message) {
+    if (belchertown_debug_config > 0) {
+        console.log(message);
+    }
+}
+
 jQuery(document).ready(function() {
     
     // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
     if ( sessionStorage.getItem('theme') == "toggleOverride" ) {
-        if (belchertown_debug > 0) {
-            console.log("Theme: sessionStorage override in place.");
-        }
+        belchertown_debug("Theme: sessionStorage override in place.");
         changeTheme( sessionStorage.getItem('currentTheme') );
     }
 
@@ -25,19 +37,13 @@ jQuery(document).ready(function() {
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
         if (window.location.search.indexOf('?theme=dark') === 0) {
-            if (belchertown_debug > 0) {
-                console.log("Theme: Setting dark theme because of URL override");
-            }
+            belchertown_debug("Theme: Setting dark theme because of URL override");
             changeTheme("dark", true);
         } else if (window.location.search.indexOf('?theme=light') === 0) {
-            if (belchertown_debug > 0) {
-                console.log("Theme: Setting light theme because of URL override");
-            }
+            belchertown_debug("Theme: Setting light theme because of URL override");
             changeTheme("light", true);
         } else if (window.location.search.indexOf('?theme=auto') === 0) {
-            if (belchertown_debug > 0) {
-                console.log("Theme: Setting auto theme because of URL override");
-            }
+            belchertown_debug("Theme: Setting auto theme because of URL override");
             sessionStorage.setItem('theme', 'auto')
             autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
         }
@@ -46,12 +52,10 @@ jQuery(document).ready(function() {
     #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
     // Dark mode checkbox toggle switcher
     try {
-    document.getElementById('themeSwitch').addEventListener('change', function(event){
-        if (belchertown_debug > 0) {
-            console.log("Theme: Toggle button changed");
-        }
-        (event.target.checked) ? changeTheme("dark", true) : changeTheme("light", true);
-    });
+        document.getElementById('themeSwitch').addEventListener('change', function(event) {
+            belchertown_debug("Theme: Toggle button changed");
+            (event.target.checked) ? changeTheme("dark", true) : changeTheme("light", true);
+        });
     } catch(err) {
         // Silently exit
     }
@@ -256,14 +260,10 @@ function titleCase(str) {
 function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     // First check if ?theme= is in URL. If so, bail out and do not change anything. 
     if ( getURLvar("theme") && getURLvar("theme") != "auto" ) {
-        if (belchertown_debug > 0) {
-            console.log("Auto theme: theme override detected in URL. Skipping auto theme");
-        }
+        belchertown_debug("Auto theme: theme override detected in URL. Skipping auto theme");
         return true;
     }
-    if (belchertown_debug > 0) {
-        console.log("Auto theme: checking to see if theme needs to be switched");
-    }
+    belchertown_debug("Auto theme: checking to see if theme needs to be switched");
     
     var d = new Date();
     var nowHour = d.getHours();
@@ -279,23 +279,19 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
         dayTime = false;
     }
     
-    if (belchertown_debug > 0) {
-        console.log("Auto theme: sunrise: " + sunrise_hour);
-        console.log("Auto theme: now: " + nowHour);
-        console.log("Auto theme: sunset: " + sunset_hour);
-        console.log("Auto theme: are we in daylight hours: " + dayTime);
-        console.log("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
-    }
+    belchertown_debug("Auto theme: sunrise: " + sunrise_hour);
+    belchertown_debug("Auto theme: now: " + nowHour);
+    belchertown_debug("Auto theme: sunset: " + sunset_hour);
+    belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
+    belchertown_debug("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
     
     if ( dayTime ) {
         // Day time, set light if needed
         if ( document.body.classList.contains("dark") ) {
-            if (belchertown_debug > 0) {
-                if ( sessionStorage.getItem('theme') == "auto" ) {
-                    console.log("Auto theme: setting light theme since dayTime variable is true (day)");
-                } else {
-                    console.log("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
-                }
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
+            } else {
+                belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
             }
             // Only change theme if user has not overridden the auto option with the toggle
             if ( sessionStorage.getItem('theme') == "auto" ) {
@@ -305,12 +301,10 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     } else {
         // Night time, set dark if needed
         if ( document.body.classList.contains("light") ) {
-            if (belchertown_debug > 0) {
-                if ( sessionStorage.getItem('theme') == "auto" ) {
-                    console.log("Auto theme: setting dark theme since dayTime variable is false (night)");
-                } else {
-                    console.log("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
-                }
+            if ( sessionStorage.getItem('theme') == "auto" ) {
+                belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
+            } else {
+                belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
             }
             // Only change theme if user has not overridden the auto option with the toggle
             if ( sessionStorage.getItem('theme') == "auto" ) {
@@ -321,21 +315,15 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
 }
 
 function changeTheme(themeName, toggleOverride=false) {
-    if (belchertown_debug > 0) {
-        console.log("Theme: Changing to " + themeName);
-    }
+    belchertown_debug("Theme: Changing to " + themeName);
     // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
     if ( toggleOverride ) {
-        if (belchertown_debug > 0) {
-            console.log("Theme: toggle override clicked.");
-            console.log("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
-        }
+        belchertown_debug("Theme: toggle override clicked.");
+        belchertown_debug("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
         // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
         //if ( sessionStorage.getItem('theme') == "auto" ) { }
         sessionStorage.setItem('theme', 'toggleOverride');
-        if (belchertown_debug > 0) {
-            console.log("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
-        }
+        belchertown_debug("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
     }
     if ( themeName == "dark" ) {
         // Apply dark theme
@@ -363,9 +351,7 @@ function ajaxweewx() {
 // Update weewx data elements
 var station_obs_array = "";
 function update_weewx_data( data ) {
-    if (belchertown_debug > 0) {
-        console.log("Updating weewx data");
-    }
+    belchertown_debug("Updating weewx data");
     
     #if $Extras.has_key("theme") and $Extras.theme == 'auto'
     // Auto theme if enabled
@@ -451,9 +437,7 @@ function ajaxforecast() {
 };
 
 function update_forecast_data( data ) {
-    if (belchertown_debug > 0) {
-        console.log("Updating forecast data");
-    }
+    belchertown_debug("Updating forecast data");
     // WX Icon
     if ( data['currently']['icon'] == "partly-cloudy-night" ) {
         // partly-cloudy-night could also be clear-day
@@ -603,17 +587,13 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
     // Update images within the specific section
     if ( section ) {
         if ( section == "radar" ) {
-            if (belchertown_debug > 0) {
-                console.log("Updating radar image");
-            }
+            belchertown_debug("Updating radar image");
             if ( document.querySelectorAll(".radar-map img").length > 0 ) {
                 var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
                 jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
             }
         } else {
-            if (belchertown_debug > 0) {
-                console.log("Updating " + section + " images");
-            }
+            belchertown_debug("Updating " + section + " images");
             // Reload the images
             jQuery('.'+section+' img').each(function(){
                 new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
@@ -630,9 +610,7 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
 
 // MQTT connect
 function connect() {
-    if (belchertown_debug > 0) {
-        console.log("Connecting to MQTT");
-    }
+    belchertown_debug("Connecting to MQTT");
     reported = "$obs.label.mqtt_websockets_connecting";
     jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
@@ -656,9 +634,7 @@ function connect() {
 
 // MQTT connect callback
 function onConnect() {
-    if (belchertown_debug > 0) {
-        console.log("MQTT Connected. Subscribing.");
-    }
+    belchertown_debug("MQTT Connected. Subscribing.");
     reported = "$obs.label.mqtt_websockets_waiting";
     jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
@@ -703,9 +679,7 @@ function onMessageArrived(message) {
 
 function inactive(){
     client.disconnect(); // Disconnect mqtt
-    if (belchertown_debug > 0) {
-        console.log("Inactive timer expired. MQTT Disconnected");
-    }
+    belchertown_debug("Inactive timer expired. MQTT Disconnected");
     jQuery(".onlineMarker").hide(); // Hide online beacon
     jQuery(".offlineMarker").show(); // Show offline beacon
     jQuery(".loadingMarker").hide(); // Hide loading beacon
@@ -734,9 +708,7 @@ function update_current_wx(data) {
     // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
     if ( data.hasOwnProperty("interval_minute") ) {
         // Delays are recommended to allow the other skins to complete processing
-        if (belchertown_debug > 0) {
-            console.log("MQTT message indicates this is an archive interval.");
-        }
+        belchertown_debug("MQTT message indicates this is an archive interval.");
         setTimeout( showChart(homepage_graphgroup), 30000 ); // Load updated charts
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
@@ -1095,9 +1067,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.chart.renderTo = renderTo;
             }
             
-            if (belchertown_debug > 0) {
-                console.log( options.chart.renderTo + ": building a " + type + " chart" );
-            }
+            belchertown_debug( options.chart.renderTo + ": building a " + type + " chart" );
             
             options.chart.type = type;
             options.title.text = title;
@@ -1113,9 +1083,7 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // If we have xAxis categories, reset xAxis and populate it from these options. Also need to reset tooltip since there's no datetime for moment.js to use.
             if ( xaxis_categories.length >= 1 ) {
-                if (belchertown_debug > 0) {
-                    console.log( options.chart.renderTo + ": has " + xaxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
-                }
+                belchertown_debug( options.chart.renderTo + ": has " + xaxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
                 options.xAxis = {}
                 options.xAxis.categories = xaxis_categories;
                 options.tooltip = {}
@@ -1201,9 +1169,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Run yAxis customizations
                 this_yAxis = s.yAxis;
                 
-                if (belchertown_debug > 0) {
-                    console.log( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
-                }
+                belchertown_debug( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
                 
                 // Some charts may require a defined min/max on the yAxis
                 options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
@@ -1254,9 +1220,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 
                 // If this chart is a mirrored chart, make the yAxis labels non-negative
                 if ( s.mirrored_value ) {
-                    if (belchertown_debug = 0) {
-                        console.log( options.chart.renderTo + ": mirrored chart due to mirrored_value = true" );
-                    }
+                    belchertown_debug( options.chart.renderTo + ": mirrored chart due to mirrored_value = true" );
                     options.yAxis[s.yAxis].labels = { formatter: function() { return Math.abs(this.value); } }
                 }
                 
