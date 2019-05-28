@@ -392,15 +392,23 @@ function update_weewx_data( data ) {
     // Daily max gust span
     jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
     
-    // Daily stats section
+    // Daily Snapshot Stats Section
     jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_today_header' ) );
     jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_month_header' ) );
     jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
     jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
-    jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
-    jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
+    jQuery(".dailystatswindavg").html( data["day"]["wind"]["average"] );
+    jQuery(".dailystatswindmax").html( data["day"]["wind"]["max"] );
     jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
     jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
+    
+    // Month Snapshot Stats Section
+    jQuery(".monthstatshigh").html( data["month"]["outTemp"]["max"] );
+    jQuery(".monthstatslow").html( data["month"]["outTemp"]["min"] );
+    jQuery(".monthstatswindavg").html( data["month"]["wind"]["average"] );
+    jQuery(".monthstatswindmax").html( data["month"]["wind"]["max"] );
+    jQuery(".monthstatsrain").html( data["month"]["rain"]["sum"] );
+    jQuery(".monthstatsrainrate").html( data["month"]["rain"]["max"] );
     
     // Sunrise and Sunset            
     jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_sunrise" ) );
