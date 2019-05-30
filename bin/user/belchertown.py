@@ -919,7 +919,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
             output[chart_group]["generated_timestamp"] = time.strftime('%m/%d/%Y %H:%M:%S')
             
             # Default back to Highcharts standards
-            colors = chart_options.get("colors", "#7cb5ec, #434348, #90ed7d, #f7a35c, #8085e9, #f15c80, #e4d354, #8085e8, #8d4653, #91e8e1") 
+            colors = chart_options.get("colors", "#7cb5ec, #b2df8a, #f7a35c, #8c6bb1, #dd3497, #e4d354, #268bd2, #f45b5b, #6a3d9a, #33a02c") 
             output[chart_group]["colors"] = colors
             
             # chartgroup_title is used on the graphs page
