@@ -15,6 +15,7 @@
 # Full list of Changes
 
 * Complete overhaul of the chart system and introduction of graphs.conf. Please see the Charts Wiki for all the new configuration options.
+** This overhaul removes the Highcharts_Belchertown skin and bin/user file and moves everything under the 1 Belchertown skin.
 ** Overview of the new chart system include ability to move charts around, remove charts, configure multiple observations per chart, and add a 2nd yAxis to associate an observation to for better readability, mix timespans between the graph groups (have both a year and a day chart on the same page), mirrored charts, wind rose, monthly aggregation and more! 
 ** You can also define which graph group from graphs.conf to show on the Graphs page. Show them All, show only the 1 you want. It's your choice!
 * Add support for wind rose with Highcharts.
