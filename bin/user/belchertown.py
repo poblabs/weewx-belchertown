@@ -851,10 +851,10 @@ class getData(SearchList):
         return [search_list_extension]
 
 # =============================================================================
-# JsonGenerator
+# HighchartsJsonGenerator
 # =============================================================================
 
-class JsonGenerator(weewx.reportengine.ReportGenerator):
+class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
     """Class for generating JSON files for the Highcharts. 
     Adapted from the ImageGenerator class.
     
@@ -1072,8 +1072,8 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                             # Aggregation specified. Get the interval.
                             aggregate_interval = line_options.as_int('aggregate_interval')
                         except KeyError:
-                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: aggregate interval required for aggregate type %s" % aggregate_type)
-                            syslog.syslog(syslog.LOG_ERR, "JsonGenerator: line type %s skipped" % observation_type)
+                            syslog.syslog(syslog.LOG_ERR, "HighchartsJsonGenerator: aggregate interval required for aggregate type %s" % aggregate_type)
+                            syslog.syslog(syslog.LOG_ERR, "HighchartsJsonGenerator: line type %s skipped" % observation_type)
                             continue
                     
                     mirrored_value = line_options.get('mirrored_value', None)
@@ -1130,7 +1130,7 @@ class JsonGenerator(weewx.reportengine.ReportGenerator):
                                      "json")
             json_filename = html_dest_dir + "/" + chart_group + ".json"
             with open(json_filename, mode='w') as fd:
-                    fd.write( json.dumps( output[chart_group] ) )
+                fd.write( json.dumps( output[chart_group] ) )
 
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
