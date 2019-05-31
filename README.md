@@ -50,6 +50,12 @@ Screenshot of light and dark modes
 
 ## Install weewx-belchertown
 
+---
+
+### ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) You must be running weewx 3.9 or newer!
+
+---
+
 1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
 
 2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
