@@ -1129,8 +1129,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                      self.skin_dict['HTML_ROOT'],
                                      "json")
             json_filename = html_dest_dir + "/" + chart_group + ".json"
-            with open(json_filename, mode='w') as fd:
-                fd.write( json.dumps( output[chart_group] ) )
+            with open(json_filename, mode='w') as jf:
+                jf.write( json.dumps( output[chart_group] ) )
+            chart_json_filename = html_dest_dir + "/graphs.json"
+            # Save the graphs.conf to a json file for future debugging
+            with open(chart_json_filename, mode='w') as cjf:
+                cjf.write( json.dumps( self.chart_dict ) )
 
     def _getObservationData(self, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
