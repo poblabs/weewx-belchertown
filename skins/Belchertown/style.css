@@ -66,8 +66,9 @@ input[type="search"] {
 
 body {
 	/* background-color: #f5f5f5; */
-	background-color: #fff;
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+    /* background-color: #fff; */
+	/* color: #333; */
 	font-family: Lato, sans-serif;
 	font-size: 18px;
 	font-weight: 300;
@@ -106,7 +107,9 @@ a {
 }
 
 a:hover {
-	color: #333;
+	/* color: #333; */
+    /* Removed in favor for dark mode dynamic switching */
+	color: #e5554e;
 }
 
 p {
@@ -160,7 +163,8 @@ h3,
 h4,
 h5,
 h6 {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-family: Lato, sans-serif;
 	font-weight: 400;
 	line-height: 1.2;
@@ -212,9 +216,9 @@ img {
 input,
 select,
 textarea {
-	background-color: #fff;
 	border: 1px solid #ddd;
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-size: 18px;
 	font-weight: 300;
 	padding: 16px;
@@ -234,13 +238,15 @@ input[type="radio"] {
 }
 
 ::-moz-placeholder {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-weight: 300;
 	opacity: 1;
 }
 
 ::-webkit-input-placeholder {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 	font-weight: 300;
 }
 
@@ -249,7 +255,8 @@ input[type="button"],
 input[type="reset"],
 input[type="submit"],
 .button {
-	background-color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #333; */
 	border: none;
 	color: #fff;
 	cursor: pointer;
@@ -265,12 +272,14 @@ input:hover[type="button"],
 input:hover[type="reset"],
 input:hover[type="submit"],
 .button:hover {
-	background-color: #e5554e;
-	color: #fff;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #e5554e; */
+	/* color: #fff; */
 }
 
 .entry-content .button:hover {
-	color: #fff;
+    /* Removed in favor for dark mode dynamic switching */
+    /* color: #fff; */
 }
 
 .button {
@@ -329,6 +338,7 @@ th {
 	/* POB */
 	/* padding-top: 10px; */
 	/* padding-top: 40px; */
+    margin-bottom: 25px;
 }
 
 /* ## Column Widths and Positions
@@ -457,79 +467,6 @@ th {
 /* # Common Classes
 ---------------------------------------------------------------------------------------------------- */
 
-/* ## Avatar
---------------------------------------------- */
-
-.avatar {
-	float: left;
-}
-
-.alignleft .avatar,
-.author-box .avatar {
-	margin-right: 24px;
-}
-
-.alignright .avatar {
-	margin-left: 24px;
-}
-
-.comment .avatar {
-	margin: 0 16px 24px 0;
-}
-
-/* ## Genesis
---------------------------------------------- */
-
-.breadcrumb {
-	margin-bottom: 20px;
-}
-
-.archive-description,
-.author-box {
-	background-color: #fff;
-	font-size: 16px;
-	margin-bottom: 40px;
-	padding: 40px;
-}
-
-.author-box-title {
-	font-size: 16px;
-	margin-bottom: 4px;
-}
-
-.archive-description p:last-child,
-.author-box p:last-child {
-	margin-bottom: 0;
-}
-
-/* ## Search Form
---------------------------------------------- */
-
-.search-form {
-	overflow: hidden;
-}
-
-.site-header .search-form {
-	float: right;
-	margin-top: 12px;
-}
-
-.entry-content .search-form,
-.site-header .search-form {
-	width: 50%;
-}
-
-.genesis-nav-menu .search input[type="submit"],
-.widget_search input[type="submit"] {
-	border: 0;
-	clip: rect(0, 0, 0, 0);
-	height: 1px;
-	margin: -1px;
-	padding: 0;
-	position: absolute;
-	width: 1px;
-}
-
 /* ## Titles
 --------------------------------------------- */
 
@@ -543,7 +480,8 @@ th {
 
 .entry-title a,
 .sidebar .widget-title a {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .entry-title a:hover {
@@ -606,7 +544,6 @@ img.alignright {
 ---------------------------------------------------------------------------------------------------- */
 
 .site-header {
-	background-color: #fff;
 	min-height: 75px;
 }
 
@@ -636,11 +573,12 @@ img.alignright {
 
 .site-title a,
 .site-title a:hover {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .header-image .site-title > a {
-	background: url('https://belchertownweather.com/images/content/btownwx-logo-slim.png') no-repeat left;
+	background: url('') no-repeat left;
 	float: left;
 	min-height: 80px;
 	width: 100%;
@@ -714,7 +652,6 @@ img.alignright {
 }
 
 .genesis-nav-menu .sub-menu a {
-	background-color: #fff;
 	border: 1px solid #eee;
 	border-top: none;
 	font-size: 14px;
@@ -783,7 +720,7 @@ img.alignright {
 --------------------------------------------- */
 
 .nav-primary {
-	background-color: #333;
+	/* background-color: #333; */
 }
 
 .nav-primary .genesis-nav-menu a {
@@ -791,7 +728,8 @@ img.alignright {
 }
 
 .nav-primary .genesis-nav-menu .sub-menu a {
-	color: #333;
+    /* Removed in favor for dark mode dynamic switching */
+	/* color: #333; */
 }
 
 .nav-primary .genesis-nav-menu a:hover,
@@ -804,7 +742,6 @@ img.alignright {
 --------------------------------------------- */
 
 .nav-secondary {
-	background-color: #fff;
 }
 
 
@@ -821,7 +758,6 @@ img.alignright {
 }
 
 .content .entry {
-	background-color: #fff;
 }
 
 .entry-content ol,
@@ -844,8 +780,9 @@ img.alignright {
 }
 
 .entry-content code {
-	background-color: #333;
-	color: #ddd;
+    /* Removed in favor for dark mode dynamic switching */
+	/* background-color: #333; */
+	/* color: #ddd; */
 }
 
 /* ## Entry Meta
@@ -874,132 +811,6 @@ p.entry-meta {
 	content: "\2014";
 	margin: 0 6px 0 2px;
 }
-
-/* ## Pagination
---------------------------------------------- */
-
-.pagination {
-	clear: both;
-	margin: 40px 0;
-}
-
-.adjacent-entry-pagination {
-	margin-bottom: 0;
-}
-
-.archive-pagination li {
-	display: inline;
-}
-
-.archive-pagination li a {
-	background-color: #333;
-	color: #fff;
-	cursor: pointer;
-	display: inline-block;
-	font-size: 16px;
-	padding: 8px 12px;
-}
-
-.archive-pagination li a:hover,
-.archive-pagination .active a {
-	background-color: #e5554e;
-}
-
-/* ## Comments
---------------------------------------------- */
-
-.comment-respond,
-.entry-comments,
-.entry-pings {
-	background-color: #fff;
-	margin-bottom: 40px;
-}
-
-.comment-respond,
-.entry-pings {
-	padding: 40px 40px 16px;
-}
-
-.entry-comments {
-	padding: 40px;
-}
-
-.comment-header {
-	font-size: 16px;
-}
-
-li.comment {
-	background-color: #f5f5f5;
-	border: 2px solid #fff;
-	border-right: none;
-}
-
-.comment-content {
-	clear: both;
-}
-
-.comment-list li {
-	margin-top: 24px;
-	padding: 32px;
-}
-
-.comment-list li li {
-	margin-right: -32px;
-}
-
-.comment-respond input[type="email"],
-.comment-respond input[type="text"],
-.comment-respond input[type="url"] {
-	width: 50%;
-}
-
-.comment-respond label {
-	display: block;
-	margin-right: 12px;
-}
-
-.entry-comments .comment-author {
-	margin-bottom: 0;
-}
-
-.entry-pings .reply {
-	display: none;
-}
-
-.bypostauthor {
-}
-
-.form-allowed-tags {
-	background-color: #f5f5f5;
-	font-size: 16px;
-	padding: 24px;
-}
-
-
-/* # Sidebars
----------------------------------------------------------------------------------------------------- */
-
-.sidebar {
-	font-size: 16px;
-}
-
-.sidebar li {
-	border-bottom: 1px dotted #ddd;
-	margin-bottom: 10px;
-	padding-bottom: 10px;
-}
-
-.sidebar p:last-child,
-.sidebar ul > li:last-child {
-	margin-bottom: 0;
-}
-
-.sidebar .widget {
-	background-color: #fff;
-	margin-bottom: 40px;
-	padding: 40px;
-}
-
 
 /* # Site Footer
 ---------------------------------------------------------------------------------------------------- */
@@ -1090,7 +901,7 @@ li.comment {
         float: right;
     }
     
-    .forecasts .wuforecast {
+    .forecasts .forecast-day {
         width: 235px;
     }
     
@@ -1181,7 +992,6 @@ li.comment {
 	body, html { overflow-x:hidden; }
 	body { 
 		padding:5px; 
-		background-color: #fff;
 		font-size: 16px;
 	}
 	
@@ -1315,7 +1125,6 @@ li.comment {
 	.genesis-nav-menu.responsive-menu li a,
 	.genesis-nav-menu.responsive-menu li a:hover,
 	.genesis-nav-menu.responsive-menu li.current-menu-item > a {
-		background: none;
 		display: block;
 		line-height: 1;
 		padding: 12px 0;
@@ -1366,7 +1175,6 @@ li.comment {
 	
 	.genesis-nav-menu.responsive-menu .sub-menu li a,
 	.genesis-nav-menu.responsive-menu .sub-menu li a:hover {
-		background: none;
 		border: none;
 		box-shadow: none;
 		padding: 12px 0;
@@ -1385,7 +1193,6 @@ li.comment {
 	}
 	
 	.nav-primary .genesis-nav-menu.responsive-menu li a:hover {
-		background: none;
 		color: red;
 	}
 
@@ -1394,6 +1201,11 @@ li.comment {
 /* Main */
 
 .clear { clear:both; }
+
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+}
 
 .center { 
     text-align: center;
@@ -1609,6 +1421,10 @@ li.comment {
 	padding-top:5px;
 }
 
+.station-observations-label {
+    min-width: 100px;
+}
+
 .current_temp, .current_wind {
 	text-align:center;
 	line-height:1;
@@ -1675,6 +1491,7 @@ li.comment {
     /* margin-top: 25px; */
     border-top: 1px solid #D7D7D7;
     padding-top: 10px;
+    margin: 0 -15px 0 -15px;
 }
 
 .curwind {
@@ -1702,7 +1519,6 @@ li.comment {
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    background: white;
 	color:#808080;
     border: 3px solid #808080;
     behavior: url(PIE.htc); /* remove if you don't care about IE8 */
@@ -1748,7 +1564,7 @@ li.comment {
     padding-top: 22px;
     display: block;
 }
-.direction .curwindeg {
+.direction .curwinddeg {
     font-size: 21px;
 }
 
@@ -1812,14 +1628,12 @@ li.comment {
 	transform: rotate(315deg);
 }
 
-.wx-rainrate-value {
-	padding-left:5px;
-}
-
 .small-almanac {
 	/* padding-top:5px; */
 	border-top:1px solid #D7D7D7;
-    padding:15px;
+    /* padding:15px; */
+    padding: 0px 15px 0px;
+    margin: 0 -15px 0 -15px;
 }
 
 .sun, .moon {
@@ -1835,6 +1649,42 @@ li.comment {
 	font-size:25px;
 	text-align:left;
 	padding-bottom: 10px;
+}
+
+.sun-moon-modal {
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+}
+
+.page .sun-moon-modal a {
+    text-decoration:none;
+}
+
+.modal-lg {
+    /* width: 900px !important; */
+    /* margin: 30px auto; */
+}
+
+.light .label {
+    color: #333 !important;
+}
+
+.celestial_body { 
+    display:inline-block;
+}
+
+table.celestial td.label { 
+    min-width: 140px !important;
+    display: inline-block;
+    text-align:left;
+    font-size:initial;
+}
+
+/* Scroll issue in dark mode https://stackoverflow.com/a/54196631/1177153 */
+.modal {
+    overflow-y: auto !important;
 }
 
 .moon-container {
@@ -1869,10 +1719,6 @@ li.comment {
 
 .forecast-subtitle {
 	font-size:14px;
-}
-
-.wuforecast {
-	min-height:250px !important;
 }
 
 .forecast-conditions {
@@ -1922,8 +1768,8 @@ li.comment {
 
 .wx-graph-front {
     font-size:25px;
-    padding-top:20px;
-    padding-bottom:20px;
+    padding-top:10px;
+    padding-bottom:10px;
     text-align:center;
 }
 
@@ -1936,6 +1782,7 @@ li.comment {
     margin:0 auto;
     text-align:center;
     margin-top:20px;
+    line-height: 40px;
 }
 
 .wx-buttons-description {
@@ -1968,11 +1815,18 @@ li.comment {
     font-weight:400;
 }
 
+.records-header-year {
+    text-align: center;
+    background: #3da5f4;
+    color: #fff;
+    font-weight: 400;
+}
+
 .records-header-alltime {
-    text-align:center;
-    background:#1f3365;
-    color:#fff;
-    font-weight:400;
+    text-align: center;
+    background: #375a7f;
+    color: #fff;
+    font-weight: 400;
 }
 
 .wx-year-row {
@@ -1985,20 +1839,93 @@ li.comment {
     /* padding-top:30px; */
 }
 
+#noaa_contents {
+    width: 75%;
+    margin: 0 auto;
+}
+
 /* .col-sm-1-5 { */
-.wuforecast {
+.forecast-day {
     position: relative;
-    min-height: 1px;
-    padding-left: 15px;
-    padding-right: 15px;
+    min-height: 250px;
+    padding-left: 10px;
+    padding-right: 10px;
     /* width: 10%; */
     /* float:left; */
     display: inline-block;
-    width: 148px;
+    width: 145px;
 }
+
+/* Dark Mode Switch */
+
+.themeSwitchLabel {
+  position: relative;
+  display: inline-block;
+  width: 35px;
+  height: 19px;
+}
+
+.themeSwitchLabel input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 11px;
+  width: 11px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #375a7f;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #375a7f;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* End Dark Mode Switch */
 
 @media only screen and (max-width: 800px) {
 	
+    .themeSwitchLabel {
+        margin-top: 10px;
+    }
+        
     .header-image .site-title > a {
         background-position-x: center;
         background-position-y: center;
@@ -2132,12 +2059,24 @@ li.comment {
 		display: block;
 	}
 	
-	.wuforecast {
+	.forecast-day {
 		font-size:28px;
-		padding-bottom:15px;
         min-height: 170px !important;
-		border-bottom:1px solid #D7D7D7;
+		/* border-bottom:1px solid #D7D7D7; */
+        padding-bottom:15px;
+        margin-bottom:15px;
 	}
+    .forecast-day::after {
+        background-color: #D7D7D7; 
+        bottom: 0;
+        content: '';
+        display: block;
+        height: 1px;
+        left: 50%;
+        position: absolute;
+        transform: translate(-50%,0);
+        width: 85%;
+    }
     	
 	.forecast-condition-text {
 		display:block;
@@ -2237,20 +2176,27 @@ li.comment {
 /* End custom wx page */
 
 /* Custom Raspberry Pi Kiosk Page */
-    
     body.pi {
-        font-family:initial;
+        /* font-family:initial; */
+        font-weight: normal;
         padding: 0px;
         overflow: hidden;
         overflow-x: hidden;
     }
+	
+    /* bold kiosk display font if chosen in skin.conf or weewx.conf */	
+	.pi .site-inner-bold {
+		font-weight: bold;
+	}
     
     .pi .wx-stn-info-container {
         padding-bottom: 0px;
     }
     
     .pi .updated-wrapper {
+		padding-left: 25px;
         margin-bottom: 5px;
+		float: none;
     }
     
     .pi .onlineMarkerOuter {
@@ -2276,9 +2222,6 @@ li.comment {
     .pi .wx-content {
         padding-top: 0px;
     }
-    .pi .updated-wrapper {
-        float: none;
-    }
     
     .pi #wxicon {
     display: initial;
@@ -2287,9 +2230,10 @@ li.comment {
 
     .pi .updated {
         padding-top: 0px;
+		padding-left: 5px;
         margin-bottom: 0px;
-        font-size:14px;
-        text-align:center;
+        font-size:16px;
+		float: left;
     }
     
     .pi .obs-group { 
@@ -2307,6 +2251,7 @@ li.comment {
     }
     
     .pi .current-obs-text {
+		font-size: 25px;
         text-align:center;
     }
     
@@ -2332,16 +2277,25 @@ li.comment {
     }
     
     .pi .tempstats {
-        font-size:16px;
+        /*font-size:16px;
+        line-height:20px;*/
+        font-size:18px;
         line-height:20px;
         margin-top:10px;
     }
     
     .pi .feelslike { 
-        font-size:16px;
+        font-size:18px;
         text-align:center;
-        padding-bottom: 6px;
+        padding-bottom: 0px;
     }
+	
+	.pi .highlow { 
+        /*display:inline;*/
+		text-align: center;
+		padding-bottom: 6px;
+		/*margin: 0 auto;*/
+	}
      
     .pi .wind_col { 
         text-align: center; 
@@ -2386,8 +2340,9 @@ li.comment {
     }
    
     .pi .station-observations {
+		font-size: 18px;
         line-height: 20px;
-		margin-top: 15px;
+		margin-top: 25px;
 	}
     
     .pi .small-almanac {
@@ -2395,17 +2350,28 @@ li.comment {
         line-height: 20px;
         padding: 5px 0px 0px 0px;
     }
+	
+	.pi .maxgustouter {
+		font-size: 18px;
+		margin: 5px;
+	}	
+
+	.pi .sunrise-set-image {
+		width:24px;
+		margin-right:6px;
+	}
     
     .pi .moon-container {
+		font-size: 16px;
         margin-top: 5px;
         line-height: 18px;
     }
-    
+   
     .pi .moon, .pi .sun {
         float: none;
         text-align: center;
     }
-    
+	
     .pi .forecastrow .col-lg-12 {
         padding: 0;
     }
@@ -2419,7 +2385,7 @@ li.comment {
         height: auto;
     }
 
-    .pi .forecast .wuforecast {
+    .pi .forecast .forecast-day {
         width:24% !important;
         height:100%;
         border-bottom: 0px;
@@ -2433,6 +2399,4 @@ li.comment {
     .pi .forecastrow {
         border-bottom: 0px;
     }
-    
-    
-    
+

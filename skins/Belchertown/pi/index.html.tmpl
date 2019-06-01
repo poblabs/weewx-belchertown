@@ -323,10 +323,10 @@
                 }
                 
                 if ( i == 0 ) {
-                    output_html += '<div class="col-sm-1-5 wuforecast">';
+                    output_html += '<div class="col-sm-1-5 forecast-day">';
                     var weekday = "Today";
                 } else {
-                    output_html += '<div class="col-sm-1-5 wuforecast border-left">';
+                    output_html += '<div class="col-sm-1-5 forecast-day border-left">';
                     var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" ); // Requires moment.js
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
@@ -500,7 +500,7 @@
             if ( data.hasOwnProperty("windDir") ) {
                 rotateThis( data["windDir"] );
                 //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+                jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
                 jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
             }
             // Windspeed US
@@ -592,9 +592,13 @@
         #end if
     </script>
 
-    
-<div class="site-inner">
-    <div class="content-sidebar-wrap">
+## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which will set the font-style to bold
+ #if $Extras.pi_kiosk_bold == "true"  
+		<div class="site-inner-bold site-inner">
+ #else
+		<div class="site-inner">
+ #end if
+	<div class="content-sidebar-wrap">
 	
 	<article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
 		
@@ -627,7 +631,9 @@
                 
                     <div class="tempstats">
                         <div class="feelslike"></div><!-- AJAX -->
-                        High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span> <!-- AJAX -->
+						<div class="highlow">
+							High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
+						</div><!-- AJAX -->
                     </div>
                     
                     <div class="station-observations weather-obs-top">
@@ -667,7 +673,7 @@
                                         </span>
 									</td>
 								</tr>
-                                #if $day.UV.has_data
+                            #if $day.UV.has_data
                                 <tr>
                                     <td>UV</td>
                                     <td>
@@ -676,7 +682,7 @@
                                         </span>
                                     </td>
                                 </tr>
-                                #end if
+                            #end if
                             </tbody>
                         </table>
                     </div>	
@@ -694,7 +700,7 @@
                                             $current.windDir.ordinal_compass
                                             #end if
                                         </span>
-                                        <span class="curwindeg">$current.windDir.format("%.0f")</span>
+                                        <span class="curwinddeg">$current.windDir.format("%.0f")</span>
                                     </div>
                                     <div class="arrow"></div>
                                 </div>
@@ -781,3 +787,7 @@
 
     </div>
 </div>
+
+<!-- close div and body tags from pi-header.html.tmpl -->
+</div>
+</body>

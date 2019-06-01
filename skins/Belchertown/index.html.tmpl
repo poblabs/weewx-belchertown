@@ -18,13 +18,22 @@
         var moment_locale = "$system_locale_js";
         moment.locale(moment_locale);
         
-        ajaxweewx(); // Initial call. Load from weewx (date, daily high, low, etc)
+        var homepage_graphgroup = "$Extras.highcharts_homepage_graphgroup";
+        
+        ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
         
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         // Load forecast
-        ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
+        ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
         #end if
         
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
+        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+        #end if
         
         jQuery(document).ready(function() {
             #if $unit.unit_type.outTemp == "degree_F"
@@ -35,12 +44,27 @@
             
             rotateThis( "$current.windDir.formatted" );
             
-            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-            jQuery(".earthquake-time").html( moment.unix( $earthquake_time ).format( 'LLL' ) );
+            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
+            if ( moment.unix( "$earthquake_time" ).isValid() ) {
+                // Check that the time is the time (number) and not the "no earthquake available" wording
+                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+            } else {
+                jQuery(".earthquake-time").html( "$earthquake_time" );
+            }
             #end if
             
             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-            daily(); // Initial load daily highcharts
+            var graphgroups_raw = $charts; // All charts and IDs
+            var thisPageGraphs = graphgroups_raw[homepage_graphgroup]; // Filter all charts down to the ones we want for this page
+            // Loop through the graph groups for this page and add the graph divs to the page
+            try {
+                thisPageGraphs.forEach( graphID => {
+                    jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div></div>');
+                });
+                showChart(homepage_graphgroup);
+            } catch(err) {
+                console.log("ERROR: Cannot add graphs from [" + homepage_graphgroup + "] graph group: " + err.message);
+            }
             #end if
             
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
@@ -51,1088 +75,435 @@
                 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                 ajaxforecast(); // Update forecast data
                 #end if
-                ajaxradar(); // Update radar "img src" if present
+                ajaximages(); // Update radar and home page hook "img src" if present
                 connect(); // Restart mqtt after weewx data's re-loaded
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                daily(); // Update the daily highcharts
+                showChart(homepage_graphgroup);
                 #end if
             });
+            
+            #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
+            // Update any images in the radar section or hooks
+        
+            #if $Extras.has_key("reload_images_radar") and $Extras.reload_images_radar != '-1'
+                var reload_radar_timer = $Extras.reload_images_radar * 1000; // convert to millis
+                setTimeout(function() { ajaximages("radar", $Extras.reload_images_radar); }, reload_radar_timer);
+            #end if
+            
+            #if $Extras.has_key("reload_images_hook_asi") and $Extras.reload_images_hook_asi != '-1'
+                var reload_asi_timer = $Extras.reload_images_hook_asi * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-station-info", $Extras.reload_images_hook_asi); }, reload_asi_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_af") and $Extras.reload_images_hook_af != '-1'
+                var reload_af_timer = $Extras.reload_images_hook_af * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-forecast", $Extras.reload_images_hook_af); }, reload_af_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_as") and $Extras.reload_images_hook_as != '-1'
+                var reload_as_timer = $Extras.reload_images_hook_as * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-snapshot", $Extras.reload_images_hook_as); }, reload_as_timer);
+            #end if
+
+            #if $Extras.has_key("reload_images_hook_ac") and $Extras.reload_images_hook_ac != '-1'
+                var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
+                setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
+            #end if
+            
+            #end if
+            
             #else
-            // MQTT Websockets not enabled, update the Last Updated timestamp with moment.js
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            updated_text = "Last Updated " + updated;
+            // MQTT Websockets not enabled
+
+            #if $Extras.has_key("show_last_updated_alert") and $Extras.show_last_updated_alert == '1'
+            // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
+            if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
+                belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
+                last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
+                jQuery(".last-updated-alert").html( last_updated_alert_text );
+                jQuery(".last-updated-alert").show();
+            }
+            #end if
+            
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_lastUpdated");
+            updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
+            
             #end if
         });
         
-        // Handle wind arrow rotation with the ability to "rollover" past 0 
-        // without spinning back around. e.g 350 to 3 would spin back around
-        // https://stackoverflow.com/a/19872672/1177153
-        function rotateThis(newRotation) {
-            if ( newRotation == "N/A") { return; }
-            var currentRotation;
-            finalRotation = finalRotation || 0; // if finalRotation undefined or 0, make 0, else finalRotation
-            currentRotation = finalRotation % 360;
-            if ( currentRotation < 0 ) { currentRotation += 360; }
-            if ( currentRotation < 180 && (newRotation > (currentRotation + 180)) ) { finalRotation -= 360; }
-            if ( currentRotation >= 180 && (newRotation <= (currentRotation - 180)) ) { finalRotation += 360; }
-            finalRotation += (newRotation - currentRotation);
-            jQuery(".wind-arrow").css( "transform", "rotate(" + finalRotation + "deg)" );
-            jQuery(".arrow").css( "transform", "rotate(" + finalRotation + "deg)" );
-        }
-        
-        // Change the color of the outTemp_F variable
-        function update_outtemp_F( outTemp ) {
-            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-            if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
-            } else if ( outTemp <= 25 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
-            } else if ( outTemp <= 32 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
-            } else if ( outTemp <= 40 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
-            } else if ( outTemp <= 50 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
-            } else if ( outTemp <= 55 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
-            } else if ( outTemp <= 65 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
-            } else if ( outTemp <= 70 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
-            } else if ( outTemp <= 75 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
-            } else if ( outTemp <= 80 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
-            } else if ( outTemp <= 85 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
-            } else if ( outTemp <= 90 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
-            } else if ( outTemp <= 95 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
-            } else if ( outTemp <= 110 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
-            } else if ( outTemp >= 111 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
-            }
-        }
-        
-        // Change the color of the outTemp_C variable
-        function update_outtemp_C( outTemp ) {
-            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-            if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
-            } else if ( outTemp <= -3.8 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
-            } else if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
-            } else if ( outTemp <= 4.4 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
-            } else if ( outTemp <= 10 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
-            } else if ( outTemp <= 12.7 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
-            } else if ( outTemp <= 18.3 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
-            } else if ( outTemp <= 21.1 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
-            } else if ( outTemp <= 23.8 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
-            } else if ( outTemp <= 26.6 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
-            } else if ( outTemp <= 29.4 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
-            } else if ( outTemp <= 32.2 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
-            } else if ( outTemp <= 35 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
-            } else if ( outTemp <= 43.3 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
-            } else if ( outTemp >= 43.4 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
-            }
-        }
-        
-        function get_cardinal_direction(degree) {
-            if (degree >= 0 && degree <= 11.25) {
-                return "N";
-            } else if (degree >= 11.26 && degree <= 33.75) {
-                return "NNE";
-            } else if (degree >= 33.76 && degree <= 56.25) {
-                return "NE";
-            } else if (degree >= 56.26 && degree <= 78.75) {
-                return "ENE";
-            } else if (degree >= 78.76 && degree <= 101.25) {
-                return "E";
-            } else if (degree >= 101.26 && degree <= 123.75) {
-                return "ESE";
-            } else if (degree >= 123.76 && degree <= 146.25) {
-                return "SE";
-            } else if (degree >= 146.26 && degree <= 168.75) {
-                return "SSE";
-            } else if (degree >= 168.76 && degree <= 191.25) {
-                return "S";
-            } else if (degree >= 191.26 && degree <= 213.75) {
-                return "SSW";
-            } else if (degree >= 213.76 && degree <= 236.25) {
-                return "SW";
-            } else if (degree >= 236.26 && degree <= 258.75) {
-                return "WSW";
-            } else if (degree >= 258.76 && degree <= 281.25) {
-                return "W";
-            } else if (degree >= 281.26 && degree <= 303.75) {
-                return "WNW";
-            } else if (degree >= 303.76 && degree <= 326.25) {
-                return "NW";
-            } else if (degree >= 326.26 && degree <= 348.75) {
-                return "NNW";
-            } else if (degree >= 348.76 && degree <= 360) {
-                return "N";
-            }
-        }
-        
-        // Title case strings. https://stackoverflow.com/a/45253072/1177153
-        function titleCase(str) {
-            return str.toLowerCase().split(' ').map(function(word) {
-                return word.replace(word[0], word[0].toUpperCase());
-            }).join(' ');
-        }
-        
-        // Disable AJAX caching
-        jQuery.ajaxSetup({
-            cache:false
-        });
-        
-        function ajaxweewx() {
-            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
-        };
-        
-        // Update weewx data elements
-        function update_weewx_data( data ) {
-            console.log("Updating weewx data");
-            // Daily High Low
-            high = data["day"]["outTemp"]["max"];
-            low = data["day"]["outTemp"]["min"];
-            jQuery(".high").html( high );
-            jQuery(".low").html( low );
-            
-            // Barometer trending by finding a negative number
-            count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
-            
-            if ( count >= 1 ) {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
-            } else {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
-            }
-            
-            // Daily max gust span
-            jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
-            
-            // Daily stats section
-            jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( 'dddd, LL' ) );
-            jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( 'MMMM YYYY' ) );
-            jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
-            jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
-            jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
-            jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
-            jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
-            jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
-            
-            // Sunrise and Sunset            
-            jQuery(".sunrise-value").html( moment.unix( parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
-            jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format("LT") );
-            
-            // Moon icon, phase and illumination percent
-            switch ( data["almanac"]["moon"]["moon_phase"] ) {
-                case "New Moon":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
-                    break;
-                case "Waxing Crescent":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
-                    break;
-                case "First Quarter":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "Waxing Gibbous":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
-                    break;
-                case "Full Moon":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
-                    break;
-                case "Waning Gibbous":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
-                    break;
-                case "Last Quarter":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "Waning Crescent":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
-                    break;
-            }
-            jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
-            jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
-        }
-        
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-        function ajaxforecast() {
-            jQuery.getJSON("$forecast_json_url", update_forecast_data);
-        };
-        
-        function update_forecast_data( data ) {
-            console.log("Updating forecast data");
-            // WX Icon
-            if ( data['currently']['icon'] == "partly-cloudy-night" ) {
-                // partly-cloudy-night could also be clear-day
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
-            } else {
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
-            }
-            
-            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-            // Weather Alerts
-            if ( data['alerts'] ) {
-                var i, forecast_alert_text;
-                forecast_alert_text = "";
-                for ( i = 0; i < data['alerts'].length; i++ ) { 
-                    alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( 'LLL' );
-                    forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " in effect until " + alert_expires + "</a><br>";
-                }
-                jQuery(".wx-stn-alert-text").html( forecast_alert_text );
-                jQuery(".wx-stn-alert").show();
-            } else {
-                jQuery(".wx-stn-alert").hide();
-            }
-            #end if
-            
-            // Current observation text
-            jQuery(".current-obs-text").html( data["currently"]["summary"] );
-            
-            // 8 day forecast
-            var output_html = "";
-            for (i = 0; i < data["daily"]["data"].length; i++) {
-                var forecastDay = data["daily"]["data"][i];
-                if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                    var image_url = "$belchertown_root_url/images/clear-day.png";
-                } else { 
-                    var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
-                }
-                
-                var condition_text = "";
-                switch ( data["daily"]["data"][i]["icon"] ) {
-                    case "clear-day":
-                        condition_text = "Clear";
-                        break;
-                    case "clear-night":
-                        condition_text = "Clear";
-                        break;
-                    case "rain":
-                        condition_text = "Rain";
-                        break;
-                    case "snow":
-                        condition_text = "Snow";
-                        break;
-                    case "sleet":
-                        condition_text = "Sleet";
-                        break;
-                    case "wind":
-                        condition_text = "Windy";
-                        break;
-                    case "fog":
-                        condition_text = "Fog";
-                        break;
-                    case "cloudy":
-                        condition_text = "Overcast";
-                        break;
-                    case "partly-cloudy-day":
-                        condition_text = "Partly Cloudy";
-                        break;
-                    case "partly-cloudy-night":
-                        condition_text = "Clear"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                        break;
-                    case "hail":
-                        condition_text = "Hail";
-                        break;
-                    case "thunderstorm":
-                        condition_text = "Thunderstorm";
-                        break;
-                    case "tornado":
-                        condition_text = "Tornado";
-                        break;
-                }
-                
-                if ( i == 0 ) {
-                    output_html += '<div class="col-sm-1-5 wuforecast">';
-                    var weekday = "Today";
-                } else {
-                    output_html += '<div class="col-sm-1-5 wuforecast border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
-                }
-                output_html += '<span id="weekday">'+weekday+'</span>';
-                output_html += '<br>';
-                output_html += '<div class="forecast-conditions">';
-                output_html += '<img id="icon" src="'+image_url+'">';
-                output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
-                output_html += '</div>';
-                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
-                output_html += '<br>';
-                output_html += '<div class="forecast-precip">';
-                if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
-                    output_html += '<div class="snow-precip">';
-                    output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
-                    output_html += '</div>';
-                } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
-                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
-                } else {
-                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>';
-                }
-                output_html += '</div>';
-                output_html += '<div class="forecast-wind">';
-                output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
-                output_html += '</div>';
-                output_html += '</div>';
-            }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'LLL' );
-            jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
-            jQuery(".forecasts").html( output_html );
-        }
-        #end if
-        
-        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
-        //============================================//
-        // Live website using MQTT Websockets enabled //
-        //============================================//
-        
-        function ajaxradar() {
-            // This function only runs if the radar-map element has an img src.
-            if ( document.querySelectorAll(".radar-map img").length > 0 ) {
-                console.log("Updating radar image");
-                var radar_html = jQuery('.radar-map').children('img').attr( 'src' ).split( "?" )[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-                jQuery('.radar-map').children('img').attr( 'src', radar_html + "?" + Math.floor(Math.random() * 999999999) );
-            }
-        }
-        
-        // mqtt connect
-        function connect(){
-            console.log("Connecting to MQTT");
-            reported = "Connecting to weather station real time data.";
-            jQuery(".updated").text( reported );
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").hide();
-            jQuery(".loadingMarker").show();
-            
-            client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
-            client.onConnectionLost = onConnectionLost;
-            client.onMessageArrived = onMessageArrived;
-            var options = {
-                #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
-                useSSL: true,
-                #else
-                useSSL: false,
-                #end if
-                onSuccess:onConnect,
-                onFailure:onFailure
-              }
-            client.connect( options );
-        }
-        
-        // mqtt connect callback
-        function onConnect() {
-            console.log("MQTT Connected. Subscribing.");
-            reported = "Connected. Waiting for data.";
-            jQuery(".updated").text( reported );
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").hide();
-            jQuery(".loadingMarker").show();            
-            client.subscribe( "$Extras.mqtt_websockets_topic" );
-            #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
-            var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
-            #end if
-        }
-        
-        function onFailure() {
-            var d = new Date();
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").show();
-            jQuery(".loadingMarker").hide();
-            epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            jQuery(".updated").html( "Failed connecting to the weather station on "+ updated +". Please try again later!" );
-            console.log( updated + ": Cannot connect to MQTT broker" );
-        }
-
-        // mqtt connection lost
-        function onConnectionLost(responseObject) {
-            var d = new Date();
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").show();
-            jQuery(".loadingMarker").hide();
-            epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            jQuery(".updated").html( "Lost connection to the weather station on "+ updated +". Please try again later!" );
-            if (responseObject.errorCode !== 0) {
-                console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
-            }
-        }
-        
-        // new message from mqtt, process it
-        function onMessageArrived(message) {
-            update_current_wx( message.payloadString );
-        }
-        
-        function inactive(){
-            client.disconnect(); // Disconnect mqtt
-            console.log("Inactive timer expired. MQTT Disconnected");
-            jQuery(".onlineMarker").hide(); // Hide online beacon
-            jQuery(".offlineMarker").show(); // Show offline beacon
-            jQuery(".loadingMarker").hide(); // Hide loading beacon
-            jQuery(".updated").html( "Live updates have stopped. <button type='button' class='btn btn-primary restart-interval'>Continue live updates</button>" );
-        }
-        
-        // Handle MQTT message
-        function update_current_wx(data) {
-            //console.log( data );
-            data = jQuery.parseJSON( data );
-            
-            #if $Extras.has_key('googleAnalyticsId')
-            // Send a pageview
-            gtag('config', '$Extras.googleAnalyticsId');
-            #end if
-            
-            // Updated time
-            epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("LL, LTS");
-            updated_text = "Connected to weather station live. Data received " + updated;
-            jQuery(".updated").html( updated_text );
-            jQuery(".onlineMarker").show(); // Show the online beacon
-            jQuery(".offlineMarker").hide(); // Hide offline beacon
-            jQuery(".loadingMarker").hide(); // Hide loading beacon
-            
-            // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
-            if ( data.hasOwnProperty("interval_minute") ) {
-                // Delays are recommended to allow the other skins to complete processing
-                console.log("MQTT message indicates this is an archive interval.");
-                setTimeout( daily, 30000 ); // Load updated charts
-                setTimeout( ajaxweewx, 10000 ); // Update weewx data
-                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                setTimeout( ajaxforecast, 10000 ); // Update forecast data
-                #end if
-                setTimeout( ajaxradar, 10000 ); // Update radar "img src" if present
-            }
-            
-            // Temperature F
-            if ( data.hasOwnProperty("outTemp_F") ) {
-                // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
-                // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
-                outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
-                update_outtemp_F( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
-            
-                // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
-                //if ( data["outTemp_F"] <= 50 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["windchill_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-                //} else if ( data["outTemp_F"] >= 80 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["heatindex_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-                //} else {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-                //}
-            }
-            
-            // Temperature C
-            if ( data.hasOwnProperty("outTemp_C") ) {
-                outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
-                update_outtemp_C( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
-            }
-            
-            // Apparent Temperature US
-            if ( data.hasOwnProperty("appTemp_F") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
-            }
-
-            // Dewpoint US
-            if ( data.hasOwnProperty("dewpoint_F") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-            }
-            
-            // Apparent Temperature Metric
-            if ( data.hasOwnProperty("appTemp_C") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-            }
-            
-            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
-            // Cloud Base US
-            if ( data.hasOwnProperty("cloudbase_foot") ) {
-                jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_foot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
-            }
-
-            // Cloud Base Metric
-            if ( data.hasOwnProperty("cloudbase_meter") ) {
-                jQuery(".wx-cloudbase-value").html( parseFloat(parseFloat(data["cloudbase_meter"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " $unit.label.cloudbase" );
-            }
-            #end if
-
-            // Dewpoint Metric
-            if ( data.hasOwnProperty("dewpoint_C") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(parseFloat(data["dewpoint_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
-            }            
-            
-            // Wind
-            if ( data.hasOwnProperty("windDir") ) {
-                // No toLocaleString() here since there is no float decimal needed.
-                rotateThis( data["windDir"] );
-                //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
-                jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
-            }
-            // Windspeed US
-            if ( data.hasOwnProperty("windSpeed_mph") ) {
-                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            // Windspeed Metric
-            if ( data.hasOwnProperty("windSpeed_kph") ) {
-                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            // Windspeed METRICWX
-            if ( data.hasOwnProperty("windSpeed_mps") ) {
-                jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            
-            // Wind Gust US
-            // May not be provided in mqtt, but just in case.
-            if ( data.hasOwnProperty("windGust_mph") ) {
-                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            // Wind Gust Metric
-            if ( data.hasOwnProperty("windGust_kph") ) {
-                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            // Wind Gust METRICWX
-            if ( data.hasOwnProperty("windGust_mps") ) {
-                jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            
-            // Barometer US
-            if ( data.hasOwnProperty("barometer_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_inHg"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
-            }
-            // Barometer Metric
-            if ( data.hasOwnProperty("barometer_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat(parseFloat(data["barometer_mbar"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.pressure" );
-            }
-            
-            // Humidity
-            if ( data.hasOwnProperty("outHumidity") ) {
-                jQuery(".wx-humidity-value").text( parseFloat(parseFloat(data["outHumidity"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 1}) + "$unit.label.outHumidity" );
-            }
-            
-            // Windchill US
-            if ( data.hasOwnProperty("windchill") ) {
-                jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
-            }
-            // Windchill Metric
-            if ( data.hasOwnProperty("windchill_C") ) {
-                jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
-            }
-            
-            // Rain Day US
-            if ( data.hasOwnProperty("dayRain_in") ) {
-                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_in"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-            }
-            // Rain Day Metric
-            if ( data.hasOwnProperty("dayRain_cm") ) {
-                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_cm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-            }
-            // Rain Day METRICWX
-            if ( data.hasOwnProperty("dayRain_mm") ) {
-                jQuery(".wx-rain-value").text( parseFloat(parseFloat(data["dayRain_mm"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rain" );
-            }
-            
-            // Rain rate US
-            if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_inch_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-            }
-            // Rain rate Metric
-            if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_cm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-            }
-            // Rain rate METRICWX
-            if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat(parseFloat(data["rainRate_mm_per_hour"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " $unit.label.rainRate" );
-            }
-            
-            // UV
-            if ( data.hasOwnProperty("UV") ) {
-                jQuery(".wx-uv-value").text( parseFloat(parseFloat(data["UV"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
-            }
-            
-            // Sun Radiation
-            if ( data.hasOwnProperty("radiation_Wpm2") ) {
-                jQuery(".wx-radiation-value").html( parseFloat(parseFloat(data["radiation_Wpm2"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 0, maximumFractionDigits: 2}) + " $unit.label.radiation" );
-            }
-        };
-        #end if
     </script>
   
     <div class="site-inner">
-        <div class="content-sidebar-wrap">
-            <main class="content">    
+        <main class="content">    
 
-                <article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
-                    
-                    <div class="entry-content wx-content" itemprop="text">
-                        <!-- Top bar with city and share -->
-                        <div class="wx-stn-info-container">
-                            <div class="wx-stn-name">
-                                <h1>$station.location Weather Conditions</h1>                    
-                            </div>
-                            <div class="wx-stn-info">
-                                Observations are powered by a <a href="about" target="_blank">Personal Weather Station</a>
-                            </div>
-                            <div class="clear"></div>
-                            <!-- Updated time ago -->
-                            <div class="updated-wrapper">
-                                <div class="onlineMarkerOuter">
-                                    <span class="loadingMarker" style="display:none"></span>
-                                    <span class="onlineMarker" style="display:none"></span>
-                                    <span class="offlineMarker" style="display:none"></span>
-                                </div>
-                                <div class="updated"></div><!-- AJAX moment.js -->
-                            </div>
-                            #if $social_html != ""
-                            $social_html
-                            #end if
-                            <div class="clear"></div>
-                            #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-                            <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
-                            #end if
+            <article class="weewx frontpage" itemscope="" itemtype="http://schema.org/CreativeWork">
+            
+                <!-- Top bar with city and share -->
+                <div class="wx-stn-info-container">
+                    <div class="wx-stn-name">
+                        <h1>$obs.label.home_page_header</h1>                    
+                    </div>
+                    <div class="wx-stn-info">
+                        $obs.label.powered_by
+                    </div>
+                    <div class="clear"></div>
+                    <!-- Updated time ago -->
+                    <div class="updated-wrapper">
+                        <div class="onlineMarkerOuter">
+                            <span class="loadingMarker" style="display:none"></span>
+                            <span class="onlineMarker" style="display:none"></span>
+                            <span class="offlineMarker" style="display:none"></span>
                         </div>
+                        <div class="updated"></div><!-- AJAX moment.js -->
+                    </div>
+                    #if $social_html != ""
+                    $social_html
+                    #end if
+                    <div class="clear"></div>
+                    <div class="last-updated-alert" style="display:none;"></div><!-- AJAX moment.js -->
+                    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+                    <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
+                    #end if
+                </div>
+                
+                <!-- First row with temperature, observation data and radar -->
+                <div class="row temperature-row">
+                    <div class="col-lg-4 toprow-height">
+                        <div class="row obs-row">
                         
-                        <!-- First row with temperature, observation data and radar -->
-                        <div class="row temperature-row">
-                            <div class="col-lg-4 toprow-height">
-                                <div class="row obs-row">
-                                
-                                    <!-- Temperature -->
-                                    <div class="weather-obs-top">
-                                        <div class="row temp-observation">
-                                            <div class="col-sm-5 current_obs_top">
-                                                $current_obs_icon
-                                            </div>
-                                            <div class="col-sm-7 current_temp">
-                                                <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-5 current-obs-container">
-                                                <div class="current-obs-text">
-                                                    $current_obs_summary
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-7">
-                                                #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
-                                                <div class="feelslike">Feels like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
-                                                #end if
-                                                <div class="stn-high-low">
-                                                    <table class="stn-high-low-table">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="stn-high-low-table-title">High</td>
-                                                                <td class="stn-high-low-table-title border-left">Low</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="high">$day.outTemp.max.format("%.1f")</td>
-                                                                <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <!-- Temperature -->
+                            <div class="weather-obs-top">
+                                <div class="row temp-observation">
+                                    <div class="col-sm-5 current_obs_top">
+                                        $current_obs_icon
+                                    </div>
+                                    <div class="col-sm-7 current_temp">
+                                        <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
                                     </div>
                                 </div>
-                                
-                                <!-- Wind -->
-                                <div class="row windrow">
-                                    <div class="weather-obs-bottom">
-                                    <div class="col-sm-12 current_wind">
-                                        <div class="col-sm-6">
-                                            <div class="compass">
-                                                <div class="direction">
-                                                    <span class="curwinddir">
-                                                    #if $current.windDir.ordinal_compass == "N/A"
-                                                    --
-                                                    #else
-                                                    $current.windDir.ordinal_compass
-                                                    #end if
-                                                    </span>
-                                                    <span class="curwindeg">$current.windDir.format("%.0f")</span>
-                                                </div>
-                                                <div class="arrow"></div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-sm-5 current-obs-container">
+                                        <div class="current-obs-text">
+                                            $current_obs_summary
                                         </div>
-                                        <div class="col-sm-6 windspeedtable">
-                                            <table class="wind-table">
+                                    </div>
+                                    <div class="col-sm-7">
+                                        #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
+                                        #end if
+                                        <div class="stn-high-low">
+                                            <table class="stn-high-low-table">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="windtext">Speed</td>
-                                                        <td class="windtext border-left gust">Gust</td>
+                                                        <td class="stn-high-low-table-title">$obs.label.highest_temperature</td>
+                                                        <td class="stn-high-low-table-title border-left">$obs.label.lowest_temperature</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>
-                                                            <span class="curwindspeed">
-                                                                $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
-                                                            </span>
-                                                        </td>
-                                                        <td class="border-left gust">&nbsp;
-                                                            <span class="curwindgust">
-                                                                $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="mph" colspan="3">$unit.label.windSpeed</td>
+                                                        <td class="high">$day.outTemp.max.format("%.1f")</td>
+                                                        <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Station observations -->
-                            <div class="col-lg-3 current-almanac toprow-height border-left border-right">
-                                <div class="station-observations weather-obs-top">
-                                    <table cellpadding="0" cellspacing="0">
+                        </div>
+                        
+                        <!-- Wind -->
+                        <div class="row windrow">
+                            <div class="weather-obs-bottom">
+                            <div class="col-sm-12 current_wind">
+                                <div class="col-sm-6">
+                                    <div class="compass">
+                                        <div class="direction">
+                                            <span class="curwinddir">
+                                            #if $current.windDir.ordinal_compass == "N/A"
+                                            --
+                                            #else
+                                            $current.windDir.ordinal_compass
+                                            #end if
+                                            </span>
+                                            <span class="curwinddeg">
+                                            #if $current.windDir.raw is None:
+                                            -
+                                            #else
+                                            $current.windDir.format("%.0f")
+                                            #end if
+                                            </span>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 windspeedtable">
+                                    <table class="wind-table">
                                         <tbody>
                                             <tr>
-                                                <td>Barometer</td>
-                                                <td>
-                                                    <span class="wx-barometer-data">
-                                                        <span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
-                                                    </span>
-                                                    <span class="wx-barometer-trend">
-                                                        #if $trend.barometer == "N/A"
-                                                        &nbsp;
-                                                        #else if "-" in str($trend.barometer)
-                                                        <i class="fa fa-arrow-down barometer-down"></i>
-                                                        #else
-                                                        <i class="fa fa-arrow-up barometer-up"></i>
-                                                        #end if
-                                                    </span>
-                                                </td>
+                                                <td class="windtext">$obs.label.wind_speed</td>
+                                                <td class="windtext border-left gust">$obs.label.wind_gust</td>
                                             </tr>
-                                            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                                             <tr>
-                                                <td>Visibility</td>
                                                 <td>
-                                                    <span class="wx-visibility">
-                                                        <span class="wx-visibility-value">$visibility $visibility_unit</span><!-- AJAX -->
+                                                    <span class="curwindspeed">
+                                                        $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
                                                     </span>
                                                 </td>
-                                            </tr>
-                                            #end if
-                                            #if $Extras.has_key("show_cloudbase") and $Extras.show_cloudbase == '1'
-                                            <tr>
-                                                <td>Cloud Base</td>
-                                                <td>
-                                                    <span class="wx-cloudbase">
-                                                        <span class="wx-cloudbase-value">$current.cloudbase</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
-                                            <tr class="dewpoint_row">
-                                                <td>Dew Point</td>
-                                                <td>
-                                                    <span class="wx-data-dewpoint">
-                                                        <span class="wx-dewpoint-value">$current.dewpoint</span><!-- AJAX -->
+                                                <td class="border-left gust">&nbsp;
+                                                    <span class="curwindgust">
+                                                        $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
                                                     </span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Humidity</td>
-                                                <td>
-                                                    <span class="wx-data-humidity">
-                                                        <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
+                                                <td class="mph" colspan="3">$unit.label.windSpeed</td>
                                             </tr>
-                                            <tr>
-                                                <td>Rainfall</td>
-                                                <td>
-                                                    <span class="wx-rain-data">
-                                                        <span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-                                                        <span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #if $day.UV.has_data
-                                            <tr>
-                                                <td>UV</td>
-                                                <td>
-                                                    <span class="wx-uv-data">
-                                                        <span class="wx-uv-value">$current.UV</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
-                                            #if $day.radiation.has_data
-                                            <tr>
-                                                <td>Solar</td>
-                                                <td>
-                                                    <span class="wx-radiation-data">
-                                                        <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            #end if
                                         </tbody>
                                     </table>
-                                </div>                        
-                                
-                                <!-- Sun and Moon section -->
-                                <div class="weather-obs-bottom">
-                                    <table cellpadding="0" cellspacing="0">
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <div class="row small-almanac">
-                                                        <div class="sun-moon-title">
-                                                            Sun &amp; Moon
-                                                        </div>
-                                                        <div class="col-sm-6 sun">
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
-                                                            <br>
-                                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
-                                                        </div>
-                                                        <div class="col-sm-6 moon">
-                                                            <div class="moon-container">
-                                                                <span class="moon-icon">
-                                                                    #if $almanac.moon_phase.lower() == "new moon"
-                                                                        <div class='wi wi-moon-alt-new'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waxing crescent"
-                                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "first quarter"
-                                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waxing gibbous"
-                                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "full moon"
-                                                                        <div class='wi wi-moon-alt-full'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waning gibbous"
-                                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "last quarter"
-                                                                        <div class='wi wi-moon-alt-first-quarter'></div>
-                                                                    #else if $almanac.moon_phase.lower() == "waning crescent"
-                                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
-                                                                    #end if
-                                                                </span>
-                                                                <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
-                                                                <br>
-                                                                <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> visible</span><!-- AJAX -->
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Station observations -->
+                    <div class="col-lg-3 current-almanac toprow-height border-left border-right">
+                        <div class="station-observations weather-obs-top">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    $station_obs_html
+                                </tbody>
+                            </table>
+                        </div>                        
+                        
+                        <!-- Sun and Moon section -->
+                        <div class="weather-obs-bottom">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="row small-almanac">
+                                                #if $obs.label.sun_and_moon and $obs.label.sun_and_moon != ''
+                                                <div class="sun-moon-title">
+                                                    $obs.label.sun_and_moon
+                                                </div>
+                                                #end if
+                                                <div class="col-sm-6 sun">
+                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
+                                                    <br>
+                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
+                                                </div>
+                                                <div class="col-sm-6 moon">
+                                                    <div class="moon-container">
+                                                        <span class="moon-icon">
+                                                            #if $almanac.moon_index == 0
+                                                                <div class='wi wi-moon-alt-new'></div>
+                                                            #else if $almanac.moon_index == 1
+                                                                <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                            #else if $almanac.moon_index == 2
+                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                            #else if $almanac.moon_index == 3
+                                                                <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                            #else if $almanac.moon_index == 4
+                                                                <div class='wi wi-moon-alt-full'></div>
+                                                            #else if $almanac.moon_index == 5
+                                                                <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                            #else if $almanac.moon_index == 6
+                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                            #else if $almanac.moon_index == 7
+                                                                <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                            #end if
+                                                        </span>
+                                                        <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
+                                                        <br>
+                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> $obs.label.moon_visible</span><!-- AJAX -->
+                                                    </div>
+                                                </div>
+                                                <div class="clear"></div>
+                                                #if os.path.exists("celestial.inc")
+                                                <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
+                                                <!-- Almanac Modal -->
+                                                <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                <h5 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h5>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                #include "celestial.inc"
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-primary" data-dismiss="modal">$obs.label.close</button>
                                                             </div>
                                                         </div>
-                                                        <div class="clear"></div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            <!-- Radar image -->
-                            <div class="col-lg-5 radar-map toprow-height">
-                                $radar_html
-                            </div>
-                        </div>
-                        <!-- End of first row -->
-                        
-                        #if os.path.exists("index_hook_after_station_info.inc")
-                        <!-- Start of index_hook_after_station_info row -->
-                        <div class="row border-bottom">
-                            #include "index_hook_after_station_info.inc"
-                        </div>
-                        <!-- End of index_hook_after_station_info row -->
-                        #end if
-
-                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                        <!-- Start of second row -->
-                        <div class="row forecastrow">
-                            <!-- Forecast -->
-                            <div class="col-lg-12 forecast">
-                                <div class="forecast-title">
-                                    8 Day Forecast <span class="forecast-subtitle"></span><!-- moment.js -->
-                                </div>
-                                <div class="row forecasts"></div><!-- JS -->
-                            </div>        
-                        </div>
-                        <!-- End of second row -->
-                        #end if
-                        
-                        #if os.path.exists("index_hook_after_forecast.inc")
-                        <!-- Start of index_hook_after_forecast row -->
-                        <div class="row border-bottom">
-                            #include "index_hook_after_forecast.inc"
-                        </div>
-                        <!-- End of index_hook_after_forecast row -->
-                        #end if                        
-                        
-                        <!-- Start of third row -->
-                        <div class="row eq-stats-row">            
-                            <!-- Station history -->
-                            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-                            <div class="col-sm-9 stn-quick-stats">
-                            #else
-                            <div class="col-sm-12 stn-quick-stats">
-                            #end if
-                                
-                                <!-- Quick today stats -->
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="snapshot-records-text">
-                                            Weather Record Snapshots. <a href="records">View all weather records here</a>. 
-                                        </div>
-                                        
-                                        <div class="col-sm-6 stn-quick-stats">
-                                            <div class="stats-title">
-                                                <span class="snapshot-records-today-header"></span><!-- JS and AJAX -->
+                                                </div>
+                                                #end if
                                             </div>
-                                            <table>
-                                                <tr>
-                                                    <td><b>High:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
-                                                    <td><b>Low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Highest Wind:</b></td>    <td><span class="dailystatswind">$day.wind.max</span></td><!-- AJAX -->
-                                                    <td><b>Highest UV:</b></td>        <td><span class="dailystatsuv">$day.UV.max</span></td><!-- AJAX -->                    
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Today's Rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
-                                                    <td><b>Highest Rate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
-                                                </tr>
-                                            </table>
-                                        </div>
-
-                                    
-                                        <!-- Quick this month stats -->
-                                        <div class="col-sm-6 stn-quick-stats border-left">
-                                            <div class="stats-title">
-                                                <span class="snapshot-records-month-header">$current.dateTime.format("%B %Y")</span><!-- AJAX -->
-                                            </div>
-                                            <table>
-                                                <tr>
-                                                    <td><b>High:</b></td>    <td>$month.outTemp.max</td>
-                                                    <td><b>Low:</b></td>    <td>$month.outTemp.min</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Highest Wind:</b></td>    <td>$month.wind.max</td>
-                                                    <td><b>Highest UV:</b></td>        <td>$month.UV.max</td>                                    
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Total Rain:</b></td>        <td>$month.rain.sum</td>
-                                                    <td><b>Highest Rate:</b></td>    <td>$month.rainRate.max</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
-                            <!-- Earthquake data -->
-                            <div class="col-sm-3 earthquake-container border-left">
-                                <div class="eq-title">Recent Local Earthquake</div>
-                                <div class="eq-region">
-                                    <span class="earthquake-time"></span><!-- moment.js -->
-                                    #if $earthquake_place != ''
-                                    <br>
-                                    <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <i class="wi wi-earthquake"></i>Magnitude <span class="magnitude">$earthquake_magnitude</span>
-                                        </div>
-                                        <div class="col-sm-6 border-left">
-                                            <span>$earthquake_lat &deg;
-                                            <br>$earthquake_lon &deg;</span>
-                                        </div>
-                                    </div>
-                                    #end if
-                                </div>
-                            </div>
-                            #end if
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- End of third row -->
-                        
-                        #if os.path.exists("index_hook_after_snapshot.inc")
-                        <!-- Start of index_hook_after_snapshot row -->
-                        <div class="row border-bottom">
-                            #include "index_hook_after_snapshot.inc"
-                        </div>
-                        <!-- End of index_hook_after_snapshot row -->
-                        #end if                          
-                        
-                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                        <!-- Begin of fourth row -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-12 wx-graph-front">
-                                Today's charts. <a href="$belchertown_root_url/graphs">View more here</a>.
-                            </div>
-                            
-                            #if $Extras.has_key("highcharts_graph_1") and $Extras.highcharts_graph_1 != '' or  $Extras.has_key("highcharts_graph_2") and $Extras.highcharts_graph_2 != ''
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_1" style="width:100%; height:350px;"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_2" style="width:100%; height:350px;"></div>
-                            </div>
-                            #end if
-                        </div>
-                        <!-- End of fourth row -->
-                        
-                        #if $Extras.has_key("highcharts_graph_3") and $Extras.highcharts_graph_3 != '' or  $Extras.has_key("highcharts_graph_4") and $Extras.highcharts_graph_4 != ''
-                        <!-- Begin fifth row -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_3" style="width:100%; height:350px;"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_4" style="width:100%; height:350px;"></div>
-                            </div>
-                        </div>
-                        <!-- End of fifth row -->
-                        #end if
-                        
-                        #if $Extras.has_key("highcharts_graph_5") and $Extras.highcharts_graph_5 != '' or  $Extras.has_key("highcharts_graph_6") and $Extras.highcharts_graph_6 != ''
-                        <!-- Begin sixth row -->
-                        <div class="row highcharts-row graph">
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_5" style="width:100%; height:350px;"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="$Extras.highcharts_graph_6" style="width:100%; height:350px;"></div>
-                            </div>
-                        </div>
-                        <!-- End of sixth row -->
-                        #end if
-                        #end if
-                        
-                        <div class="clear"></div>
-                        
-                        #if os.path.exists("index_hook_after_charts.inc")
-                        <!-- Start of index_hook_after_charts row -->
-                        <div class="row border-top">
-                            #include "index_hook_after_charts.inc"
-                        </div>
-                        <!-- End of index_hook_after_charts row -->
-                        #end if  
-                        
-                    </div> <!-- End entry-content -->
+                    </div>
                     
-                </article>
+                    <!-- Radar image -->
+                    <div class="col-lg-5 radar-map toprow-height">
+                        $radar_html
+                    </div>
+                </div>
+                <!-- End of first row -->
+                
+                #if os.path.exists("index_hook_after_station_info.inc")
+                <!-- Start of index_hook_after_station_info row -->
+                <div class="row index-hook-after-station-info border-bottom">
+                    #include "index_hook_after_station_info.inc"
+                </div>
+                <!-- End of index_hook_after_station_info row -->
+                #end if
 
-            </main>
-        </div>
+                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                <!-- Start of second row -->
+                <div class="row forecastrow">
+                    <!-- Forecast -->
+                    <div class="col-lg-12 forecast">
+                        <div class="forecast-title">
+                            $obs.label.forecast_header <span class="forecast-subtitle"></span><!-- moment.js -->
+                        </div>
+                        <div class="row forecasts"></div><!-- JS -->
+                    </div>        
+                </div>
+                <!-- End of second row -->
+                #end if
+                
+                #if os.path.exists("index_hook_after_forecast.inc")
+                <!-- Start of index_hook_after_forecast row -->
+                <div class="row index-hook-after-forecast border-bottom">
+                    #include "index_hook_after_forecast.inc"
+                </div>
+                <!-- End of index_hook_after_forecast row -->
+                #end if                        
+                
+                <!-- Start of third row -->
+                <div class="row eq-stats-row">            
+                    #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                    <div class="col-sm-9 stn-quick-stats">
+                    #else
+                    <div class="col-sm-12 stn-quick-stats">
+                    #end if
+                        
+                        <!-- Today Snapshot Stats -->
+                        <div class="row">
+                            <div class="snapshot-records-text">
+                                $obs.label.weather_snapshots <a href="records">$obs.label.weather_snapshots_link</a>
+                            </div>
+                            
+                            <div class="col-sm-6 stn-quick-stats">
+                                <div class="stats-title">
+                                    <span class="snapshot-records-today-header"></span><!-- JS and AJAX -->
+                                </div>
+                                <table>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_high:</b></td>    <td><span class="dailystatshigh">$day.outTemp.max</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_low:</b></td>    <td><span class="dailystatslow">$day.outTemp.min</span></td><!-- AJAX -->
+                                    </tr>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_today_avg_wind:</b></td>    <td><span class="dailystatswindavg">$day.wind.avg</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_today_high_wind:</b></td>        <td><span class="dailystatswindmax">$day.wind.max</span></td><!-- AJAX -->                    
+                                    </tr>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_today_rain:</b></td>    <td><span class="dailystatsrain">$day.rain.sum</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_today_rainrate:</b></td>    <td><span class="dailystatsrainrate">$day.rainRate.max</span></td><!-- AJAX -->
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- This Month Snapshot Stats -->
+                            <div class="col-sm-6 stn-quick-stats border-left">
+                                <div class="stats-title">
+                                    <span class="snapshot-records-month-header"></span><!-- JS and AJAX -->
+                                </div>
+                                <table>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_high:</b></td>    <td><span class="monthstatshigh">$month.outTemp.max</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_low:</b></td>    <td><span class="monthstatslow">$month.outTemp.min</span></td><!-- AJAX -->
+                                    </tr>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_month_avg_wind:</b></td>    <td><span class="monthstatswindavg">$month.wind.avg</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_month_high_wind:</b></td>        <td><span class="monthstatswindmax">$month.wind.max</span></td><!-- AJAX -->
+                                    </tr>
+                                    <tr>
+                                        <td><b>$obs.label.snapshot_month_rain:</b></td>        <td><span class="monthstatsrain">$month.rain.sum</span></td><!-- AJAX -->
+                                        <td><b>$obs.label.snapshot_month_rainrate:</b></td>    <td><span class="monthstatsrainrate">$month.rainRate.max</span></td><!-- AJAX -->
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                    <!-- Earthquake data -->
+                    <div class="col-sm-3 earthquake-container border-left">
+                        <div class="eq-title">$obs.label.earthquake_title</div>
+                        <div class="eq-region">
+                            <span class="earthquake-time"></span><!-- moment.js -->
+                            #if $earthquake_place != ''
+                            <br>
+                            <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
+                                </div>
+                                <div class="col-sm-6 border-left">
+                                    <span>$earthquake_lat &deg;
+                                    <br>$earthquake_lon &deg;</span>
+                                </div>
+                            </div>
+                            #end if
+                        </div>
+                    </div>
+                    #end if
+                </div>
+                <!-- End of third row -->
+                
+                #if os.path.exists("index_hook_after_snapshot.inc")
+                <!-- Start of index_hook_after_snapshot row -->
+                <div class="row index-hook-after-snapshot border-bottom">
+                    #include "index_hook_after_snapshot.inc"
+                </div>
+                <!-- End of index_hook_after_snapshot row -->
+                #end if                          
+                
+                #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                <!-- Begin of fourth row - dynamic charts -->
+                <div class="row highcharts-row graph">
+                    <div class="col-sm-12 wx-graph-front">
+                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$belchertown_root_url/graphs">$obs.label.homepage_graphs_link</a>
+                    </div>
+                    
+                    <div class="graph_outer row"></div><!-- JS populated -->
+                    
+                </div>
+                <!-- End of fourth row -->
+                #end if
+                
+                <div class="clear"></div>
+                
+                #if os.path.exists("index_hook_after_charts.inc")
+                <!-- Start of index_hook_after_charts row -->
+                <div class="row index-hook-after-charts border-top">
+                    #include "index_hook_after_charts.inc"
+                </div>
+                <!-- End of index_hook_after_charts row -->
+                #end if  
+                
+            </article>
+
+        </main>
     </div>
 
-    #include "footer.html.tmpl"
+    #include "footer.html.tmpl" 

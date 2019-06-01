@@ -1,4 +1,6 @@
+#import datetime
 {
+    "site": "$belchertown_root_url",
     "version": "$station.version",
     "belchertown_version": "$belchertown_version",
     "weewxuptime": "$station.uptime",
@@ -7,19 +9,33 @@
     "serverLocaleJS": "$system_locale_js",
     "localeEncoding": "$locale_encoding",
     "extras": {
-        #if $Extras.has_key('radar_url')
-        "radar_url": "$Extras.radar_url",
-        #end if
-        #if $Extras.has_key('radar_img')
-        "radarimg": "$Extras.radar_img"
-        #end if
+        "belchertown_theme": "$Extras.theme",
+        "belchertown_locale": "$Extras.belchertown_locale",
+        "reload_hook_images": "$Extras.reload_hook_images",
+        "reload_images_radar": "$Extras.reload_images_radar",
+        "reload_images_hook_asi": "$Extras.reload_images_hook_asi",
+        "reload_images_hook_af": "$Extras.reload_images_hook_af",
+        "reload_images_hook_as": "$Extras.reload_images_hook_as",
+        "reload_images_hook_ac": "$Extras.reload_images_hook_ac",
+        "station_observations": "$Extras.station_observations",
+        "highcharts_homepage_graphgroup": "$Extras.highcharts_homepage_graphgroup",
+        "show_apptemp": "$Extras.show_apptemp",
+        "show_windrun": "$Extras.show_windrun"
     },
     "station": {
         "hardware": "$station.hardware",
         "location": "$station.location",
         "latitude": "$station.latitude[1]' $station.latitude[2]",
         "longitude": "$station.longitude[1]' $station.longitude[2]",
+        "latitude_dd": "$station.stn_info.latitude_f",
+        "longitude_dd": "$station.stn_info.longitude_f",
         "altitude": "$station.altitude"
+    },
+    "station_observations": {
+        "current": $station_obs_json,
+        "rounding": $station_obs_rounding_json,
+        "unit_labels": $station_obs_unit_labels_json,
+        "trend": $station_obs_trend_json
     },
     "current": {
         "datetime": "$current.dateTime",
@@ -362,15 +378,15 @@
     "almanac": {
         "sunrise": "$almanac.sunrise",
         "sunrise_epoch": "$almanac.sunrise.raw",
+        "sunrise_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#",
+        "sunrise_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#",
         "sunset": "$almanac.sunset",
         "sunset_epoch": "$almanac.sunset.raw",
+        "sunset_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#",
+        "sunset_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#",
         "moon": {
             "moon_fullness": "$almanac.moon_fullness",
             "moon_phase": "$almanac.moon_phase"
         }
-    },
-
-
-    "site": "$belchertown_root_url"
-
+    }
 }

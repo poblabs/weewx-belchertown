@@ -9,7 +9,7 @@ def loader():
 class ExfoliationInstaller(ExtensionInstaller):
     def __init__(self):
         super(ExfoliationInstaller, self).__init__(
-            version="0.9.1",
+            version="1.0",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
@@ -19,15 +19,10 @@ class ExfoliationInstaller(ExtensionInstaller):
                     'Belchertown': {
                         'skin':'Belchertown',
                         'HTML_ROOT':'belchertown'
-                    },
-                    'Highcharts_Belchertown': {
-                        'skin':'Highcharts_Belchertown',
-                        'HTML_ROOT':'belchertown'
                     }
                 }
             },
-            files=[('bin/user', ['bin/user/belchertown.py',
-                                 'bin/user/belchertown_highchartsSearchX.py'
+            files=[('bin/user', ['bin/user/belchertown.py'
                                 ]
                     ),
                    ('skins/Belchertown', ['skins/Belchertown/favicon.ico',
@@ -35,11 +30,14 @@ class ExfoliationInstaller(ExtensionInstaller):
                                           'skins/Belchertown/header.html.tmpl',
                                           'skins/Belchertown/index.html.tmpl',
                                           'skins/Belchertown/about.inc.example',
+                                          'skins/Belchertown/celestial.inc',
+                                          'skins/Belchertown/graphs.conf.example',
                                           'skins/Belchertown/page-header.inc',
                                           'skins/Belchertown/manifest.json.tmpl',
                                           'skins/Belchertown/records.inc.example',
                                           'skins/Belchertown/robots.txt',
                                           'skins/Belchertown/skin.conf',
+                                          'skins/Belchertown/belchertown-dark.min.css',
                                           'skins/Belchertown/style.css'
                                          ]
                     ),
@@ -55,10 +53,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                     ),                    
                    ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
                    ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
-                   ('skins/Belchertown/js', ['skins/Belchertown/js/highcharts-dayplots.js.tmpl',
-                                             'skins/Belchertown/js/highcharts-weekplots.js.tmpl',
-                                             'skins/Belchertown/js/highcharts-monthplots.js.tmpl',
-                                             'skins/Belchertown/js/highcharts-yearplots.js.tmpl',
+                   ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown.js.tmpl',
                                              'skins/Belchertown/js/index.html',
                                              'skins/Belchertown/js/responsive-menu.js'
                                             ]
@@ -92,14 +87,6 @@ class ExfoliationInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/wind.png',
                                                  'skins/Belchertown/images/index.html'
                                                 ]
-                    ),
-                   ('skins/Highcharts_Belchertown', ['skins/Highcharts_Belchertown/skin.conf']
-                    ),
-                   ('skins/Highcharts_Belchertown/json', ['skins/Highcharts_Belchertown/json/day.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/week.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/month.json.tmpl',
-                                                          'skins/Highcharts_Belchertown/json/year.json.tmpl',
-                                                         ]
                     )
                    ]
         )

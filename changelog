@@ -1,3 +1,40 @@
+1.0 June 1, 2019
+
+**BREAKING CHANGES**: 
+* Chart system is 100% re-written. See below for details.
+* In an effort to provide more options for translations, the following Extra's settings have moved to Labels --> Default. Please update your settings!
+** home_page_header
+** graphs_page_header
+** records_page_header
+** reports_page_header
+** about_page_header
+** powered_by
+** footer_copyright_text
+** footer_disclaimer_text
+
+# Full list of Changes
+
+* Complete overhaul of the chart system and introduction of graphs.conf. Please see the Charts Wiki for all the new configuration options.
+** This overhaul removes the Highcharts_Belchertown skin and bin/user file and moves everything under the 1 Belchertown skin.
+** Overview of the new chart system include ability to move charts around, remove charts, configure multiple observations per chart, and add a 2nd yAxis to associate an observation to for better readability, mix timespans between the graph groups (have both a year and a day chart on the same page), mirrored charts, wind rose, monthly aggregation and more! 
+** You can also define which graph group from graphs.conf to show on the Graphs page. Show them All, show only the 1 you want. It's your choice!
+* Add support for wind rose with Highcharts.
+* Added rainTotal observation, unique to Belchertown, which aggregates the "rain" observation (bucket tips) over a timespan to return total rainfall for that time period.
+* Change the Station Observation table on the homepage to an Extras option for greater control of *current* weather station observations. You can add/remove and change the order of the observations. Only valid weewx schema names are accepted.
+* Locale now has an option to be auto detected by the system, or the ability to change it to a locale the site owner wants as long as that locale is installed on the server first.
+* Added pyephem almanac modal to the "Sun & Moon" section. Thanks to the Seasons skin for the quick work. At this time the detailed Almanac Information does not update in real time. You will need to reload the page to get updated detailed almanac information.
+* Add support for translating the skin through the use of Default Labels in skin.conf (which can be used in weewx.conf, too).
+* Upgrade to Bootstrap 3.4.1 and change to new bootstrap stackpath CDN
+* Added new Dark Theme. This is a combination of Bootstrap's "darkly" (on CDN) and Highcharts Dark Unica theme (hosted locally), and Belchertown overrides to remain consistent.
+* Added new skin.conf option called "theme". Options are "light", "dark" and "auto". Light (white) website theme. Dark (dark) website theme. Auto switches between the two at sunset (to dark) and sunrise (to light). 
+* Added a toggle button to the navigation menu which will change the entire site's theme at the click of the button.
+**NOTE** If you are using the AUTO theme mode, and you click this button, it will disable auto mode until you **close the page, tab or browser** to reset back to auto mode. 
+* Added belchertown_debug to aid in debugging the skin's options. Also available through the URL /?debug=true
+* Added permalink to the graphs page. For example to link to your weekly graphs, use http://yoursite/graphs/?graph=week, for month, it's /?graph=month, for year is /?graph=year and for today you can link to the graphs page, or use /?graph=today. To find a specific permalink URL you can go to the All Graphs Page, then click the header for that graph.
+* Added option reload_hook_images and hook image reload timers which when enabled will reload any images in the 4 custom content areas on the index page within their specified timers. Useful for webcam images. This option will only work if MQTT Websockets live updates are also enabled.
+* Upgrade Font Awesome to 4.7.0
+* Clean up of some old CSS
+
 0.9.1 March 9, 2019
 * Fixed a locale bug with the windSpeed and windGust float values by using toString() instead of format(). This is backwards compatible with weewx 3.8.2
 * Fixed a bug where MQTT AJAX page updates weren't in locale decimal. (e.g. comma instead of period for decimal). Can't use parseFloat() on it's own if the culture is a comma for decimals. Need to use toLocaleString(). This requires converting the string to an int, to a float, back to a string.
