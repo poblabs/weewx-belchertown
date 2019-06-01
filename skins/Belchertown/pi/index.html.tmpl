@@ -500,7 +500,7 @@
             if ( data.hasOwnProperty("windDir") ) {
                 rotateThis( data["windDir"] );
                 //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+                jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
                 jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
             }
             // Windspeed US
@@ -700,7 +700,7 @@
                                             $current.windDir.ordinal_compass
                                             #end if
                                         </span>
-                                        <span class="curwindeg">$current.windDir.format("%.0f")</span>
+                                        <span class="curwinddeg">$current.windDir.format("%.0f")</span>
                                     </div>
                                     <div class="arrow"></div>
                                 </div>

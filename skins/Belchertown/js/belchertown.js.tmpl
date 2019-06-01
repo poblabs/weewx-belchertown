@@ -786,7 +786,7 @@ function update_current_wx(data) {
         // No toLocaleString() here since there is no float decimal needed.
         rotateThis( data["windDir"] );
         //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-        jQuery(".curwindeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+        jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
         jQuery(".curwinddir").text( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
     // Windspeed US
