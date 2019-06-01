@@ -1,19 +1,21 @@
 # This is the Belchertown skin charting system which utilizes Highcharts to display the chart data.
+
+# PLEASE READ THE CHARTS WIKI! A lot of information is there and it will help you! It is located here: https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation
    
+# Caution!
+# The more charts you have, the slower things can become. This is especially true at the YEAR level. These are interactive charts which have to build plot points from the database on every archive interval. This could result in large file sizes to generate, and for your website visitors to download. You're welcome to customize as many charts as you want, but be warned things could slow down if you do too much!
+# The defaults in this skin have proven to be a good baseline for the number of charts and options without overwhelming your system. 
+
 # Chart Types:
 # Supported chart types in the Belchertown skin are line, spline, area, areaspline, scatter (primary for wind direction), column. 
 # To experiement with other chart types that Highcharts has built in, here's a list: https://www.highcharts.com/docs/chart-and-series-types/chart-types
 # Chart types that have a long load time are "gauge", "pie".
 # The "heatmap" charts are not supported.
 
-# Caution!
-# The more charts you have, the slower things can become. This is especially true at the YEAR level. These are interactive charts which have to build plot points from the database on every archive interval. This could result in large file sizes to generate, and for your website visitors to download. You're welcome to customize as many charts as you want, but be warned things could slow down if you do too much!
-# The defaults in this skin have proven to be a good baseline for the number of charts and options without overwhelming your system. 
-
 # Overview of options:
 # A timespan refers to "day", "week", "month" or "year". 
-# The [day], [week], [month], [year] sections must remain as they are and cannot be renamed. 
-# The charts under the timespan can be renamed and reorganized. They will display on your website in the order they appear here.
+# The first configuration item is the graph group, such as [day], [week], [month], [year] sections. 
+# The charts are defined under the graph group and can be renamed and reorganized. They will display on your website in the order they appear here.
 # Under the chart are the observation names from the WeeWX database. Any item within your database "archive type" can be charted. For a list of "archive types" refer to this chart. http://weewx.com/docs/customizing.htm#archive_types
 # Each observation can be customized with built-in Highcharts "series" options. Popular ones are color, name and zIndex. For a list of Highcharts Series options refer to https://api.highcharts.com/highcharts/series - Each chart type (e.g. area, line, scatter, etc.) has different options that can be modified, so make sure you are applying the right option for the right chart type.
 
@@ -23,38 +25,22 @@
 
 # Unsupported Configurations!
 # Line type and scatter type cannot exist on the same chart with working tooltip information. This is a limitation of Highcharts. See: https://stackoverflow.com/a/29604251/1177153 and https://api.highcharts.com/highcharts/tooltip.shared
-# Can't define second yAxis at this time if a chart has more than 1 data series which has different yAxis values. For example, windDir (ordinal yAxis) and windSpeed (speed yAxis). Please keep your charts in a like-for-like data set to have a consistent yAxis.
 
 # Some tricks and tips learned. 
-# A line plot (like windSpeed) and a scatter plot (like windDir) cannot exist on the same chart and have working tooltips (the bubble that pops up). But according to this post, you can "trick" highcharts into doing almost the same thing. https://stackoverflow.com/a/43992380/1177153
-# So this post translates into this configuration to have windDir on the same chart as windSpeed and windGust. Note how windDir is the first observation.
-# AS MENTIONED ABOVE THIS IS NOT A SUPPORTED CONFIGURATION! You will not have compass readouts, not will windDir be attached to an axis. This means your wind observations will be so small they'll be almost useless.
-# [[[windDir]]]
-#     type = line
-#     lineWidth = 0
-#     radius = 5
-#     [[[[marker]]]]
-#         enabled = true
-#     [[[[states]]]]
-#         [[[[[hover]]]]]
-#             lineWidthPlus = 0
-# [[[windSpeed]]]
-#     zIndex = 1
-# [[[windGust]]]
+# A line plot (like windSpeed) and a scatter plot (like windDir) cannot exist on the same chart and have working tooltips (the bubble that pops up). But the default wind chart here uses a trick that turns the line to look like a scatter plot. Please replicate this if you have other data you wish to chart in this method.
 
 # If a custom option broke your charts:
-# Undo your change and restart weewx. 
-# If that doesn't work, undo ALL changes and go back to the default configuration.
+# Undo your change and run wee_reports. You do not need to restart weewx if you make a graphs.conf change.
+# If that doesn't work, undo ALL changes and go back to the default graphs.conf.example configuration.
 # There is no guarantee that every customization option will work. 
 
-# Settings Overview:
+# Settings Overview (detailed information is in the wiki):
 
 # title
 # The title value directly beneath the graph group name (like [day] or [week]) will be the title of the graph group on the graphs page. This will also be useful for the All Graphs page so you can give each section their own individual title.
 
 # tooltip_date_format
-# The tooltip is the box that shows up when your mouse hovers over the chart. The tooltip date and time uses moment.js to format dates into your locale. You can change your date and time format by using the string formats from the moment.js documentation at https://momentjs.com/docs/#/parsing/string-format/ 
-# You can apply the tooltip_date_format at the graph group level, and at the individual chart level.
+# The tooltip is the box that shows up when your mouse hovers over the chart.You can change your date and time format by using the string formats from the moment.js documentation at https://momentjs.com/docs/#/parsing/string-format/. You can apply the tooltip_date_format at the graph group level, and at the individual chart level.
 
 # show_button
 # Values are "true" or "false". This will show or hide the graph button on the Graphs page.
@@ -79,6 +65,7 @@
 #               day_specific    = a specific day which you want to chart. Must be used in combination with options: day_specific, month_specific and year_specific
 #               month_specific  = a specific month which you want to chart. Must be used in combination with options: month_specific and year_specific
 #               year_specific   = a specific year which you want to chart. Must be used in combination with option: year_specific
+#               all             = all time within the database
 # 2. Use seconds to graph a rolling time period. Some examples are:
 #               90000       = Use this for day. This will graph the last 25 hours as a rolling time period.
 #   (Default)   604800      = Use this for week. This will graph the last 7 days as a rolling time period.
@@ -101,7 +88,7 @@
 # type 
 # This is the Highcharts chart type. For example, line, spline, area, scatter, etc.
 
-# Title
+# title
 # This is the title of your chart.
 
 # observation_type
@@ -110,13 +97,13 @@
 # You do not have to specify observation_type unless you want 2 or more of the same type on a chart. If you do not specify then the archive type will be used. Example: [[[outTemp]]]
 # For a fully working example, look at the outTemp charts for the Month and Year groups below.
 
-# Color
+# color
 # The colors listed in the Global Chart Defaults are the default color palette. This palette works with both light and dark mode, and they are applied in the order they are listed to the charts. 
 # To override a specific observation plot with it's own unique color you can set the color option under the observation type.
 # Colors can be specified using the hex notation in quotes, like color = "#000000" for black. 
 # Colors can also be specified in English name, such as color = "green"
 
-# Name
+# name
 # If you specify a name for the observation, then we will use that.
 # If you do not specify a name, one will be automatically used.
 
@@ -140,6 +127,12 @@
 # Certain observations will require a minimum and maximum yAxis value. 
 # For example windDir would be from 0 to 360. Using the yaxis_min and yaxis_max you can define the chart's min and max yAxis values.
 # rxCheckPercent is another one where yAxis min would be 0, and max would be 100. 
+
+# yaxis_softmin, yaxis_softmax
+# As with yaxis_min and yaxis_max, this defines a soft min and soft max, meaning your y axis will show these values UNLESS your data goes outside of those values. 
+#
+# There may be more options missed here! Please read the wiki linked at the top of this document!
+#------------------------------
 
 # Global Chart Defaults
 # These are fallback options that charts will use if an option is not defined. 
