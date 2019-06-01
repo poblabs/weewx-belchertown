@@ -1131,8 +1131,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             json_filename = html_dest_dir + "/" + chart_group + ".json"
             with open(json_filename, mode='w') as jf:
                 jf.write( json.dumps( output[chart_group] ) )
-            chart_json_filename = html_dest_dir + "/graphs.json"
             # Save the graphs.conf to a json file for future debugging
+            chart_json_filename = html_dest_dir + "/graphs.json"
             with open(chart_json_filename, mode='w') as cjf:
                 cjf.write( json.dumps( self.chart_dict ) )
 
