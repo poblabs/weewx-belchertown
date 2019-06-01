@@ -1000,6 +1000,14 @@ function showChart(json_file, prepend_renderTo=false) {
                         marker: {
                             radius: 2
                         },
+                    },
+                    series: {
+                        states: {
+                            hover: {
+                                // This disables the overly large hover markers
+                                enabled: false
+                            }
+                        }
                     }
                 },
                 
