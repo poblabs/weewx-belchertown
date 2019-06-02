@@ -1,3 +1,10 @@
+1.0.1 June ??, 2019
+
+# Changes
+
+* Fixes a locale bug if a system locale is not defined (or is using C, which Python views as None)
+* Fixes an archive_interval bug if one is not defined in weewx.conf (e.g. when the station provides the archive interval, not weewx)
+
 1.0 June 1, 2019
 
 **BREAKING CHANGES**: 
