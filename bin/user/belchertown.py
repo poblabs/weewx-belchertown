@@ -124,9 +124,25 @@ class getData(SearchList):
                 system_locale, locale_encoding = locale.getlocale()
             except Exception as error:
                 raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. For example the correct way to define this skin setting is 'en_US.UTF-8'. The locale also needs to be installed onto your system first before Belchertown Skin can use it. Please check Google on how to install locales onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
-        system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
-        highcharts_decimal = locale.localeconv()["decimal_point"]
         
+        if system_locale is None:
+            # Unable to determine locale. Fallback to en_US
+            system_locale = "en_US"
+            
+        if locale_encoding is None:
+            # Unable to determine locale_encoding. Fallback to UTF-8
+            locale_encoding = "UTF-8"
+        
+        try:
+            system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
+        except:
+            system_locale_js = "en-US" # Error finding locale, set to en-US
+            
+        try:
+            highcharts_decimal = locale.localeconv()["decimal_point"]
+        except:
+            highcharts_decimal = "." # Default to a period
+            
         # Get the archive interval for the highcharts gapsize
         archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
         
