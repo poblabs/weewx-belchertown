@@ -144,7 +144,10 @@ class getData(SearchList):
             highcharts_decimal = "." # Default to a period
             
         # Get the archive interval for the highcharts gapsize
-        archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+        try:
+            archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+        except KeyError:
+            archive_interval_ms = 300000 # 300*1000 for archive_interval emulated to millis
         
         # Get the ordinal labels
         default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
