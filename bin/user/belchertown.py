@@ -59,7 +59,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0.1b1"
+VERSION = "1.0.1b2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -85,12 +85,11 @@ class getData(SearchList):
         binding = self.generator.config_dict['StdReport'].get('data_binding', 'wx_binding')
         manager = self.generator.db_binder.get_manager(binding)
 
-        # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
-        if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
+        # Setup belchertown_root_url for the absolute links
+        try:
             belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-        elif self.generator.config_dict["Station"].has_key("station_url"):
-            belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
-        else:
+        except:
+            # Force a blank root url if the default "" is removed from skin.conf
             belchertown_root_url = ""
             
         belchertown_debug = self.generator.skin_dict['Extras'].get('belchertown_debug', 0)
