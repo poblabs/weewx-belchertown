@@ -158,7 +158,7 @@
               <td class="data">$almanac.next_full_moon</td>
             </tr>
             <tr>
-              <td class="label">$obs.label.new moon</td>
+              <td class="label">$obs.label.new_moon</td>
               <td class="data">$almanac.next_new_moon</td>
             </tr>
           #else
