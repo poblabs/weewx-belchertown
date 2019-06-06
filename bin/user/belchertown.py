@@ -1010,6 +1010,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     maxstamp = self.stop_ts
                 else:
                     # Rolling timespans using seconds
+                    time_length = int(time_length) # Convert it to int() for point_timestamp later
                     minstamp = plotgen_ts - int(time_length) # Take the generation time and subtract the time_length to get our start time
                     maxstamp = plotgen_ts
                 
@@ -1546,9 +1547,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
             
-        # "Today" charts have the point timestamp on the stop time so we don't see the previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
+        # "Today" charts and floating timespan charts have the point timestamp on the stop time so we don't see the 
+        # previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
         # Everything else has it on the start time so we don't see the next day in the tooltip (e.g. Jan 2 instead of Jan 1)
-        if time_length == "today":
+        if time_length == "today" or isinstance(time_length, int):
             point_timestamp = time_stop_vt
         else:
             point_timestamp = time_start_vt
