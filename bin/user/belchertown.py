@@ -1010,7 +1010,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     maxstamp = self.stop_ts
                 else:
                     # Rolling timespans using seconds
-                    time_length = int(time_length) # Convert it to int() for point_timestamp later
+                    time_length = int(time_length) # Convert to int() for minstamp math and for point_timestamp conditional later
                     minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
                     maxstamp = plotgen_ts
                 
