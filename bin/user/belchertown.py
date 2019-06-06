@@ -1010,7 +1010,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     maxstamp = self.stop_ts
                 else:
                     # Rolling timespans using seconds
-                    (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
+                    minstamp = plotgen_ts - int(time_length) # Take the generation time and subtract the time_length to get our start time
+                    maxstamp = plotgen_ts
                 
                 chart_title = plot_options.get("title", "")
                 output[chart_group][plotname]["options"]["title"] = chart_title
