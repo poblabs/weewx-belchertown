@@ -1301,6 +1301,7 @@ function showChart(json_file, prepend_renderTo=false) {
             }
                         
             // Finally all options are done, now show the chart
+            belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
             var chart = new Highcharts.chart(options);
 
         });
