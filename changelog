@@ -2,10 +2,17 @@
 
 # Changes
 
+* Adds more debugging capability. See Wiki "How to get help" section.
+* Adds default chart values for areaspline chart type.
+* Updates the areaspline and area charts threshold. Default is 0, now it's undefined so its a floating y axis range.
+* Fixes a chart bug with Highcharts values being set as an integer resulting in unexpected behavior.
 * Fixes a locale bug if a system locale is not defined (or is using C, which Python views as None)
 * Fixes an archive_interval bug if one is not defined in weewx.conf (e.g. when the station provides the archive interval, not weewx)
 * Fixes a belchertown_root_url bug which affects on certain scenarios. In 1.1 belchertown_root_url may be removed all together. 
 * Fixes a moon translation label in the celestial information
+* Fixes a bug with scaletime and rolling time period charts. Unsure why scaletime was used but it's gone now.
+* Fixes a bug with point timestamp and using an odd minute like :59 instead of :00
+* Fixes a typo in the skin.conf labels section
 * Removes an invalid link from the "powered by" line in the header. 
 
 1.0 June 1, 2019
