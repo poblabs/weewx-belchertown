@@ -674,6 +674,7 @@ function onConnectionLost(responseObject) {
 
 // New message from mqtt, process it
 function onMessageArrived(message) {
+    belchertown_debug( message.payloadString );
     update_current_wx( message.payloadString );
 }
 
