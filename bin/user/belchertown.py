@@ -59,7 +59,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0"
+VERSION = "1.0.1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -85,12 +85,11 @@ class getData(SearchList):
         binding = self.generator.config_dict['StdReport'].get('data_binding', 'wx_binding')
         manager = self.generator.db_binder.get_manager(binding)
 
-        # Check if the pre-requisites have been completed. Either station_url or belchertown_root_url need to be set. 
-        if self.generator.skin_dict['Extras']['belchertown_root_url'] != "":
+        # Setup belchertown_root_url for the absolute links
+        try:
             belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-        elif self.generator.config_dict["Station"].has_key("station_url"):
-            belchertown_root_url = self.generator.config_dict["Station"]["station_url"]
-        else:
+        except:
+            # Force a blank root url if the default "" is removed from skin.conf
             belchertown_root_url = ""
             
         belchertown_debug = self.generator.skin_dict['Extras'].get('belchertown_debug', 0)
@@ -124,11 +123,30 @@ class getData(SearchList):
                 system_locale, locale_encoding = locale.getlocale()
             except Exception as error:
                 raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. For example the correct way to define this skin setting is 'en_US.UTF-8'. The locale also needs to be installed onto your system first before Belchertown Skin can use it. Please check Google on how to install locales onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
-        system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
-        highcharts_decimal = locale.localeconv()["decimal_point"]
         
+        if system_locale is None:
+            # Unable to determine locale. Fallback to en_US
+            system_locale = "en_US"
+            
+        if locale_encoding is None:
+            # Unable to determine locale_encoding. Fallback to UTF-8
+            locale_encoding = "UTF-8"
+        
+        try:
+            system_locale_js = system_locale.replace("_", "-") # Python's locale is underscore. JS uses dashes.
+        except:
+            system_locale_js = "en-US" # Error finding locale, set to en-US
+            
+        try:
+            highcharts_decimal = locale.localeconv()["decimal_point"]
+        except:
+            highcharts_decimal = "." # Default to a period
+            
         # Get the archive interval for the highcharts gapsize
-        archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+        try:
+            archive_interval_ms = int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+        except KeyError:
+            archive_interval_ms = 300000 # 300*1000 for archive_interval emulated to millis
         
         # Get the ordinal labels
         default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
@@ -992,7 +1010,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     maxstamp = self.stop_ts
                 else:
                     # Rolling timespans using seconds
-                    (minstamp, maxstamp, timeinc) = weeplot.utilities.scaletime(plotgen_ts - int(time_length), plotgen_ts)
+                    time_length = int(time_length) # Convert to int() for minstamp math and for point_timestamp conditional later
+                    minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
+                    maxstamp = plotgen_ts
                 
                 chart_title = plot_options.get("title", "")
                 output[chart_group][plotname]["options"]["title"] = chart_title
@@ -1123,6 +1143,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     else:
                         # No custom series data overrides, so just add series_data to the chart series data
                         output[chart_group][plotname]["series"][line_name]["data"] = series_data
+                        
+                    # Final pass through self._highchartsSeriesOptionsToInt() to convert any integer back to int which ConfigObj made a string. Highcharts typically wants integers
+                    output[chart_group][plotname]["series"][line_name] = self._highchartsSeriesOptionsToInt(output[chart_group][plotname]["series"][line_name])
             
             # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
@@ -1527,9 +1550,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 usageRound = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obsRound_vt = [self._roundNone(x, usageRound) for x in obs_vt[0]]
             
-        # "Today" charts have the point timestamp on the stop time so we don't see the previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
+        # "Today" charts and floating timespan charts have the point timestamp on the stop time so we don't see the 
+        # previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
         # Everything else has it on the start time so we don't see the next day in the tooltip (e.g. Jan 2 instead of Jan 1)
-        if time_length == "today":
+        if time_length == "today" or isinstance(time_length, int):
             point_timestamp = time_stop_vt
         else:
             point_timestamp = time_start_vt
@@ -1613,3 +1637,22 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         elif (degree >= 348.76 and degree <= 360):
             return "N"
     
+    def _highchartsSeriesOptionsToInt(self, d):
+        # Recurse through all the series options and set any strings that should be integers back to integers. 
+        # https://stackoverflow.com/a/54565277/1177153
+        try:
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    # Check nested dicts
+                    self._highchartsSeriesOptionsToInt(v)
+                else:
+                    try:
+                        v = to_int(v)
+                        d.update({k: v})
+                    except:
+                        pass
+            return d
+        except:
+            # This item isn't a dict, so return it back
+            return d
+

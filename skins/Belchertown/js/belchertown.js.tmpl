@@ -674,6 +674,7 @@ function onConnectionLost(responseObject) {
 
 // New message from mqtt, process it
 function onMessageArrived(message) {
+    belchertown_debug( message.payloadString );
     update_current_wx( message.payloadString );
 }
 
@@ -975,6 +976,8 @@ function showChart(json_file, prepend_renderTo=false) {
                             enabled: false,
                             radius: 2
                         },
+                        threshold: null,
+                        softThreshold: true
                     },
                     line: {
                         lineWidth: 2,
@@ -994,6 +997,17 @@ function showChart(json_file, prepend_renderTo=false) {
                             radius: 2
                         },
                     },
+                    areaspline: {
+                        lineWidth: 2,
+                        gapSize: '',
+                        gapUnit: 'value',
+                        marker: {
+                            enabled: false,
+                            radius: 2
+                        },
+                        threshold: null,
+                        softThreshold: true
+                    },
                     scatter: {
                         gapSize: '',
                         gapUnit: 'value',
@@ -1001,14 +1015,6 @@ function showChart(json_file, prepend_renderTo=false) {
                             radius: 2
                         },
                     },
-                    series: {
-                        states: {
-                            hover: {
-                                // This disables the overly large hover markers
-                                enabled: false
-                            }
-                        }
-                    }
                 },
                 
                 // Highstock is needed for gapsize. Disable these 3 to make it look like standard Highcharts
@@ -1288,9 +1294,12 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.series.push(ns);
                 });
             }
-                        
+            
             // Finally all options are done, now show the chart
             var chart = new Highcharts.chart(options);
+            
+            // If using debug, show a copy paste debug for use with jsfiddle
+            belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
 
         });
     

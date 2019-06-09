@@ -29,7 +29,9 @@
         "longitude": "$station.longitude[1]' $station.longitude[2]",
         "latitude_dd": "$station.stn_info.latitude_f",
         "longitude_dd": "$station.stn_info.longitude_f",
-        "altitude": "$station.altitude"
+        "altitude": "$station.altitude",
+        "archive_interval": "#echo $archive_interval_ms / 1000 #",
+        "archive_interval_ms": "$archive_interval_ms"
     },
     "station_observations": {
         "current": $station_obs_json,
