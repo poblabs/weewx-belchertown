@@ -9,7 +9,7 @@ def loader():
 class BelchertownInstaller(ExtensionInstaller):
     def __init__(self):
         super(BelchertownInstaller, self).__init__(
-            version="1.1b1",
+            version="1.1b2",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
