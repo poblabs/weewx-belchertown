@@ -118,11 +118,13 @@ class getData(SearchList):
             system_locale, locale_encoding = locale.getdefaultlocale()
         else:
             try:
-                # Locale needs to be in locale.encoding format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
+                # Try setting the locale. Locale needs to be in locale.encoding format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
                 locale.setlocale(locale.LC_ALL, self.generator.skin_dict['Extras']['belchertown_locale'])
                 system_locale, locale_encoding = locale.getlocale()
             except Exception as error:
-                raise Warning( "Error changing locale to %s. This locale may not exist on your system, or you have a typo. For example the correct way to define this skin setting is 'en_US.UTF-8'. The locale also needs to be installed onto your system first before Belchertown Skin can use it. Please check Google on how to install locales onto your system. Or use the default 'auto' locale skin setting. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
+                # The system can't find the locale requested, so just set the variables anyways for JavaScript's use.
+                system_locale, locale_encoding = self.generator.skin_dict['Extras']['belchertown_locale'].split(".")
+                if belchertown_debug:
         
         if system_locale is None:
             # Unable to determine locale. Fallback to en_US
