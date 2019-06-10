@@ -125,6 +125,7 @@ class getData(SearchList):
                 # The system can't find the locale requested, so just set the variables anyways for JavaScript's use.
                 system_locale, locale_encoding = self.generator.skin_dict['Extras']['belchertown_locale'].split(".")
                 if belchertown_debug:
+                    logerr( "Locale: Error using locale %s. This locale may not be installed on your system and you may see unexpected results. Belchertown skin JavaScript will try to use this locale. Full error: %s" % ( self.generator.skin_dict['Extras']['belchertown_locale'], error ) )
         
         if system_locale is None:
             # Unable to determine locale. Fallback to en_US
