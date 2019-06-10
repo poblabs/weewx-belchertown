@@ -627,16 +627,27 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
     if ( section ) {
         if ( section == "radar" ) {
             belchertown_debug("Updating radar image");
+            // Reload images
             if ( document.querySelectorAll(".radar-map img").length > 0 ) {
                 var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
                 jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
             }
+            // Reload iframe - https://stackoverflow.com/a/4249946/1177153
+            if ( document.querySelectorAll(".radar-map iframe").length > 0 ) {
+                jQuery(".radar-map iframe").each(function(){
+                    jQuery(this).attr( 'src', function ( i, val ) { return val; });
+                });
+            }
         } else {
             belchertown_debug("Updating " + section + " images");
-            // Reload the images
+            // Reload images
             jQuery('.'+section+' img').each(function(){
                 new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
                 jQuery(this).attr('src', new_image_url);
+            });
+            // Reload iframes
+            jQuery('.'+section+' iframe').each(function(){
+                jQuery(this).attr( 'src', function ( i, val ) { return val; });
             });
         }
         // Set the new timer
