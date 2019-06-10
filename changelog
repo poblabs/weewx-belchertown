@@ -1,3 +1,10 @@
+1.1 ???, 2019
+
+# Changes
+
+* Updated footer layout
+* Version update option. This checks GitHub to see if there's a new version available and then puts a notice in the site footer that an update is available.
+
 1.0.1 June 9, 2019
 
 # Changes

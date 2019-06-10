@@ -23,17 +23,26 @@ function belchertown_debug(message) {
 
 jQuery(document).ready(function() {
     
+    // Bootstrap hover tooltips
+    jQuery(function () {
+        jQuery('[data-toggle="tooltip"]').tooltip()
+    })
+    
+    #if $Extras.has_key("check_for_updates") and $Extras.check_for_updates == '1'
+    // Check for updates
+    var update_available = check_for_updates("$belchertown_version", "$github_version");
+    belchertown_debug("Checking Update: update available: " + update_available + " (installed: $belchertown_version - new version: $github_version)");
+    if ( update_available ) {
+        jQuery(".updateavailable").show();
+    }
+    #end if
+    
     // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
     if ( sessionStorage.getItem('theme') == "toggleOverride" ) {
         belchertown_debug("Theme: sessionStorage override in place.");
         changeTheme( sessionStorage.getItem('currentTheme') );
     }
 
-    // Bootstrap hover tooltips
-    jQuery(function () {
-        jQuery('[data-toggle="tooltip"]').tooltip()
-    })
-            
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
         if (window.location.search.indexOf('?theme=dark') === 0) {
@@ -78,6 +87,29 @@ function getURLvar(k) {
     var p={};
     location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
     return k?p[k]:p;
+}
+
+// https://stackoverflow.com/a/53387532/1177153
+// Archived: https://stackoverflow.com/a/52059759/1177153 (also https://helloacm.com/the-javascript-function-to-compare-version-number-strings/)
+function check_for_updates(oldVer, newVer) {
+    // Treat non-numerical characters as lower version
+    // Replacing them with a negative number based on charcode of each character
+    function fix(s) {
+        return "." + (s.toLowerCase().charCodeAt(0) - 99999) + ".";
+    }
+    oldVer = ("" + oldVer).replace(/[^0-9\.]/g, fix).split('.');
+    newVer = ("" + newVer).replace(/[^0-9\.]/g, fix).split('.');
+    var c = Math.max(newVer.length, oldVer.length);
+    for (var i = 0; i < c; i++) {
+        //convert to integer the most efficient way
+        oldVer[i] = ~~oldVer[i];
+        newVer[i] = ~~newVer[i];
+        if (oldVer[i] < newVer[i])
+            return true;
+        else if (oldVer[i] > newVer[i])
+            return false;
+    }
+    return false;
 }
 
 // http://stackoverflow.com/a/14887961/1177153
@@ -352,6 +384,13 @@ function ajaxweewx() {
 var station_obs_array = "";
 function update_weewx_data( data ) {
     belchertown_debug("Updating weewx data");
+    
+    // Check for updates
+    var update_available = check_for_updates("$belchertown_version", data["version"]["github_version"]);
+    belchertown_debug("Checking Update: update available: " + update_available + " (installed: $belchertown_version - new version: "+data["version"]["github_version"]+")");
+    if ( update_available ) {
+        jQuery(".updateavailable").show();
+    }
     
     #if $Extras.has_key("theme") and $Extras.theme == 'auto'
     // Auto theme if enabled

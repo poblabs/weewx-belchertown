@@ -257,6 +257,7 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | ----------
+| check_for_updates | 1 | Setting this to 1 will enable checking GitHub for updates automatically every 6 hours (this is a hardcoded time interval). When an update is ready you will see the notification in the footer of the website.
 | belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
 | belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
 | belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  

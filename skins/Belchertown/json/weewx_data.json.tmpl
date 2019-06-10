@@ -8,6 +8,12 @@
     "serverLocale": "$system_locale",
     "serverLocaleJS": "$system_locale_js",
     "localeEncoding": "$locale_encoding",
+    #if $Extras.has_key("check_for_updates") and $Extras.check_for_updates == '1'
+    "version": {
+        "installed": "$belchertown_version",
+        "github_version": "$github_version"
+    },
+    #end if
     "extras": {
         "belchertown_theme": "$Extras.theme",
         "belchertown_locale": "$Extras.belchertown_locale",

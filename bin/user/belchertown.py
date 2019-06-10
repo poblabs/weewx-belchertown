@@ -59,7 +59,7 @@ def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.0.1"
+VERSION = "1.1b1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -658,6 +658,66 @@ class getData(SearchList):
             eqmag = ""
             eqlat = ""
             eqlon = ""
+            
+       
+        """
+        Version Update Data
+        """
+        if self.generator.skin_dict['Extras']['check_for_updates'] == "1":
+            github_version_file = local_root + "/json/github_version.json"
+            github_version_is_stale = False
+            
+            github_version_url = "https://api.github.com/repos/poblabs/weewx-belchertown/releases/latest"
+            
+            # Determine if the file exists and get it's modified time. If it's older than an hour then it's stale
+            if os.path.isfile( github_version_file ):
+                if ( int( time.time() ) - int( os.path.getmtime( github_version_file ) ) ) > 21600:
+                    github_version_is_stale = True
+            else:
+                # File doesn't exist, download a new copy
+                github_version_is_stale = True
+            
+            # File is stale, download a new copy
+            if github_version_is_stale:
+                # Download new GitHub data
+                try:
+                    import urllib2
+                    user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
+                    headers = { 'User-Agent' : user_agent }
+                    req = urllib2.Request( github_version_url, None, headers )
+                    response = urllib2.urlopen( req )
+                    #page = response.read()
+                    page = json.load( response )
+                    response.close()
+                except Exception as error:
+                    logerr( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
+                    
+                try:
+                    # Only save the tag_name. Typical tag is weewx-belchertown-x.y where x.y is the version number. So split on "-" and save the version number only
+                    tag_name = page["tag_name"].split("-")[2]
+                    try:
+                        # Save data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
+                        with open( github_version_file, 'w+' ) as file:
+                            file.write( tag_name )
+                            loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
+                    except IOError, e:
+                        logerr( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
+                except:
+                    pass
+                
+            try:
+                # Process the file
+                with open( github_version_file, "r" ) as read_file:
+                    data = read_file.read()
+            except IOError, e:
+                logerr( "Update Checker: Unable to open %s. Reason: %s" % ( github_version_file, e) )
+                data = ""
+            
+            github_version = data
+        else:
+            # Empty default
+            github_version = ""
+
         
         """
         Get Current Station Observation Data
@@ -863,6 +923,7 @@ class getData(SearchList):
                                   'earthquake_magnitude': eqmag,
                                   'earthquake_lat': eqlat,
                                   'earthquake_lon': eqlon,
+                                  'github_version': github_version,
                                   'social_html': social_html }
 
         # Finally, return our extension as a list:

@@ -918,10 +918,6 @@ p.entry-meta {
     .site-container .site-footer {
         text-align: center;
     }
-    
-    .site-footer .footerLeft, .site-footer .footerRight {
-        float:none;
-    }
 }
 
 /* Phones */
@@ -1212,8 +1208,12 @@ p.entry-meta {
     margin: 0 auto;
 }
 
-.footerLeft { float: left; padding-left:20px; }
-.footerRight { float:right; padding-right: 20px; }
+.footerLeft { }
+.footerRight { text-align:right }
+.updateavailable { 
+    display:block;
+    line-height: 10px;
+}
 
 /* Custom wx page */
 
@@ -1934,15 +1934,11 @@ input:checked + .slider:before {
     
 	.site-footer { text-align:center !important; }
 	.footerLeft { 
-		float:none !important; 
-		display:block;
-		padding:0px !important;
+		padding-bottom:10px;
 	}
 	.footerRight { 
-		float:none !important; 
-		display:block;
-		margin-top:10px;
-		padding:0px !important;
+		text-align:center;
+		padding-top:10px;
 	}
     
     .current_obs_top img {
