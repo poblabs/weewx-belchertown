@@ -4,12 +4,10 @@
 from setup import ExtensionInstaller
 
 def loader():
-    return ExfoliationInstaller()
+    return BelchertownInstaller()
 
-class ExfoliationInstaller(ExtensionInstaller):
+class BelchertownInstaller(ExtensionInstaller):
     def __init__(self):
-        super(ExfoliationInstaller, self).__init__(
-            version="1.0.1",
         super(BelchertownInstaller, self).__init__(
             version="1.1b1",
             name='Belchertown',
