@@ -190,7 +190,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-7">
-                                        #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+                                        #if $current.appTemp.has_data
                                         <div class="feelslike">$obs.label.feels_like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
                                         #end if
                                         <div class="stn-high-low">

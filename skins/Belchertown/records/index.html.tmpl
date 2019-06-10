@@ -18,11 +18,12 @@
             jQuery("#year-outtemp-min-ts").text( moment.unix($year.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
             jQuery("#at-outtemp-min-ts").text( moment.unix($alltime.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
             
-            #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+            #if $year.appTemp.has_data
             jQuery("#year-apptemp-max-ts").text( moment.unix($year.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-apptemp-max-ts").text( moment.unix($alltime.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
             jQuery("#year-apptemp-min-ts").text( moment.unix($year.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            #end if
+            #if $alltime.appTemp.has_data
+            jQuery("#at-apptemp-max-ts").text( moment.unix($alltime.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
             jQuery("#at-apptemp-min-ts").text( moment.unix($alltime.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
             #end if
             
@@ -41,8 +42,10 @@
             jQuery("#year-windGust-max-ts").text( moment.unix($year.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
             jQuery("#at-windGust-max-ts").text( moment.unix($alltime.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
             
-            #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
+            #if $year.windrun.has_data
             jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
+            #end if
+            #if $alltime.windrun.has_data
             jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
             #end if
             
@@ -139,7 +142,7 @@
                                 <td class="leftborder" id="at-outtemp-min-ts"></td><!-- moment.js -->
                                 <td>$alltime.outTemp.min</td>
                             </tr>
-                            #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
+                            #if $year.appTemp.has_data and $alltime.appTemp.has_data
                             <tr>
                                 <td>$obs.label.records_high_apptemp</td>
                                 <td class="leftborder">$year.appTemp.max</td>
@@ -199,7 +202,7 @@
                                 <td class="leftborder" id="at-windGust-max-ts"></td><!-- moment.js -->
                                 <td>$alltime.windGust.max</td>                            
                             </tr>
-                            #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
+                            #if $year.windrun.has_data and $alltime.windrun.has_data
                             <tr>
                                 <td>$obs.label.records_daily_windrun</td>
                                 <td class="leftborder">$year.windrun.max</td>
