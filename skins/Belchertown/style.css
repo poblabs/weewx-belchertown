@@ -1209,6 +1209,7 @@ p.entry-meta {
 }
 
 .footerLeft { }
+.footerCenter { text-align:center; }
 .footerRight { text-align:right }
 .updateavailable { 
     display:block;
