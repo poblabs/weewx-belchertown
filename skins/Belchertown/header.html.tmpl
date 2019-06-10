@@ -38,6 +38,14 @@
 #set $head_desc = $obs.label.html_description
 #end if
 
+## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
+#if $page == "home"
+#set global $relative_url = "."
+#else
+#set global $relative_url = ".."
+#end if
+
+
 <!DOCTYPE html>
 <html lang="$system_locale_js" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head >
@@ -47,12 +55,16 @@
 
         <meta name="description" content="$head_desc"/>
         <meta name="robots" content="noodp"/>
-        <link rel="canonical" href="$belchertown_root_url/" />
+        #if $station.station_url
+        <link rel="canonical" href="$station.station_url" />
+        #end if
         <meta property="og:locale" content="$system_locale" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="$head_title" />
         <meta property="og:description" content="$head_desc" />
-        <meta property="og:url" content="$belchertown_root_url/" />
+        #if $station.station_url
+        <meta property="og:url" content="$station.station_url" />
+        #end if
         <meta property="og:site_name" content="$head_title" />
 
         <link rel='dns-prefetch' href='//code.highcharts.com' />
@@ -65,17 +77,17 @@
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='$belchertown_root_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
-        <link rel='stylesheet' href='$belchertown_root_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        <link rel='stylesheet' href='$relative_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        <link rel='stylesheet' href='$relative_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
         
-        <link rel="manifest" href="$belchertown_root_url/manifest.json">
-        <link rel="apple-touch-icon" href="$belchertown_root_url/images/station.png">
-        <link rel="apple-touch-icon" sizes="48x48" href="$belchertown_root_url/images/station48.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="$belchertown_root_url/images/station72.png">
-        <link rel="apple-touch-icon" sizes="96x96" href="$belchertown_root_url/images/station96.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="$belchertown_root_url/images/station144.png">
-        <link rel="apple-touch-icon" sizes="168x168" href="$belchertown_root_url/images/station168.png">
-        <link rel="apple-touch-icon" sizes="192x192" href="$belchertown_root_url/images/station192.png">
+        <link rel="manifest" href="$relative_url/manifest.json">
+        <link rel="apple-touch-icon" href="$relative_url/images/station.png">
+        <link rel="apple-touch-icon" sizes="48x48" href="$relative_url/images/station48.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="$relative_url/images/station72.png">
+        <link rel="apple-touch-icon" sizes="96x96" href="$relative_url/images/station96.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="$relative_url/images/station144.png">
+        <link rel="apple-touch-icon" sizes="168x168" href="$relative_url/images/station168.png">
+        <link rel="apple-touch-icon" sizes="192x192" href="$relative_url/images/station192.png">
         
         <!--[if lt IE 9]>
         <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
@@ -88,7 +100,7 @@
         #end if
         <script type='text/javascript' src='//code.highcharts.com/stock/7.1.2/highstock.js'></script>
         <script type='text/javascript' src='//code.highcharts.com/7.1.2/highcharts-more.js'></script>
-        <script type='text/javascript' src='$belchertown_root_url/js/belchertown.js?#echo int( time.time() )#'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
         <script>
             // Set the session variables for the theme
             if ( sessionStorage.getItem('theme') === null ) {
@@ -99,9 +111,11 @@
             }
         </script>
         
-        <link rel='shortlink' href='$belchertown_root_url/' />
+        #if $station.station_url
+        <link rel='shortlink' href="$station.station_url" />
+        #end if
                 
-        <link rel="icon" href="$belchertown_root_url/favicon.ico" />
+        <link rel="icon" href="$relative_url/favicon.ico" />
         
         #if $Extras.has_key('googleAnalyticsId')
         <!-- Global Site Tag (gtag.js) - Google Analytics -->
@@ -123,7 +137,7 @@
                 <div class="wrap">
                     <div class="title-area">
                         <p class="site-title" itemprop="headline">
-                            <a href="$belchertown_root_url/">
+                            <a href="$relative_url/">
                                 #if $Extras.has_key("logo_image") and $Extras.logo_image != ''
                                 <img src="$Extras.logo_image" title="$head_title" alt="$head_title">
                                 #else if $Extras.has_key("site_title") and $Extras.site_title != ''
@@ -138,13 +152,13 @@
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
                                     <ul id="menu-menu" class="menu genesis-nav-menu">
                                         <!-- class = current-menu-item -->
-                                        <li class="menu-item menu-item-home"><a href="$belchertown_root_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
+                                        <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
                                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                                        <li class="menu-item menu-item-1"><a href="$belchertown_root_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
+                                        <li class="menu-item menu-item-1"><a href="$relative_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
-                                        <li class="menu-item menu-item-2"><a href="$belchertown_root_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
-                                        <li class="menu-item menu-item-3"><a href="$belchertown_root_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
-                                        <li class="menu-item menu-item-4"><a href="$belchertown_root_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
+                                        <li class="menu-item menu-item-2"><a href="$relative_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$relative_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$relative_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
                                         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                                         <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>

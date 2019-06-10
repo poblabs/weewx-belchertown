@@ -86,10 +86,6 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
 
-You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Example: `http://yourwebsite.com` or `http://192.168.1.100`.
-Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this which offer flexibility. See below General Options for more information. You need to only enable 1 option for the skin to work. 
-* `belchertown_root_url` - **This is the preferred option**. Add this to your skin Extras section (see below). 
-
 ### DarkSky API (optional)
 DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
 
@@ -159,12 +155,6 @@ I changed it so the standard skin would be in a subfolder, and the main folder h
     [[Belchertown]]
         HTML_ROOT = /var/www/html
         skin = Belchertown
-        [[[Extras]]]
-           belchertown_root_url = "http://your_full_website_url"
-           
-   [[Highcharts_Belchertown]]
-        HTML_ROOT = /var/www/html
-        skin = Highcharts_Belchertown
 ```
 
 3. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
@@ -238,7 +228,6 @@ To override a default setting add the setting name and value to the Extras secti
         skin = Belchertown
         HTML_ROOT = belchertown
         [[[Extras]]]
-            belchertown_root_url = "https://belchertownweather.com"
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
@@ -259,7 +248,6 @@ For ease of readability I have broken them out into separate tables. However you
 | ---- | ------- | ----------
 | check_for_updates | 1 | Setting this to 1 will enable checking GitHub for updates automatically every 6 hours (this is a hardcoded time interval). When an update is ready you will see the notification in the footer of the website.
 | belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
-| belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
 | belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  
 | theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.

@@ -86,11 +86,11 @@ class getData(SearchList):
         manager = self.generator.db_binder.get_manager(binding)
 
         # Setup belchertown_root_url for the absolute links
-        try:
-            belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-        except:
-            # Force a blank root url if the default "" is removed from skin.conf
-            belchertown_root_url = ""
+        #try:
+        #    belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
+        #except:
+        #    # Force a blank root url if the default "" is removed from skin.conf
+        #    belchertown_root_url = ""
             
         belchertown_debug = self.generator.skin_dict['Extras'].get('belchertown_debug', 0)
 
@@ -504,7 +504,7 @@ class getData(SearchList):
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
             forecast_file = local_root + "/json/darksky_forecast.json"
-            forecast_json_url = belchertown_root_url + "/json/darksky_forecast.json"
+            #forecast_json_url = belchertown_root_url + "/json/darksky_forecast.json"
             darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
             darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
             darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
@@ -554,9 +554,11 @@ class getData(SearchList):
             visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
             
             if data["currently"]["icon"] == "partly-cloudy-night":
-                current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/partly-cloudy-night.png">'
+                #current_obs_icon = '<img id="wxicon" src="./images/partly-cloudy-night.png">'
+                current_obs_icon = 'partly-cloudy-night.png'
             else:
-                current_obs_icon = '<img id="wxicon" src="'+belchertown_root_url+'/images/'+data["currently"]["icon"]+'.png">'
+                #current_obs_icon = '<img id="wxicon" src="./images/'+data["currently"]["icon"]+'.png">'
+                current_obs_icon = data["currently"]["icon"]+'.png'
 
             # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
             # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
@@ -569,7 +571,7 @@ class getData(SearchList):
                 visibility_unit = ""
                 
         else:
-            forecast_json_url = ""
+            #forecast_json_url = ""
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = ""
@@ -831,6 +833,7 @@ class getData(SearchList):
         """
         facebook_enabled = self.generator.skin_dict['Extras']['facebook_enabled']
         twitter_enabled = self.generator.skin_dict['Extras']['twitter_enabled']
+        social_share_html = self.generator.skin_dict['Extras']['social_share_html']
         twitter_text = label_dict["twitter_text"]
         twitter_owner = label_dict["twitter_owner"]
         twitter_hashtags = label_dict["twitter_hashtags"]
@@ -846,7 +849,7 @@ class getData(SearchList):
                   fjs.parentNode.insertBefore(js, fjs);
                 }(document, 'script', 'facebook-jssdk'));</script>
                 <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
-            """ % belchertown_root_url
+            """ % social_share_html
         else:
             facebook_html = ""
         
@@ -856,7 +859,7 @@ class getData(SearchList):
                     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
                 </script>
                 <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s" data-via="%s" data-hashtags="%s">Tweet</a>
-            """ % ( belchertown_root_url, twitter_text, twitter_owner, twitter_hashtags )
+            """ % ( social_share_html, twitter_text, twitter_owner, twitter_hashtags )
         else:
             twitter_html = ""
         
@@ -878,7 +881,7 @@ class getData(SearchList):
             
         # Build the search list with the new values
         search_list_extension = { 'belchertown_version': VERSION,
-                                  'belchertown_root_url': belchertown_root_url,
+                                  #'belchertown_root_url': belchertown_root_url,
                                   'belchertown_debug': belchertown_debug,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
@@ -910,7 +913,7 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeedUnitLabel,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
-                                  'forecast_json_url': forecast_json_url,
+                                  #'forecast_json_url': forecast_json_url,
                                   'current_obs_icon': current_obs_icon,
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,

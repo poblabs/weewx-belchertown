@@ -7,6 +7,13 @@
 ##
 #set global $page = "pi"
 
+## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
+#if $page == "home"
+#set global $relative_url = "."
+#else
+#set global $relative_url = ".."
+#end if
+
     #include "pi/pi-header.html.tmpl"
     
         <script type="text/javascript">
@@ -180,11 +187,11 @@
         //=================================//
         
         function ajaxweewx() {
-            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
+            jQuery.getJSON("../json/weewx_data.json", update_weewx_data);
         };
         
         function ajaxforecast() {
-            jQuery.getJSON("$forecast_json_url", update_forecast_data);
+            jQuery.getJSON("../json/darksky_forecast.json", update_forecast_data);
         };
         
         // Initial load of cached data
@@ -261,9 +268,9 @@
             // WX Icon
             if ( data['currently']['icon'] == "partly-cloudy-night" ) {
                 // partly-cloudy-night could also be clear-day
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
+                jQuery("#wxicon").attr( "src", "../images/partly-cloudy-night.png" );
             } else {
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
+                jQuery("#wxicon").attr( "src", "../images/" + data['currently']['icon'] + ".png" );
             }
             
             // Current observation text
@@ -274,9 +281,9 @@
             for (i = 0; i < data["daily"]["data"].length; i++) {
                 var forecastDay = data["daily"]["data"][i];
                 if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                    var image_url = "$belchertown_root_url/images/clear-day.png";
+                    var image_url = "../images/clear-day.png";
                 } else { 
-                    var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
+                    var image_url = "../images/"+data['daily']['data'][i]['icon']+".png";
                 }
                 
                 var condition_text = "";
@@ -340,7 +347,7 @@
                 output_html += '<div class="forecast-precip">';
                 if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
                     output_html += '<div class="snow-precip">';
-                    output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
+                    output_html += '<img src="../images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
                     output_html += '</div>';
                 } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
                     output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
@@ -568,15 +575,15 @@
             
             // Rain rate US
             if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
             }
             // Rain rate Metric
             if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
             }
             // Rain rate METRICWX
             if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
+                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
             }
             
             // UV
@@ -623,7 +630,7 @@
                 
                 <div class="col-xs-6 temp-observation">
                     <div class="obs-group">
-                            $current_obs_icon<!-- AJAX -->
+                            <img src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
                         <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
                         <div class="current-obs-text">$current_obs_summary</div><!-- AJAX -->
                     </div>
@@ -652,7 +659,7 @@
                                     <td>
                                         <span class="wx-rain-data">
 											<span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-											<span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
+                                            <span class="wx-rainrate-value border-left">&nbsp;$current.rainRate</span><!-- AJAX -->
                                         </span>
                                     </td>
                                 </tr>
@@ -738,31 +745,31 @@
                                 <td colspan="2">
                                     <div class="row small-almanac">
                                         <div class="col-sm-5 sun">
-                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span><!-- AJAX -->
+                                            <span class="sunrise-set-image"><img src="../images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span><!-- AJAX -->
                                             &nbsp;
-                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span><!-- AJAX -->
+                                            <span class="sunrise-set-image"><img src="../images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span><!-- AJAX -->
                                         </div>
                                         <div class="col-sm-7 moon">
                                             <div class="moon-container">
-                                                    <span class="moon-icon">
-                                                        #if $almanac.moon_phase.lower() == "new moon"
-                                                            <div class='wi wi-moon-alt-new'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waxing crescent"
-                                                            <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                        #else if $almanac.moon_phase.lower() == "first quarter"
-                                                            <div class='wi wi-moon-alt-first-quarter'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waxing gibbous"
-                                                            <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                        #else if $almanac.moon_phase.lower() == "full moon"
-                                                            <div class='wi wi-moon-alt-full'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waning gibbous"
-                                                            <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                        #else if $almanac.moon_phase.lower() == "last quarter"
-                                                            <div class='wi wi-moon-alt-first-quarter'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waning crescent"
-                                                            <div class='wi wi-moon-alt-waning-crescent-4'></div>
-                                                        #end if
-                                                    </span><!-- AJAX -->
+                                                <span class="moon-icon">
+                                                    #if $almanac.moon_index == 0
+                                                        <div class='wi wi-moon-alt-new'></div>
+                                                    #else if $almanac.moon_index == 1
+                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                    #else if $almanac.moon_index == 2
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 3
+                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 4
+                                                        <div class='wi wi-moon-alt-full'></div>
+                                                    #else if $almanac.moon_index == 5
+                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 6
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 7
+                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                    #end if
+                                                </span><!-- AJAX -->
                                                 <span class="moon-phase">#echo $almanac.moon_phase.title()#</span><!-- AJAX -->
                                             </div>
                                         </div>

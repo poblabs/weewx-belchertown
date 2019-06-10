@@ -177,7 +177,7 @@
                             <div class="weather-obs-top">
                                 <div class="row temp-observation">
                                     <div class="col-sm-5 current_obs_top">
-                                        $current_obs_icon
+                                        <img src="$relative_url/images/$current_obs_icon">
                                     </div>
                                     <div class="col-sm-7 current_temp">
                                         <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
@@ -290,9 +290,9 @@
                                                 </div>
                                                 #end if
                                                 <div class="col-sm-6 sun">
-                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
                                                     <br>
-                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
                                                 </div>
                                                 <div class="col-sm-6 moon">
                                                     <div class="moon-container">
@@ -399,7 +399,7 @@
                         <!-- Today Snapshot Stats -->
                         <div class="row">
                             <div class="snapshot-records-text">
-                                $obs.label.weather_snapshots <a href="records">$obs.label.weather_snapshots_link</a>
+                                $obs.label.weather_snapshots <a href="$relative_url/records">$obs.label.weather_snapshots_link</a>
                             </div>
                             
                             <div class="col-sm-6 stn-quick-stats">
@@ -482,7 +482,7 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$belchertown_root_url/graphs">$obs.label.homepage_graphs_link</a>
+                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$relative_url/graphs">$obs.label.homepage_graphs_link</a>
                     </div>
                     
                     <div class="graph_outer row"></div><!-- JS populated -->

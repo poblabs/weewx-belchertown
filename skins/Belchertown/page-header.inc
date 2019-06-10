@@ -1,7 +1,7 @@
 <div class="wx-stn-info-container">
     <div class="row">
         <div class="col-sm-1 wx-stn-info-current-obs">
-            <span class="obs-header-icon">$current_obs_icon</span>
+            <span class="obs-header-icon"><img src="$relative_url/images/$current_obs_icon"></span>
             <span class="obs-header-outtemp">$current.outTemp</span>
         </div>
         <div class="col-sm-5">
