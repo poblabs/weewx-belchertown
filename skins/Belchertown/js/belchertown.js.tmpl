@@ -756,22 +756,12 @@ function inactive(){
 
 // Handle MQTT message
 function update_current_wx(data) {
-    //console.log( data );
     data = jQuery.parseJSON( data );
     
     #if $Extras.has_key('googleAnalyticsId')
     // Send a pageview
     gtag('config', '$Extras.googleAnalyticsId');
     #end if
-    
-    // Updated time
-    epoch = parseFloat( data["dateTime"] ).toFixed(0);
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
-    updated_text = "$obs.label.mqtt_websockets_connected " + updated;
-    jQuery(".updated").html( updated_text );
-    jQuery(".onlineMarker").show(); // Show the online beacon
-    jQuery(".offlineMarker").hide(); // Hide offline beacon
-    jQuery(".loadingMarker").hide(); // Hide loading beacon
     
     // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
     if ( data.hasOwnProperty("interval_minute") ) {
@@ -783,7 +773,17 @@ function update_current_wx(data) {
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
         #end if
         setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
+    } else {
+        // Only show the updated time on non-archive packets
+        epoch = parseFloat( data["dateTime"] ).toFixed(0);
+        updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
+        updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+        jQuery(".updated").html( updated_text );
     }
+    // If we're in this function, show the online beacon and hide the others
+    jQuery(".onlineMarker").show(); // Show the online beacon
+    jQuery(".offlineMarker").hide();
+    jQuery(".loadingMarker").hide();
     
     // Update the station observation box elements
     station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
