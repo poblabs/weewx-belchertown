@@ -134,35 +134,35 @@ var weatherdirection = $obs.label.graphs_windDir_ordinals;
 function update_outtemp_F( outTemp ) {
     outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
     if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1278c8" );
+        jQuery(".outtemp_outer").css( "color", "#1278c8" );
     } else if ( outTemp <= 25 ) {
-        jQuery(".temp").css( "color", "#30bfef" );
+        jQuery(".outtemp_outer").css( "color", "#30bfef" );
     } else if ( outTemp <= 32 ) {
-        jQuery(".temp").css( "color", "#1fafdd" );
+        jQuery(".outtemp_outer").css( "color", "#1fafdd" );
     } else if ( outTemp <= 40 ) {
-        jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
     } else if ( outTemp <= 50 ) {
-        jQuery(".temp").css( "color", "#71bc3c" );
+        jQuery(".outtemp_outer").css( "color", "#71bc3c" );
     } else if ( outTemp <= 55 ) {
-        jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
     } else if ( outTemp <= 65 ) {
-        jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
     } else if ( outTemp <= 70 ) {
-        jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
     } else if ( outTemp <= 75 ) {
-        jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
     } else if ( outTemp <= 80 ) {
-        jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
     } else if ( outTemp <= 85 ) {
-        jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
     } else if ( outTemp <= 90 ) {
-        jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
     } else if ( outTemp <= 95 ) {
-        jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
     } else if ( outTemp <= 110 ) {
-        jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
     } else if ( outTemp >= 111 ) {
-        jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
     }
 }
 
@@ -170,35 +170,35 @@ function update_outtemp_F( outTemp ) {
 function update_outtemp_C( outTemp ) {
     outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
     if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1278c8" );
+        jQuery(".outtemp_outer").css( "color", "#1278c8" );
     } else if ( outTemp <= -3.8 ) {
-        jQuery(".temp").css( "color", "#30bfef" );
+        jQuery(".outtemp_outer").css( "color", "#30bfef" );
     } else if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1fafdd" );
+        jQuery(".outtemp_outer").css( "color", "#1fafdd" );
     } else if ( outTemp <= 4.4 ) {
-        jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
     } else if ( outTemp <= 10 ) {
-        jQuery(".temp").css( "color", "#71bc3c" );
+        jQuery(".outtemp_outer").css( "color", "#71bc3c" );
     } else if ( outTemp <= 12.7 ) {
-        jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
     } else if ( outTemp <= 18.3 ) {
-        jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
     } else if ( outTemp <= 21.1 ) {
-        jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
     } else if ( outTemp <= 23.8 ) {
-        jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
     } else if ( outTemp <= 26.6 ) {
-        jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
     } else if ( outTemp <= 29.4 ) {
-        jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
     } else if ( outTemp <= 32.2 ) {
-        jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
     } else if ( outTemp <= 35 ) {
-        jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
     } else if ( outTemp <= 43.3 ) {
-        jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
     } else if ( outTemp >= 43.4 ) {
-        jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+        jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
     }
 }
 
@@ -820,7 +820,7 @@ function update_current_wx(data) {
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
         outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
         update_outtemp_F( outTemp );
-        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+        jQuery(".outtemp").html( outTemp );
     
         // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
         //if ( data["outTemp_F"] <= 50 ) {
@@ -836,7 +836,7 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("outTemp_C") ) {
         outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
         update_outtemp_C( outTemp );
-        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+        jQuery(".outtemp").html( outTemp );
     }
     
     // Apparent Temperature US

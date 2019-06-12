@@ -464,7 +464,7 @@
             if ( data.hasOwnProperty("outTemp_F") ) {
                 outTemp = parseFloat( data["outTemp_F"] ).toFixed(1);
                 update_outtemp_F( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+                jQuery(".outtemp").html( outTemp );
             
                 // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
                 //if ( data["outTemp_F"] <= 50 ) {
@@ -476,26 +476,26 @@
                 //}
             }
             
+            // Temperature C
+            if ( data.hasOwnProperty("outTemp_C") ) {
+                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
+                update_outtemp_C( outTemp );
+                jQuery(".outtemp").html( outTemp );
+            }
+            
             // Apparent Temperature US
             if ( data.hasOwnProperty("appTemp_F") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
             }
 
-            // Dewpoint US
-            if ( data.hasOwnProperty("dewpoint_F") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
-            }
-            
-            // Temperature C
-            if ( data.hasOwnProperty("outTemp_C") ) {
-                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
-                update_outtemp_C( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
-            }
-            
             // Apparent Temperature Metric
             if ( data.hasOwnProperty("appTemp_C") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
+            }
+            
+            // Dewpoint US
+            if ( data.hasOwnProperty("dewpoint_F") ) {
+                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
             }
 
             // Dewpoint Metric
@@ -630,8 +630,8 @@
                 
                 <div class="col-xs-6 temp-observation">
                     <div class="obs-group">
-                            <img src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
-                        <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
+                        <img src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
+                        <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                         <div class="current-obs-text">$current_obs_summary</div><!-- AJAX -->
                     </div>
                     <div class="clear"></div>
