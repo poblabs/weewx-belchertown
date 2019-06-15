@@ -456,29 +456,29 @@ function update_weewx_data( data ) {
     jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_sunset" ) );
     
     // Moon icon, phase and illumination percent
-    switch ( data["almanac"]["moon"]["moon_phase"] ) {
-        case "New Moon":
+    switch ( data["almanac"]["moon"]["moon_index"] ) {
+        case "0":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
             break;
-        case "Waxing Crescent":
+        case "1":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
             break;
-        case "First Quarter":
+        case "2":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
             break;
-        case "Waxing Gibbous":
+        case "3":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
             break;
-        case "Full Moon":
+        case "4":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
             break;
-        case "Waning Gibbous":
+        case "5":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
             break;
-        case "Last Quarter":
+        case "6":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
             break;
-        case "Waning Crescent":
+        case "7":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
             break;
     }
