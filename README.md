@@ -263,6 +263,7 @@ For ease of readability I have broken them out into separate tables. However you
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
+| pi_theme | "auto" | Just as with the `theme` option, options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
 | reload_hook_images | 0 | Enable or disable the refreshing of images within the hook areas.
 | reload_images_radar | 300 | Seconds to reload the radar image if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.

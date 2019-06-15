@@ -58,16 +58,8 @@
         <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
-        <script>
-            // Set the session variables for the theme
-            if ( sessionStorage.getItem('theme') === null ) {
-                sessionStorage.setItem('theme', '$Extras.theme');
-            }
-            if ( sessionStorage.getItem('currentTheme') === null ) {
-                sessionStorage.setItem('currentTheme', '$bodyTheme');
-            }
-        </script>
-
+        <script type='text/javascript' src='../js/belchertown.js?#echo int( time.time() )#'></script>
+                        
         <link rel="icon" href="../favicon.ico" />
 
     </head>

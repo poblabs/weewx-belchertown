@@ -1,3 +1,5 @@
+#import datetime
+
 #errorCatcher Echo
 ##
 ## Specifying an encoding of UTF-8 is usually safe, but if your text is 
@@ -23,7 +25,37 @@
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
         
+        // Determine if debug is on via URL var or config setting
+        if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
+            var belchertown_debug_config = true;
+            belchertown_debug("Debug: URL debug variable enabled");
+        } else {
+            var belchertown_debug_config = $belchertown_debug;
+            belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+        }
+        
+        function belchertown_debug(message) {
+            if (belchertown_debug_config > 0) {
+                console.log(message);
+            }
+        }
+        
         jQuery(document).ready(function() {
+            // Change theme if a URL variable is set
+            if ( window.location.search.indexOf('theme') ) {
+                if (window.location.search.indexOf('?theme=dark') === 0) {
+                    belchertown_debug("Theme: Setting dark theme because of URL override");
+                    changeTheme("dark", true);
+                } else if (window.location.search.indexOf('?theme=light') === 0) {
+                    belchertown_debug("Theme: Setting light theme because of URL override");
+                    changeTheme("light", true);
+                } else if (window.location.search.indexOf('?theme=auto') === 0) {
+                    belchertown_debug("Theme: Setting auto theme because of URL override");
+                    sessionStorage.setItem('theme', 'auto')
+                    autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
+                }
+            }
+
             #if $unit.unit_type.outTemp == "degree_F"
             update_outtemp_F( "$current.outTemp.formatted" );
             #else
@@ -45,6 +77,13 @@
 
         });
         
+        // Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
+        function getURLvar(k) {
+            var p={};
+            location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
+            return k?p[k]:p;
+        }
+        
         // Handle wind arrow rotation with the ability to "rollover" past 0 
         // without spinning back around. e.g 350 to 3 would spin back around
         // https://stackoverflow.com/a/19872672/1177153
@@ -63,74 +102,76 @@
         
         // Change the color of the outTemp_F variable
         function update_outtemp_F( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
+                jQuery(".outtemp_outer").css( "color", "#1278c8" );
             } else if ( outTemp <= 25 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
+                jQuery(".outtemp_outer").css( "color", "#30bfef" );
             } else if ( outTemp <= 32 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
+                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
             } else if ( outTemp <= 40 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
             } else if ( outTemp <= 50 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
+                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
             } else if ( outTemp <= 55 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
             } else if ( outTemp <= 65 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
             } else if ( outTemp <= 70 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
             } else if ( outTemp <= 75 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
             } else if ( outTemp <= 80 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
             } else if ( outTemp <= 85 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
             } else if ( outTemp <= 90 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
             } else if ( outTemp <= 95 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
             } else if ( outTemp <= 110 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
             } else if ( outTemp >= 111 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
             }
         }
-        
-        // Change the color of the outTemp_F variable
+
+        // Change the color of the outTemp_C variable
         function update_outtemp_C( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
+                jQuery(".outtemp_outer").css( "color", "#1278c8" );
             } else if ( outTemp <= -3.8 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
+                jQuery(".outtemp_outer").css( "color", "#30bfef" );
             } else if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
+                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
             } else if ( outTemp <= 4.4 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
             } else if ( outTemp <= 10 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
+                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
             } else if ( outTemp <= 12.7 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
             } else if ( outTemp <= 18.3 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
             } else if ( outTemp <= 21.1 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
             } else if ( outTemp <= 23.8 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
             } else if ( outTemp <= 26.6 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
             } else if ( outTemp <= 29.4 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
             } else if ( outTemp <= 32.2 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
             } else if ( outTemp <= 35 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
             } else if ( outTemp <= 43.3 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
             } else if ( outTemp >= 43.4 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
             }
         }
-        
+                
         function get_cardinal_direction(degree) {
             if (degree >= 0 && degree <= 11.25) {
                 return "N";
@@ -180,6 +221,94 @@
         jQuery.ajaxSetup({
             cache:false
         });
+        
+        function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
+            // First check if ?theme= is in URL. If so, bail out and do not change anything. 
+            if ( getURLvar("theme") && getURLvar("theme") != "auto" ) {
+                belchertown_debug("Auto theme: theme override detected in URL. Skipping auto theme");
+                return true;
+            }
+            belchertown_debug("Auto theme: checking to see if theme needs to be switched");
+            
+            var d = new Date();
+            var nowHour = d.getHours();
+            var nowMinutes = d.getMinutes();
+            nowHour = nowHour;
+            sunrise_hour = sunrise_hour;
+            sunset_hour = sunset_hour;
+            
+            // Determine if it's day time. https://stackoverflow.com/a/14718577/1177153
+            if ( sunrise_hour <= nowHour && nowHour < sunset_hour ) {
+                dayTime = true;
+            } else {
+                dayTime = false;
+            }
+            
+            belchertown_debug("Auto theme: sunrise: " + sunrise_hour);
+            belchertown_debug("Auto theme: now: " + nowHour);
+            belchertown_debug("Auto theme: sunset: " + sunset_hour);
+            belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
+            belchertown_debug("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
+            
+            if ( dayTime ) {
+                // Day time, set light if needed
+                if ( document.body.classList.contains("dark") ) {
+                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                        belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
+                    } else {
+                        belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
+                    }
+                    // Only change theme if user has not overridden the auto option with the toggle
+                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                        changeTheme("light");
+                    }
+                }
+            } else {
+                // Night time, set dark if needed
+                if ( document.body.classList.contains("light") ) {
+                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                        belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
+                    } else {
+                        belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
+                    }
+                    // Only change theme if user has not overridden the auto option with the toggle
+                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                        changeTheme("dark");
+                    }
+                }
+            }
+        }
+
+        
+        function changeTheme(themeName, toggleOverride=false) {
+            belchertown_debug("Theme: Changing to " + themeName);
+            // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
+            if ( toggleOverride ) {
+                belchertown_debug("Theme: toggle override clicked.");
+                belchertown_debug("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
+                // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
+                //if ( sessionStorage.getItem('theme') == "auto" ) { }
+                sessionStorage.setItem('theme', 'toggleOverride');
+                belchertown_debug("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
+            }
+            if ( themeName == "dark" ) {
+                // Apply dark theme
+                jQuery('body').addClass("dark");
+                jQuery('body').removeClass("light");
+                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                jQuery("#themeSwitch").prop( "checked", true );
+                #end if
+                sessionStorage.setItem('currentTheme', 'dark');
+            } else if ( themeName == "light" ) {
+                // Apply light theme
+                jQuery('body').addClass("light");
+                jQuery('body').removeClass("dark");
+                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                jQuery("#themeSwitch").prop( "checked", false );
+                #end if
+                sessionStorage.setItem('currentTheme', 'light');
+            }
+        }
         
         #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         //=================================//

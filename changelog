@@ -6,6 +6,7 @@
 * Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
 * Updated footer layout
 * Version update option. This checks GitHub to see if there's a new version available and then puts a notice in the site footer that an update is available.
+* Added dark mode, and auto theme mode to the Pi version of the skin
 
 1.0.1 June 9, 2019
 
