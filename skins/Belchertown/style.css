@@ -1690,14 +1690,11 @@ table.celestial td.label {
 
 .moon-container {
 	font-size:15px;
+	color:#808080;
 }
 
 .moon {
 	text-align:right;
-}
-
-.moon-container {
-	color:#808080;
 }
 
 .moon-icon {
