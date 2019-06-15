@@ -51,7 +51,7 @@
                     changeTheme("light", true);
                 } else if (window.location.search.indexOf('?theme=auto') === 0) {
                     belchertown_debug("Theme: Setting auto theme because of URL override");
-                    sessionStorage.setItem('theme', 'auto')
+                    sessionStorage.setItem('pi_theme', 'auto')
                     autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
                 }
             }
@@ -248,31 +248,31 @@
             belchertown_debug("Auto theme: now: " + nowHour);
             belchertown_debug("Auto theme: sunset: " + sunset_hour);
             belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
-            belchertown_debug("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
+            belchertown_debug("Auto theme: sessionStorage.getItem('pi_theme') = " + sessionStorage.getItem('pi_theme'));
             
             if ( dayTime ) {
                 // Day time, set light if needed
                 if ( document.body.classList.contains("dark") ) {
-                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
                         belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
                     } else {
                         belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
                     }
                     // Only change theme if user has not overridden the auto option with the toggle
-                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
                         changeTheme("light");
                     }
                 }
             } else {
                 // Night time, set dark if needed
                 if ( document.body.classList.contains("light") ) {
-                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
                         belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
                     } else {
                         belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
                     }
                     // Only change theme if user has not overridden the auto option with the toggle
-                    if ( sessionStorage.getItem('theme') == "auto" ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
                         changeTheme("dark");
                     }
                 }
@@ -285,11 +285,11 @@
             // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
             if ( toggleOverride ) {
                 belchertown_debug("Theme: toggle override clicked.");
-                belchertown_debug("Theme: sessionStorage.getItem('theme') was previously: " + sessionStorage.getItem('theme') );
+                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') was previously: " + sessionStorage.getItem('pi_theme') );
                 // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
                 //if ( sessionStorage.getItem('theme') == "auto" ) { }
-                sessionStorage.setItem('theme', 'toggleOverride');
-                belchertown_debug("Theme: sessionStorage.getItem('theme') is now: " + sessionStorage.getItem('theme') );
+                sessionStorage.setItem('pi_theme', 'toggleOverride');
+                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') is now: " + sessionStorage.getItem('pi_theme') );
             }
             if ( themeName == "dark" ) {
                 // Apply dark theme
@@ -298,7 +298,7 @@
                 #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                 jQuery("#themeSwitch").prop( "checked", true );
                 #end if
-                sessionStorage.setItem('currentTheme', 'dark');
+                sessionStorage.setItem('pi_currentTheme', 'dark');
             } else if ( themeName == "light" ) {
                 // Apply light theme
                 jQuery('body').addClass("light");
@@ -306,7 +306,7 @@
                 #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                 jQuery("#themeSwitch").prop( "checked", false );
                 #end if
-                sessionStorage.setItem('currentTheme', 'light');
+                sessionStorage.setItem('pi_currentTheme', 'light');
             }
         }
         
