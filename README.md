@@ -45,6 +45,7 @@ Screenshot of light and dark modes
   * [Translating the Skin](#translating-the-skin)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
   * [Frequently Asked Questions](#frequently-asked-questions)
+  * [Raspberry Pi Console](#raspberry-pi-console)
   * [Donate](#donate)
   * [Credits](#credits)
 
@@ -414,6 +415,19 @@ Explanation (this comes right from the moment.js documentation):
 * `MMM` gives you the short name of the month like "Jan". If you want "January" it'd be `MMMM`
 * `HH` is the hour in 24 hour format with a leading 0, like 02. If you don't want the leading 0 it would be `H`.
 * `mm` is the minute with a leading 0, like 08. If you don't want the leading 0, use `m`.
+
+## Raspberry Pi Console
+Belchertown skin comes with a smaller website tailored for the Raspberry Pi 3.5" TFT screen. I personally use this as a second console, and it works great. When used with MQTT Websockets, the timeout is disabled by default so it's always connected. If there's a connection error, the Pi page will keep retrying to connect to the MQTT Websocket server. This means once you're setup you can set it and forget it. 
+
+If you're interested in this type of setup, you'll need these items:
+* A Raspberry Pi. I'm using the [Raspberry Pi 3 B+](https://amzn.to/2MReZhz) model
+* An [SD Card for your Raspberry Pi](https://amzn.to/2IjxVRN)
+* The [Adafruit 3.5" Raspberry Pi TFT Screen Hat](https://amzn.to/2KiZxso) (other models may work, your experience may vary)
+* Get the Raspberry Pi setup with the easy NOOBS installer and get it updated.
+* Once it's setup and the screen is also setup [run this tutorial for getting it into Kiosk mode](https://obrienlabs.net/setup-raspberry-pi-kiosk-chromium/). 
+* Point your new Raspberry Pi Kiosk to your weather website's `/pi` page, and you should be good to go!
+
+![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
 
 ## Frequently Asked Questions
 
