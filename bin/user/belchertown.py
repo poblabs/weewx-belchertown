@@ -725,12 +725,9 @@ class getData(SearchList):
 
         
         """
-        Get Current Station Observation Data
+        Get Current Station Observation Data for the table html
         """
         station_obs_json = OrderedDict()
-        station_obs_rounding_json = OrderedDict()
-        station_obs_unit_labels_json = OrderedDict()
-        station_obs_trend_json = OrderedDict()
         station_obs_html = ""
         station_observations = self.generator.skin_dict['Extras']['station_observations']
         # Check if this is a list. If not then we have 1 item, so force it into a list
@@ -742,7 +739,6 @@ class getData(SearchList):
             if obs == "visibility":
                 try:
                     obs_output = str(visibility) + " " + str(visibility_unit)
-                    station_obs_unit_labels_json["visibility"] = visibility_unit
                 except:
                     raise Warning( "Error adding visiblity to station observations table. Check that you have DarkSky forecast data, or remove visibility from your station_observations Extras option." )
             elif obs == "rainWithRainRate":
@@ -754,22 +750,6 @@ class getData(SearchList):
                 obs_rain_output += "&nbsp;<span class='border-left'>&nbsp;</span>"
                 obs_rain_output += "<span class='rainRate'>%s</span><!-- AJAX -->" % str(getattr(current, "rainRate"))
                 
-                # Special rain rounding and label gathering, save as dayRain for JavaScript and MQTT
-                rain_obs_group = weewx.units.obs_group_dict["rain"]
-                rain_obs_unit = self.generator.converter.group_unit_dict[rain_obs_group]
-                rain_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rain_obs_unit, "0")[2]
-                rain_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rain_obs_unit, "")
-                station_obs_rounding_json["dayRain"] = str(rain_obs_round)
-                station_obs_unit_labels_json["dayRain"] = str(rain_obs_unit_label)
-
-                # Special rainRate rounding and label gathering
-                rainRate_obs_group = weewx.units.obs_group_dict["rainRate"]
-                rainRate_obs_unit = self.generator.converter.group_unit_dict[rainRate_obs_group]
-                rainRate_obs_round = self.generator.skin_dict['Units']['StringFormats'].get(rainRate_obs_unit, "0")[2]
-                rainRate_obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(rainRate_obs_unit, "")
-                station_obs_rounding_json["rainRate"] = str(rainRate_obs_round)
-                station_obs_unit_labels_json["rainRate"] = str(rainRate_obs_unit_label)
-                
                 # Empty field for the JSON "current" output 
                 obs_output = ""
             else:
@@ -778,29 +758,9 @@ class getData(SearchList):
                     # Try to catch those invalid observations, like 'uv' needs to be 'UV'. 
                     obs_output = "Invalid observation"
                 
-            # Get observation rounding and unit label
-            try: 
-                # Find the group this observation is in 
-                obs_group = weewx.units.obs_group_dict[obs]
-                # Find the group_name for this obs group
-                obs_unit = self.generator.converter.group_unit_dict[obs_group]
-                # Find the number of decimals to round to based on group name
-                obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
-                # Get the unit's label
-                obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(obs_unit, "")
-            except:
-                obs_round = ""
-                obs_unit_label = ""
-
             # Build the json "current" array for weewx_data.json for JavaScript
             if obs not in station_obs_json:
                 station_obs_json[obs] = str(obs_output)
-            # Build the json "rounding" array for weewx_data.json for JavaScript
-            if obs not in station_obs_rounding_json:
-                station_obs_rounding_json[obs] = str(obs_round)
-            # Build the json "unit_labels" array for weewx_data.json for JavaScript
-            if obs not in station_obs_unit_labels_json:
-                station_obs_unit_labels_json[obs] = str(obs_unit_label)
             
             # Build the HTML for the front page
             station_obs_html += "<tr>"
@@ -820,14 +780,12 @@ class getData(SearchList):
                     pass
                 elif "-" in str(obs_trend):
                     station_obs_html += '<i class="fa fa-arrow-down barometer-down"></i>'
-                    station_obs_trend_json["pressure"] = "down"
                 else:
                     station_obs_html += '<i class="fa fa-arrow-up barometer-up"></i>'
-                    station_obs_trend_json["pressure"] = "up"
                 station_obs_html += '</span>' # Close the span
             station_obs_html += "</td>"
             station_obs_html += "</tr>"
-               
+        
 
         """
         Get all observations and their rounding values
@@ -952,9 +910,6 @@ class getData(SearchList):
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
                                   'station_obs_json': json.dumps(station_obs_json),
-                                  #'station_obs_rounding_json': json.dumps(station_obs_rounding_json),
-                                  #'station_obs_unit_labels_json': json.dumps(station_obs_unit_labels_json),
-                                  #'station_obs_trend_json': json.dumps(station_obs_trend_json),
                                   'station_obs_html': station_obs_html,
                                   'all_obs_rounding_json': json.dumps(all_obs_rounding_json),
                                   'all_obs_unit_labels_json': json.dumps(all_obs_unit_labels_json),
