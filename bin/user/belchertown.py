@@ -827,7 +827,40 @@ class getData(SearchList):
                 station_obs_html += '</span>' # Close the span
             station_obs_html += "</td>"
             station_obs_html += "</tr>"
+               
+
+        """
+        Get all observations and their rounding values
+        """
+        all_obs_rounding_json = OrderedDict()
+        all_obs_unit_labels_json = OrderedDict()
+        for obs, group in sorted(weewx.units.obs_group_dict.items()):
+            # Find the unit from group (like group_temperature = degree_F)
+            obs_unit = self.generator.converter.group_unit_dict[group]
+            # Find the number of decimals to round to based on group name
+            try:
+                obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
+            except:
+                obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")
+            # Add to the rounding array
+            if obs not in all_obs_rounding_json:
+                all_obs_rounding_json[obs] = str(obs_round)
+            # Get the unit's label
+                obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(obs_unit, "")
+            # Add to label array and strip whitespace if possible
+            if obs not in all_obs_unit_labels_json:
+                all_obs_unit_labels_json[obs] = str(obs_unit_label)
+            
+            # Special handling items
+            if visibility:
+                all_obs_rounding_json["visibility"] = "2"
+                all_obs_unit_labels_json["visibility"] = visibility_unit
+            else:
+                all_obs_rounding_json["visibility"] = ""
+                all_obs_unit_labels_json["visibility"] = ""
                 
+
+            
         """
         Social Share
         """
@@ -919,10 +952,12 @@ class getData(SearchList):
                                   'visibility': visibility,
                                   'visibility_unit': visibility_unit,
                                   'station_obs_json': json.dumps(station_obs_json),
-                                  'station_obs_rounding_json': json.dumps(station_obs_rounding_json),
-                                  'station_obs_unit_labels_json': json.dumps(station_obs_unit_labels_json),
-                                  'station_obs_trend_json': json.dumps(station_obs_trend_json),
+                                  #'station_obs_rounding_json': json.dumps(station_obs_rounding_json),
+                                  #'station_obs_unit_labels_json': json.dumps(station_obs_unit_labels_json),
+                                  #'station_obs_trend_json': json.dumps(station_obs_trend_json),
                                   'station_obs_html': station_obs_html,
+                                  'all_obs_rounding_json': json.dumps(all_obs_rounding_json),
+                                  'all_obs_unit_labels_json': json.dumps(all_obs_unit_labels_json),
                                   'earthquake_time': eqtime,
                                   'earthquake_url': equrl,
                                   'earthquake_place': eqplace,

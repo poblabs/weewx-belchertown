@@ -397,7 +397,9 @@ function ajaxweewx() {
 };
 
 // Update weewx data elements
-var station_obs_array = "";
+//var station_obs_array = "";
+var unit_rounding_array = "";
+var unit_label_array = "";
 function update_weewx_data( data ) {
     belchertown_debug("Updating weewx data");
     
@@ -413,7 +415,9 @@ function update_weewx_data( data ) {
     autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
     #end if
     
-    station_obs_array = data["station_observations"];
+    //station_obs_array = data["station_observations"];
+    unit_rounding_array = data["unit_rounding"];
+    unit_label_array = data["unit_label"];
     
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
@@ -521,23 +525,12 @@ function update_forecast_data( data ) {
     jQuery(".current-obs-text").html( data["currently"]["summary"] );
     
     // Visibility text in station observation table
-    // Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
-    // then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
-    // tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-    if ( data["flags"]["units"].toLowerCase() == "us" || data["flags"]["units"].toLowerCase() == "uk2" ) {
-        visibility_unit = "miles"
-    } else if ( data["flags"]["units"].toLowerCase() == "si" || data["flags"]["units"].toLowerCase() == "ca" ) {
-        visibility_unit = "km"
-    } else {
-        visibility_unit = ""
-    }
     try {
-        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " " + visibility_unit;
+        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
         jQuery(".station-observations .visibility").html( visibility_output );
-        //jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
     } catch(err) {
-        // Visibility not in the station observation table, so silently exit
+        // Visibility not in the station observation table or any of the unit arrays, so silently exit
     }
     
     // 8 day forecast
@@ -805,7 +798,7 @@ function update_current_wx(data) {
             }
             // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
             if ( mqttdata.startsWith(thisElementClass) ) {
-                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: station_obs_array["rounding"][thisElementClass], maximumFractionDigits: station_obs_array["rounding"][thisElementClass], useGrouping: localeStringUseGrouping}) + station_obs_array["unit_labels"][thisElementClass];
+                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
                 
                 // Finally update the element class
                 jQuery("." + thisElementClass).html( html_output );
@@ -818,7 +811,7 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("outTemp_F") ) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
-        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         update_outtemp_F( outTemp );
         jQuery(".outtemp").html( outTemp );
     
@@ -834,19 +827,19 @@ function update_current_wx(data) {
     
     // Temperature C
     if ( data.hasOwnProperty("outTemp_C") ) {
-        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         update_outtemp_C( outTemp );
         jQuery(".outtemp").html( outTemp );
     }
     
     // Apparent Temperature US
     if ( data.hasOwnProperty("appTemp_F") ) {
-        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp" ); 
     }
 
     // Apparent Temperature Metric
     if ( data.hasOwnProperty("appTemp_C") ) {
-        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp" );
     }
     
     // Wind
@@ -859,38 +852,38 @@ function update_current_wx(data) {
     }
     // Windspeed US
     if ( data.hasOwnProperty("windSpeed_mph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed Metric
     if ( data.hasOwnProperty("windSpeed_kph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed METRICWX
     if ( data.hasOwnProperty("windSpeed_mps") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
     if ( data.hasOwnProperty("windGust_mph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust Metric
     if ( data.hasOwnProperty("windGust_kph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust METRICWX
     if ( data.hasOwnProperty("windGust_mps") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     
     // Windchill US
     if ( data.hasOwnProperty("windchill") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
     // Windchill Metric
     if ( data.hasOwnProperty("windchill_C") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
 };
 #end if

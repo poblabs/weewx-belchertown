@@ -40,11 +40,10 @@
         "archive_interval_ms": "$archive_interval_ms"
     },
     "station_observations": {
-        "current": $station_obs_json,
-        "rounding": $station_obs_rounding_json,
-        "unit_labels": $station_obs_unit_labels_json,
-        "trend": $station_obs_trend_json
+        "current": $station_obs_json
     },
+    "unit_rounding": $all_obs_rounding_json,
+    "unit_label": $all_obs_unit_labels_json,
     "current": {
         "datetime": "$current.dateTime",
         "epoch": "#echo int( time.time() )#",

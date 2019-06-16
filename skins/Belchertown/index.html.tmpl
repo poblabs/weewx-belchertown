@@ -191,7 +191,7 @@
                                     </div>
                                     <div class="col-sm-7">
                                         #if $current.appTemp.has_data
-                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
+                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
                                         #end if
                                         <div class="stn-high-low">
                                             <table class="stn-high-low-table">
@@ -201,8 +201,8 @@
                                                         <td class="stn-high-low-table-title border-left">$obs.label.lowest_temperature</td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="high">$day.outTemp.max.format("%.1f")</td>
-                                                        <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
+                                                        <td class="high">$day.outTemp.max</td>
+                                                        <td class="border-left low">$day.outTemp.min</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -247,12 +247,12 @@
                                             <tr>
                                                 <td>
                                                     <span class="curwindspeed">
-                                                        $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                                        $current.windSpeed.toString(addLabel=False, NONE_string="--")
                                                     </span>
                                                 </td>
                                                 <td class="border-left gust">&nbsp;
                                                     <span class="curwindgust">
-                                                        $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                                        $current.windGust.toString(addLabel=False, NONE_string="--")
                                                     </span>
                                                 </td>
                                             </tr>
