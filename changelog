@@ -2,6 +2,7 @@
 
 # Changes
 
+* Fixes multiple database bindings with charts.
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
 * Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
 * Updated footer layout
