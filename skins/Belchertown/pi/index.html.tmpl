@@ -326,6 +326,12 @@
         // Initial load of cached data
         function update_weewx_data( data ) {
             console.log("Updating weewx data");
+            
+            #if $Extras.has_key("pi_theme") and $Extras.pi_theme == 'auto'
+            // Auto theme is enabled
+            autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
+            #end if
+
             // Daily High Low
             high = data["day"]["outTemp"]["max"];
             low = data["day"]["outTemp"]["min"];
