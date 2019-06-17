@@ -841,8 +841,14 @@
                                             #else
                                             $current.windDir.ordinal_compass
                                             #end if
+                                            </span>
+                                            <span class="curwinddeg">
+                                            #if $current.windDir.raw is None:
+                                            -
+                                            #else
+                                            $current.windDir.format("%.0f")
+                                            #end if
                                         </span>
-                                        <span class="curwinddeg">$current.windDir.format("%.0f")</span>
                                     </div>
                                     <div class="arrow"></div>
                                 </div>
