@@ -1544,7 +1544,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             obsvalues = []
             
             # Define the xaxis group by for the sql query. Default to month
-            if xaxis_groupby == "month":
+            if xaxis_groupby == "day":
+                strformat = "%d"
+            elif xaxis_groupby == "month":
                 strformat = "%m"
             elif xaxis_groupby == "year":
                 strformat = "%Y"
