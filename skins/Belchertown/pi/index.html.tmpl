@@ -469,7 +469,7 @@
                     var weekday = "Today";
                 } else {
                     output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" ); // Requires moment.js
+                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "ddd M/D" ); // Requires moment.js
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
@@ -495,7 +495,7 @@
                 output_html += '</div>';
                 output_html += '</div>';
             }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'MMMM D, YYYY, h:mm A' ); // August 14, 2018, 1:00 PM
+            forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( 'MMMM D, YYYY, h:mm A' ); // August 14, 2018, 1:00 PM
             jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
             jQuery(".forecasts").html( output_html );
         }

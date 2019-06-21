@@ -438,8 +438,8 @@ function update_weewx_data( data ) {
     jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
     
     // Daily Snapshot Stats Section
-    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_today_header' ) );
-    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_month_header' ) );
+    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_snapshot_records_today_header' ) );
+    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_snapshot_records_month_header' ) );
     jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
     jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
     jQuery(".dailystatswindavg").html( data["day"]["wind"]["average"] );
@@ -511,7 +511,7 @@ function update_forecast_data( data ) {
         var i, forecast_alert_text;
         forecast_alert_text = "";
         for ( i = 0; i < data['alerts'].length; i++ ) { 
-            alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( '$obs.label.time_darksky_alert_expires' );
+            alert_expires = moment.unix( data['alerts'][i]['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_darksky_alert_expires' );
             forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
         }
         jQuery(".wx-stn-alert-text").html( forecast_alert_text );
@@ -591,8 +591,8 @@ function update_forecast_data( data ) {
         } else {
             output_html += '<div class="col-sm-1-5 forecast-day border-left">';
         }
-        //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
-        var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "$obs.label.time_darksky_forecast_date" );
+        //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
+        var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" );
         output_html += '<span id="weekday">'+weekday+'</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-conditions">';
@@ -617,10 +617,10 @@ function update_forecast_data( data ) {
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
         output_html += '</div>';
         var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
-        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
+        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
     }
-    forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
+    forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
     jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
