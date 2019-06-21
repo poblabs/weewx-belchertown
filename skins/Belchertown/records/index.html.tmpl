@@ -12,90 +12,90 @@
         moment.locale(moment_locale);
         
         jQuery(document).ready(function() {
-            jQuery("#year-outtemp-max-ts").text( moment.unix($year.outTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outtemp-max-ts").text( moment.unix($alltime.outTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-outtemp-max-ts").text( moment.unix($year.outTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outtemp-max-ts").text( moment.unix($alltime.outTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-outtemp-min-ts").text( moment.unix($year.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outtemp-min-ts").text( moment.unix($alltime.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-outtemp-min-ts").text( moment.unix($year.outTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outtemp-min-ts").text( moment.unix($alltime.outTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
             #if $year.appTemp.has_data
-            jQuery("#year-apptemp-max-ts").text( moment.unix($year.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#year-apptemp-min-ts").text( moment.unix($year.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-apptemp-max-ts").text( moment.unix($year.appTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-apptemp-min-ts").text( moment.unix($year.appTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             #end if
             #if $alltime.appTemp.has_data
-            jQuery("#at-apptemp-max-ts").text( moment.unix($alltime.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-apptemp-min-ts").text( moment.unix($alltime.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-apptemp-max-ts").text( moment.unix($alltime.appTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-apptemp-min-ts").text( moment.unix($alltime.appTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             #end if
             
-            jQuery("#year-heatindex-max-ts").text( moment.unix($year.heatindex.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-heatindex-max-ts").text( moment.unix($alltime.heatindex.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-heatindex-max-ts").text( moment.unix($year.heatindex.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-heatindex-max-ts").text( moment.unix($alltime.heatindex.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-windchill-min-ts").text( moment.unix($year.windchill.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-windchill-min-ts").text( moment.unix($alltime.windchill.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-windchill-min-ts").text( moment.unix($year.windchill.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-windchill-min-ts").text( moment.unix($alltime.windchill.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-outtemp-range-max-ts").text( moment.unix($year_outTemp_range_max[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-outtemp-range-max-ts").text( moment.unix($at_outTemp_range_max[0]).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-outtemp-range-max-ts").text( moment.unix($year_outTemp_range_max[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-outtemp-range-max-ts").text( moment.unix($at_outTemp_range_max[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             
-            jQuery("#year-outtemp-range-min-ts").text( moment.unix($year_outTemp_range_min[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-outtemp-range-min-ts").text( moment.unix($at_outTemp_range_min[0]).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-outtemp-range-min-ts").text( moment.unix($year_outTemp_range_min[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-outtemp-range-min-ts").text( moment.unix($at_outTemp_range_min[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             
-            jQuery("#year-windGust-max-ts").text( moment.unix($year.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-windGust-max-ts").text( moment.unix($alltime.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-windGust-max-ts").text( moment.unix($year.windGust.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-windGust-max-ts").text( moment.unix($alltime.windGust.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
             #if $year.windrun.has_data
-            jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             #end if
             #if $alltime.windrun.has_data
-            jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             #end if
             
-            jQuery("#year-rainiest-day-ts").text( moment.unix($rainiest_day[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-rainiest-day-ts").text( moment.unix($at_rainiest_day[0]).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-rainiest-day-ts").text( moment.unix($rainiest_day[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-rainiest-day-ts").text( moment.unix($at_rainiest_day[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             
-            jQuery("#year-rainRate-max-ts").text( moment.unix($year.rainRate.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-rainRate-max-ts").text( moment.unix($alltime.rainRate.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-rainRate-max-ts").text( moment.unix($year.rainRate.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-rainRate-max-ts").text( moment.unix($alltime.rainRate.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-outHumidity-max-ts").text( moment.unix($year.outHumidity.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outHumidity-max-ts").text( moment.unix($alltime.outHumidity.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-outHumidity-max-ts").text( moment.unix($year.outHumidity.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outHumidity-max-ts").text( moment.unix($alltime.outHumidity.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-outHumidity-min-ts").text( moment.unix($year.outHumidity.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outHumidity-min-ts").text( moment.unix($alltime.outHumidity.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-outHumidity-min-ts").text( moment.unix($year.outHumidity.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outHumidity-min-ts").text( moment.unix($alltime.outHumidity.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-dewpoint-max-ts").text( moment.unix($year.dewpoint.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-dewpoint-max-ts").text( moment.unix($alltime.dewpoint.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-dewpoint-max-ts").text( moment.unix($year.dewpoint.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-dewpoint-max-ts").text( moment.unix($alltime.dewpoint.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-dewpoint-min-ts").text( moment.unix($year.dewpoint.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-dewpoint-min-ts").text( moment.unix($alltime.dewpoint.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-dewpoint-min-ts").text( moment.unix($year.dewpoint.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-dewpoint-min-ts").text( moment.unix($alltime.dewpoint.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-barometer-max-ts").text( moment.unix($year.barometer.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-barometer-max-ts").text( moment.unix($alltime.barometer.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-barometer-max-ts").text( moment.unix($year.barometer.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-barometer-max-ts").text( moment.unix($alltime.barometer.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
-            jQuery("#year-barometer-min-ts").text( moment.unix($year.barometer.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-barometer-min-ts").text( moment.unix($alltime.barometer.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-barometer-min-ts").text( moment.unix($year.barometer.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-barometer-min-ts").text( moment.unix($alltime.barometer.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             
             #if $year.radiation.has_data
-            jQuery("#year-radiation-max-ts").text( moment.unix($year.radiation.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-radiation-max-ts").text( moment.unix($alltime.radiation.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-radiation-max-ts").text( moment.unix($year.radiation.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-radiation-max-ts").text( moment.unix($alltime.radiation.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             #end if
             
             #if $year.UV.has_data
-            jQuery("#year-uv-max-ts").text( moment.unix($year.UV.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-uv-max-ts").text( moment.unix($alltime.UV.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-uv-max-ts").text( moment.unix($year.UV.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-uv-max-ts").text( moment.unix($alltime.UV.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
             #end if
             
-            jQuery("#year-days-with-rainfall-ts").text( moment.unix($year_days_with_rain[1]).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-days-with-rainfall-ts").text( moment.unix($year_days_with_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
             // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
             var start_day_epoch = $at_days_with_rain[1] - ($at_days_with_rain[0] * 86400);
-            //jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_with_rain[1]).format('LL') );
-            jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_with_rain[1]).format('$obs.label.time_records_page_rainfall_range_end') );
+            //jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
+            jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
 
-            jQuery("#year-days-without-rainfall-ts").text( moment.unix($year_days_without_rain[1]).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-days-without-rainfall-ts").text( moment.unix($year_days_without_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
             // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
             // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
             var start_day_epoch = $at_days_without_rain[1] - ($at_days_without_rain[0] * 86400);
-            //jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_without_rain[1]).format('LL') );
-            jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_without_rain[1]).format('$obs.label.time_records_page_rainfall_range_end') );
+            //jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
+            jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
 
         });
     </script>
