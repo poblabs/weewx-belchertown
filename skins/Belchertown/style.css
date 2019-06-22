@@ -1674,6 +1674,7 @@ p.entry-meta {
 
 .celestial_body { 
     display:inline-block;
+    margin-right: 40px;
 }
 
 table.celestial td.label { 
@@ -2048,6 +2049,10 @@ input:checked + .slider:before {
 	
     .sun { float: left; }
     .moon { float: right; }
+    
+    .page .sun-moon-modal a {
+        font-size: 20px;
+    }
 	
 	.forecast-subtitle {
 		display: block;
