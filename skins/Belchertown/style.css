@@ -2185,7 +2185,7 @@ input:checked + .slider:before {
         overflow: -moz-scrollbars-none;
         -ms-overflow-style: none;
     }
-    body::-webkit-scrollbar { width: 0 !important }
+    body.pi::-webkit-scrollbar { width: 0 !important }
 	
     /* bold kiosk display font if chosen in skin.conf or weewx.conf */	
 	.pi .site-inner-bold {
