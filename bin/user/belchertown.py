@@ -793,10 +793,14 @@ class getData(SearchList):
         all_obs_rounding_json = OrderedDict()
         all_obs_unit_labels_json = OrderedDict()
         for obs, group in sorted(weewx.units.obs_group_dict.items()):
-            # Find the unit from group (like group_temperature = degree_F)
-            obs_unit = self.generator.converter.group_unit_dict[group]
-            # Find the number of decimals to round to based on group name
             try:
+                # Find the unit from group (like group_temperature = degree_F)
+                obs_unit = self.generator.converter.group_unit_dict[group]
+            except:
+                # Something's wrong. Continue this loop to ignore this group (like group_dust or something non-standard)
+                continue
+            try:
+                # Find the number of decimals to round to based on group name
                 obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")[2]
             except:
                 obs_round = self.generator.skin_dict['Units']['StringFormats'].get(obs_unit, "0")
