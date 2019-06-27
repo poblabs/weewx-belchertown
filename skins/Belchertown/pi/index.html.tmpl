@@ -324,6 +324,9 @@
         };
         
         // Initial load of cached data
+        // Update weewx data elements
+        var unit_rounding_array = "";
+        var unit_label_array = "";
         function update_weewx_data( data ) {
             console.log("Updating weewx data");
             
@@ -331,6 +334,9 @@
             // Auto theme is enabled
             autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
             #end if
+            
+            unit_rounding_array = data["unit_rounding"];
+            unit_label_array = data["unit_label"];
 
             // Daily High Low
             high = data["day"]["outTemp"]["max"];
@@ -672,64 +678,32 @@
                 jQuery(".curwindgust").text( parseFloat( data["windGust_mps"] ).toFixed(1) );
             }
             
-            // Barometer US
-            if ( data.hasOwnProperty("altimeter_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_inHg"] ).toFixed(2) + " $unit.label.pressure" );
-            }
-            // Barometer Metric
-            if ( data.hasOwnProperty("altimeter_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_mbar"] ).toFixed(2) + " $unit.label.pressure" );
-            }
-            
-            // Humidity
-            if ( data.hasOwnProperty("outHumidity") ) {
-                jQuery(".wx-humidity-value").text( parseFloat( data["outHumidity"] ).toFixed(1) + "$unit.label.outHumidity" );
-            }
-            
-            // Windchill US
-            if ( data.hasOwnProperty("windchill") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill"] ).toFixed(1) + "$unit.label.outTemp" );
-            }
-            // Windchill Metric
-            if ( data.hasOwnProperty("windchill_C") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill_C"] ).toFixed(1) + "$unit.label.outTemp" );
-            }
-            
-            // Rain Day US
-            if ( data.hasOwnProperty("dayRain_in") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_in"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            // Rain Day Metric
-            if ( data.hasOwnProperty("dayRain_cm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_cm"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            // Rain Day METRICWX
-            if ( data.hasOwnProperty("dayRain_mm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_mm"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            
-            // Rain rate US
-            if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            // Rain rate Metric
-            if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            // Rain rate METRICWX
-            if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-                jQuery(".wx-rainrate-value").html( "&nbsp;" + parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            
-            // UV
-            if ( data.hasOwnProperty("UV") ) {
-                jQuery(".wx-uv-value").text( parseFloat( data["UV"] ).toFixed(2) );
-            }
-            
-            // Sun Radiation
-            if ( data.hasOwnProperty("radiation_Wpm2") ) {
-                jQuery(".wx-radiation-value").html( parseFloat( data["radiation_Wpm2"] ).toFixed(2) + " $unit.label.radiation" );
-            }
+            // Update the station observation table
+            station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
+            jQuery('.station-observations').find("span").each(function () {
+                thisElementClass = jQuery(this).attr("class")
+                // Loop through each MQTT payload item
+                station_mqtt_data.forEach( mqttdata => {
+                    if ( thisElementClass == "rainWithRainRate" ) {
+                        // Force dayRain since that's the MQTT payload name
+                        thisElementClass = "dayRain";
+                    }
+                    if ( thisElementClass == "barometer" || thisElementClass == "pressure" || thisElementClass == "altimeter" || thisElementClass == "cloudbase" ) {
+                        // Do not group number into thousands,hundreds format
+                        localeStringUseGrouping = false;
+                    } else {
+                        localeStringUseGrouping  = true;
+                    }
+                    // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
+                    if ( mqttdata.startsWith(thisElementClass) ) {
+                        html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
+                        
+                        // Finally update the element class
+                        jQuery("." + thisElementClass).html( html_output );
+                    }
+                }); 
+            });
+
         };
         #end if
     </script>
@@ -782,29 +756,24 @@
                         <table cellpadding="0" cellspacing="0">
                             <tbody>
                                 <tr>
-                                    <td>$obs.label.outHumidity</td>
+                                    <td class='station-observations-label'>$obs.label.outHumidity</td>
                                     <td>
-                                        <span class="wx-data-humidity">
-                                            <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
-                                        </span>
+                                        <span class="outHumidity">$current.outHumidity</span><!-- AJAX -->
                                     </td>
                                 </tr>                            
                                 <tr>
-                                    <td>$obs.label.rain</td>
+                                    <td class='station-observations-label'>$obs.label.rain</td>
                                     <td>
-                                        <span class="wx-rain-data">
-											<span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-                                            <span class="wx-rainrate-value border-left">&nbsp;$current.rainRate</span><!-- AJAX -->
-                                        </span>
+                                        <span class="dayRain">$day.rain.sum</span><!-- AJAX -->
+                                        <span class="border-left">&nbsp;</span>
+                                        <span class="rainRate">$current.rainRate</span><!-- AJAX -->
                                     </td>
                                 </tr>
 								<tr>
-									<td>$obs.label.barometer</td>
+									<td class='station-observations-label'>$obs.label.barometer</td>
 									<td>
-										<span class="wx-barometer-data">
-											<span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
-										</span>
-										<span class="wx-barometer-trend">
+                                        <span class="barometer">$current.barometer</span><!-- AJAX -->
+										<span class="pressure-trend">
                                             #if $trend.barometer == "N/A"
                                             &nbsp;
                                             #else if "-" in str($trend.barometer)
@@ -815,16 +784,18 @@
                                         </span>
 									</td>
 								</tr>
-                            #if $day.UV.has_data
+                                #if $day.UV.has_data
                                 <tr>
-                                    <td>$obs.label.UV</td>
+                                    <td class='station-observations-label'>$obs.label.UV</td>
                                     <td>
-                                        <span class="wx-uv-data">
-                                            <span class="wx-uv-value">$current.UV</span><!-- AJAX --> | <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
-                                        </span>
+                                        <span class="UV">$current.UV</span><!-- AJAX -->
+                                        #if $day.radiation.has_data
+                                        | <span class="radiation">$current.radiation</span>
+                                        #end if
+                                        <!-- AJAX -->
                                     </td>
                                 </tr>
-                            #end if
+                                #end if
                             </tbody>
                         </table>
                     </div>	
@@ -833,25 +804,25 @@
 
                 <div class="col-xs-6 wind_col">
                     <div class="wind_data">
-                                <div class="compass">
-                                    <div class="direction">
-                                        <span class="curwinddir">
-                                            #if $current.windDir.ordinal_compass == "N/A"
-                                            --
-                                            #else
-                                            $current.windDir.ordinal_compass
-                                            #end if
-                                            </span>
-                                            <span class="curwinddeg">
-                                            #if $current.windDir.raw is None:
-                                            -
-                                            #else
-                                            $current.windDir.format("%.0f")
-                                            #end if
-                                        </span>
-                                    </div>
-                                    <div class="arrow"></div>
-                                </div>
+                        <div class="compass">
+                            <div class="direction">
+                                <span class="curwinddir">
+                                    #if $current.windDir.ordinal_compass == "N/A"
+                                    --
+                                    #else
+                                    $current.windDir.ordinal_compass
+                                    #end if
+                                    </span>
+                                    <span class="curwinddeg">
+                                    #if $current.windDir.raw is None:
+                                    -
+                                    #else
+                                    $current.windDir.format("%.0f")
+                                    #end if
+                                </span>
+                            </div>
+                            <div class="arrow"></div>
+                        </div>
                     </div>
                     
                     <table class="wind-table">
