@@ -469,7 +469,7 @@
                     var weekday = "Today";
                 } else {
                     output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "ddd M/D" ); // Requires moment.js
+                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" ); // Requires moment.js
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
@@ -495,15 +495,15 @@
                 output_html += '</div>';
                 output_html += '</div>';
             }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( 'MMMM D, YYYY, h:mm A' ); // August 14, 2018, 1:00 PM
-            jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
+            forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+            jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
             jQuery(".forecasts").html( output_html );
         }
         
         // mqtt connect
         function connect(){
             console.log("Connecting to MQTT");
-            reported = "Connecting to weather station real time data.";
+            reported = "$obs.label.mqtt_websockets_connecting";
             jQuery(".updated").text( reported );
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
@@ -527,7 +527,7 @@
         // mqtt connect callback
         function onConnect() {
             console.log("MQTT Connected. Subscribing.");
-            reported = "Connected. Waiting for data.";
+            reported = "$obs.label.mqtt_websockets_waiting";
             jQuery(".updated").text( reported );
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
@@ -540,7 +540,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Failed to connect to weather station. Retrying..." );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
             setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             console.log( d.getTime() + ": Cannot connect to MQTT broker" );
         }
@@ -551,7 +551,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Connection lost to the weather station. Retrying..." );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
             setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             if (responseObject.errorCode !== 0) {
                 console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
@@ -569,7 +569,7 @@
             jQuery(".onlineMarker").hide(); // Hide online beacon
             jQuery(".offlineMarker").show(); // Show offline beacon
             jQuery(".loadingMarker").hide(); // Hide loading beacon
-            jQuery(".updated").html( "Live updates have stopped. <button type='button' class='btn btn-primary restart-interval'>Continue live updates</button>" );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
         }
         
         // Handle MQTT message
@@ -579,9 +579,9 @@
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
-            updated_text = "Connected. Received " + updated;
+            updated_text = "$obs.label.mqtt_websockets_connected " + updated;
             jQuery(".updated").html( updated_text );
             jQuery(".onlineMarker").show(); // Show the online beacon
             jQuery(".offlineMarker").hide(); // Hide offline beacon
@@ -774,7 +774,7 @@
                     <div class="tempstats">
                         <div class="feelslike"></div><!-- AJAX -->
 						<div class="highlow">
-							High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
+							$obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
 						</div><!-- AJAX -->
                     </div>
                     
@@ -782,7 +782,7 @@
                         <table cellpadding="0" cellspacing="0">
                             <tbody>
                                 <tr>
-                                    <td>Humidity</td>
+                                    <td>$obs.label.outHumidity</td>
                                     <td>
                                         <span class="wx-data-humidity">
                                             <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
@@ -790,7 +790,7 @@
                                     </td>
                                 </tr>                            
                                 <tr>
-                                    <td>Rainfall</td>
+                                    <td>$obs.label.rain</td>
                                     <td>
                                         <span class="wx-rain-data">
 											<span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
@@ -799,7 +799,7 @@
                                     </td>
                                 </tr>
 								<tr>
-									<td>Barometer</td>
+									<td>$obs.label.barometer</td>
 									<td>
 										<span class="wx-barometer-data">
 											<span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
@@ -817,7 +817,7 @@
 								</tr>
                             #if $day.UV.has_data
                                 <tr>
-                                    <td>UV</td>
+                                    <td>$obs.label.UV</td>
                                     <td>
                                         <span class="wx-uv-data">
                                             <span class="wx-uv-value">$current.UV</span><!-- AJAX --> | <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
@@ -857,8 +857,8 @@
                     <table class="wind-table">
                         <tbody>
                             <tr>
-                                <td class="windtext">Speed</td>
-                                <td class="windtext border-left">Gust</td>
+                                <td class="windtext">$obs.label.wind_speed</td>
+                                <td class="windtext border-left">$obs.label.wind_gust</td>
                             </tr>
                             <tr>
                                 <td>
@@ -876,7 +876,7 @@
                     </table>
                     
                     <div class="maxgustouter">
-                        Today Max: <span class="dailymaxgust">$day.wind.max</span> <!-- AJAX -->
+                        $obs.label.wind_today_max: <span class="dailymaxgust">$day.wind.max</span> <!-- AJAX -->
                     </div>
                 
                 
