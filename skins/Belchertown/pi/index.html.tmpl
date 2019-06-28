@@ -587,7 +587,7 @@
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
             updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
-            updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
             jQuery(".updated").html( updated_text );
             jQuery(".onlineMarker").show(); // Show the online beacon
             jQuery(".offlineMarker").hide(); // Hide offline beacon
