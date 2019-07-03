@@ -1247,12 +1247,12 @@ function showChart(json_file, prepend_renderTo=false) {
                 belchertown_debug( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
                 
                 // Some charts may require a defined min/max on the yAxis
-                options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
-                options.yAxis[this_yAxis].max = s.yaxis_max ? s.yaxis_max : null;
+                options.yAxis[this_yAxis].min = s.yaxis_min !== "undefined" ? s.yaxis_min : null;
+                options.yAxis[this_yAxis].max = s.yaxis_max !== "undefined" ? s.yaxis_max : null;
                 
                 // Some charts may require a defined soft min/max on the yAxis
-                options.yAxis[this_yAxis].softMin = s.yaxis_softmin ? parseInt(s.yaxis_softmin) : null;
-                options.yAxis[this_yAxis].softMax = s.yaxis_softmax ? parseInt(s.yaxis_softmax) : null;
+                options.yAxis[this_yAxis].softMin = s.yaxis_softmin !== "undefined" ? parseInt(s.yaxis_softmin) : null;
+                options.yAxis[this_yAxis].softMax = s.yaxis_softmax !== "undefined" ? parseInt(s.yaxis_softmax) : null;
 
                 // Set the yAxis tick interval. Mostly used for barometer. 
                 if ( s.yaxis_tickinterval ) { 
