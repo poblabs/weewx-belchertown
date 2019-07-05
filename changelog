@@ -10,6 +10,8 @@
 * Added dark mode, and auto theme mode to the Pi version of the skin.
   * If you're interested in learning more, please check out https://github.com/poblabs/weewx-belchertown#raspberry-pi-console
   * ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
+* Fixed some Highcharts int to float issues, and yaxis min/max issues. (Thanks @ShadowsFriend!)
+
 
 1.0.1 June 9, 2019
 
