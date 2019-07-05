@@ -81,7 +81,7 @@ tooltip_date_format = "LLL"
         type = spline
         [[[barometer]]]
             color = "#BECC00"
-            yAxis_tickInterval = 0.01
+            yaxis_tickinterval = 0.01
             
 [day]
     # Chart Timespan Defaults
