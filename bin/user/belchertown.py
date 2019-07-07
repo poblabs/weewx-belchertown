@@ -638,7 +638,10 @@ class getData(SearchList):
 
             # Process the earthquake file        
             with open( earthquake_file, "r" ) as read_file:
-                eqdata = json.load( read_file )
+                try:
+                    eqdata = json.load( read_file )
+                except:
+                    eqdata = ""
             
             try:
                 eqtime = eqdata["features"][0]["properties"]["time"] / 1000
