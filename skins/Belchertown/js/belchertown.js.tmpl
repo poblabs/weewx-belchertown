@@ -1259,6 +1259,11 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.yAxis[this_yAxis].tickInterval = s.yaxis_tickinterval;
                 }
                 
+                // Set yAxis minorTicks. This is a graph-wide setting so setting it for any of the yAxis will set it for the graph itself
+                if ( s.yAxis_minorTicks ) {
+                    options.yAxis[this_yAxis].minorTicks = true;
+                }
+                
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
                     if ( typeof s.yaxis_tickinterval === "undefined" ) { 

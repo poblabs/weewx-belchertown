@@ -1034,54 +1034,6 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     if not plotgen_ts:
                         plotgen_ts = time.time()
                 
-                # Look for any keyword timespans first and default to those start/stop times for the chart
-                time_length = plot_options.get('time_length', 86400)
-                time_ago = int(plot_options.get('time_ago', 1))
-                day_specific = plot_options.get('day_specific', 1) # Force a day so we don't error out
-                month_specific = plot_options.get('month_specific', 8) # Force a month so we don't error out
-                year_specific = plot_options.get('year_specific', 2019) # Force a year so we don't error out
-                if time_length == "today":
-                    minstamp, maxstamp = archiveDaySpan( timespan.stop )
-                elif time_length == "week":
-                    week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start )
-                elif time_length == "month":
-                    minstamp, maxstamp = archiveMonthSpan( timespan.stop )
-                elif time_length == "year":
-                    minstamp, maxstamp = archiveYearSpan( timespan.stop )
-                elif time_length == "days_ago":
-                    minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
-                elif time_length == "weeks_ago":
-                    week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
-                    minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=time_ago )
-                elif time_length == "months_ago":
-                    minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
-                elif time_length == "years_ago":
-                    minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
-                elif time_length == "day_specific":
-                    # Set an arbitrary hour within the specific day to get that full day timespan and not the day before. e.g. 1pm
-                    day_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-' + str(day_specific) + ' 13', '%Y-%m-%d %H')
-                    daystamp = int(time.mktime(day_dt.timetuple()))
-                    minstamp, maxstamp = archiveDaySpan( daystamp )
-                elif time_length == "month_specific":
-                    # Set an arbitrary day within the specific month to get that full month timespan and not the day before. e.g. 5th day
-                    month_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-5', '%Y-%m-%d')
-                    monthstamp = int(time.mktime(month_dt.timetuple()))
-                    minstamp, maxstamp = archiveMonthSpan( monthstamp )
-                elif time_length == "year_specific":
-                    # Get a date in the middle of the year to get the full year epoch so weewx can find the year timespan. 
-                    year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
-                    yearstamp = int(time.mktime(year_dt.timetuple()))
-                    minstamp, maxstamp = archiveYearSpan( yearstamp )
-                elif time_length == "all":
-                    minstamp = start_ts
-                    maxstamp = stop_ts
-                else:
-                    # Rolling timespans using seconds
-                    time_length = int(time_length) # Convert to int() for minstamp math and for point_timestamp conditional later
-                    minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
-                    maxstamp = plotgen_ts
-                
                 chart_title = plot_options.get("title", "")
                 output[chart_group][plotname]["options"]["title"] = chart_title
 
@@ -1096,7 +1048,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 if gapsize:
                     output[chart_group][plotname]["options"]["gapsize"] = gapsize
                     
-                connectNulls = plot_options.get("connectNulls", "false") # Default to 5 minutes in millis
+                connectNulls = plot_options.get("connectNulls", "false")
                 output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
 
                 polar = plot_options.get('polar', None)
@@ -1120,6 +1072,54 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name]["obsType"] = line_name
                     
                     line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname][line_name])
+                    
+                    # Look for any keyword timespans first and default to those start/stop times for the chart
+                    time_length = line_options.get('time_length', 86400)
+                    time_ago = int(line_options.get('time_ago', 1))
+                    day_specific = line_options.get('day_specific', 1) # Force a day so we don't error out
+                    month_specific = line_options.get('month_specific', 8) # Force a month so we don't error out
+                    year_specific = line_options.get('year_specific', 2019) # Force a year so we don't error out
+                    if time_length == "today":
+                        minstamp, maxstamp = archiveDaySpan( timespan.stop )
+                    elif time_length == "week":
+                        week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
+                        minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start )
+                    elif time_length == "month":
+                        minstamp, maxstamp = archiveMonthSpan( timespan.stop )
+                    elif time_length == "year":
+                        minstamp, maxstamp = archiveYearSpan( timespan.stop )
+                    elif time_length == "days_ago":
+                        minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
+                    elif time_length == "weeks_ago":
+                        week_start = to_int(self.config_dict["Station"].get('week_start', 6))              
+                        minstamp, maxstamp = archiveWeekSpan( timespan.stop, week_start, weeks_ago=time_ago )
+                    elif time_length == "months_ago":
+                        minstamp, maxstamp = archiveMonthSpan( timespan.stop, months_ago=time_ago )
+                    elif time_length == "years_ago":
+                        minstamp, maxstamp = archiveYearSpan( timespan.stop, years_ago=time_ago )
+                    elif time_length == "day_specific":
+                        # Set an arbitrary hour within the specific day to get that full day timespan and not the day before. e.g. 1pm
+                        day_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-' + str(day_specific) + ' 13', '%Y-%m-%d %H')
+                        daystamp = int(time.mktime(day_dt.timetuple()))
+                        minstamp, maxstamp = archiveDaySpan( daystamp )
+                    elif time_length == "month_specific":
+                        # Set an arbitrary day within the specific month to get that full month timespan and not the day before. e.g. 5th day
+                        month_dt = datetime.datetime.strptime(str(year_specific) + '-' + str(month_specific) + '-5', '%Y-%m-%d')
+                        monthstamp = int(time.mktime(month_dt.timetuple()))
+                        minstamp, maxstamp = archiveMonthSpan( monthstamp )
+                    elif time_length == "year_specific":
+                        # Get a date in the middle of the year to get the full year epoch so weewx can find the year timespan. 
+                        year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
+                        yearstamp = int(time.mktime(year_dt.timetuple()))
+                        minstamp, maxstamp = archiveYearSpan( yearstamp )
+                    elif time_length == "all":
+                        minstamp = start_ts
+                        maxstamp = stop_ts
+                    else:
+                        # Rolling timespans using seconds
+                        time_length = int(time_length) # Convert to int() for minstamp math and for point_timestamp conditional later
+                        minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
+                        maxstamp = plotgen_ts
                     
                     # Find if this chart is using a new database binding. Default to the binding set in plot_options
                     binding = line_options.get('data_binding', binding)
