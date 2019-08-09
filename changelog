@@ -2,6 +2,7 @@
 
 # Changes
 
+* Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
 * Fixes multiple database bindings with charts.
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
 * Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
