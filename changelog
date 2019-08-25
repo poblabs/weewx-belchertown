@@ -2,7 +2,9 @@
 
 # Changes
 
+* Added css_class option to the charts to be able to add CSS overrides to the charts. Most common are chart sizes.
 * Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
+* Moved the JavaScript outTemp color into 1 consolidated function.
 * Fixes multiple database bindings with charts.
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
 * Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
