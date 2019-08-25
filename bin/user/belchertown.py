@@ -1170,6 +1170,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     mirrored_value = line_options.get('mirrored_value', None)
                     
+                    css_class = line_options.get('css_class', None)
+                    output[chart_group][plotname]["options"]["css_class"] = css_class
+                    
                     # Build the final array items. 
                     
                     # This for loop is to get any user provided highcharts series config data. Built-in highcharts variable names accepted.  

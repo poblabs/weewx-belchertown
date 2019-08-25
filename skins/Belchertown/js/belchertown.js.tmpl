@@ -975,6 +975,9 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "plot_tooltip_date_format":
                         plot_tooltip_date_format = optionVal;
                         break;
+                    case "css_class":
+                        css_class = optionVal;
+                        break;
                 }
             });
             
@@ -1147,6 +1150,11 @@ function showChart(json_file, prepend_renderTo=false) {
             }
             
             belchertown_debug( options.chart.renderTo + ": building a " + type + " chart" );
+            
+            if ( css_class ) {
+                jQuery( "#" + options.chart.renderTo ).addClass( css_class );
+                belchertown_debug( options.chart.renderTo + ": div id is " + options.chart.renderTo + " and adding CSS class: " + css_class );
+            }
             
             options.chart.type = type;
             options.title.text = title;
