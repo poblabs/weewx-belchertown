@@ -36,11 +36,7 @@
         #end if
         
         jQuery(document).ready(function() {
-            #if $unit.unit_type.outTemp == "degree_F"
-            update_outtemp_F( "$current.outTemp.formatted" );
-            #else
-            update_outtemp_C( "$current.outTemp.formatted" );
-            #end if
+            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
             rotateThis( "$current.windDir.formatted" );
             

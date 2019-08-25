@@ -131,74 +131,78 @@ function check_for_updates(oldVer, newVer) {
 var weatherdirection = $obs.label.graphs_windDir_ordinals;
 
 // Change the color of the outTemp_F variable
-function update_outtemp_F( outTemp ) {
+function get_outTemp_color( unit, outTemp, returnColor=false ) {
     outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-    if ( outTemp <= 0 ) {
-        jQuery(".outtemp_outer").css( "color", "#1278c8" );
-    } else if ( outTemp <= 25 ) {
-        jQuery(".outtemp_outer").css( "color", "#30bfef" );
-    } else if ( outTemp <= 32 ) {
-        jQuery(".outtemp_outer").css( "color", "#1fafdd" );
-    } else if ( outTemp <= 40 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
-    } else if ( outTemp <= 50 ) {
-        jQuery(".outtemp_outer").css( "color", "#71bc3c" );
-    } else if ( outTemp <= 55 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
-    } else if ( outTemp <= 65 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
-    } else if ( outTemp <= 70 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
-    } else if ( outTemp <= 75 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
-    } else if ( outTemp <= 80 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
-    } else if ( outTemp <= 85 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
-    } else if ( outTemp <= 90 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
-    } else if ( outTemp <= 95 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
-    } else if ( outTemp <= 110 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
-    } else if ( outTemp >= 111 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
+    if ( unit == "degree_F" ) {
+        if ( outTemp <= 0 ) {
+            var outTemp_color = "#1278c8";
+        } else if ( outTemp <= 25 ) {
+            var outTemp_color = "#30bfef";
+        } else if ( outTemp <= 32 ) {
+            var outTemp_color = "#1fafdd";
+        } else if ( outTemp <= 40 ) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if ( outTemp <= 50 ) {
+            var outTemp_color = "#71bc3c";
+        } else if ( outTemp <= 55 ) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if ( outTemp <= 65 ) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if ( outTemp <= 70 ) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if ( outTemp <= 75 ) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if ( outTemp <= 80 ) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if ( outTemp <= 85 ) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if ( outTemp <= 90 ) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if ( outTemp <= 95 ) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if ( outTemp <= 110 ) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if ( outTemp >= 111 ) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
+    } else {
+        if ( outTemp <= 0 ) {
+            var outTemp_color = "#1278c8";
+        } else if ( outTemp <= -3.8 ) {
+            var outTemp_color = "#30bfef";
+        } else if ( outTemp <= 0 ) {
+            var outTemp_color = "#1fafdd";
+        } else if ( outTemp <= 4.4 ) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if ( outTemp <= 10 ) {
+            var outTemp_color = "#71bc3c";
+        } else if ( outTemp <= 12.7 ) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if ( outTemp <= 18.3 ) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if ( outTemp <= 21.1 ) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if ( outTemp <= 23.8 ) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if ( outTemp <= 26.6 ) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if ( outTemp <= 29.4 ) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if ( outTemp <= 32.2 ) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if ( outTemp <= 35 ) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if ( outTemp <= 43.3 ) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if ( outTemp >= 43.4 ) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
     }
-}
-
-// Change the color of the outTemp_C variable
-function update_outtemp_C( outTemp ) {
-    outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-    if ( outTemp <= 0 ) {
-        jQuery(".outtemp_outer").css( "color", "#1278c8" );
-    } else if ( outTemp <= -3.8 ) {
-        jQuery(".outtemp_outer").css( "color", "#30bfef" );
-    } else if ( outTemp <= 0 ) {
-        jQuery(".outtemp_outer").css( "color", "#1fafdd" );
-    } else if ( outTemp <= 4.4 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
-    } else if ( outTemp <= 10 ) {
-        jQuery(".outtemp_outer").css( "color", "#71bc3c" );
-    } else if ( outTemp <= 12.7 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
-    } else if ( outTemp <= 18.3 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
-    } else if ( outTemp <= 21.1 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
-    } else if ( outTemp <= 23.8 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
-    } else if ( outTemp <= 26.6 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
-    } else if ( outTemp <= 29.4 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
-    } else if ( outTemp <= 32.2 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
-    } else if ( outTemp <= 35 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
-    } else if ( outTemp <= 43.3 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
-    } else if ( outTemp >= 43.4 ) {
-        jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
+    
+    jQuery(".outtemp_outer").css( "color", outTemp_color );
+    
+    if ( returnColor ) {
+        return outTemp_color;
     }
 }
 
@@ -812,7 +816,7 @@ function update_current_wx(data) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
         outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
-        update_outtemp_F( outTemp );
+        get_outTemp_color( "degree_F", outTemp );
         jQuery(".outtemp").html( outTemp );
     
         // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
@@ -828,7 +832,7 @@ function update_current_wx(data) {
     // Temperature C
     if ( data.hasOwnProperty("outTemp_C") ) {
         outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
-        update_outtemp_C( outTemp );
+        get_outTemp_color( "degree_C", outTemp );
         jQuery(".outtemp").html( outTemp );
     }
     
