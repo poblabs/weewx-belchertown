@@ -1531,6 +1531,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
         if observation == "weatherRadial":
             obs_lookup = "outTemp"
+                
+            # Force 1 day if aggregate_interval
+            if not aggregate_interval:
+                aggregate_interval = 86400
             
             # Get min outTemp values
             aggregate_type = "min"
