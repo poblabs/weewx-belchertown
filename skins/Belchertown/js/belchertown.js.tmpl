@@ -199,10 +199,11 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
         }
     }
     
-    jQuery(".outtemp_outer").css( "color", outTemp_color );
-    
+    // Return the color value if requested, otherwise just set the div color
     if ( returnColor ) {
         return outTemp_color;
+    } else {
+        jQuery(".outtemp_outer").css( "color", outTemp_color );
     }
 }
 
@@ -1128,6 +1129,12 @@ function showChart(json_file, prepend_renderTo=false) {
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
+                                        } else if (this.series.userOptions.obsType == "weatherRadial") {
+                                            var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
+                                            var rounding = this.series.userOptions.rounding;
+                                            var mirrored = this.series.userOptions.mirrored_value;
+                                            var numberFormat = this.series.userOptions.numberFormat ? this.series.userOptions.numberFormat : "";
+                                            return "<strong>" + moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( this.point.high, point_obsType, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( this.point.low, point_obsType, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( this.point.average, point_obsType, true, rounding, mirrored, numberFormat );
                                         } else {
                                             return tooltip.defaultFormatter.call(this, tooltip);
                                         }
@@ -1417,29 +1424,31 @@ function showChart(json_file, prepend_renderTo=false) {
                     showInLegend: false,
                   }
                 }
-                
-                options.tooltip = {
-                    useHTML: true,
-                    headerFormat: "<small>{point.x:%d %B, %Y}</small>",
-                    pointFormat: "<table>\n  <tr>\n    <th>low</th>\n    <td>{point.low}</td>\n  </tr>\n  <tr>\n    <th>high</th>\n    <td>{point.high}</td>\n  </tr>\n</table>"
-                }
+
+                // Remove the split which allows us to customize the tooltip
+                options.tooltip.split = false;
 
                 // Update data
+                var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
+                var outTemp_unit = options.series[0].radial_outTemp_unit;
                 var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     // Set color of the column based on the average temperature
-                    var color = get_outTemp_color( options.series[0].radial_outTemp_unit, seriesData[3], true );                    
+                    var color = get_outTemp_color( outTemp_unit, seriesData[3], true );                    
                     newSeriesData.push({
                         x: seriesData[0],
                         low: seriesData[1],
                         high: seriesData[2],
+                        average: seriesData[3],
                         color: color
                     });
                 });
                 options.series = [];
                 options.series.push({
-                    data: newSeriesData
+                    data: newSeriesData,
+                    obsType: "weatherRadial",
+                    obsUnit: outTemp_unit
                 });
             }
             
