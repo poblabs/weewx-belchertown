@@ -1378,6 +1378,7 @@ function showChart(json_file, prepend_renderTo=false) {
             if (observation_type == "weatherRadial") {
                 options.chart.type = "columnrange";
                 options.chart.polar = true;
+                options.chart.className = "highcharts-weatherRadial"; // Used for dark mode
                 
                 options.legend = { "enabled": false }
                 
