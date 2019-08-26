@@ -42,8 +42,8 @@
             jQuery("#at-windGust-max-ts").text( moment.unix($alltime.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
             
             #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
-            jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxsumtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxsumtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
             #end if
             
             jQuery("#year-rainiest-day-ts").text( moment.unix($rainiest_day[0]).format( "$obs.label.time_records_page_month_day_year" ) );
@@ -202,10 +202,10 @@
                             #if $Extras.has_key('show_windrun') and $Extras.show_windrun == '1'
                             <tr>
                                 <td>$obs.label.records_daily_windrun</td>
-                                <td class="leftborder">$year.windrun.max</td>
+                                <td class="leftborder">$year.windrun.maxsum</td>
                                 <td id="year-windrun-max-ts"></td><!-- moment.js -->
                                 <td class="leftborder" id="at-windrun-max-ts"></td><!-- moment.js -->
-                                <td>$alltime.windrun.max</td>
+                                <td>$alltime.windrun.maxsum</td>
                             </tr>
                             #end if
                             <tr>
