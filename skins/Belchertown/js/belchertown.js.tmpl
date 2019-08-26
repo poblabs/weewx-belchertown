@@ -1129,12 +1129,6 @@ function showChart(json_file, prepend_renderTo=false) {
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
-                                        } else if (this.series.userOptions.obsType == "weatherRadial") {
-                                            var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
-                                            var rounding = this.series.userOptions.rounding;
-                                            var mirrored = this.series.userOptions.mirrored_value;
-                                            var numberFormat = this.series.userOptions.numberFormat ? this.series.userOptions.numberFormat : "";
-                                            return "<strong>" + moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( this.point.high, point_obsType, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( this.point.low, point_obsType, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( this.series.userOptions.obsUnit, this.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( this.point.average, point_obsType, true, rounding, mirrored, numberFormat );
                                         } else {
                                             return tooltip.defaultFormatter.call(this, tooltip);
                                         }
@@ -1413,6 +1407,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                     tickInterval: 2592000000,
                     showLastLabel: true,
+                    crosshair: true,
                     type: "datetime"
                 }
                 
@@ -1425,8 +1420,19 @@ function showChart(json_file, prepend_renderTo=false) {
                   }
                 }
 
-                // Remove the split which allows us to customize the tooltip
-                options.tooltip.split = false;
+                options.tooltip = {
+                    split: false,
+                    shared: true,
+                    followPointer: true,
+                    formatter: function (tooltip) {
+                        return this.points.map(function (point) {
+                            var rounding = point.series.userOptions.rounding;
+                            var mirrored = point.series.userOptions.mirrored_value;
+                            var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, observation_type, true, rounding, mirrored, numberFormat );
+                        });
+                    }
+                }
 
                 // Update data
                 var currentSeries = options.series;
