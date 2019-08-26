@@ -1392,8 +1392,11 @@ function showChart(json_file, prepend_renderTo=false) {
                 var outTemp_min = Math.min(...minimum_flattened);
                 var outTemp_max = Math.max(...maximum_flattened);
                 
+                var yAxis_tickInterval = Math.round(outTemp_max / 5);
+                
                 options.yAxis = {
                     showFirstLabel: true,
+                    tickInterval: yAxis_tickInterval,
                     //tickInterval: 25,
                     //min: outTemp_min,
                     min: -10,
