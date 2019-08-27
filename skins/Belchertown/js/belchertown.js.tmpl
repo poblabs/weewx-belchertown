@@ -1427,6 +1427,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     split: false,
                     shared: true,
                     followPointer: true,
+                    useHTML: true,
                     formatter: function (tooltip) {
                         return this.points.map(function (point) {
                             var rounding = point.series.userOptions.rounding;
