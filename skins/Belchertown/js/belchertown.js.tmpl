@@ -1392,7 +1392,8 @@ function showChart(json_file, prepend_renderTo=false) {
                 var outTemp_min = Math.min(...minimum_flattened);
                 var outTemp_max = Math.max(...maximum_flattened);
                 
-                var yAxis_tickInterval = Math.round(outTemp_max / 5);
+                //var yAxis_tickInterval = Math.round(outTemp_max / 5); // Divide max outTemp by 5 and round it. Can result in weird odd numbers on tick lines.
+                var yAxis_tickInterval = Math.ceil( Math.round(outTemp_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
                 
                 options.yAxis = {
                     showFirstLabel: true,
