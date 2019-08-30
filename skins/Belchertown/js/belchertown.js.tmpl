@@ -165,7 +165,7 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
         } else if ( outTemp >= 111 ) {
             var outTemp_color = "rgba(218,113,113,1)";
         }
-    } else {
+    } else if ( unit == "degree_C" ) {
         if ( outTemp <= 0 ) {
             var outTemp_color = "#1278c8";
         } else if ( outTemp <= -3.8 ) {
@@ -1378,30 +1378,36 @@ function showChart(json_file, prepend_renderTo=false) {
             // https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
             if (observation_type == "weatherRadial") {
                 options.chart.type = "columnrange";
-                options.chart.polar = true;
-                options.chart.className = "highcharts-weatherRadial"; // Used for dark mode
+                // If polar is defined, use it and add a special dark mode CSS class
+                if ( JSON.parse( String( options.series[0].polar.toLowerCase() ) ) ) {
+                    options.chart.polar = true; // Make sure the option is a string, then convert to bool
+                    options.chart.className = "highcharts-weatherRadial belchertown-polar"; // Used for dark mode
+                } else {
+                    options.chart.className = "highcharts-weatherRadial"; // Used for dark mode
+                }
                 
                 options.legend = { "enabled": false }
                 
+                // Find min and max of the series data for the yAxis min and max
                 var minimum_flattened = [];
                 var maximum_flattened = [];
                 options.series[0].data.forEach( seriesData => {
                     minimum_flattened.push(seriesData[1]);
                     maximum_flattened.push(seriesData[2]);
                 });
-                var outTemp_min = Math.min(...minimum_flattened);
-                var outTemp_max = Math.max(...maximum_flattened);
+                var radial_min = Math.min(...minimum_flattened);
+                var radial_max = Math.max(...maximum_flattened);
                 
-                //var yAxis_tickInterval = Math.round(outTemp_max / 5); // Divide max outTemp by 5 and round it. Can result in weird odd numbers on tick lines.
-                var yAxis_tickInterval = Math.ceil( Math.round(outTemp_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
+                var yAxis_tickInterval = Math.ceil( Math.round(radial_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
                 
                 options.yAxis = {
                     showFirstLabel: true,
                     tickInterval: yAxis_tickInterval,
-                    //tickInterval: 25,
-                    //min: outTemp_min,
-                    min: -10,
-                    max: outTemp_max
+                    min: radial_min,
+                    max: radial_max,
+                    title: {
+                        text: options.series[0].yAxisLabel,
+                    },
                 }
                 
                 options.xAxis = {}
@@ -1409,7 +1415,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     labels: {
                         format: "{value: %b}"
                     },
-                    tickInterval: 2592000000,
+                    tickInterval: 2592000000, // 30 days
                     showLastLabel: true,
                     crosshair: true,
                     type: "datetime"
@@ -1442,11 +1448,15 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Update data
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
-                var outTemp_unit = options.series[0].radial_outTemp_unit;
+                var radial_unit = options.series[0].radial_unit;
                 var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
-                    // Set color of the column based on the average temperature
-                    var color = get_outTemp_color( outTemp_unit, seriesData[3], true );                    
+                    if ( options.series[0].color ) {
+                        var color = options.series[0].color;
+                    } else {
+                        // Set color of the column based on the average temperature, or return default if not temperature
+                        var color = get_outTemp_color( radial_unit, seriesData[3], true );                    
+                    }
                     newSeriesData.push({
                         x: seriesData[0],
                         low: seriesData[1],
@@ -1459,7 +1469,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.series.push({
                     data: newSeriesData,
                     obsType: "weatherRadial",
-                    obsUnit: outTemp_unit
+                    obsUnit: radial_unit
                 });
             }
             
