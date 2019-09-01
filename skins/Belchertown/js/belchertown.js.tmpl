@@ -986,6 +986,9 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "css_width":
                         css_width = optionVal;
                         break;
+                    case "exporting":
+                        exporting_enabled = optionVal;
+                        break;
                 }
             });
             
@@ -1000,6 +1003,10 @@ function showChart(json_file, prepend_renderTo=false) {
                     spacing: [5, 10, 10, 0],
                     type: '',
                     zoomType: 'x'
+                },
+                
+                exporting: {
+                    enabled: JSON.parse( String( exporting_enabled ) ) // Convert string to bool
                 },
 
                 title: {

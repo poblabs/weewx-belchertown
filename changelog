@@ -6,6 +6,7 @@
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
+* Added the ability to enable chart exporting using the Highcharts exporting utility.
 * Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
 * Moved the JavaScript outTemp color into 1 consolidated function.
 * Fixes multiple database bindings with charts.

@@ -1101,6 +1101,14 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 output[chart_group][plotname]["options"]["css_width"] = plot_options.get('width', "")
                 output[chart_group][plotname]["options"]["css_height"] = plot_options.get('height', "")
                 
+                # Setup exporting option
+                exporting = plot_options.get('exporting', None)
+                if exporting is not None and to_bool(exporting):
+                    # Only turn on exporting if it's not none and it's true (1 or True)
+                    output[chart_group][plotname]["options"]["exporting"] = "true"
+                else:
+                    output[chart_group][plotname]["options"]["exporting"] = "false"
+                
                 # Loop through each observation within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}
