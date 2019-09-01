@@ -1229,9 +1229,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     # Setup polar charts
                     polar = line_options.get('polar', None)
-                    if polar is not None:
-                        polar = to_bool(polar)
-                    if polar:
+                    if polar is not None and to_bool(polar):
                         # Only turn on polar if it's not none and it's true (1 or True)
                         output[chart_group][plotname]["series"][line_name]["polar"] = "true"
                     else:
