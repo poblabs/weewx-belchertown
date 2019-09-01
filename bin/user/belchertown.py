@@ -1163,8 +1163,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Find the observation type if specified (e.g. more than 1 of the same on a chart). (e.g. outTemp, rainFall, windDir, etc.)
                     observation_type = line_options.get('observation_type', line_name)
                     
-                    # If we have a weather radial, define what the actual observation type to lookup in the db is, and to use for yAxis labels
-                    weatherRange_obsLookup = line_options.get('radial_type', None)
+                    # If we have a weather range, define what the actual observation type to lookup in the db is, and to use for yAxis labels
+                    weatherRange_obsLookup = line_options.get('range_type', None)
                     
                     # Get any custom names for this observation 
                     name = line_options.get('name', None)
@@ -1269,8 +1269,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             if series_data["use_sql_labels"]:
                                 output[chart_group][plotname]["options"]["xaxis_categories"] = series_data["xaxis_groupby_labels"]
                         elif "weatherRange" in series_data:
-                            output[chart_group][plotname]["series"][line_name]["radial_unit"] = series_data["radial_unit"]
-                            output[chart_group][plotname]["series"][line_name]["radial_unit_label"] = series_data["radial_unit_label"]
+                            output[chart_group][plotname]["series"][line_name]["range_unit"] = series_data["range_unit"]
+                            output[chart_group][plotname]["series"][line_name]["range_unit_label"] = series_data["range_unit_label"]
                         
                         # No matter what, reset data back to just the series data and not a dict of values
                         output[chart_group][plotname]["series"][line_name]["data"] = list(series_data["obsdata"])
@@ -1583,7 +1583,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             series.append(group_6)
             return series
         
-        # Special Belchertown Weather Radial
+        # Special Belchertown Weather Range (radial)
         # https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
         if observation == "weatherRange":
             
@@ -1591,7 +1591,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if weatherRange_obsLookup is not None:
                 obs_lookup = weatherRange_obsLookup
             else:
-                raise Warning( "Error trying to create the weather radial graph. You are missing the radial_type configuration item." )
+                raise Warning( "Error trying to create the weather range graph. You are missing the range_type configuration item." )
                 
             # Force 1 day if aggregate_interval. These charts are meant to show a column range for high, low and average for a full day.
             if not aggregate_interval:
@@ -1631,7 +1631,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             time_ms = [float(x) * 1000 for x in time_start_vt[0]]            
             outputData = zip(time_ms, min_obs_vt[0], max_obs_vt[0], avg_obs_vt[0])
             
-            data = {"weatherRange": True, "obsdata": outputData, "radial_unit": obs_unit, "radial_unit_label": obs_unit_label}
+            data = {"weatherRange": True, "obsdata": outputData, "range_unit": obs_unit, "range_unit_label": obs_unit_label}
             
             return data
 

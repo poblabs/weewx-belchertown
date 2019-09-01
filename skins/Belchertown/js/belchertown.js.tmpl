@@ -1402,16 +1402,16 @@ function showChart(json_file, prepend_renderTo=false) {
                     minimum_flattened.push(seriesData[1]);
                     maximum_flattened.push(seriesData[2]);
                 });
-                var radial_min = Math.min(...minimum_flattened);
-                var radial_max = Math.max(...maximum_flattened);
+                var range_min = Math.min(...minimum_flattened);
+                var range_max = Math.max(...maximum_flattened);
                 
-                var yAxis_tickInterval = Math.ceil( Math.round(radial_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
+                var yAxis_tickInterval = Math.ceil( Math.round(range_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
                 
                 options.yAxis = {
                     showFirstLabel: true,
                     tickInterval: yAxis_tickInterval,
-                    min: radial_min,
-                    max: radial_max,
+                    min: range_min,
+                    max: range_max,
                     title: {
                         text: options.series[0].yAxisLabel,
                     },
@@ -1456,14 +1456,14 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Update data
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
-                var radial_unit = options.series[0].radial_unit;
+                var range_unit = options.series[0].range_unit;
                 var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     if ( options.series[0].color ) {
                         var color = options.series[0].color;
                     } else {
                         // Set color of the column based on the average temperature, or return default if not temperature
-                        var color = get_outTemp_color( radial_unit, seriesData[3], true );                    
+                        var color = get_outTemp_color( range_unit, seriesData[3], true );                    
                     }
                     newSeriesData.push({
                         x: seriesData[0],
@@ -1477,15 +1477,17 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.series.push({
                     data: newSeriesData,
                     obsType: "weatherRange",
-                    obsUnit: radial_unit
+                    obsUnit: range_unit
                 });
             }
             
             // Apply any width, height CSS overrides to the parent div of the chart
             if ( css_height != "" ) {
-                jQuery("#"+options.chart.renderTo).parent().css('height', css_height);
-                jQuery("#"+options.chart.renderTo).parent().css('padding', "0px 15px"); // Reset padding
-                jQuery("#"+options.chart.renderTo).parent().css('margin-bottom', "20px"); // Add new margin
+                jQuery("#"+options.chart.renderTo).parent().css({
+                   'height' : css_height,
+                   'padding' : '0px 15px',
+                   'margin-bottom' : '20px'
+                });
             }
             if ( css_width != "" ) {
                 jQuery("#"+options.chart.renderTo).parent().css('width', css_width);
