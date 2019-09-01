@@ -2,6 +2,7 @@
 
 # Changes
 
+* Preparation in a lot of code for upcoming weewx v4 which will focus on Python 3
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added css_class option to the charts to be able to add CSS overrides to the charts. Most common are chart sizes.
 * Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.

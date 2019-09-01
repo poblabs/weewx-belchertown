@@ -5,6 +5,7 @@
 # Pat O'Brien, August 19, 2018
 
 from __future__ import with_statement
+from __future__ import print_function  # Python 2/3 compatiblity
 import datetime
 import time
 import calendar
@@ -37,29 +38,56 @@ try:
 except:
     # Pass here because chances are we have an old version of weewx which will get caught below. 
     pass
+try:
+    # weewx 4
+    from weeutil.config import accumulateLeaves
+except:
+    # weewx 3
+    from weeutil.weeutil import accumulateLeaves
     
 # Check weewx version. Many things like search_up, weeutil.weeutil.KeyDict (label_dict) are from 3.9
 if weewx.__version__ < "3.9":
     raise weewx.UnsupportedFeature("weewx 3.9 and newer is required, found %s" % weewx.__version__)   
-    
+
 # This helps with locale. https://stackoverflow.com/a/40346898/1177153
-reload(sys)
-sys.setdefaultencoding("utf-8")
+# TODO: test all locales and remove this?
+#reload(sys)
+#sys.setdefaultencoding("utf-8")
 
-def logmsg(level, msg):
-    syslog.syslog(level, 'Belchertown Extension: %s' % msg)
+try:
+    # Test for new-style weewx v4 logging by trying to import weeutil.logger
+    import weeutil.logger
+    import logging
 
-def logdbg(msg):
-    logmsg(syslog.LOG_DEBUG, msg)
+    log = logging.getLogger(__name__)
 
-def loginf(msg):
-    logmsg(syslog.LOG_INFO, msg)
+    def logdbg(msg):
+        log.debug(msg)
 
-def logerr(msg):
-    logmsg(syslog.LOG_ERR, msg)
+    def loginf(msg):
+        log.info(msg)
+
+    def logerr(msg):
+        log.error(msg)
+
+except ImportError:
+    # Old-style weewx logging
+    import syslog
+
+    def logmsg(level, msg):
+        syslog.syslog(level, 'Belchertown Extension: %s' % msg)
+
+    def logdbg(msg):
+        logmsg(syslog.LOG_DEBUG, msg)
+
+    def loginf(msg):
+        logmsg(syslog.LOG_INFO, msg)
+
+    def logerr(msg):
+        logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.1b5"
+VERSION = "1.1b6"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -85,13 +113,6 @@ class getData(SearchList):
         binding = self.generator.config_dict['StdReport'].get('data_binding', 'wx_binding')
         manager = self.generator.db_binder.get_manager(binding)
 
-        # Setup belchertown_root_url for the absolute links
-        #try:
-        #    belchertown_root_url = self.generator.skin_dict['Extras']['belchertown_root_url']
-        #except:
-        #    # Force a blank root url if the default "" is removed from skin.conf
-        #    belchertown_root_url = ""
-            
         belchertown_debug = self.generator.skin_dict['Extras'].get('belchertown_debug', 0)
 
         # Find the right HTML ROOT
@@ -526,13 +547,17 @@ class getData(SearchList):
             
             # File is stale, download a new copy
             if forecast_is_stale:
-                # Download new forecast data
                 try:
-                    import urllib2
+                    try:
+                        # Python 3
+                        from urllib.request import Request, urlopen
+                    except ImportError:
+                        # Python 2
+                        from urllib2 import Request, urlopen
                     user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
                     headers = { 'User-Agent' : user_agent }
-                    req = urllib2.Request( forecast_url, None, headers )
-                    response = urllib2.urlopen( req )
+                    req = Request( forecast_url, None, headers )
+                    response = urlopen( req )
                     page = response.read()
                     response.close()
                 except Exception as error:
@@ -540,10 +565,10 @@ class getData(SearchList):
                     
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
-                    with open( forecast_file, 'w+' ) as file:
+                    with open( forecast_file, 'wb+' ) as file:
                         file.write( page )
                         loginf( "New forecast file downloaded to %s" % forecast_file )
-                except IOError, e:
+                except IOError as e:
                     raise Warning( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
 
             # Process the forecast file
@@ -604,11 +629,16 @@ class getData(SearchList):
             if earthquake_is_stale:
                 # Download new earthquake data
                 try:
-                    import urllib2
+                    try:
+                        # Python 3
+                        from urllib.request import Request, urlopen
+                    except ImportError:
+                        # Python 2
+                        from urllib2 import Request, urlopen
                     user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
                     headers = { 'User-Agent' : user_agent }
-                    req = urllib2.Request( earthquake_url, None, headers )
-                    response = urllib2.urlopen( req )
+                    req = Request( earthquake_url, None, headers )
+                    response = urlopen( req )
                     page = response.read()
                     response.close()
                     if weewx.debug:
@@ -629,11 +659,11 @@ class getData(SearchList):
 
                 # Save earthquake data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
-                    with open( earthquake_file, 'w+' ) as file:
+                    with open( earthquake_file, 'wb+' ) as file:
                         file.write( page )
                         if weewx.debug:
                             logdbg( "Earthquake data saved to %s" % earthquake_file )
-                except IOError, e:
+                except IOError as e:
                     raise Warning( "Error writing earthquake data to %s. Reason: %s" % ( earthquake_file, e) )
 
             # Process the earthquake file        
@@ -689,11 +719,16 @@ class getData(SearchList):
             if github_version_is_stale:
                 # Download new GitHub data
                 try:
-                    import urllib2
+                    try:
+                        # Python 3
+                        from urllib.request import Request, urlopen
+                    except ImportError:
+                        # Python 2
+                        from urllib2 import Request, urlopen
                     user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
                     headers = { 'User-Agent' : user_agent }
-                    req = urllib2.Request( github_version_url, None, headers )
-                    response = urllib2.urlopen( req )
+                    req = Request( github_version_url, None, headers )
+                    response = urlopen( req )
                     #page = response.read()
                     page = json.load( response )
                     response.close()
@@ -705,10 +740,10 @@ class getData(SearchList):
                     tag_name = page["tag_name"].split("-")[2]
                     try:
                         # Save data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
-                        with open( github_version_file, 'w+' ) as file:
+                        with open( github_version_file, 'wb+' ) as file:
                             file.write( tag_name )
                             loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
-                    except IOError, e:
+                    except IOError as e:
                         logerr( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
                 except:
                     pass
@@ -717,7 +752,7 @@ class getData(SearchList):
                 # Process the file
                 with open( github_version_file, "r" ) as read_file:
                     data = read_file.read()
-            except IOError, e:
+            except IOError as e:
                 logerr( "Update Checker: Unable to open %s. Reason: %s" % ( github_version_file, e) )
                 data = ""
             
@@ -989,7 +1024,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # Loop through each timespan
         for chart_group in self.chart_dict.sections:
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
-            chart_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group])
+            chart_options = accumulateLeaves(self.chart_dict[chart_group])
                 
             output[chart_group]["belchertown_version"] = VERSION
             output[chart_group]["generated_timestamp"] = time.strftime('%m/%d/%Y %H:%M:%S')
@@ -1016,7 +1051,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 output[chart_group][plotname]["options"]["renderTo"] = plotname # daychart1, weekchart1, etc. Used for the graphs page and the different chart_groups
                 output[chart_group][plotname]["options"]["chart_group"] = chart_group
                 
-                plot_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname])
+                plot_options = accumulateLeaves(self.chart_dict[chart_group][plotname])
                 
                 # Setup the database binding, default to weewx.conf's binding if none supplied. 
                 binding = plot_options.get('data_binding', self.config_dict['StdReport'].get('data_binding', 'wx_binding'))
@@ -1067,7 +1102,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name] = {}
                     output[chart_group][plotname]["series"][line_name]["obsType"] = line_name
                     
-                    line_options = weeutil.weeutil.accumulateLeaves(self.chart_dict[chart_group][plotname][line_name])
+                    line_options = accumulateLeaves(self.chart_dict[chart_group][plotname][line_name])
                     
                     # Look for any keyword timespans first and default to those start/stop times for the chart
                     time_length = line_options.get('time_length', 86400)
@@ -1234,22 +1269,23 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             output[chart_group][plotname]["series"][line_name]["radial_unit_label"] = series_data["radial_unit_label"]
                         
                         # No matter what, reset data back to just the series data and not a dict of values
-                        output[chart_group][plotname]["series"][line_name]["data"] = series_data["obsdata"]
+                        output[chart_group][plotname]["series"][line_name]["data"] = list(series_data["obsdata"])
                     else:
                         # No custom series data overrides, so just add series_data to the chart series data
-                        output[chart_group][plotname]["series"][line_name]["data"] = series_data
+                        output[chart_group][plotname]["series"][line_name]["data"] = list(series_data)
                         
                     # Final pass through self._highchartsSeriesOptionsToFloat() to convert the remaining options with numeric values to float
                     # such that Highcharts can make use of them.
                     output[chart_group][plotname]["series"][line_name] = self._highchartsSeriesOptionsToFloat(output[chart_group][plotname]["series"][line_name])
             
-            # This consolidates all chart_groups into the chart_group JSON (day.json, week.json, month.json, year.json) and saves them to HTML_ROOT/json
+            # This consolidates all chart_groups into the chart_group JSON file and saves them to HTML_ROOT/json
             html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
                                      self.skin_dict['HTML_ROOT'],
                                      "json")
             json_filename = html_dest_dir + "/" + chart_group + ".json"
             with open(json_filename, mode='w') as jf:
                 jf.write( json.dumps( output[chart_group] ) )
+            
             # Save the graphs.conf to a json file for future debugging
             chart_json_filename = html_dest_dir + "/graphs.json"
             with open(chart_json_filename, mode='w') as cjf:
@@ -1728,7 +1764,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         if value is not None:
             try:
                 value = round(value, places)
-            except Exception, e:
+            except Exception as e:
                 value = None
         return value
 
