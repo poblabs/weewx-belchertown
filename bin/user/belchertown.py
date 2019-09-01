@@ -1097,6 +1097,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 plot_tooltip_date_format = plot_options.get('tooltip_date_format', None)
                 output[chart_group][plotname]["options"]["plot_tooltip_date_format"] = plot_tooltip_date_format
                 
+                # Width and height specific CSS overrides
+                output[chart_group][plotname]["options"]["css_width"] = plot_options.get('width', "")
+                output[chart_group][plotname]["options"]["css_height"] = plot_options.get('height', "")
+                
                 # Loop through each observation within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}

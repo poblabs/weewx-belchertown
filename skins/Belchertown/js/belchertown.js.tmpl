@@ -980,6 +980,12 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "css_class":
                         css_class = optionVal;
                         break;
+                    case "css_height":
+                        css_height = optionVal;
+                        break;
+                    case "css_width":
+                        css_width = optionVal;
+                        break;
                 }
             });
             
@@ -1473,6 +1479,16 @@ function showChart(json_file, prepend_renderTo=false) {
                     obsType: "weatherRadial",
                     obsUnit: radial_unit
                 });
+            }
+            
+            // Apply any width, height CSS overrides to the parent div of the chart
+            if ( css_height != "" ) {
+                jQuery("#"+options.chart.renderTo).parent().css('height', css_height);
+                jQuery("#"+options.chart.renderTo).parent().css('padding', "0px 15px"); // Reset padding
+                jQuery("#"+options.chart.renderTo).parent().css('margin-bottom', "20px"); // Add new margin
+            }
+            if ( css_width != "" ) {
+                jQuery("#"+options.chart.renderTo).parent().css('width', css_width);
             }
             
             // Finally all options are done, now show the chart
