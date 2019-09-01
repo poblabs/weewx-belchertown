@@ -1383,14 +1383,14 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // If weather radial is present, configure a special chart to show that data
             // https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
-            if (observation_type == "weatherRadial") {
+            if (observation_type == "weatherRange") {
                 options.chart.type = "columnrange";
                 // If polar is defined, use it and add a special dark mode CSS class
                 if ( JSON.parse( String( options.series[0].polar.toLowerCase() ) ) ) {
                     options.chart.polar = true; // Make sure the option is a string, then convert to bool
-                    options.chart.className = "highcharts-weatherRadial belchertown-polar"; // Used for dark mode
+                    options.chart.className = "highcharts-weatherRange belchertown-polar"; // Used for dark mode
                 } else {
-                    options.chart.className = "highcharts-weatherRadial"; // Used for dark mode
+                    options.chart.className = "highcharts-weatherRange"; // Used for dark mode
                 }
                 
                 options.legend = { "enabled": false }
@@ -1476,7 +1476,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.series = [];
                 options.series.push({
                     data: newSeriesData,
-                    obsType: "weatherRadial",
+                    obsType: "weatherRange",
                     obsUnit: radial_unit
                 });
             }
