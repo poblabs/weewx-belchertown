@@ -49,11 +49,6 @@ except:
 if weewx.__version__ < "3.9":
     raise weewx.UnsupportedFeature("weewx 3.9 and newer is required, found %s" % weewx.__version__)   
 
-# This helps with locale. https://stackoverflow.com/a/40346898/1177153
-# TODO: test all locales and remove this?
-#reload(sys)
-#sys.setdefaultencoding("utf-8")
-
 try:
     # Test for new-style weewx v4 logging by trying to import weeutil.logger
     import weeutil.logger
