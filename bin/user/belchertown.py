@@ -156,10 +156,23 @@ class getData(SearchList):
         except:
             system_locale_js = "en-US" # Error finding locale, set to en-US
             
-        try:
-            highcharts_decimal = locale.localeconv()["decimal_point"]
-        except:
-            highcharts_decimal = "." # Default to a period
+        highcharts_decimal = self.generator.skin_dict['Extras'].get('highcharts_decimal', None)
+        # Change the Highcharts decimal to the locale if the option is missing or on auto mode, otherwise use whats defined in Extras
+        if highcharts_decimal is None or highcharts_decimal == "auto":
+            try:
+                highcharts_decimal = locale.localeconv()["decimal_point"]
+            except:
+                # Locale not found, default back to a period
+                highcharts_decimal = "."
+
+        highcharts_thousands = self.generator.skin_dict['Extras'].get('highcharts_thousands', None)
+        # Change the Highcharts thousands separator to the locale if the option is missing or on auto mode, otherwise use whats defined in Extras
+        if highcharts_thousands is None or highcharts_thousands == "auto":
+            try:
+                highcharts_thousands = locale.localeconv()["thousands_sep"]
+            except:
+                # Locale not found, default back to a comma
+                highcharts_thousands = ","
             
         # Get the archive interval for the highcharts gapsize
         try:
@@ -917,6 +930,7 @@ class getData(SearchList):
                                   'system_locale_js': system_locale_js,
                                   'locale_encoding': locale_encoding,
                                   'highcharts_decimal': highcharts_decimal,
+                                  'highcharts_thousands': highcharts_thousands,
                                   'radar_html': radar_html,
                                   'archive_interval_ms': archive_interval_ms,
                                   'ordinate_names': ordinate_names,

@@ -275,6 +275,10 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
                 if ( typeof decimalPoint === "undefined" ) {
                     decimalPoint = "$highcharts_decimal";
                 }
+                // If thousandsSep is undefined, use the auto detect from the skin since this comes from the skin.
+                if ( typeof thousandsSep === "undefined" ) {
+                    thousandsSep = "$highcharts_thousands";
+                }
                     
                 output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
             }
@@ -901,7 +905,8 @@ Highcharts.setOptions({
         timezoneOffset: $highcharts_timezoneoffset
     },
     lang: {
-        decimalPoint: '$highcharts_decimal'
+        decimalPoint: '$highcharts_decimal',
+        thousandsSep: '$highcharts_thousands'
     }
 });
 
