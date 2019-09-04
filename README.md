@@ -262,6 +262,8 @@ For ease of readability I have broken them out into separate tables. However you
 | graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
+| highcharts_decimal | "auto" | This allows you to specify a custom decimal point. If set to auto or missing, the default locale decimal point will be used. 
+| highcharts_thousands | "auto" | This allows you to specify a custom thousands separator. If set to auto or missing, the default locale thousands separator will be used. 
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
 | pi_theme | "auto" | Just as with the `theme` option, options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
