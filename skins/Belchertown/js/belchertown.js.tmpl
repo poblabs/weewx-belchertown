@@ -513,7 +513,7 @@ function ajaxforecast() {
 
 function update_forecast_data( data ) {
     belchertown_debug("Updating forecast data");
-    // WX Icon
+    // WX icon in temperature box
     if ( data['currently']['icon'] == "partly-cloudy-night" ) {
         // partly-cloudy-night could also be clear-day
         jQuery("#wxicon").attr( "src", get_relative_url() + "/images/partly-cloudy-night.png" );
