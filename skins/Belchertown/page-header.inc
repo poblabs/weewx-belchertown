@@ -1,3 +1,4 @@
+#encoding UTF-8
 <div class="wx-stn-info-container">
     <div class="row">
         <div class="col-sm-1 wx-stn-info-current-obs">

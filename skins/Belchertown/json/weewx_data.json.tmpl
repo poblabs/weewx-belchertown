@@ -1,3 +1,4 @@
+#encoding UTF-8
 #import datetime
 {
     "site": "$station.location",
@@ -54,7 +55,6 @@
         "outHumidity": "$current.outHumidity",
         #if $day.appTemp.has_data
         "appTemp": "$current.appTemp",
-        "appTemp_formatted": "$current.appTemp.formatted",
         #end if
         "windchill": "$current.windchill",
         "heatindex": "$current.heatindex",
@@ -62,7 +62,6 @@
         "barometer": "$current.barometer",
         "barometer_trend": "$trend.barometer",
         "windspeed": "$current.windSpeed",
-        "windspeed_formatted": "$current.windSpeed.formatted",
         "winddir": "$current.windDir",
         "winddir_formatted": "$current.windDir.formatted",
         "windGust": "$current.windGust",
