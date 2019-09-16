@@ -1030,13 +1030,19 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # Final output dict
         output = {}
         
-        # Loop through each timespan
+        # Loop through each chart group. This is the first [bracket] group of options, including global options
         for chart_group in self.chart_dict.sections:
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
             chart_options = accumulateLeaves(self.chart_dict[chart_group])
                 
             output[chart_group]["belchertown_version"] = VERSION
             output[chart_group]["generated_timestamp"] = time.strftime('%m/%d/%Y %H:%M:%S')
+            
+            # Setup the JSON file name for each chart group
+            html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
+                                    self.skin_dict['HTML_ROOT'],
+                                    "json")
+            json_filename = html_dest_dir + "/" + chart_group + ".json"
             
             # Default back to Highcharts standards
             colors = chart_options.get("colors", "#7cb5ec, #b2df8a, #f7a35c, #8c6bb1, #dd3497, #e4d354, #268bd2, #f45b5b, #6a3d9a, #33a02c") 
@@ -1051,7 +1057,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             tooltip_date_format = chart_options.get('tooltip_date_format', "LLLL")
             output[chart_group]["tooltip_date_format"] = tooltip_date_format
             
-            # Loop through each chart within the chart_group
+            # Loop through each [[chart_group]] within the chart_group
             for plotname in self.chart_dict[chart_group].sections:
                 output[chart_group][plotname] = {}
                 output[chart_group][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
@@ -1118,7 +1124,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 else:
                     output[chart_group][plotname]["options"]["exporting"] = "false"
                 
-                # Loop through each observation within the chart chart_group
+                # Loop through each [[[observation]]] within the chart chart_group
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}
                     output[chart_group][plotname]["series"][line_name]["obsType"] = line_name
@@ -1297,11 +1303,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # such that Highcharts can make use of them.
                     output[chart_group][plotname]["series"][line_name] = self._highchartsSeriesOptionsToFloat(output[chart_group][plotname]["series"][line_name])
             
-            # This consolidates all chart_groups into the chart_group JSON file and saves them to HTML_ROOT/json
-            html_dest_dir = os.path.join(self.config_dict['WEEWX_ROOT'],
-                                     self.skin_dict['HTML_ROOT'],
-                                     "json")
-            json_filename = html_dest_dir + "/" + chart_group + ".json"
+            # Write the output to the JSON file
             with open(json_filename, mode='w') as jf:
                 jf.write( json.dumps( output[chart_group] ) )
             
