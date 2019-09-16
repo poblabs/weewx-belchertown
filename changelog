@@ -1,24 +1,31 @@
 1.1 ???, 2019
 
-# Changes
-
-* Preparation in a lot of code for upcoming weewx v4 which will focus on Python 3
+### Added
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
 * Added the ability to enable chart exporting using the Highcharts exporting utility.
-* Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
-* Moved the JavaScript outTemp color into 1 consolidated function.
-* Fixes multiple database bindings with charts.
-* Removes the belchertown_root_url option. All links are now root relative using "." and "../".
-* Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
-* Updated footer layout
 * Version update option. This checks GitHub to see if there's a new version available and then puts a notice in the site footer that an update is available.
 * Added dark mode, and auto theme mode to the Pi version of the skin.
   * If you're interested in learning more, please check out https://github.com/poblabs/weewx-belchertown#raspberry-pi-console
   * ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
+
+### Changes
+* Preparation in a lot of code for upcoming weewx v4 which will focus on Python 3
+* Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
+* Moved the JavaScript outTemp color into 1 consolidated function.
+* Updated footer layout
+
+### Fixed
+* Fixes multiple database bindings with charts.
 * Fixed some Highcharts int to float issues, and yaxis min/max issues. (Thanks @ShadowsFriend!)
 
+### Removed
+* Removes the belchertown_root_url option. All links are now root relative using "." and "../".
+* Removed the option to show/hide windrun and apptemp. Instead, if it's in your database, it will show up automatically. If you're calculating it, why not show it?
+
+### Deprecated
+* *Nothing*
 
 1.0.1 June 9, 2019
 
