@@ -3,6 +3,7 @@
 ### Added
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
+* Added per-chart generation timers. You can control how often your charts are generated. Helpful if you have some data that's not updated frequently. Check Wiki for more info on the `generator` option.
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
 * Added the ability to enable chart exporting using the Highcharts exporting utility.
 * Version update option. This checks GitHub to see if there's a new version available and then puts a notice in the site footer that an update is available.

@@ -1030,7 +1030,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # Final output dict
         output = {}
         
-        # Loop through each chart group. This is the first [bracket] group of options, including global options
+        # Loop through each [section]. This is the first bracket group of options including global options.
         for chart_group in self.chart_dict.sections:
             output[chart_group] = OrderedDict() # This retains the order in which to load the charts on the page.
             chart_options = accumulateLeaves(self.chart_dict[chart_group])
@@ -1057,7 +1057,43 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             tooltip_date_format = chart_options.get('tooltip_date_format', "LLLL")
             output[chart_group]["tooltip_date_format"] = tooltip_date_format
             
-            # Loop through each [[chart_group]] within the chart_group
+            # Check if there are any user override on generation periods.
+            # Takes the crontab approach. If the words hourly, daily, monthly, yearly are present use them, otherwise use an integer interval if available.
+            # Since weewx could be restarted, we'll lose our end-timestamp to trigger off of for chart staleness. 
+            # So we have to use the timestamp of the file to generate this. If the file does not exist, we need to create it first.
+            # Once created we use that to see if we need to generate a fresh data set for the chart.
+            generate = chart_options.get('generate', None)
+            if generate is not None:
+                # Default to not making a new chart
+                create_new_chart = False
+                
+                # Get our intervals. Minus 60 seconds so that it'll run a little more reliably on the next interval.
+                if generate.lower() == "hourly":
+                    chart_stale_timer = 3540
+                elif generate.lower() == "daily":
+                    chart_stale_timer = 86340
+                elif generate.lower() == "weekly":
+                    chart_stale_timer = 604740
+                elif generate.lower() == "monthly":
+                    chart_stale_timer = 2629686
+                elif generate.lower() == "yearly":
+                    chart_stale_timer = 31556892
+                else:
+                    chart_stale_timer = int(generate)
+                    
+                if not os.path.isfile(json_filename):
+                    # File doesn't exist. Chart is stale no matter what. 
+                    create_new_chart = True
+                else:
+                    # The file exists get timestamp to compare against what the user wants for an interval
+                    if ( int( time.time() ) - int( os.path.getmtime( json_filename ) ) ) >= int( chart_stale_timer ):
+                        create_new_chart = True
+                
+                # Chart isn't stale, so continue to next chart (this current chart_group is skipped and not generated)
+                if not create_new_chart:
+                    continue
+            
+            # Loop through each [[chart_group]] within the section.
             for plotname in self.chart_dict[chart_group].sections:
                 output[chart_group][plotname] = {}
                 output[chart_group][plotname]["series"] = OrderedDict() # This retains the observation position in the dictionary to match the order in the conf so the chart is in the right user-defined order
@@ -1124,7 +1160,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 else:
                     output[chart_group][plotname]["options"]["exporting"] = "false"
                 
-                # Loop through each [[[observation]]] within the chart chart_group
+                # Loop through each [[[observation]]] within the chart_group.
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}
                     output[chart_group][plotname]["series"][line_name]["obsType"] = line_name
