@@ -76,8 +76,10 @@ jQuery(document).ready(function() {
         } else if (window.location.search.indexOf('?theme=auto') === 0) {
             belchertown_debug("Theme: Setting auto theme because of URL override");
             sessionStorage.setItem('theme', 'auto')
+			#if $almanac.sunrise.raw is not None and $almanac.sunset.raw is not None
             autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
-        }
+			#end if
+		}
     }
 
     #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'

@@ -388,12 +388,22 @@
     "almanac": {
         "sunrise": "$almanac.sunrise",
         "sunrise_epoch": "$almanac.sunrise.raw",
+		#if $almanac.sunrise.raw is not None
         "sunrise_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#",
         "sunrise_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#",
+		#else 
+        "sunrise_hour": "0",
+        "sunrise_minute": "0",
+		#end if
         "sunset": "$almanac.sunset",
         "sunset_epoch": "$almanac.sunset.raw",
+		#if $almanac.sunset.raw is not None
         "sunset_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#",
         "sunset_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#",
+		#else
+        "sunset_hour": "0",
+        "sunset_minute": "0",
+		#end if
         "moon": {
             "moon_fullness": "$almanac.moon_fullness",
             "moon_phase": "$almanac.moon_phase",
