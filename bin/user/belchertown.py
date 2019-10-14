@@ -212,7 +212,7 @@ class getData(SearchList):
                     timespan_chart_list.append( plotname )
             charts[chart_timespan] = timespan_chart_list
         
-        # Create a dict of chart titles for use on the graphs page. If no title defined, use the chartgroup name
+        # Create a dict of chart group titles for use on the graphs page header. If no title defined, use the chart group name
         chartgroup_titles = OrderedDict()
         for chartgroup in chart_dict.sections:
             if "title" in chart_dict[chartgroup]:

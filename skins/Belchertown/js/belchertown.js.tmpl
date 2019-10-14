@@ -94,6 +94,17 @@ jQuery(document).ready(function() {
     }
     #end if
     
+    // After charts are loaded, if an anchor tag is in the URL, let's scroll to it
+    jQuery(window).on('load', function() {
+        var anchor_tag = location.hash.replace('#','');
+        if ( anchor_tag != '' ) {
+            // Scroll the webpage to the chart. The timeout is to let jQuery finish appending the outer div so the height of the page is completed.
+            setTimeout(function() {
+                jQuery('html, body').animate({ scrollTop: jQuery('#'+anchor_tag).offset().top }, 500);
+            }, 500);
+        }
+    });
+    
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
@@ -1023,6 +1034,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
 
                 title: {
+                    useHTML: true,
                     text: ''
                 },
 
@@ -1185,7 +1197,7 @@ function showChart(json_file, prepend_renderTo=false) {
             }
             
             options.chart.type = type;
-            options.title.text = title;
+            options.title.text = "<a href='#"+options.chart.renderTo+"'>"+title+"</a>"; // Anchor link to chart for direct linking
             options.subtitle.text = subtitle;
             options.plotOptions.area.gapSize = gapsize;
             options.plotOptions.line.gapSize = gapsize;
