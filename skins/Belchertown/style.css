@@ -1791,6 +1791,11 @@ table.celestial td.label {
 	/* margin-top:25px; */
 }
 
+span.highcharts-title {
+    width: 100% !important;
+    text-align: center !important;
+}
+
 .wx-buttons { 
     margin:0 auto;
     text-align:center;
