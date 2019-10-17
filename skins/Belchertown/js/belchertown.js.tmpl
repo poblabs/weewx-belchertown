@@ -980,8 +980,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "subtitle":
                         subtitle = optionVal;
                         break;
-                    case "yAxisLabel":
-                        yAxisLabel = optionVal;
+                    case "yAxis_label":
+                        yAxis_label = optionVal;
                         break;
                     case "chart_group":
                         chart_group = optionVal;
@@ -1271,7 +1271,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.yAxis.push({ // Secondary yAxis
                                 opposite: true,
                                 title: {
-                                    text: s.yAxisLabel,
+                                    text: s.yAxis_label,
                                 },
                             }),
                     // Associate this series to the new yAxis 1
@@ -1279,15 +1279,15 @@ function showChart(json_file, prepend_renderTo=false) {
                                         
                     // We may have already passed through array 0 in the series without setting the "multi axis label", go back and explicitly define it.
                     if ( yAxis_index >= 1 ) {
-                        options.yAxis[0].title.text = options.series[0].yAxisLabel;
+                        options.yAxis[0].title.text = options.series[0].yAxis_label;
                     } 
                 } else {
                     if ( yAxis1_active ) {
                         // This yAxis is first in the data series, so we can set labels without needing to double back
-                        options.yAxis[0].title.text = s.yAxisLabel;
+                        options.yAxis[0].title.text = s.yAxis_label;
                     } else {
                         // Apply the normal yAxis 0's label without observation name
-                        options.yAxis[0].title.text = s.yAxisLabel;
+                        options.yAxis[0].title.text = s.yAxis_label;
                     }
                     // Associate this series to yAxis 1
                     s.yAxis = 0;
@@ -1445,7 +1445,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     min: range_min,
                     max: range_max,
                     title: {
-                        text: options.series[0].yAxisLabel,
+                        text: options.series[0].yAxis_label,
                     },
                 }
                 
