@@ -54,11 +54,11 @@ tooltip_date_format = "LLL"
     [[chart2]]
         # The combined Wind Chart works best in this configuration
         title = Wind Speed and Direction
-        yaxis_min = 0
+        yAxis_min = 0
         [[[windDir]]]
             zIndex = 1
             yAxis = 1
-            yaxis_max = 360
+            yAxis_max = 360
             lineWidth = 0
             [[[[marker]]]]
                 enabled = true
@@ -81,7 +81,7 @@ tooltip_date_format = "LLL"
         type = spline
         [[[barometer]]]
             color = "#BECC00"
-            yaxis_tickinterval = 0.01
+            yAxis_tickinterval = 0.01
             
 [day]
     # Chart Timespan Defaults
@@ -106,11 +106,11 @@ tooltip_date_format = "LLL"
     [[chart2]]
         # The combined Wind Chart works best in this configuration
         title = Wind Speed and Direction
-        yaxis_min = 0
+        yAxis_min = 0
         [[[windDir]]]
             zIndex = 1
             yAxis = 1
-            yaxis_max = 360
+            yAxis_max = 360
             lineWidth = 0
             [[[[marker]]]]
                 enabled = true
@@ -159,11 +159,11 @@ tooltip_date_format = "LLL"
     [[chart2]]
         # The combined Wind Chart works best in this configuration
         title = Wind Speed and Direction
-        yaxis_min = 0
+        yAxis_min = 0
         [[[windDir]]]
             zIndex = 1
             yAxis = 1
-            yaxis_max = 360
+            yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
             aggregate_type = avg
@@ -217,11 +217,11 @@ tooltip_date_format = "LLL"
     [[chart2]]
         # The combined Wind Chart works best in this configuration
         title = Wind Speed and Direction
-        yaxis_min = 0
+        yAxis_min = 0
         [[[windDir]]]
             zIndex = 1
             yAxis = 1
-            yaxis_max = 360
+            yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
             aggregate_type = avg
@@ -275,11 +275,11 @@ tooltip_date_format = "LLL"
     [[chart2]]
         # The combined Wind Chart works best in this configuration
         title = Wind Speed and Direction
-        yaxis_min = 0
+        yAxis_min = 0
         [[[windDir]]]
             zIndex = 1
             yAxis = 1
-            yaxis_max = 360
+            yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
             aggregate_type = avg

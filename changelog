@@ -1,5 +1,16 @@
 1.1 ???, 2019
 
+### Breaking Changes
+These changes are to align the skin closer to the way Highcharts has their options named.
+* graphs.conf option xaxis_groupby is now xAxis_groupby (case sensitive)
+* graphs.conf option xaxis_categories is now xAxis_categories (case sensitive)
+* graphs.conf option yAxisLabel is now yAxis_label (case sensitive)
+* graphs.conf option yaxis_min is now yAxis_min (case sensitive)
+* graphs.conf option yaxis_max is now yAxis_max (case sensitive)
+* graphs.conf option yaxis_softmin is now yAxis_softMin (case sensitive)
+* graphs.conf option yaxis_softmax is now yAxis_softMax (case sensitive)
+* graphs.conf option yaxis_tickinterval is now yAxis_tickInterval (case sensitive)
+
 ### Added
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 

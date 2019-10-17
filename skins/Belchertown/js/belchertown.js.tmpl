@@ -995,8 +995,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "rounding":
                         rounding = optionVal;
                         break;
-                    case "xaxis_categories":
-                        xaxis_categories = optionVal;
+                    case "xAxis_categories":
+                        xAxis_categories = optionVal;
                         break;
                     case "plot_tooltip_date_format":
                         plot_tooltip_date_format = optionVal;
@@ -1209,10 +1209,10 @@ function showChart(json_file, prepend_renderTo=false) {
             options.colors = colors;
             
             // If we have xAxis categories, reset xAxis and populate it from these options. Also need to reset tooltip since there's no datetime for moment.js to use.
-            if ( xaxis_categories.length >= 1 ) {
-                belchertown_debug( options.chart.renderTo + ": has " + xaxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
+            if ( xAxis_categories.length >= 1 ) {
+                belchertown_debug( options.chart.renderTo + ": has " + xAxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
                 options.xAxis = {}
-                options.xAxis.categories = xaxis_categories;
+                options.xAxis.categories = xAxis_categories;
                 options.tooltip = {}
                 options.tooltip = {
                     enabled: true,
@@ -1299,16 +1299,16 @@ function showChart(json_file, prepend_renderTo=false) {
                 belchertown_debug( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
                 
                 // Some charts may require a defined min/max on the yAxis
-                options.yAxis[this_yAxis].min = s.yaxis_min !== "undefined" ? s.yaxis_min : null;
-                options.yAxis[this_yAxis].max = s.yaxis_max !== "undefined" ? s.yaxis_max : null;
+                options.yAxis[this_yAxis].min = s.yAxis_min !== "undefined" ? s.yAxis_min : null;
+                options.yAxis[this_yAxis].max = s.yAxis_max !== "undefined" ? s.yAxis_max : null;
                 
                 // Some charts may require a defined soft min/max on the yAxis
-                options.yAxis[this_yAxis].softMin = s.yaxis_softmin !== "undefined" ? parseInt(s.yaxis_softmin) : null;
-                options.yAxis[this_yAxis].softMax = s.yaxis_softmax !== "undefined" ? parseInt(s.yaxis_softmax) : null;
+                options.yAxis[this_yAxis].softMin = s.yAxis_softMin !== "undefined" ? parseInt(s.yAxis_softMin) : null;
+                options.yAxis[this_yAxis].softMax = s.yAxis_softMax !== "undefined" ? parseInt(s.yAxis_softMax) : null;
 
                 // Set the yAxis tick interval. Mostly used for barometer. 
-                if ( s.yaxis_tickinterval ) { 
-                    options.yAxis[this_yAxis].tickInterval = s.yaxis_tickinterval;
+                if ( s.yAxis_tickInterval ) { 
+                    options.yAxis[this_yAxis].tickInterval = s.yAxis_tickInterval;
                 }
                 
                 // Set yAxis minorTicks. This is a graph-wide setting so setting it for any of the yAxis will set it for the graph itself
@@ -1318,7 +1318,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    if ( typeof s.yaxis_tickinterval === "undefined" ) { 
+                    if ( typeof s.yAxis_tickInterval === "undefined" ) { 
                         // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
                         options.yAxis[this_yAxis].tickInterval = 0.01;
                     }

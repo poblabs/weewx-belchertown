@@ -1136,12 +1136,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 connectNulls = plot_options.get("connectNulls", "false")
                 output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
                 
-                xaxis_groupby = plot_options.get('xaxis_groupby', None)
-                xaxis_categories = plot_options.get('xaxis_categories', "")
+                xAxis_groupby = plot_options.get('xAxis_groupby', None)
+                xAxis_categories = plot_options.get('xAxis_categories', "")
                 # Check if this is a list. If not then we have 1 item, so force it into a list
-                if isinstance(xaxis_categories, list) is False:
-                    xaxis_categories = xaxis_categories.split()
-                output[chart_group][plotname]["options"]["xaxis_categories"] = xaxis_categories
+                if isinstance(xAxis_categories, list) is False:
+                    xAxis_categories = xAxis_categories.split()
+                output[chart_group][plotname]["options"]["xAxis_categories"] = xAxis_categories
                 
                 # Grab any per-chart tooltip date format overrides
                 plot_tooltip_date_format = plot_options.get('tooltip_date_format', None)
@@ -1293,12 +1293,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name]["name"] = name
 
                     # Set the yAxis min and max if present. Useful for the rxCheckPercent plots
-                    yaxis_min = line_options.get('yaxis_min', None)
-                    if yaxis_min:
-                        output[chart_group][plotname]["series"][line_name]["yaxis_min"] = yaxis_min
-                    yaxis_max = line_options.get('yaxis_max', None)
-                    if yaxis_max:
-                        output[chart_group][plotname]["series"][line_name]["yaxis_max"] = yaxis_max
+                    yAxis_min = line_options.get('yAxis_min', None)
+                    if yAxis_min:
+                        output[chart_group][plotname]["series"][line_name]["yAxis_min"] = yAxis_min
+                    yAxis_max = line_options.get('yAxis_max', None)
+                    if yAxis_max:
+                        output[chart_group][plotname]["series"][line_name]["yAxis_max"] = yAxis_max
                         
                     # Add rounding from weewx.conf/skin.conf so Highcharts can use it
                     if observation_type == "rainTotal":
@@ -1315,15 +1315,15 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name]["rounding"] = "-1"
                     
                     # Build series data
-                    series_data = self.get_observation_data(binding, archive, observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value, weatherRange_obs_lookup)
+                    series_data = self.get_observation_data(binding, archive, observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup)
 
                     # Build the final series data JSON
                     if isinstance(series_data, dict):
-                        # If the returned type is a dict, then it's from the xaxis groupby section containing labels. Need to repack data, and update xaxis_categories.
+                        # If the returned type is a dict, then it's from the xAxis groupby section containing labels. Need to repack data, and update xAxis_categories.
                         # Use SQL Labels?
                         if "use_sql_labels" in series_data:
                             if series_data["use_sql_labels"]:
-                                output[chart_group][plotname]["options"]["xaxis_categories"] = series_data["xaxis_groupby_labels"]
+                                output[chart_group][plotname]["options"]["xAxis_categories"] = series_data["xAxis_groupby_labels"]
                         elif "weatherRange" in series_data:
                             output[chart_group][plotname]["series"][line_name]["range_unit"] = series_data["range_unit"]
                             output[chart_group][plotname]["series"][line_name]["range_unit_label"] = series_data["range_unit_label"]
@@ -1347,7 +1347,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             with open(chart_json_filename, mode='w') as cjf:
                 cjf.write( json.dumps( self.chart_dict ) )
 
-    def get_observation_data(self, binding, archive, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xaxis_groupby, xaxis_categories, mirrored_value, weatherRange_obs_lookup):
+    def get_observation_data(self, binding, archive, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
         if observation == "windRose":
@@ -1694,7 +1694,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         else:
             obs_lookup = observation
         
-        if xaxis_groupby or len(xaxis_categories) >= 1:
+        if xAxis_groupby or len(xAxis_categories) >= 1:
             # Setup the converter - for some reason self.converter doesn't work for the group_unit_dict in this section
             # Get the target unit nickname (something like 'US' or 'METRIC'):
             target_unit_nickname = self.config_dict['StdConvert']['target_unit']
@@ -1708,17 +1708,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             database = self.config_dict['DataBindings'][data_binding]['database']
             database_type = self.config_dict['Databases'][database]['database_type']
             driver = self.config_dict['DatabaseTypes'][database_type]['driver']
-            xaxis_labels = []
+            xAxis_labels = []
             obsvalues = []
             
-            # Define the xaxis group by for the sql query. Default to month
-            if xaxis_groupby == "day":
+            # Define the xAxis group by for the sql query. Default to month
+            if xAxis_groupby == "day":
                 strformat = "%d"
-            elif xaxis_groupby == "month":
+            elif xAxis_groupby == "month":
                 strformat = "%m"
-            elif xaxis_groupby == "year":
+            elif xAxis_groupby == "year":
                 strformat = "%Y"
-            elif xaxis_groupby == "":
+            elif xAxis_groupby == "":
                 strformat = "%m"
             else:
                 strformat = "%m"
@@ -1728,9 +1728,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_type = "sum"
                 
             if driver == "weedb.sqlite":
-                sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
+                sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xAxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xAxis_groupby )
             elif driver == "weedb.mysql":
-                sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xaxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xaxis_groupby )
+                sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format( strformat, xAxis_groupby, aggregate_type, obs_lookup, start_ts, end_ts, xAxis_groupby )
             
             # Setup values for the converter
             try:
@@ -1743,7 +1743,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             
             query = archive.genSql( sql_lookup )
             for row in query:
-                xaxis_labels.append( row[0] )
+                xAxis_labels.append( row[0] )
                 row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
                 row_converted = self.converter.convert( row_tuple )
                 obsvalues.append( row_converted[0] )
@@ -1755,10 +1755,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         obsvalues[i] = -obsvalues[i]
 
             # Return a dict which has the value for if we need to add labels from sql or not. 
-            if len(xaxis_categories) == 0:
-                data = {"use_sql_labels": True, "xaxis_groupby_labels": xaxis_labels, "obsdata": obsvalues}
+            if len(xAxis_categories) == 0:
+                data = {"use_sql_labels": True, "xAxis_groupby_labels": xAxis_labels, "obsdata": obsvalues}
             else:
-                data = {"use_sql_labels": False, "xaxis_groupby_labels": "", "obsdata": obsvalues}
+                data = {"use_sql_labels": False, "xAxis_groupby_labels": "", "obsdata": obsvalues}
             return data
         
         # Begin standard observation lookups
