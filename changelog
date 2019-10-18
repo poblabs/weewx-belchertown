@@ -5,6 +5,7 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * graphs.conf option xaxis_groupby is now xAxis_groupby (case sensitive)
 * graphs.conf option xaxis_categories is now xAxis_categories (case sensitive)
 * graphs.conf option yAxisLabel is now yAxis_label (case sensitive)
+* graphs.conf option yAxisLabel_unit is now yAxis_label_unit (case sensitive)
 * graphs.conf option yaxis_min is now yAxis_min (case sensitive)
 * graphs.conf option yaxis_max is now yAxis_max (case sensitive)
 * graphs.conf option yaxis_softmin is now yAxis_softMin (case sensitive)

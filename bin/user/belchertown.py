@@ -1241,7 +1241,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         obs_label = weatherRange_obs_lookup
                     else:
                         obs_label = observation_type
-                    unit_label = line_options.get('yAxisLabel_unit', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
+                    unit_label = line_options.get('yAxis_label_unit', weewx.units.get_label_string(self.formatter, self.converter, obs_label))
                     
                     # Set the yAxis label. Place into series for custom JavaScript. Highcharts will ignore these by default
                     yAxisLabel_config = line_options.get('yAxis_label', None)
