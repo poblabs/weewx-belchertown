@@ -219,6 +219,12 @@ class getData(SearchList):
                 chartgroup_titles[chartgroup] = chart_dict[chartgroup]["title"]
             else:
                 chartgroup_titles[chartgroup] = chartgroup
+
+        # Create a dict of chart group page content for use on the graphs page below the header. 
+        graphpage_content = OrderedDict()
+        for chartgroup in chart_dict.sections:
+            if "page_content" in chart_dict[chartgroup]:
+                graphpage_content[chartgroup] = chart_dict[chartgroup]["page_content"]
         
         # Setup the Graphs page button row based on the skin extras option and the button_text from graphs.conf
         graph_page_buttons = ""
@@ -936,6 +942,7 @@ class getData(SearchList):
                                   'charts': json.dumps(charts),
                                   'chartgroup_titles': json.dumps(chartgroup_titles),
                                   'chartgroup_titles_dict': chartgroup_titles,
+                                  'graphpage_content': json.dumps(graphpage_content),
                                   'graph_page_buttons': graph_page_buttons,
                                   'alltime' : all_stats,
                                   'year_outTemp_range_max': year_outTemp_range_max,

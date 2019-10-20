@@ -16,6 +16,7 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
 * Added new time_length option called timespan_specific. This allows you define a static start and end time to be graphed. For example 6 hours, or 2 specific days, or 4 specific months. This offers a lot of flexibility in your graphs. See Wiki for timespan_specific.
 * Added per-chart generation timers. You can control how often your charts are generated. Helpful if you have some data that's not updated frequently. Check Wiki for more info on the `generator` option.
+* Added new graph group option page_content. This option takes full HTML and will display on the graphs page under the title. Can be used as a content area for the page. Examples are a quick description of the graphs being displayed, or even more elaborate description with images. 
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
 * Added the ability to enable chart exporting using the Highcharts exporting utility.
