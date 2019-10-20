@@ -21,8 +21,8 @@
                             // Build all graphs
                             var i = 0;
                             for (var graphgroup in graphgroups_raw) {
-                                // Rename the graph_outer div to remove CSS
-                                jQuery(".graph_outer").attr("class", "graph_outer_all");
+                                // Rename the graph-outer div to remove CSS
+                                jQuery(".graph-outer").attr("class", "graph-outer-all");
                                 
                                 var page_content = "";
                                 if ( graphpage_content[graphgroup] ) {
@@ -30,7 +30,7 @@
                                 }
                                 
                                 // Loop through every graph group defined and add a title section
-                                jQuery(".graph_outer_all").append('\
+                                jQuery(".graph-outer-all").append('\
                                     <div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">\
                                         <div class="graphpage-title wx-buttons-description">\
                                             <a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a>\
@@ -58,7 +58,7 @@
                             // Loop through the graph group for this page and add the graph divs to the page
                             try {
                                 thisPageGraphs.forEach( graphID => {
-                                    jQuery(".graph_outer").append('<div class="col-sm-12"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                                    jQuery(".graph-outer").append('<div class="col-sm-12"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
                                 });
                                 
                                 // Set page title
@@ -94,7 +94,7 @@
                 
                 <div class="graphpage-content col-sm-12"></div><!-- JS populated -->
                 
-                <div class="graph_outer"></div><!-- JS populated -->
+                <div class="graph-outer"></div><!-- JS populated -->
                 
                 <div class="clear"></div>
                 
