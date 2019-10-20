@@ -213,12 +213,12 @@ class getData(SearchList):
             charts[chart_timespan] = timespan_chart_list
         
         # Create a dict of chart group titles for use on the graphs page header. If no title defined, use the chart group name
-        chartgroup_titles = OrderedDict()
+        graphpage_titles = OrderedDict()
         for chartgroup in chart_dict.sections:
             if "title" in chart_dict[chartgroup]:
-                chartgroup_titles[chartgroup] = chart_dict[chartgroup]["title"]
+                graphpage_titles[chartgroup] = chart_dict[chartgroup]["title"]
             else:
-                chartgroup_titles[chartgroup] = chartgroup
+                graphpage_titles[chartgroup] = chartgroup
 
         # Create a dict of chart group page content for use on the graphs page below the header. 
         graphpage_content = OrderedDict()
@@ -940,8 +940,8 @@ class getData(SearchList):
                                   'archive_interval_ms': archive_interval_ms,
                                   'ordinate_names': ordinate_names,
                                   'charts': json.dumps(charts),
-                                  'chartgroup_titles': json.dumps(chartgroup_titles),
-                                  'chartgroup_titles_dict': chartgroup_titles,
+                                  'graphpage_titles': json.dumps(graphpage_titles),
+                                  'graphpage_titles_dict': graphpage_titles,
                                   'graphpage_content': json.dumps(graphpage_content),
                                   'graph_page_buttons': graph_page_buttons,
                                   'alltime' : all_stats,
