@@ -1205,6 +1205,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
                         yearstamp = int(time.mktime(year_dt.timetuple()))
                         minstamp, maxstamp = archiveYearSpan( yearstamp )
+                    elif time_length == "timespan_specific":
+                        minstamp = line_options.get('timespan_start', None)
+                        maxstamp = line_options.get('timespan_stop', None)
+                        if minstamp is None or maxstamp is None:
+                            raise Warning( "Error trying to create timespan_specific graph. You are missing either timespan_start or timespan_stop options." )
                     elif time_length == "all":
                         minstamp = start_ts
                         maxstamp = stop_ts
@@ -1789,10 +1794,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 usage_round = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
                 obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
             
-        # "Today" charts and floating timespan charts have the point timestamp on the stop time so we don't see the 
+        # "Today" charts, "timespan_specific" charts and floating timespan charts have the point timestamp on the stop time so we don't see the 
         # previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
         # Everything else has it on the start time so we don't see the next day in the tooltip (e.g. Jan 2 instead of Jan 1)
-        if time_length == "today" or isinstance(time_length, int):
+        if time_length == "today" or time_length == "timespan_specific" or isinstance(time_length, int):
             point_timestamp = time_stop_vt
         else:
             point_timestamp = time_start_vt

@@ -14,8 +14,9 @@ These changes are to align the skin closer to the way Highcharts has their optio
 
 ### Added
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
-* Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
+* Added new time_length option called timespan_specific. This allows you define a static start and end time to be graphed. For example 6 hours, or 2 specific days, or 4 specific months. This offers a lot of flexibility in your graphs. See Wiki for timespan_specific.
 * Added per-chart generation timers. You can control how often your charts are generated. Helpful if you have some data that's not updated frequently. Check Wiki for more info on the `generator` option.
+* Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
 * Added the ability to enable chart exporting using the Highcharts exporting utility.
 * Added permanent links (permalink) to individual graphs within the Graphs page. Just copy/paste the link from the title of the individual graph you want to directly link to. When accessing this URL, the page will scroll to the graph specified in the URL. The permalink is the name of the [[chart]] inside the double brackets in graphs.conf. To make this a pretty URL, you need to change the name of the [[chart]] inside graphs.conf.
