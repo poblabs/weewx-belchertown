@@ -578,7 +578,7 @@ img.alignright {
 }
 
 .header-image .site-title > a {
-	background: url('') no-repeat left;
+	/* background: url('') no-repeat left; */
 	float: left;
 	min-height: 80px;
 	width: 100%;
@@ -1004,7 +1004,6 @@ p.entry-meta {
 	
 	.site-header .widget-area {
 		float: none;
-		text-align: auto;
 	}
 	
 	.menu-toggle {
@@ -1663,6 +1662,15 @@ p.entry-meta {
     text-decoration:none;
 }
 
+/* Flip the weather icons for southern hemisphere */
+.southern-hemisphere {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+
 .modal-lg {
     /* width: 900px !important; */
     /* margin: 30px auto; */
@@ -1674,6 +1682,7 @@ p.entry-meta {
 
 .celestial_body { 
     display:inline-block;
+    margin-right: 22px;
 }
 
 table.celestial td.label { 
@@ -1771,9 +1780,20 @@ table.celestial td.label {
     text-align:center;
 }
 
+.graph-outer {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .highcharts-row {
 	/* border-top:1px solid #D7D7D7; */
 	/* margin-top:25px; */
+}
+
+span.highcharts-title {
+    width: 100% !important;
+    text-align: center !important;
 }
 
 .wx-buttons { 
@@ -2048,6 +2068,10 @@ input:checked + .slider:before {
 	
     .sun { float: left; }
     .moon { float: right; }
+    
+    .page .sun-moon-modal a {
+        font-size: 20px;
+    }
 	
 	.forecast-subtitle {
 		display: block;
@@ -2175,12 +2199,10 @@ input:checked + .slider:before {
         font-weight: normal;
         padding: 0px;
         overflow: hidden;
-        overflow-x: hidden;
-        overflow-y:hidden;
         overflow: -moz-scrollbars-none;
         -ms-overflow-style: none;
     }
-    body::-webkit-scrollbar { width: 0 !important }
+    body.pi::-webkit-scrollbar { width: 0 !important }
 	
     /* bold kiosk display font if chosen in skin.conf or weewx.conf */	
 	.pi .site-inner-bold {

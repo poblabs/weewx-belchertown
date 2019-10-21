@@ -36,18 +36,14 @@
         #end if
         
         jQuery(document).ready(function() {
-            #if $unit.unit_type.outTemp == "degree_F"
-            update_outtemp_F( "$current.outTemp.formatted" );
-            #else
-            update_outtemp_C( "$current.outTemp.formatted" );
-            #end if
+            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
             rotateThis( "$current.windDir.formatted" );
             
             #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
             if ( moment.unix( "$earthquake_time" ).isValid() ) {
                 // Check that the time is the time (number) and not the "no earthquake available" wording
-                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_earthquake" ) );
             } else {
                 jQuery(".earthquake-time").html( "$earthquake_time" );
             }
@@ -59,7 +55,7 @@
             // Loop through the graph groups for this page and add the graph divs to the page
             try {
                 thisPageGraphs.forEach( graphID => {
-                    jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div></div>');
+                    jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
                 });
                 showChart(homepage_graphgroup);
             } catch(err) {
@@ -177,7 +173,7 @@
                             <div class="weather-obs-top">
                                 <div class="row temp-observation">
                                     <div class="col-sm-5 current_obs_top">
-                                        <img src="$relative_url/images/$current_obs_icon">
+                                        <img id="wxicon" src="$relative_url/images/$current_obs_icon">
                                     </div>
                                     <div class="col-sm-7 current_temp">
                                         <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
@@ -300,19 +296,19 @@
                                                             #if $almanac.moon_index == 0
                                                                 <div class='wi wi-moon-alt-new'></div>
                                                             #else if $almanac.moon_index == 1
-                                                                <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                                <div class='wi wi-moon-alt-waxing-crescent-1 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 2
-                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
                                                             #else if $almanac.moon_index == 3
-                                                                <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                                <div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 4
                                                                 <div class='wi wi-moon-alt-full'></div>
                                                             #else if $almanac.moon_index == 5
-                                                                <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                                <div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 6
-                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
                                                             #else if $almanac.moon_index == 7
-                                                                <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                                <div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>
                                                             #end if
                                                         </span>
                                                         <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
@@ -482,10 +478,10 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$relative_url/graphs">$obs.label.homepage_graphs_link</a>
+                        <span class="homepage-graphgroup-title">$graphpage_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$relative_url/graphs">$obs.label.homepage_graphs_link</a>
                     </div>
                     
-                    <div class="graph_outer row"></div><!-- JS populated -->
+                    <div class="graph-outer row"></div><!-- JS populated -->
                     
                 </div>
                 <!-- End of fourth row -->
