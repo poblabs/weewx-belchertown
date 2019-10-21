@@ -352,7 +352,9 @@
                             #end if
 							              
                             <!-- Add new table entries -->
+                            #if os.path.exists("records_table.inc")
                             #include "records_table.inc"
+                            #end if
                             
                         </tbody>
                     </table>
