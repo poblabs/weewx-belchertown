@@ -11,6 +11,8 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * graphs.conf option yaxis_softmin is now yAxis_softMin (case sensitive)
 * graphs.conf option yaxis_softmax is now yAxis_softMax (case sensitive)
 * graphs.conf option yaxis_tickinterval is now yAxis_tickInterval (case sensitive)
+* skin.conf option time_lastUpdated is now called time_last_updated
+* skin.conf option time_mqtt_websockets_last_updated is deleted as it was a duplicate of time_last_updated
 
 ### Added
 * Added weatherRadial observation, unique to Belchertown, which shows the high and low outTemp for a given timespan, as a columnrange polar chart. See wiki for examples. 
@@ -30,6 +32,7 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * Preparation in a lot of code for upcoming weewx v4 which will focus on Python 3
 * Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
 * Moved the JavaScript outTemp color into 1 consolidated function.
+* Added timestamps to the MQTT Websocket connection status headers which will show when the weather data is current as of. Helpful if your MQTT broker isn't connecting or there's an error, this lets your visitors know how recent the data on the page is.
 * Updated footer layout
 
 ### Fixed

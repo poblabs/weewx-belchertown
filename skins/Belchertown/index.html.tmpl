@@ -122,7 +122,7 @@
             #end if
             
             // Update the Last Updated timestamp with moment.js,
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_lastUpdated");
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
             updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
             
