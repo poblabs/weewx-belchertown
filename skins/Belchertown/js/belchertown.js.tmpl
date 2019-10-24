@@ -816,7 +816,7 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("interval_minute") ) {
         // Delays are recommended to allow the other skins to complete processing
         belchertown_debug( "MQTT: MQTT message indicates this is an archive interval." );
-        setTimeout( function() { showChart(homepage_graphgroup); }, 30000 ); // Load updated charts
+        setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
