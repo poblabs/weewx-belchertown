@@ -617,20 +617,23 @@ function connect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
     
-    client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
-    client.onConnectionLost = onConnectionLost;
-    client.onMessageArrived = onMessageArrived;
-    var options = {
-        #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
-        useSSL: true,
-        #else
-        useSSL: false,
-        #end if
-        onSuccess:onConnect,
-        onFailure:onFailure
-      }
+	if (location.protocol === 'https:') 
+		{
+			client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port_ssl, mqttclient);
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+			var options = {useSSL: true,onSuccess:onConnect,onFailure:onFailure}
+		}
+	else
+		{
+			client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+			var options = {useSSL: false,onSuccess:onConnect,onFailure:onFailure}
+		}
     client.connect( options );
 }
+
 
 // MQTT connect callback
 function onConnect() {
