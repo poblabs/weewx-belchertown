@@ -629,7 +629,7 @@ function update_forecast_data( data ) {
         output_html += '<img id="icon" src="'+image_url+'">';
         output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
         output_html += '</div>';
-        output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
+        output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-precip">';
         if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
@@ -903,7 +903,7 @@ function update_current_wx(data) {
         // No toLocaleString() here since there is no float decimal needed.
         rotateThis( data["windDir"] );
         //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-        jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+        jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
         jQuery(".curwinddir").text( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
     // Windspeed US

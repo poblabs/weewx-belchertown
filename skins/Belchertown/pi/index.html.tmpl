@@ -483,7 +483,7 @@
                 output_html += '<img id="icon" src="'+image_url+'">';
                 output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
                 output_html += '</div>';
-                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
+                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
                 output_html += '<br>';
                 output_html += '<div class="forecast-precip">';
                 if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
@@ -648,7 +648,7 @@
             if ( data.hasOwnProperty("windDir") ) {
                 rotateThis( data["windDir"] );
                 //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+                jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
                 jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
             }
             // Windspeed US
