@@ -128,11 +128,6 @@
             "min": "$day.barometer.min",
             "mintime": "$day.barometer.mintime"
         },
-        "rain": {
-            "sum": "$day.rain.sum",
-            "max": "$day.rainRate.max",
-            "maxtime": "$day.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$day.wind.max",
             "maxtime": "$day.wind.maxtime",
@@ -148,17 +143,26 @@
             #end if
             "rms": "$day.wind.rms"
         },
+        #if $day.UV.has_data
         "uv": {
             "max": "$day.UV.max",
             "maxtime": "$day.UV.maxtime",
             "min": "$day.UV.min",
             "mintime": "$day.UV.mintime"
         },
+        #end if
+        #if $day.radiation.has_data
         "solar_radiation": {
             "max": "$day.radiation.max",
             "maxtime": "$day.radiation.maxtime",
             "min": "$day.radiation.min",
             "mintime": "$day.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$day.rain.sum",
+            "max": "$day.rainRate.max",
+            "maxtime": "$day.rainRate.maxtime"
         }
     },
     
@@ -203,11 +207,6 @@
             "min": "$week.barometer.min",
             "mintime": "$week.barometer.mintime"
         },
-        "rain": {
-            "sum": "$week.rain.sum",
-            "max": "$week.rainRate.max",
-            "maxtime": "$week.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$week.wind.max",
             "maxtime": "$week.wind.maxtime",
@@ -223,18 +222,27 @@
             #end if
             "rms": "$week.wind.rms"
         },
+        #if $week.UV.has_data
         "uv": {
             "max": "$week.UV.max",
             "maxtime": "$week.UV.maxtime",
             "min": "$week.UV.min",
             "mintime": "$week.UV.mintime"
         },
+        #end if
+        #if $week.radiation.has_data
         "solar_radiation": {
             "max": "$week.radiation.max",
             "maxtime": "$week.radiation.maxtime",
             "min": "$week.radiation.min",
             "mintime": "$week.radiation.mintime"
-        }
+        },
+        #end if
+        "rain": {
+            "sum": "$week.rain.sum",
+            "max": "$week.rainRate.max",
+            "maxtime": "$week.rainRate.maxtime"
+        } 
     },
     
     "month": {
@@ -278,11 +286,6 @@
             "min": "$month.barometer.min",
             "mintime": "$month.barometer.mintime"
         },
-        "rain": {
-            "sum": "$month.rain.sum",
-            "max": "$month.rainRate.max",
-            "maxtime": "$month.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$month.wind.max",
             "maxtime": "$month.wind.maxtime",
@@ -298,17 +301,26 @@
             #end if
             "rms": "$month.wind.rms"
         },
+        #if $month.UV.has_data
         "uv": {
             "max": "$month.UV.max",
             "maxtime": "$month.UV.maxtime",
             "min": "$month.UV.min",
             "mintime": "$month.UV.mintime"
         },
+        #end if
+        #if $month.radiation.has_data
         "solar_radiation": {
             "max": "$month.radiation.max",
             "maxtime": "$month.radiation.maxtime",
             "min": "$month.radiation.min",
             "mintime": "$month.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$month.rain.sum",
+            "max": "$month.rainRate.max",
+            "maxtime": "$month.rainRate.maxtime"
         }
     },
     
@@ -353,11 +365,6 @@
             "min": "$year.barometer.min",
             "mintime": "$year.barometer.mintime"
         },
-        "rain": {
-            "sum": "$year.rain.sum",
-            "max": "$year.rainRate.max",
-            "maxtime": "$year.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$year.wind.max",
             "maxtime": "$year.wind.maxtime",
@@ -373,17 +380,26 @@
             #end if
             "rms": "$year.wind.rms"
         },
+        #if $year.UV.has_data
         "uv": {
             "max": "$year.UV.max",
             "maxtime": "$year.UV.maxtime",
             "min": "$year.UV.min",
             "mintime": "$year.UV.mintime"
         },
+        #end if
+        #if $year.radiation.has_data
         "solar_radiation": {
             "max": "$year.radiation.max",
             "maxtime": "$year.radiation.maxtime",
             "min": "$year.radiation.min",
             "mintime": "$year.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$year.rain.sum",
+            "max": "$year.rainRate.max",
+            "maxtime": "$year.rainRate.maxtime"
         }
     },
     "almanac": {
