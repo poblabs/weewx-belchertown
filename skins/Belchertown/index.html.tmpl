@@ -70,7 +70,8 @@
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
             connect(); // Begin mqtt after weewx initial load
             // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
-            jQuery(document).on('click', '.restart-interval', function() { 
+            function restartInterval() {
+                inactive(); // If, by chance, the current socket is still connected, disconnect first
                 ajaxweewx(); // Update weewx data
                 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                 ajaxforecast(); // Update forecast data
@@ -80,8 +81,27 @@
                 #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                 showChart(homepage_graphgroup);
                 #end if
+            }
+            jQuery(document).on('click', '.restart-interval', restartInterval);
+
+            let hidden;
+            let visibilityChange;
+            if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support
+                hidden = 'hidden';
+                visibilityChange = 'visibilitychange';
+            } else if (typeof document.msHidden !== 'undefined') {
+                hidden = 'msHidden';
+                visibilityChange = 'msvisibilitychange';
+            } else if (typeof document.webkitHidden !== 'undefined') {
+                hidden = 'webkitHidden';
+                visibilityChange = 'webkitvisibilitychange';
+            }
+            jQuery(document).on(visibilityChange, () => {
+                if (!document[hidden]) {
+                   restartInterval();
+                }
             });
-            
+
             #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
             // Update any images in the radar section or hooks
         
