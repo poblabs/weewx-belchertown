@@ -853,10 +853,11 @@ class getData(SearchList):
         """
         all_obs_rounding_json = OrderedDict()
         all_obs_unit_labels_json = OrderedDict()
-        for obs, group in sorted(weewx.units.obs_group_dict.items()):
+        for obs in sorted(weewx.units.obs_group_dict):
             try:
                 # Find the unit from group (like group_temperature = degree_F)
-                obs_unit = self.generator.converter.group_unit_dict[group]
+                obs_group = weewx.units.obs_group_dict[obs]
+                obs_unit = self.generator.converter.group_unit_dict[obs_group]
             except:
                 # Something's wrong. Continue this loop to ignore this group (like group_dust or something non-standard)
                 continue
@@ -872,7 +873,7 @@ class getData(SearchList):
                 obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(obs_unit, "")
             # Add to label array and strip whitespace if possible
             if obs not in all_obs_unit_labels_json:
-                all_obs_unit_labels_json[obs] = str(obs_unit_label)
+                all_obs_unit_labels_json[obs] = obs_unit_label
             
             # Special handling items
             if visibility:
@@ -882,8 +883,6 @@ class getData(SearchList):
                 all_obs_rounding_json["visibility"] = ""
                 all_obs_unit_labels_json["visibility"] = ""
                 
-
-            
         """
         Social Share
         """
