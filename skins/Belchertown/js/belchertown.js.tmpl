@@ -719,7 +719,7 @@ function connect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
     
-    client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+    client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
@@ -728,6 +728,7 @@ function connect() {
         #else
         useSSL: false,
         #end if
+        reconnect: true,
         onSuccess:onConnect,
         onFailure:onFailure
       }
