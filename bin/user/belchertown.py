@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.1b8"
+VERSION = "1.1b9"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -387,7 +387,12 @@ class getData(SearchList):
         if year_rainiest_month_query is not None:
             year_rainiest_month_tuple = (year_rainiest_month_query[1], rain_unit, 'group_rain')
             year_rainiest_month_converted = rain_round % self.generator.converter.convert(year_rainiest_month_tuple)[0]
-            year_rainiest_month = [ calendar.month_name[ int( year_rainiest_month_query[0] ) ], locale.format("%g", float(year_rainiest_month_converted)) ]
+            # Python 2/3 hack
+            try:
+                year_rainiest_month_name = calendar.month_name[ int( year_rainiest_month_query[0] ) ].decode('utf-8') # Python 2
+            except:
+                year_rainiest_month_name = calendar.month_name[ int( year_rainiest_month_query[0] ) ]
+            year_rainiest_month = [ year_rainiest_month_name, locale.format("%g", float(year_rainiest_month_converted)) ]
         else:
             year_rainiest_month = [ "N/A", 0.0 ]
 
@@ -395,8 +400,13 @@ class getData(SearchList):
         at_rainiest_month_query = wx_manager.getSql( at_rainiest_month_sql )
         at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, 'group_rain')
         at_rainiest_month_converted = rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
+        # Python 2/3 hack
+        try:
+            at_rainiest_month_name = calendar.month_name[ int( at_rainiest_month_query[0] ) ].decode('utf-8') # Python 2
+        except:
+            at_rainiest_month_name = calendar.month_name[ int( at_rainiest_month_query[0] ) ]
         at_rainiest_month = [ 
-            "%s, %s" % (calendar.month_name[ int( at_rainiest_month_query[0] ) ], at_rainiest_month_query[1]),
+            "%s, %s" % (at_rainiest_month_name, at_rainiest_month_query[1]),
             locale.format("%g", float(at_rainiest_month_converted))
         ]
         

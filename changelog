@@ -38,6 +38,7 @@ These changes are to align the skin closer to the way Highcharts has their optio
 ### Fixed
 * Fixes multiple database bindings with charts.
 * Fixed some Highcharts int to float issues, and yaxis min/max issues. (Thanks @ShadowsFriend!)
+* Fixed an encoding error in certain situations with Python 2 and 3
 
 ### Removed
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
