@@ -1434,94 +1434,95 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             # Sort by beaufort wind speeds
             group_0_windDir, group_0_windSpeed, group_1_windDir, group_1_windSpeed, group_2_windDir, group_2_windSpeed, group_3_windDir, group_3_windSpeed, group_4_windDir, group_4_windSpeed, group_5_windDir, group_5_windSpeed, group_6_windDir, group_6_windSpeed = ([] for i in range(14))
             for windData in merged:
-                if windSpeed_unit == "mile_per_hour" or windSpeed_unit == "mile_per_hour2":
-                    if windData[1] < 1:
-                        group_0_windDir.append( windData[0] )
-                        group_0_windSpeed.append( windData[1] )
-                    elif 1 <= windData[1] <= 3:
-                        group_1_windDir.append( windData[0] )
-                        group_1_windSpeed.append( windData[1] )
-                    elif 4 <= windData[1] <= 7:
-                        group_2_windDir.append( windData[0] )
-                        group_2_windSpeed.append( windData[1] )
-                    elif 8 <= windData[1] <= 12:
-                        group_3_windDir.append( windData[0] )
-                        group_3_windSpeed.append( windData[1] )
-                    elif 13 <= windData[1] <= 18:
-                        group_4_windDir.append( windData[0] )
-                        group_4_windSpeed.append( windData[1] )
-                    elif 19 <= windData[1] <= 24:
-                        group_5_windDir.append( windData[0] )
-                        group_5_windSpeed.append( windData[1] )
-                    elif windData[1] >= 25:
-                        group_6_windDir.append( windData[0] )
-                        group_6_windSpeed.append( windData[1] )
-                elif windSpeed_unit == "km_per_hour" or windSpeed_unit == "km_per_hour2":
-                    if windData[1] < 2:
-                        group_0_windDir.append( windData[0] )
-                        group_0_windSpeed.append( windData[1] )
-                    elif 2 <= windData[1] <= 5:
-                        group_1_windDir.append( windData[0] )
-                        group_1_windSpeed.append( windData[1] )
-                    elif 6 <= windData[1] <= 11:
-                        group_2_windDir.append( windData[0] )
-                        group_2_windSpeed.append( windData[1] )
-                    elif 12 <= windData[1] <= 19:
-                        group_3_windDir.append( windData[0] )
-                        group_3_windSpeed.append( windData[1] )
-                    elif 20 <= windData[1] <= 28:
-                        group_4_windDir.append( windData[0] )
-                        group_4_windSpeed.append( windData[1] )
-                    elif 29 <= windData[1] <= 38:
-                        group_5_windDir.append( windData[0] )
-                        group_5_windSpeed.append( windData[1] )
-                    elif windData[1] >= 39:
-                        group_6_windDir.append( windData[0] )
-                        group_6_windSpeed.append( windData[1] )
-                elif windSpeed_unit == "meter_per_second" or windSpeed_unit == "meter_per_second2":
-                    if windData[1] < 0.5:
-                        group_0_windDir.append( windData[0] )
-                        group_0_windSpeed.append( windData[1] )
-                    elif 0.5 <= windData[1] <= 1.5:
-                        group_1_windDir.append( windData[0] )
-                        group_1_windSpeed.append( windData[1] )
-                    elif 1.6 <= windData[1] <= 3.3:
-                        group_2_windDir.append( windData[0] )
-                        group_2_windSpeed.append( windData[1] )
-                    elif 3.4 <= windData[1] <= 5.5:
-                        group_3_windDir.append( windData[0] )
-                        group_3_windSpeed.append( windData[1] )
-                    elif 5.6 <= windData[1] <= 7.9:
-                        group_4_windDir.append( windData[0] )
-                        group_4_windSpeed.append( windData[1] )
-                    elif 8 <= windData[1] <= 10.7:
-                        group_5_windDir.append( windData[0] )
-                        group_5_windSpeed.append( windData[1] )
-                    elif windData[1] >= 10.8:
-                        group_6_windDir.append( windData[0] )
-                        group_6_windSpeed.append( windData[1] )
-                elif windSpeed_unit == "knot" or windSpeed_unit == "knot2":
-                    if windData[1] < 1:
-                        group_0_windDir.append( windData[0] )
-                        group_0_windSpeed.append( windData[1] )
-                    elif 1 <= windData[1] <= 3:
-                        group_1_windDir.append( windData[0] )
-                        group_1_windSpeed.append( windData[1] )
-                    elif 4 <= windData[1] <= 6:
-                        group_2_windDir.append( windData[0] )
-                        group_2_windSpeed.append( windData[1] )
-                    elif 7 <= windData[1] <= 10:
-                        group_3_windDir.append( windData[0] )
-                        group_3_windSpeed.append( windData[1] )
-                    elif 11 <= windData[1] <= 16:
-                        group_4_windDir.append( windData[0] )
-                        group_4_windSpeed.append( windData[1] )
-                    elif 17 <= windData[1] <= 21:
-                        group_5_windDir.append( windData[0] )
-                        group_5_windSpeed.append( windData[1] )
-                    elif windData[1] >= 22:
-                        group_6_windDir.append( windData[0] )
-                        group_6_windSpeed.append( windData[1] )
+                if windData is not None:
+                    if windSpeed_unit == "mile_per_hour" or windSpeed_unit == "mile_per_hour2":
+                        if windData[1] < 1:
+                            group_0_windDir.append( windData[0] )
+                            group_0_windSpeed.append( windData[1] )
+                        elif 1 <= windData[1] <= 3:
+                            group_1_windDir.append( windData[0] )
+                            group_1_windSpeed.append( windData[1] )
+                        elif 4 <= windData[1] <= 7:
+                            group_2_windDir.append( windData[0] )
+                            group_2_windSpeed.append( windData[1] )
+                        elif 8 <= windData[1] <= 12:
+                            group_3_windDir.append( windData[0] )
+                            group_3_windSpeed.append( windData[1] )
+                        elif 13 <= windData[1] <= 18:
+                            group_4_windDir.append( windData[0] )
+                            group_4_windSpeed.append( windData[1] )
+                        elif 19 <= windData[1] <= 24:
+                            group_5_windDir.append( windData[0] )
+                            group_5_windSpeed.append( windData[1] )
+                        elif windData[1] >= 25:
+                            group_6_windDir.append( windData[0] )
+                            group_6_windSpeed.append( windData[1] )
+                    elif windSpeed_unit == "km_per_hour" or windSpeed_unit == "km_per_hour2":
+                        if windData[1] < 2:
+                            group_0_windDir.append( windData[0] )
+                            group_0_windSpeed.append( windData[1] )
+                        elif 2 <= windData[1] <= 5:
+                            group_1_windDir.append( windData[0] )
+                            group_1_windSpeed.append( windData[1] )
+                        elif 6 <= windData[1] <= 11:
+                            group_2_windDir.append( windData[0] )
+                            group_2_windSpeed.append( windData[1] )
+                        elif 12 <= windData[1] <= 19:
+                            group_3_windDir.append( windData[0] )
+                            group_3_windSpeed.append( windData[1] )
+                        elif 20 <= windData[1] <= 28:
+                            group_4_windDir.append( windData[0] )
+                            group_4_windSpeed.append( windData[1] )
+                        elif 29 <= windData[1] <= 38:
+                            group_5_windDir.append( windData[0] )
+                            group_5_windSpeed.append( windData[1] )
+                        elif windData[1] >= 39:
+                            group_6_windDir.append( windData[0] )
+                            group_6_windSpeed.append( windData[1] )
+                    elif windSpeed_unit == "meter_per_second" or windSpeed_unit == "meter_per_second2":
+                        if windData[1] < 0.5:
+                            group_0_windDir.append( windData[0] )
+                            group_0_windSpeed.append( windData[1] )
+                        elif 0.5 <= windData[1] <= 1.5:
+                            group_1_windDir.append( windData[0] )
+                            group_1_windSpeed.append( windData[1] )
+                        elif 1.6 <= windData[1] <= 3.3:
+                            group_2_windDir.append( windData[0] )
+                            group_2_windSpeed.append( windData[1] )
+                        elif 3.4 <= windData[1] <= 5.5:
+                            group_3_windDir.append( windData[0] )
+                            group_3_windSpeed.append( windData[1] )
+                        elif 5.6 <= windData[1] <= 7.9:
+                            group_4_windDir.append( windData[0] )
+                            group_4_windSpeed.append( windData[1] )
+                        elif 8 <= windData[1] <= 10.7:
+                            group_5_windDir.append( windData[0] )
+                            group_5_windSpeed.append( windData[1] )
+                        elif windData[1] >= 10.8:
+                            group_6_windDir.append( windData[0] )
+                            group_6_windSpeed.append( windData[1] )
+                    elif windSpeed_unit == "knot" or windSpeed_unit == "knot2":
+                        if windData[1] < 1:
+                            group_0_windDir.append( windData[0] )
+                            group_0_windSpeed.append( windData[1] )
+                        elif 1 <= windData[1] <= 3:
+                            group_1_windDir.append( windData[0] )
+                            group_1_windSpeed.append( windData[1] )
+                        elif 4 <= windData[1] <= 6:
+                            group_2_windDir.append( windData[0] )
+                            group_2_windSpeed.append( windData[1] )
+                        elif 7 <= windData[1] <= 10:
+                            group_3_windDir.append( windData[0] )
+                            group_3_windSpeed.append( windData[1] )
+                        elif 11 <= windData[1] <= 16:
+                            group_4_windDir.append( windData[0] )
+                            group_4_windSpeed.append( windData[1] )
+                        elif 17 <= windData[1] <= 21:
+                            group_5_windDir.append( windData[0] )
+                            group_5_windSpeed.append( windData[1] )
+                        elif windData[1] >= 22:
+                            group_6_windDir.append( windData[0] )
+                            group_6_windSpeed.append( windData[1] )
 
             # Get the windRose data
             group_0_series_data = self.create_windrose_data( group_0_windDir, group_0_windSpeed )
