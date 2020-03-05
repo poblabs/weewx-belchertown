@@ -77,6 +77,14 @@
 
         });
         
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
+        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+        #end if
+        
         // Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
         function getURLvar(k) {
             var p={};
@@ -480,7 +488,7 @@
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
                 output_html += '<div class="forecast-conditions">';
-                output_html += '<img id="icon" src="'+image_url+'">';
+                output_html += '<img id="wxicon" src="'+image_url+'">';
                 output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
                 output_html += '</div>';
                 output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
@@ -739,7 +747,7 @@
                 
                 <div class="col-xs-6 temp-observation">
                     <div class="obs-group">
-                        <img src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
+                        <img id="wxicon" src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
                         <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                         <div class="current-obs-text">$current_obs_summary</div><!-- AJAX -->
                     </div>
