@@ -1086,6 +1086,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             credits_url = chart_options.get("credits_url", "highcharts_default") 
             output[chart_group]["credits_url"] = credits_url
             
+            # Credits position
+            credits_position = chart_options.get("credits_position", "highcharts_default") 
+            output[chart_group]["credits_position"] = credits_position
+            
             # Check if there are any user override on generation periods.
             # Takes the crontab approach. If the words hourly, daily, monthly, yearly are present use them, otherwise use an integer interval if available.
             # Since weewx could be restarted, we'll lose our end-timestamp to trigger off of for chart staleness. 

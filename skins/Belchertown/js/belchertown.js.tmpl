@@ -1008,6 +1008,12 @@ function showChart(json_file, prepend_renderTo=false) {
                 return true;
             }
 
+            // Set the chart credits position, then return right away since this "plot" has no other options
+            if ( plotname == "credits_position" ) {
+                credits_position = obsname;
+                return true;
+            }
+
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
                 switch(optionName) {
@@ -1576,6 +1582,10 @@ function showChart(json_file, prepend_renderTo=false) {
             
             if ( credits_url != "highcharts_default" ) {
                 options.credits.href = credits_url;
+            }
+
+            if ( credits_position != "highcharts_default" ) {
+                options.credits.position = JSON.parse(credits_position);
             }
 
             // Finally all options are done, now show the chart
