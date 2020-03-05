@@ -472,8 +472,14 @@ class getData(SearchList):
             at_days_with_rain_output[row[0]] = at_days_with_rain_total
             at_days_without_rain_output[row[0]] = at_days_without_rain_total
 
-        at_days_with_rain = max( zip( at_days_with_rain_output.values(), at_days_with_rain_output.keys() ) )
-        at_days_without_rain = max( zip( at_days_without_rain_output.values(), at_days_without_rain_output.keys() ) )
+        if len(at_days_with_rain_output) > 0:
+            at_days_with_rain = max( zip( at_days_with_rain_output.values(), at_days_with_rain_output.keys() ) )
+        else:
+            at_days_with_rain = (0,0)
+        if len(at_days_without_rain_output) > 0:
+            at_days_without_rain = max( zip( at_days_without_rain_output.values(), at_days_without_rain_output.keys() ) )
+        else:
+            at_days_without_rain = (0,0)        
 
         """
         This portion is right from the weewx sample http://www.weewx.com/docs/customizing.htm
