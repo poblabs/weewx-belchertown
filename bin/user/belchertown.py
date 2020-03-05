@@ -1434,7 +1434,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             # Sort by beaufort wind speeds
             group_0_windDir, group_0_windSpeed, group_1_windDir, group_1_windSpeed, group_2_windDir, group_2_windSpeed, group_3_windDir, group_3_windSpeed, group_4_windDir, group_4_windSpeed, group_5_windDir, group_5_windSpeed, group_6_windDir, group_6_windSpeed = ([] for i in range(14))
             for windData in merged:
-                if windData is not None:
+                if windData[0] is not None and windData[1] is not None:
                     if windSpeed_unit == "mile_per_hour" or windSpeed_unit == "mile_per_hour2":
                         if windData[1] < 1:
                             group_0_windDir.append( windData[0] )
