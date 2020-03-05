@@ -173,7 +173,9 @@
                             <div class="weather-obs-top">
                                 <div class="row temp-observation">
                                     <div class="col-sm-5 current_obs_top">
+                                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                                         <img id="wxicon" src="$relative_url/images/$current_obs_icon">
+                                        #end if
                                     </div>
                                     <div class="col-sm-7 current_temp">
                                         <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
