@@ -996,6 +996,19 @@ function showChart(json_file, prepend_renderTo=false) {
                 return true;
             }
             
+
+            // Set the chart credits, then return right away since this "plot" has no other options
+            if ( plotname == "credits" ) {
+                credits = obsname.split(",")[0];
+                return true;
+            }
+
+            // Set the chart credits url, then return right away since this "plot" has no other options
+            if ( plotname == "credits_url" ) {
+                credits_url = obsname.split(",")[0];
+                return true;
+            }
+
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
                 switch(optionName) {
@@ -1206,6 +1219,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                     split: true,
                 },
+                
+                credits: {},
 
                 series: [{}]
 
@@ -1556,6 +1571,14 @@ function showChart(json_file, prepend_renderTo=false) {
                 jQuery("#"+options.chart.renderTo).parent().css('width', css_width);
             }
             
+            if ( credits != "highcharts_default" ) {
+                options.credits.text = credits;
+            }
+            
+            if ( credits_url != "highcharts_default" ) {
+                options.credits.href = credits_url;
+            }
+
             // Finally all options are done, now show the chart
             var chart = new Highcharts.chart(options);
             
