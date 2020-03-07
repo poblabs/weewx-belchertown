@@ -794,6 +794,7 @@ class getData(SearchList):
         """
         Get Current Station Observation Data for the table html
         """
+        station_obs_binding = None
         station_obs_json = OrderedDict()
         station_obs_html = ""
         station_observations = self.generator.skin_dict['Extras']['station_observations']
@@ -801,8 +802,16 @@ class getData(SearchList):
         if isinstance(station_observations, list) is False:
             station_observations = station_observations.split()
         current_stamp = manager.lastGoodStamp()
-        current = weewx.tags.CurrentObj(db_lookup, None, current_stamp, self.generator.formatter, self.generator.converter)
+        current = weewx.tags.CurrentObj(db_lookup, station_obs_binding, current_stamp, self.generator.formatter, self.generator.converter)
         for obs in station_observations:
+            if "data_binding" in obs:
+                station_obs_binding = obs[obs.find("(")+1:obs.rfind(")")].split("=")[1] # Thanks https://stackoverflow.com/a/40811994/1177153
+                obs = obs.split("(")[0]
+            if station_obs_binding is not None:
+                obs_binding_manager = self.generator.db_binder.get_manager(station_obs_binding)
+                current_stamp = obs_binding_manager.lastGoodStamp()
+                current = weewx.tags.CurrentObj(db_lookup, station_obs_binding, current_stamp, self.generator.formatter, self.generator.converter)
+            
             if obs == "visibility":
                 try:
                     obs_output = str(visibility) + " " + str(visibility_unit)
