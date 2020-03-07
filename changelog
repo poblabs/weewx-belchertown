@@ -45,6 +45,7 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * Fixed broken image indicator if forecasts is disabled.
 * Fixed icon auto updating on the Pi page.
 * Fixed windRose and null values causing a crash.
+* Fixed moment.js showing the wrong date in the DarkSky forecasts when DST changes happen.
 
 ### Removed
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
