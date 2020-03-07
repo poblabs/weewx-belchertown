@@ -22,6 +22,8 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * Added per-chart width and height control overrides. If this is not specified than the default sizes will be used. 
 * Added css_class option to the charts for more granular and detailed CSS overrides to the charts.
 * Added the ability to enable chart exporting using the Highcharts exporting utility.
+* Added the ability to change the highcharts credits using the "credits" global option.
+* Added the ability for custom CSS options to persist through upgrades using a user-created "custom.css" file.
 * Added permanent links (permalink) to individual graphs within the Graphs page. Just copy/paste the link from the title of the individual graph you want to directly link to. When accessing this URL, the page will scroll to the graph specified in the URL. The permalink is the name of the [[chart]] inside the double brackets in graphs.conf. To make this a pretty URL, you need to change the name of the [[chart]] inside graphs.conf.
 * Version update option. This checks GitHub to see if there's a new version available and then puts a notice in the site footer that an update is available.
 * Added dark mode, and auto theme mode to the Pi version of the skin.
@@ -33,12 +35,16 @@ These changes are to align the skin closer to the way Highcharts has their optio
 * Moved the per-chart timespan to be available per observation. This allows different observations to have different timespans on a single chart. Like comparing rain for this year to rain for all time.
 * Moved the JavaScript outTemp color into 1 consolidated function.
 * Added timestamps to the MQTT Websocket connection status headers which will show when the weather data is current as of. Helpful if your MQTT broker isn't connecting or there's an error, this lets your visitors know how recent the data on the page is.
+* Added ability to specify a database binding for the station_observations table option. Example: "distance_km(data_binding=lightning_binding)".
 * Updated footer layout
 
 ### Fixed
 * Fixes multiple database bindings with charts.
 * Fixed some Highcharts int to float issues, and yaxis min/max issues. (Thanks @ShadowsFriend!)
 * Fixed an encoding error in certain situations with Python 2 and 3
+* Fixed broken image indicator if forecasts is disabled.
+* Fixed icon auto updating on the Pi page.
+* Fixed windRose and null values causing a crash.
 
 ### Removed
 * Removes the belchertown_root_url option. All links are now root relative using "." and "../".
