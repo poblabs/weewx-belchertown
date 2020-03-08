@@ -181,6 +181,10 @@ class getData(SearchList):
         default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
         try:
             ordinate_names = weeutil.weeutil.option_as_list(self.generator.skin_dict['Units']['Ordinates']['directions'])
+            try:
+                ordinate_names = [unicode(x, "utf-8") for x in ordinate_names] # Python 2, convert to unicode
+            except:
+                pass
         except KeyError:
             ordinate_names = default_ordinate_names
             

@@ -1418,7 +1418,13 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
+                #if isinstance($ordinate_names[1], str) is True:
+                ## Python 3 unicode string, don't change anything
                 var categories = $ordinate_names;
+                #else
+                ## Python 2 hack to convert backslash unicode to html char
+                var categories = #echo [x.encode('ascii', 'xmlcharrefreplace') for x in $ordinate_names] #;
+                #end if
                 options.chart.className = "highcharts-windRose"; // Used for dark mode
                 options.chart.type = "column";
                 options.chart.polar = true;
@@ -1431,6 +1437,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
+                options.xAxis.labels = { useHTML: true }
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
                 options.legend.x = 210;
@@ -1454,6 +1461,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.tooltip.shared = true;
                 options.tooltip.valueSuffix = '%';
                 options.tooltip.followPointer = true;
+                options.tooltip.useHTML = true;
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
