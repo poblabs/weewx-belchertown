@@ -909,42 +909,42 @@ function update_current_wx(data) {
         rotateThis( data["windDir"] );
         //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
         jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
-        jQuery(".curwinddir").text( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
+        jQuery(".curwinddir").html( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
     // Windspeed US
     if ( data.hasOwnProperty("windSpeed_mph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed Metric
     if ( data.hasOwnProperty("windSpeed_kph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed METRICWX
     if ( data.hasOwnProperty("windSpeed_mps") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
     if ( data.hasOwnProperty("windGust_mph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust Metric
     if ( data.hasOwnProperty("windGust_kph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust METRICWX
     if ( data.hasOwnProperty("windGust_mps") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     
     // Windchill US
     if ( data.hasOwnProperty("windchill") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").html( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
     // Windchill Metric
     if ( data.hasOwnProperty("windchill_C") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").html( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
 };
 #end if
