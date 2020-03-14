@@ -670,8 +670,11 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
             belchertown_debug("Updating radar image");
             // Reload images
             if ( document.querySelectorAll(".radar-map img").length > 0 ) {
-                var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-                jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
+                var radar_img = document.querySelectorAll(".radar-map img")[0].src;
+                var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
+                document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
+                //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+                //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
             }
             // Reload iframe - https://stackoverflow.com/a/4249946/1177153
             if ( document.querySelectorAll(".radar-map iframe").length > 0 ) {
