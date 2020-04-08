@@ -1,4 +1,26 @@
+#encoding UTF-8
 #import datetime
+
+#if "-" in str($station.stn_info.latitude_f)
+#set global $hemisphere = "southern-hemisphere"
+#else
+#set global $hemisphere = "northern-hemisphere"
+#end if
+
+var pages = ["graphs", "records", "reports", "about"];
+// If this page we're on now is listed as a subpage, use ".." to get to the relative root
+function get_relative_url() {
+    var sPath = window.location.pathname.replace(/\/$/, "");
+    var pageName = sPath.substring(sPath.lastIndexOf('/') + 1);
+    if ( pages.includes( pageName ) ) {
+        var relative_url = "..";
+    } else {
+        var relative_url = ".";
+    }
+    belchertown_debug("URL: Relative URL is: " + relative_url);
+
+    return relative_url;
+}
 
 // Determine if debug is on via URL var or config setting
 if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
@@ -13,7 +35,8 @@ var moment_locale = "$system_locale_js";
 moment.locale(moment_locale);
 
 var graphgroups_raw = $charts;
-var graphgroups_titles = $chartgroup_titles;
+var graphgroups_titles = $graphpage_titles;
+var graphpage_content = $graphpage_content;
 
 function belchertown_debug(message) {
     if (belchertown_debug_config > 0) {
@@ -23,17 +46,26 @@ function belchertown_debug(message) {
 
 jQuery(document).ready(function() {
     
+    // Bootstrap hover tooltips
+    jQuery(function () {
+        jQuery('[data-toggle="tooltip"]').tooltip()
+    })
+    
+    #if $Extras.has_key("check_for_updates") and $Extras.check_for_updates == '1'
+    // Check for updates
+    var update_available = check_for_updates("$belchertown_version", "$github_version");
+    belchertown_debug("Checking Update: update available: " + update_available + " (installed: $belchertown_version - new version: $github_version)");
+    if ( update_available ) {
+        jQuery(".updateavailable").show();
+    }
+    #end if
+    
     // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
     if ( sessionStorage.getItem('theme') == "toggleOverride" ) {
         belchertown_debug("Theme: sessionStorage override in place.");
         changeTheme( sessionStorage.getItem('currentTheme') );
     }
 
-    // Bootstrap hover tooltips
-    jQuery(function () {
-        jQuery('[data-toggle="tooltip"]').tooltip()
-    })
-            
     // Change theme if a URL variable is set
     if ( window.location.search.indexOf('theme') ) {
         if (window.location.search.indexOf('?theme=dark') === 0) {
@@ -45,8 +77,10 @@ jQuery(document).ready(function() {
         } else if (window.location.search.indexOf('?theme=auto') === 0) {
             belchertown_debug("Theme: Setting auto theme because of URL override");
             sessionStorage.setItem('theme', 'auto')
+			#if $almanac.sunrise.raw is not None and $almanac.sunset.raw is not None
             autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
-        }
+			#end if
+		}
     }
 
     #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
@@ -60,6 +94,17 @@ jQuery(document).ready(function() {
         // Silently exit
     }
     #end if
+    
+    // After charts are loaded, if an anchor tag is in the URL, let's scroll to it
+    jQuery(window).on('load', function() {
+        var anchor_tag = location.hash.replace('#','');
+        if ( anchor_tag != '' ) {
+            // Scroll the webpage to the chart. The timeout is to let jQuery finish appending the outer div so the height of the page is completed.
+            setTimeout(function() {
+                jQuery('html, body').animate({ scrollTop: jQuery('#'+anchor_tag).offset().top }, 500);
+            }, 500);
+        }
+    });
     
 });
 
@@ -80,78 +125,106 @@ function getURLvar(k) {
     return k?p[k]:p;
 }
 
+// https://stackoverflow.com/a/53387532/1177153
+// Archived: https://stackoverflow.com/a/52059759/1177153 (also https://helloacm.com/the-javascript-function-to-compare-version-number-strings/)
+function check_for_updates(oldVer, newVer) {
+    // Treat non-numerical characters as lower version
+    // Replacing them with a negative number based on charcode of each character
+    function fix(s) {
+        return "." + (s.toLowerCase().charCodeAt(0) - 99999) + ".";
+    }
+    oldVer = ("" + oldVer).replace(/[^0-9\.]/g, fix).split('.');
+    newVer = ("" + newVer).replace(/[^0-9\.]/g, fix).split('.');
+    var c = Math.max(newVer.length, oldVer.length);
+    for (var i = 0; i < c; i++) {
+        //convert to integer the most efficient way
+        oldVer[i] = ~~oldVer[i];
+        newVer[i] = ~~newVer[i];
+        if (oldVer[i] < newVer[i])
+            return true;
+        else if (oldVer[i] > newVer[i])
+            return false;
+    }
+    return false;
+}
+
 // http://stackoverflow.com/a/14887961/1177153
 var weatherdirection = $obs.label.graphs_windDir_ordinals;
 
 // Change the color of the outTemp_F variable
-function update_outtemp_F( outTemp ) {
+function get_outTemp_color( unit, outTemp, returnColor=false ) {
     outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-    if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1278c8" );
-    } else if ( outTemp <= 25 ) {
-        jQuery(".temp").css( "color", "#30bfef" );
-    } else if ( outTemp <= 32 ) {
-        jQuery(".temp").css( "color", "#1fafdd" );
-    } else if ( outTemp <= 40 ) {
-        jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
-    } else if ( outTemp <= 50 ) {
-        jQuery(".temp").css( "color", "#71bc3c" );
-    } else if ( outTemp <= 55 ) {
-        jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
-    } else if ( outTemp <= 65 ) {
-        jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
-    } else if ( outTemp <= 70 ) {
-        jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
-    } else if ( outTemp <= 75 ) {
-        jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
-    } else if ( outTemp <= 80 ) {
-        jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
-    } else if ( outTemp <= 85 ) {
-        jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
-    } else if ( outTemp <= 90 ) {
-        jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
-    } else if ( outTemp <= 95 ) {
-        jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
-    } else if ( outTemp <= 110 ) {
-        jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
-    } else if ( outTemp >= 111 ) {
-        jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+    if ( unit == "degree_F" ) {
+        if ( outTemp <= 0 ) {
+            var outTemp_color = "#1278c8";
+        } else if ( outTemp <= 25 ) {
+            var outTemp_color = "#30bfef";
+        } else if ( outTemp <= 32 ) {
+            var outTemp_color = "#1fafdd";
+        } else if ( outTemp <= 40 ) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if ( outTemp <= 50 ) {
+            var outTemp_color = "#71bc3c";
+        } else if ( outTemp <= 55 ) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if ( outTemp <= 65 ) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if ( outTemp <= 70 ) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if ( outTemp <= 75 ) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if ( outTemp <= 80 ) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if ( outTemp <= 85 ) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if ( outTemp <= 90 ) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if ( outTemp <= 95 ) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if ( outTemp <= 110 ) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if ( outTemp >= 111 ) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
+    } else if ( unit == "degree_C" ) {
+        if ( outTemp <= 0 ) {
+            var outTemp_color = "#1278c8";
+        } else if ( outTemp <= -3.8 ) {
+            var outTemp_color = "#30bfef";
+        } else if ( outTemp <= 0 ) {
+            var outTemp_color = "#1fafdd";
+        } else if ( outTemp <= 4.4 ) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if ( outTemp <= 10 ) {
+            var outTemp_color = "#71bc3c";
+        } else if ( outTemp <= 12.7 ) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if ( outTemp <= 18.3 ) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if ( outTemp <= 21.1 ) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if ( outTemp <= 23.8 ) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if ( outTemp <= 26.6 ) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if ( outTemp <= 29.4 ) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if ( outTemp <= 32.2 ) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if ( outTemp <= 35 ) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if ( outTemp <= 43.3 ) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if ( outTemp >= 43.4 ) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
     }
-}
-
-// Change the color of the outTemp_C variable
-function update_outtemp_C( outTemp ) {
-    outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-    if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1278c8" );
-    } else if ( outTemp <= -3.8 ) {
-        jQuery(".temp").css( "color", "#30bfef" );
-    } else if ( outTemp <= 0 ) {
-        jQuery(".temp").css( "color", "#1fafdd" );
-    } else if ( outTemp <= 4.4 ) {
-        jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
-    } else if ( outTemp <= 10 ) {
-        jQuery(".temp").css( "color", "#71bc3c" );
-    } else if ( outTemp <= 12.7 ) {
-        jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
-    } else if ( outTemp <= 18.3 ) {
-        jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
-    } else if ( outTemp <= 21.1 ) {
-        jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
-    } else if ( outTemp <= 23.8 ) {
-        jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
-    } else if ( outTemp <= 26.6 ) {
-        jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
-    } else if ( outTemp <= 29.4 ) {
-        jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
-    } else if ( outTemp <= 32.2 ) {
-        jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
-    } else if ( outTemp <= 35 ) {
-        jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
-    } else if ( outTemp <= 43.3 ) {
-        jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
-    } else if ( outTemp >= 43.4 ) {
-        jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+    
+    // Return the color value if requested, otherwise just set the div color
+    if ( returnColor ) {
+        return outTemp_color;
+    } else {
+        jQuery(".outtemp_outer").css( "color", outTemp_color );
     }
 }
 
@@ -221,6 +294,10 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
                 // If decimalPoint is undefined, use the auto detect from the skin since this comes from the skin.
                 if ( typeof decimalPoint === "undefined" ) {
                     decimalPoint = "$highcharts_decimal";
+                }
+                // If thousandsSep is undefined, use the auto detect from the skin since this comes from the skin.
+                if ( typeof thousandsSep === "undefined" ) {
+                    thousandsSep = "$highcharts_thousands";
                 }
                     
                 output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
@@ -345,20 +422,32 @@ function changeTheme(themeName, toggleOverride=false) {
 }
 
 function ajaxweewx() {
-    jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
+    // Relative URL
+    jQuery.getJSON(get_relative_url() + "/json/weewx_data.json", update_weewx_data);
 };
 
 // Update weewx data elements
-var station_obs_array = "";
+//var station_obs_array = "";
+var unit_rounding_array = "";
+var unit_label_array = "";
 function update_weewx_data( data ) {
     belchertown_debug("Updating weewx data");
+    
+    // Check for updates
+    var update_available = check_for_updates("$belchertown_version", data["version"]["github_version"]);
+    belchertown_debug("Checking Update: update available: " + update_available + " (installed: $belchertown_version - new version: "+data["version"]["github_version"]+")");
+    if ( update_available ) {
+        jQuery(".updateavailable").show();
+    }
     
     #if $Extras.has_key("theme") and $Extras.theme == 'auto'
     // Auto theme if enabled
     autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
     #end if
     
-    station_obs_array = data["station_observations"];
+    //station_obs_array = data["station_observations"];
+    unit_rounding_array = data["unit_rounding"];
+    unit_label_array = data["unit_label"];
     
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
@@ -379,8 +468,8 @@ function update_weewx_data( data ) {
     jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
     
     // Daily Snapshot Stats Section
-    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_today_header' ) );
-    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).format( '$obs.label.time_snapshot_records_month_header' ) );
+    jQuery(".snapshot-records-today-header").html( moment.unix( data["current"]["epoch"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_snapshot_records_today_header' ) );
+    jQuery(".snapshot-records-month-header").html( moment.unix( data["current"]["epoch"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_snapshot_records_month_header' ) );
     jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
     jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
     jQuery(".dailystatswindavg").html( data["day"]["wind"]["average"] );
@@ -401,30 +490,30 @@ function update_weewx_data( data ) {
     jQuery(".sunset-value").html( moment.unix( parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0) ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_sunset" ) );
     
     // Moon icon, phase and illumination percent
-    switch ( data["almanac"]["moon"]["moon_phase"] ) {
-        case "New Moon":
+    switch ( data["almanac"]["moon"]["moon_index"] ) {
+        case "0":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
             break;
-        case "Waxing Crescent":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
+        case "1":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1 $hemisphere'></div>" );
             break;
-        case "First Quarter":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+        case "2":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter $hemisphere'></div>" );
             break;
-        case "Waxing Gibbous":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
+        case "3":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>" );
             break;
-        case "Full Moon":
+        case "4":
             jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
             break;
-        case "Waning Gibbous":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
+        case "5":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>" );
             break;
-        case "Last Quarter":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
+        case "6":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter $hemisphere'></div>" );
             break;
-        case "Waning Crescent":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
+        case "7":
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>" );
             break;
     }
     jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
@@ -433,17 +522,17 @@ function update_weewx_data( data ) {
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
 function ajaxforecast() {
-    jQuery.getJSON("$forecast_json_url", update_forecast_data);
+    jQuery.getJSON( get_relative_url() + "/json/darksky_forecast.json", update_forecast_data);
 };
 
 function update_forecast_data( data ) {
     belchertown_debug("Updating forecast data");
-    // WX Icon
+    // WX icon in temperature box
     if ( data['currently']['icon'] == "partly-cloudy-night" ) {
         // partly-cloudy-night could also be clear-day
-        jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
+        jQuery("#wxicon").attr( "src", get_relative_url() + "/images/partly-cloudy-night.png" );
     } else {
-        jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
+        jQuery("#wxicon").attr( "src", get_relative_url() + "/images/" + data['currently']['icon'] + ".png" );
     }
     
     #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
@@ -452,7 +541,7 @@ function update_forecast_data( data ) {
         var i, forecast_alert_text;
         forecast_alert_text = "";
         for ( i = 0; i < data['alerts'].length; i++ ) { 
-            alert_expires = moment.unix( data['alerts'][i]['expires'] ).format( '$obs.label.time_darksky_alert_expires' );
+            alert_expires = moment.unix( data['alerts'][i]['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_darksky_alert_expires' );
             forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
         }
         jQuery(".wx-stn-alert-text").html( forecast_alert_text );
@@ -466,23 +555,12 @@ function update_forecast_data( data ) {
     jQuery(".current-obs-text").html( data["currently"]["summary"] );
     
     // Visibility text in station observation table
-    // Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
-    // then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
-    // tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-    if ( data["flags"]["units"].toLowerCase() == "us" || data["flags"]["units"].toLowerCase() == "uk2" ) {
-        visibility_unit = "miles"
-    } else if ( data["flags"]["units"].toLowerCase() == "si" || data["flags"]["units"].toLowerCase() == "ca" ) {
-        visibility_unit = "km"
-    } else {
-        visibility_unit = ""
-    }
     try {
-        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " " + visibility_unit;
+        visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
         jQuery(".station-observations .visibility").html( visibility_output );
-        //jQuery(".station-observations .visibility").html( data["currently"]["visibility"] + " " + visibility_unit );
     } catch(err) {
-        // Visibility not in the station observation table, so silently exit
+        // Visibility not in the station observation table or any of the unit arrays, so silently exit
     }
     
     // 8 day forecast
@@ -490,9 +568,9 @@ function update_forecast_data( data ) {
     for (i = 0; i < data["daily"]["data"].length; i++) {
         var forecastDay = data["daily"]["data"][i];
         if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-            var image_url = "$belchertown_root_url/images/clear-day.png";
+            var image_url = get_relative_url() + "/images/clear-day.png";
         } else { 
-            var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
+            var image_url = get_relative_url() + "/images/"+data['daily']['data'][i]['icon']+".png";
         }
         
         var condition_text = "";
@@ -543,20 +621,22 @@ function update_forecast_data( data ) {
         } else {
             output_html += '<div class="col-sm-1-5 forecast-day border-left">';
         }
-        //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
-        var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "$obs.label.time_darksky_forecast_date" );
+        //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
+        // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+        var weekday = moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" );
         output_html += '<span id="weekday">'+weekday+'</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-conditions">';
         output_html += '<img id="icon" src="'+image_url+'">';
         output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
         output_html += '</div>';
-        output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
+        output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-precip">';
         if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
             output_html += '<div class="snow-precip">';
-            output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
+            // Relative URL with .
+            output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
             output_html += '</div>';
         } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
             output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
@@ -568,10 +648,10 @@ function update_forecast_data( data ) {
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
         output_html += '</div>';
         var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
-        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] ).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
+        output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
     }
-    forecast_subtitle = moment.unix( data["currently"]["time"] ).format( '$obs.label.time_forecast_last_updated' );
+    forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
     jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
 }
@@ -588,16 +668,30 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
     if ( section ) {
         if ( section == "radar" ) {
             belchertown_debug("Updating radar image");
+            // Reload images
             if ( document.querySelectorAll(".radar-map img").length > 0 ) {
-                var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-                jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
+                var radar_img = document.querySelectorAll(".radar-map img")[0].src;
+                var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
+                document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
+                //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+                //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
+            }
+            // Reload iframe - https://stackoverflow.com/a/4249946/1177153
+            if ( document.querySelectorAll(".radar-map iframe").length > 0 ) {
+                jQuery(".radar-map iframe").each(function(){
+                    jQuery(this).attr( 'src', function ( i, val ) { return val; });
+                });
             }
         } else {
             belchertown_debug("Updating " + section + " images");
-            // Reload the images
+            // Reload images
             jQuery('.'+section+' img').each(function(){
                 new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
                 jQuery(this).attr('src', new_image_url);
+            });
+            // Reload iframes
+            jQuery('.'+section+' iframe').each(function(){
+                jQuery(this).attr( 'src', function ( i, val ) { return val; });
             });
         }
         // Set the new timer
@@ -608,10 +702,22 @@ function ajaximages(section=false, reload_timer_interval_seconds=false) {
     }
 }
 
+var reconnect_using_inactive_timestamp = false;
+var inactive_timestamp = "";
+
 // MQTT connect
 function connect() {
-    belchertown_debug("Connecting to MQTT");
-    reported = "$obs.label.mqtt_websockets_connecting";
+    #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+    belchertown_debug( "MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)" );
+    #else
+    belchertown_debug( "MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)" );
+    #end if
+    if ( reconnect_using_inactive_timestamp ) {
+        updated = moment.unix( inactive_timestamp ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    } else { 
+        updated = moment.unix( "$current.dateTime.raw" ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    }
+    reported = "$obs.label.mqtt_websockets_connecting $obs.label.header_last_updated " + updated;
     jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -634,8 +740,13 @@ function connect() {
 
 // MQTT connect callback
 function onConnect() {
-    belchertown_debug("MQTT Connected. Subscribing.");
-    reported = "$obs.label.mqtt_websockets_waiting";
+    belchertown_debug( "MQTT: MQTT Connected. Subscribing." );
+    if ( reconnect_using_inactive_timestamp ) {
+        updated = moment.unix( inactive_timestamp ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    } else { 
+        updated = moment.unix( "$current.dateTime.raw" ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    }
+    reported = "$obs.label.mqtt_websockets_waiting $obs.label.header_last_updated " + updated;
     jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -648,48 +759,60 @@ function onConnect() {
 
 // MQTT Failure
 function onFailure() {
-    var d = new Date();
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
+    var d = new Date();
     epoch = parseFloat( (d / 1000) ).toFixed(0); // Convert millis to seconds
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
-    jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
-    console.log( updated + ": Cannot connect to MQTT broker" );
+    if ( client.isConnected() ) {
+        updated = moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    } else {
+        updated = moment.unix( "$current.dateTime.raw" ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    }
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_failed $obs.label.header_last_updated " + updated );
+    console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": Cannot connect to MQTT broker" );
 }
 
 // MQTT connection lost
 function onConnectionLost(responseObject) {
-    var d = new Date();
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
+    var d = new Date();
     epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
-    jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
-    if (responseObject.errorCode !== 0) {
-        console.log( updated + ": mqtt Connection Lost: "+responseObject.errorMessage );
+    if ( client.isConnected() ) {
+        updated = moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    } else {
+        updated = moment.unix( "$current.dateTime.raw" ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
     }
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_lost $obs.label.header_last_updated " + updated );
+    if (responseObject.errorCode !== 0) {
+        console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": mqtt Connection Lost: "+responseObject.errorMessage );
+    }
+}
+
+function inactive() {
+    client.disconnect(); // Disconnect mqtt
+    belchertown_debug( "MQTT: Inactive timer expired. MQTT Disconnected" );
+    jQuery(".onlineMarker").hide(); // Hide online beacon
+    jQuery(".offlineMarker").show(); // Show offline beacon
+    jQuery(".loadingMarker").hide(); // Hide loading beacon
+    var d = new Date();
+    epoch = parseFloat( (d / 1000) ).toFixed(0);  // Convert millis to seconds
+    updated = moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped $obs.label.header_last_updated " + updated + " <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
+    reconnect_using_inactive_timestamp = true; // Set a flag to use the inactive timestamp in case we reconnect we have the latest last updated time
+    inactive_timestamp = epoch; // Store this timestamp in case we reconnect
 }
 
 // New message from mqtt, process it
 function onMessageArrived(message) {
-    belchertown_debug( message.payloadString );
+    belchertown_debug( "MQTT: " + message.payloadString );
     update_current_wx( message.payloadString );
-}
-
-function inactive(){
-    client.disconnect(); // Disconnect mqtt
-    belchertown_debug("Inactive timer expired. MQTT Disconnected");
-    jQuery(".onlineMarker").hide(); // Hide online beacon
-    jQuery(".offlineMarker").show(); // Show offline beacon
-    jQuery(".loadingMarker").hide(); // Hide loading beacon
-    jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
 }
 
 // Handle MQTT message
 function update_current_wx(data) {
-    //console.log( data );
     data = jQuery.parseJSON( data );
     
     #if $Extras.has_key('googleAnalyticsId')
@@ -697,26 +820,27 @@ function update_current_wx(data) {
     gtag('config', '$Extras.googleAnalyticsId');
     #end if
     
-    // Updated time
-    epoch = parseFloat( data["dateTime"] ).toFixed(0);
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_mqtt_websockets_last_updated");
-    updated_text = "$obs.label.mqtt_websockets_connected " + updated;
-    jQuery(".updated").html( updated_text );
-    jQuery(".onlineMarker").show(); // Show the online beacon
-    jQuery(".offlineMarker").hide(); // Hide offline beacon
-    jQuery(".loadingMarker").hide(); // Hide loading beacon
-    
     // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
     if ( data.hasOwnProperty("interval_minute") ) {
         // Delays are recommended to allow the other skins to complete processing
-        belchertown_debug("MQTT message indicates this is an archive interval.");
-        setTimeout( showChart(homepage_graphgroup), 30000 ); // Load updated charts
+        belchertown_debug( "MQTT: MQTT message indicates this is an archive interval." );
+        setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
         #end if
         setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
+    } else {
+        // Only show the updated time on non-archive packets
+        epoch = parseFloat( data["dateTime"] ).toFixed(0);
+        updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+        jQuery(".updated").html( updated_text );
     }
+    // If we're in this function, show the online beacon and hide the others
+    jQuery(".onlineMarker").show(); // Show the online beacon
+    jQuery(".offlineMarker").hide();
+    jQuery(".loadingMarker").hide();
     
     // Update the station observation box elements
     station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
@@ -738,7 +862,7 @@ function update_current_wx(data) {
             }
             // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
             if ( mqttdata.startsWith(thisElementClass) ) {
-                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: station_obs_array["rounding"][thisElementClass], maximumFractionDigits: station_obs_array["rounding"][thisElementClass], useGrouping: localeStringUseGrouping}) + station_obs_array["unit_labels"][thisElementClass];
+                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
                 
                 // Finally update the element class
                 jQuery("." + thisElementClass).html( html_output );
@@ -751,9 +875,9 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("outTemp_F") ) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
-        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
-        update_outtemp_F( outTemp );
-        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
+        get_outTemp_color( "degree_F", outTemp );
+        jQuery(".outtemp").html( outTemp );
     
         // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
         //if ( data["outTemp_F"] <= 50 ) {
@@ -767,19 +891,19 @@ function update_current_wx(data) {
     
     // Temperature C
     if ( data.hasOwnProperty("outTemp_C") ) {
-        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1});
-        update_outtemp_C( outTemp );
-        jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
+        get_outTemp_color( "degree_C", outTemp );
+        jQuery(".outtemp").html( outTemp );
     }
     
     // Apparent Temperature US
     if ( data.hasOwnProperty("appTemp_F") ) {
-        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" ); 
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp" ); 
     }
 
     // Apparent Temperature Metric
     if ( data.hasOwnProperty("appTemp_C") ) {
-        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        jQuery(".feelslike").html( "$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp" );
     }
     
     // Wind
@@ -787,43 +911,43 @@ function update_current_wx(data) {
         // No toLocaleString() here since there is no float decimal needed.
         rotateThis( data["windDir"] );
         //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-        jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
-        jQuery(".curwinddir").text( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
+        jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
+        jQuery(".curwinddir").html( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
     // Windspeed US
     if ( data.hasOwnProperty("windSpeed_mph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed Metric
     if ( data.hasOwnProperty("windSpeed_kph") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     // Windspeed METRICWX
     if ( data.hasOwnProperty("windSpeed_mps") ) {
-        jQuery(".curwindspeed").text( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
     
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
     if ( data.hasOwnProperty("windGust_mph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust Metric
     if ( data.hasOwnProperty("windGust_kph") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     // Wind Gust METRICWX
     if ( data.hasOwnProperty("windGust_mps") ) {
-        jQuery(".curwindgust").text( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) );
+        jQuery(".curwindgust").html( parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}) );
     }
     
     // Windchill US
     if ( data.hasOwnProperty("windchill") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").html( parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
     // Windchill Metric
     if ( data.hasOwnProperty("windchill_C") ) {
-        jQuery(".curwindchill").text( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "$unit.label.outTemp" );
+        jQuery(".curwindchill").html( parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp" );
     }
 };
 #end if
@@ -835,13 +959,15 @@ Highcharts.setOptions({
         timezoneOffset: $highcharts_timezoneoffset
     },
     lang: {
-        decimalPoint: '$highcharts_decimal'
+        decimalPoint: '$highcharts_decimal',
+        thousandsSep: '$highcharts_thousands'
     }
 });
 
 function showChart(json_file, prepend_renderTo=false) {
-        
-    jQuery.getJSON('$belchertown_root_url/json/' + json_file + '.json', function(data) {
+
+    // Relative URL by finding what page we're on currently.
+    jQuery.getJSON(get_relative_url() + '/json/' + json_file + '.json', function(data) {
         
         // Loop through each chart name (e.g. chart1, chart2, chart3)
         jQuery.each(data, function (plotname, obsname) {
@@ -873,7 +999,25 @@ function showChart(json_file, prepend_renderTo=false) {
                 colors = obsname.split(","); 
                 return true;
             }
-            
+
+            // Set the chart credits, then return right away since this "plot" has no other options
+            if ( plotname == "credits" ) {
+                credits = obsname.split(",")[0];
+                return true;
+            }
+
+            // Set the chart credits url, then return right away since this "plot" has no other options
+            if ( plotname == "credits_url" ) {
+                credits_url = obsname.split(",")[0];
+                return true;
+            }
+
+            // Set the chart credits position, then return right away since this "plot" has no other options
+            if ( plotname == "credits_position" ) {
+                credits_position = obsname;
+                return true;
+            }
+
             // Loop through each chart options
             jQuery.each(data[plotname]["options"], function (optionName, optionVal) {
                 switch(optionName) {
@@ -889,8 +1033,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "subtitle":
                         subtitle = optionVal;
                         break;
-                    case "yAxisLabel":
-                        yAxisLabel = optionVal;
+                    case "yAxis_label":
+                        yAxis_label = optionVal;
                         break;
                     case "chart_group":
                         chart_group = optionVal;
@@ -904,11 +1048,23 @@ function showChart(json_file, prepend_renderTo=false) {
                     case "rounding":
                         rounding = optionVal;
                         break;
-                    case "xaxis_categories":
-                        xaxis_categories = optionVal;
+                    case "xAxis_categories":
+                        xAxis_categories = optionVal;
                         break;
                     case "plot_tooltip_date_format":
                         plot_tooltip_date_format = optionVal;
+                        break;
+                    case "css_class":
+                        css_class = optionVal;
+                        break;
+                    case "css_height":
+                        css_height = optionVal;
+                        break;
+                    case "css_width":
+                        css_width = optionVal;
+                        break;
+                    case "exporting":
+                        exporting_enabled = optionVal;
                         break;
                 }
             });
@@ -925,8 +1081,13 @@ function showChart(json_file, prepend_renderTo=false) {
                     type: '',
                     zoomType: 'x'
                 },
+                
+                exporting: {
+                    enabled: JSON.parse( String( exporting_enabled ) ) // Convert string to bool
+                },
 
                 title: {
+                    useHTML: true,
                     text: ''
                 },
 
@@ -1067,6 +1228,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                     split: true,
                 },
+                
+                credits: {},
 
                 series: [{}]
 
@@ -1083,8 +1246,13 @@ function showChart(json_file, prepend_renderTo=false) {
             
             belchertown_debug( options.chart.renderTo + ": building a " + type + " chart" );
             
+            if ( css_class ) {
+                jQuery( "#" + options.chart.renderTo ).addClass( css_class );
+                belchertown_debug( options.chart.renderTo + ": div id is " + options.chart.renderTo + " and adding CSS class: " + css_class );
+            }
+            
             options.chart.type = type;
-            options.title.text = title;
+            options.title.text = "<a href='#"+options.chart.renderTo+"'>"+title+"</a>"; // Anchor link to chart for direct linking
             options.subtitle.text = subtitle;
             options.plotOptions.area.gapSize = gapsize;
             options.plotOptions.line.gapSize = gapsize;
@@ -1096,10 +1264,10 @@ function showChart(json_file, prepend_renderTo=false) {
             options.colors = colors;
             
             // If we have xAxis categories, reset xAxis and populate it from these options. Also need to reset tooltip since there's no datetime for moment.js to use.
-            if ( xaxis_categories.length >= 1 ) {
-                belchertown_debug( options.chart.renderTo + ": has " + xaxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
+            if ( xAxis_categories.length >= 1 ) {
+                belchertown_debug( options.chart.renderTo + ": has " + xAxis_categories.length + " xAxis categories. Resetting xAxis and tooltips for grouping" );
                 options.xAxis = {}
-                options.xAxis.categories = xaxis_categories;
+                options.xAxis.categories = xAxis_categories;
                 options.tooltip = {}
                 options.tooltip = {
                     enabled: true,
@@ -1158,7 +1326,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     options.yAxis.push({ // Secondary yAxis
                                 opposite: true,
                                 title: {
-                                    text: s.yAxisLabel,
+                                    text: s.yAxis_label,
                                 },
                             }),
                     // Associate this series to the new yAxis 1
@@ -1166,15 +1334,15 @@ function showChart(json_file, prepend_renderTo=false) {
                                         
                     // We may have already passed through array 0 in the series without setting the "multi axis label", go back and explicitly define it.
                     if ( yAxis_index >= 1 ) {
-                        options.yAxis[0].title.text = options.series[0].yAxisLabel;
+                        options.yAxis[0].title.text = options.series[0].yAxis_label;
                     } 
                 } else {
                     if ( yAxis1_active ) {
                         // This yAxis is first in the data series, so we can set labels without needing to double back
-                        options.yAxis[0].title.text = s.yAxisLabel;
+                        options.yAxis[0].title.text = s.yAxis_label;
                     } else {
                         // Apply the normal yAxis 0's label without observation name
-                        options.yAxis[0].title.text = s.yAxisLabel;
+                        options.yAxis[0].title.text = s.yAxis_label;
                     }
                     // Associate this series to yAxis 1
                     s.yAxis = 0;
@@ -1186,21 +1354,26 @@ function showChart(json_file, prepend_renderTo=false) {
                 belchertown_debug( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
                 
                 // Some charts may require a defined min/max on the yAxis
-                options.yAxis[this_yAxis].min = s.yaxis_min ? s.yaxis_min : null;
-                options.yAxis[this_yAxis].max = s.yaxis_max ? s.yaxis_max : null;
+                options.yAxis[this_yAxis].min = s.yAxis_min !== "undefined" ? s.yAxis_min : null;
+                options.yAxis[this_yAxis].max = s.yAxis_max !== "undefined" ? s.yAxis_max : null;
                 
                 // Some charts may require a defined soft min/max on the yAxis
-                options.yAxis[this_yAxis].softMin = s.yaxis_softmin ? parseInt(s.yaxis_softmin) : null;
-                options.yAxis[this_yAxis].softMax = s.yaxis_softmax ? parseInt(s.yaxis_softmax) : null;
+                options.yAxis[this_yAxis].softMin = s.yAxis_softMin !== "undefined" ? parseInt(s.yAxis_softMin) : null;
+                options.yAxis[this_yAxis].softMax = s.yAxis_softMax !== "undefined" ? parseInt(s.yAxis_softMax) : null;
 
                 // Set the yAxis tick interval. Mostly used for barometer. 
-                if ( s.yaxis_tickinterval ) { 
-                    options.yAxis[this_yAxis].tickInterval = s.yaxis_tickinterval;
+                if ( s.yAxis_tickInterval ) { 
+                    options.yAxis[this_yAxis].tickInterval = s.yAxis_tickInterval;
+                }
+                
+                // Set yAxis minorTicks. This is a graph-wide setting so setting it for any of the yAxis will set it for the graph itself
+                if ( s.yAxis_minorTicks ) {
+                    options.yAxis[this_yAxis].minorTicks = true;
                 }
                 
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    if ( typeof s.yaxis_tickinterval === "undefined" ) { 
+                    if ( typeof s.yAxis_tickInterval === "undefined" ) { 
                         // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
                         options.yAxis[this_yAxis].tickInterval = 0.01;
                     }
@@ -1248,7 +1421,13 @@ function showChart(json_file, prepend_renderTo=false) {
             
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
+                #if isinstance($ordinate_names[1], str) is True:
+                ## Python 3 unicode string, don't change anything
                 var categories = $ordinate_names;
+                #else
+                ## Python 2 hack to convert backslash unicode to html char
+                var categories = #echo [x.encode('ascii', 'xmlcharrefreplace') for x in $ordinate_names] #;
+                #end if
                 options.chart.className = "highcharts-windRose"; // Used for dark mode
                 options.chart.type = "column";
                 options.chart.polar = true;
@@ -1261,6 +1440,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
+                options.xAxis.labels = { useHTML: true }
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
                 options.legend.x = 210;
@@ -1284,6 +1464,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.tooltip.shared = true;
                 options.tooltip.valueSuffix = '%';
                 options.tooltip.followPointer = true;
+                options.tooltip.useHTML = true;
                 
                 // Since wind rose is a special observation, I did not re-do the JSON arrays to accomodate it as a separate array.
                 // So we need to grab the data array within the series and save it to a temporary array, delete the entire chart series, 
@@ -1295,6 +1476,130 @@ function showChart(json_file, prepend_renderTo=false) {
                 });
             }
             
+            // If weather range is present, configure a special chart to show that data
+            // https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
+            if (observation_type == "weatherRange") {
+                options.chart.type = "columnrange";
+                // If polar is defined, use it and add a special dark mode CSS class
+                if ( JSON.parse( String( options.series[0].polar.toLowerCase() ) ) ) {
+                    options.chart.polar = true; // Make sure the option is a string, then convert to bool
+                    options.chart.className = "highcharts-weatherRange belchertown-polar"; // Used for dark mode
+                } else {
+                    options.chart.className = "highcharts-weatherRange"; // Used for dark mode
+                }
+                
+                options.legend = { "enabled": false }
+                
+                // Find min and max of the series data for the yAxis min and max
+                var minimum_flattened = [];
+                var maximum_flattened = [];
+                options.series[0].data.forEach( seriesData => {
+                    minimum_flattened.push(seriesData[1]);
+                    maximum_flattened.push(seriesData[2]);
+                });
+                var range_min = Math.min(...minimum_flattened);
+                var range_max = Math.max(...maximum_flattened);
+                
+                var yAxis_tickInterval = Math.ceil( Math.round(range_max / 5) / 5 ) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
+                
+                options.yAxis = {
+                    showFirstLabel: true,
+                    tickInterval: yAxis_tickInterval,
+                    min: range_min,
+                    max: range_max,
+                    title: {
+                        text: options.series[0].yAxis_label,
+                    },
+                }
+                
+                options.xAxis = {}
+                options.xAxis = {
+                    labels: {
+                        format: "{value: %b}"
+                    },
+                    tickInterval: 2592000000, // 30 days
+                    showLastLabel: true,
+                    crosshair: true,
+                    type: "datetime"
+                }
+                
+                options.plotOptions = {}
+                options.plotOptions = {
+                  series: {
+                    turboThreshold: 0,
+                    stacking: "normal",
+                    showInLegend: false,
+                    borderWidth: 0,
+                  }
+                }
+
+                options.tooltip = {
+                    split: false,
+                    shared: true,
+                    followPointer: true,
+                    useHTML: true,
+                    formatter: function (tooltip) {
+                        return this.points.map(function (point) {
+                            var rounding = point.series.userOptions.rounding;
+                            var mirrored = point.series.userOptions.mirrored_value;
+                            var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, observation_type, true, rounding, mirrored, numberFormat );
+                        });
+                    }
+                }
+
+                // Update data
+                var currentSeries = options.series;
+                var currentSeriesData = options.series[0].data;
+                var range_unit = options.series[0].range_unit;
+                var newSeriesData = [];
+                currentSeriesData.forEach( seriesData => {
+                    if ( options.series[0].color ) {
+                        var color = options.series[0].color;
+                    } else {
+                        // Set color of the column based on the average temperature, or return default if not temperature
+                        var color = get_outTemp_color( range_unit, seriesData[3], true );                    
+                    }
+                    newSeriesData.push({
+                        x: seriesData[0],
+                        low: seriesData[1],
+                        high: seriesData[2],
+                        average: seriesData[3],
+                        color: color
+                    });
+                });
+                options.series = [];
+                options.series.push({
+                    data: newSeriesData,
+                    obsType: "weatherRange",
+                    obsUnit: range_unit
+                });
+            }
+            
+            // Apply any width, height CSS overrides to the parent div of the chart
+            if ( css_height != "" ) {
+                jQuery("#"+options.chart.renderTo).parent().css({
+                   'height' : css_height,
+                   'padding' : '0px 15px',
+                   'margin-bottom' : '20px'
+                });
+            }
+            if ( css_width != "" ) {
+                jQuery("#"+options.chart.renderTo).parent().css('width', css_width);
+            }
+            
+            if ( credits != "highcharts_default" ) {
+                options.credits.text = credits;
+            }
+            
+            if ( credits_url != "highcharts_default" ) {
+                options.credits.href = credits_url;
+            }
+
+            if ( credits_position != "highcharts_default" ) {
+                options.credits.position = JSON.parse(credits_position);
+            }
+
             // Finally all options are done, now show the chart
             var chart = new Highcharts.chart(options);
             

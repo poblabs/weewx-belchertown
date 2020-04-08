@@ -1,3 +1,5 @@
+#import datetime
+
 #errorCatcher Echo
 ##
 ## Specifying an encoding of UTF-8 is usually safe, but if your text is 
@@ -6,6 +8,13 @@
 #encoding UTF-8
 ##
 #set global $page = "pi"
+
+## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
+#if $page == "home"
+#set global $relative_url = "."
+#else
+#set global $relative_url = ".."
+#end if
 
     #include "pi/pi-header.html.tmpl"
     
@@ -16,7 +25,37 @@
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
         
+        // Determine if debug is on via URL var or config setting
+        if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
+            var belchertown_debug_config = true;
+            belchertown_debug("Debug: URL debug variable enabled");
+        } else {
+            var belchertown_debug_config = $belchertown_debug;
+            belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+        }
+        
+        function belchertown_debug(message) {
+            if (belchertown_debug_config > 0) {
+                console.log(message);
+            }
+        }
+        
         jQuery(document).ready(function() {
+            // Change theme if a URL variable is set
+            if ( window.location.search.indexOf('theme') ) {
+                if (window.location.search.indexOf('?theme=dark') === 0) {
+                    belchertown_debug("Theme: Setting dark theme because of URL override");
+                    changeTheme("dark", true);
+                } else if (window.location.search.indexOf('?theme=light') === 0) {
+                    belchertown_debug("Theme: Setting light theme because of URL override");
+                    changeTheme("light", true);
+                } else if (window.location.search.indexOf('?theme=auto') === 0) {
+                    belchertown_debug("Theme: Setting auto theme because of URL override");
+                    sessionStorage.setItem('pi_theme', 'auto')
+                    autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
+                }
+            }
+
             #if $unit.unit_type.outTemp == "degree_F"
             update_outtemp_F( "$current.outTemp.formatted" );
             #else
@@ -38,6 +77,21 @@
 
         });
         
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
+        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+        #end if
+        
+        // Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
+        function getURLvar(k) {
+            var p={};
+            location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
+            return k?p[k]:p;
+        }
+        
         // Handle wind arrow rotation with the ability to "rollover" past 0 
         // without spinning back around. e.g 350 to 3 would spin back around
         // https://stackoverflow.com/a/19872672/1177153
@@ -56,74 +110,76 @@
         
         // Change the color of the outTemp_F variable
         function update_outtemp_F( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
+                jQuery(".outtemp_outer").css( "color", "#1278c8" );
             } else if ( outTemp <= 25 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
+                jQuery(".outtemp_outer").css( "color", "#30bfef" );
             } else if ( outTemp <= 32 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
+                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
             } else if ( outTemp <= 40 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
             } else if ( outTemp <= 50 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
+                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
             } else if ( outTemp <= 55 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
             } else if ( outTemp <= 65 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
             } else if ( outTemp <= 70 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
             } else if ( outTemp <= 75 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
             } else if ( outTemp <= 80 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
             } else if ( outTemp <= 85 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
             } else if ( outTemp <= 90 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
             } else if ( outTemp <= 95 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
             } else if ( outTemp <= 110 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
             } else if ( outTemp >= 111 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
             }
         }
-        
-        // Change the color of the outTemp_F variable
+
+        // Change the color of the outTemp_C variable
         function update_outtemp_C( outTemp ) {
+            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
             if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1278c8" );
+                jQuery(".outtemp_outer").css( "color", "#1278c8" );
             } else if ( outTemp <= -3.8 ) {
-                jQuery(".temp").css( "color", "#30bfef" );
+                jQuery(".outtemp_outer").css( "color", "#30bfef" );
             } else if ( outTemp <= 0 ) {
-                jQuery(".temp").css( "color", "#1fafdd" );
+                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
             } else if ( outTemp <= 4.4 ) {
-                jQuery(".temp").css( "color", "rgba(0,172,223,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
             } else if ( outTemp <= 10 ) {
-                jQuery(".temp").css( "color", "#71bc3c" );
+                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
             } else if ( outTemp <= 12.7 ) {
-                jQuery(".temp").css( "color", "rgba(90,179,41,0.8)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
             } else if ( outTemp <= 18.3 ) {
-                jQuery(".temp").css( "color", "rgba(131,173,45,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
             } else if ( outTemp <= 21.1 ) {
-                jQuery(".temp").css( "color", "rgba(206,184,98,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
             } else if ( outTemp <= 23.8 ) {
-                jQuery(".temp").css( "color", "rgba(255,174,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
             } else if ( outTemp <= 26.6 ) {
-                jQuery(".temp").css( "color", "rgba(255,153,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
             } else if ( outTemp <= 29.4 ) {
-                jQuery(".temp").css( "color", "rgba(255,127,0,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
             } else if ( outTemp <= 32.2 ) {
-                jQuery(".temp").css( "color", "rgba(255,79,0,0.9)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
             } else if ( outTemp <= 35 ) {
-                jQuery(".temp").css( "color", "rgba(255,69,69,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
             } else if ( outTemp <= 43.3 ) {
-                jQuery(".temp").css( "color", "rgba(255,104,104,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
             } else if ( outTemp >= 43.4 ) {
-                jQuery(".temp").css( "color", "rgba(218,113,113,1)" );
+                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
             }
         }
-        
+                
         function get_cardinal_direction(degree) {
             if (degree >= 0 && degree <= 11.25) {
                 return "N";
@@ -174,22 +230,122 @@
             cache:false
         });
         
+        function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
+            // First check if ?theme= is in URL. If so, bail out and do not change anything. 
+            if ( getURLvar("theme") && getURLvar("theme") != "auto" ) {
+                belchertown_debug("Auto theme: theme override detected in URL. Skipping auto theme");
+                return true;
+            }
+            belchertown_debug("Auto theme: checking to see if theme needs to be switched");
+            
+            var d = new Date();
+            var nowHour = d.getHours();
+            var nowMinutes = d.getMinutes();
+            nowHour = nowHour;
+            sunrise_hour = sunrise_hour;
+            sunset_hour = sunset_hour;
+            
+            // Determine if it's day time. https://stackoverflow.com/a/14718577/1177153
+            if ( sunrise_hour <= nowHour && nowHour < sunset_hour ) {
+                dayTime = true;
+            } else {
+                dayTime = false;
+            }
+            
+            belchertown_debug("Auto theme: sunrise: " + sunrise_hour);
+            belchertown_debug("Auto theme: now: " + nowHour);
+            belchertown_debug("Auto theme: sunset: " + sunset_hour);
+            belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
+            belchertown_debug("Auto theme: sessionStorage.getItem('pi_theme') = " + sessionStorage.getItem('pi_theme'));
+            
+            if ( dayTime ) {
+                // Day time, set light if needed
+                if ( document.body.classList.contains("dark") ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
+                        belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
+                    } else {
+                        belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
+                    }
+                    // Only change theme if user has not overridden the auto option with the toggle
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
+                        changeTheme("light");
+                    }
+                }
+            } else {
+                // Night time, set dark if needed
+                if ( document.body.classList.contains("light") ) {
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
+                        belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
+                    } else {
+                        belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
+                    }
+                    // Only change theme if user has not overridden the auto option with the toggle
+                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
+                        changeTheme("dark");
+                    }
+                }
+            }
+        }
+
+        
+        function changeTheme(themeName, toggleOverride=false) {
+            belchertown_debug("Theme: Changing to " + themeName);
+            // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
+            if ( toggleOverride ) {
+                belchertown_debug("Theme: toggle override clicked.");
+                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') was previously: " + sessionStorage.getItem('pi_theme') );
+                // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
+                //if ( sessionStorage.getItem('theme') == "auto" ) { }
+                sessionStorage.setItem('pi_theme', 'toggleOverride');
+                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') is now: " + sessionStorage.getItem('pi_theme') );
+            }
+            if ( themeName == "dark" ) {
+                // Apply dark theme
+                jQuery('body').addClass("dark");
+                jQuery('body').removeClass("light");
+                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                jQuery("#themeSwitch").prop( "checked", true );
+                #end if
+                sessionStorage.setItem('pi_currentTheme', 'dark');
+            } else if ( themeName == "light" ) {
+                // Apply light theme
+                jQuery('body').addClass("light");
+                jQuery('body').removeClass("dark");
+                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                jQuery("#themeSwitch").prop( "checked", false );
+                #end if
+                sessionStorage.setItem('pi_currentTheme', 'light');
+            }
+        }
+        
         #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         //=================================//
         // Live website using MQTT enabled //
         //=================================//
         
         function ajaxweewx() {
-            jQuery.getJSON("$belchertown_root_url/json/weewx_data.json", update_weewx_data);
+            jQuery.getJSON("../json/weewx_data.json", update_weewx_data);
         };
         
         function ajaxforecast() {
-            jQuery.getJSON("$forecast_json_url", update_forecast_data);
+            jQuery.getJSON("../json/darksky_forecast.json", update_forecast_data);
         };
         
         // Initial load of cached data
+        // Update weewx data elements
+        var unit_rounding_array = "";
+        var unit_label_array = "";
         function update_weewx_data( data ) {
             console.log("Updating weewx data");
+            
+            #if $Extras.has_key("pi_theme") and $Extras.pi_theme == 'auto'
+            // Auto theme is enabled
+            autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
+            #end if
+            
+            unit_rounding_array = data["unit_rounding"];
+            unit_label_array = data["unit_label"];
+
             // Daily High Low
             high = data["day"]["outTemp"]["max"];
             low = data["day"]["outTemp"]["min"];
@@ -226,29 +382,29 @@
             jQuery(".sunset-value").html( sunset );
             
             // Moon icon, phase and illumination percent
-            switch ( data["almanac"]["moon"]["moon_phase"] ) {
-                case "New Moon":
+            switch ( data["almanac"]["moon"]["moon_index"] ) {
+                case "0":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
                     break;
-                case "Waxing Crescent":
+                case "1":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
                     break;
-                case "First Quarter":
+                case "2":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
                     break;
-                case "Waxing Gibbous":
+                case "3":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
                     break;
-                case "Full Moon":
+                case "4":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
                     break;
-                case "Waning Gibbous":
+                case "5":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
                     break;
-                case "Last Quarter":
+                case "6":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
                     break;
-                case "Waning Crescent":
+                case "7":
                     jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
                     break;
             }
@@ -261,9 +417,9 @@
             // WX Icon
             if ( data['currently']['icon'] == "partly-cloudy-night" ) {
                 // partly-cloudy-night could also be clear-day
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/partly-cloudy-night.png" );
+                jQuery("#wxicon").attr( "src", "../images/partly-cloudy-night.png" );
             } else {
-                jQuery("#wxicon").attr( "src", "$belchertown_root_url/images/" + data['currently']['icon'] + ".png" );
+                jQuery("#wxicon").attr( "src", "../images/" + data['currently']['icon'] + ".png" );
             }
             
             // Current observation text
@@ -274,9 +430,9 @@
             for (i = 0; i < data["daily"]["data"].length; i++) {
                 var forecastDay = data["daily"]["data"][i];
                 if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                    var image_url = "$belchertown_root_url/images/clear-day.png";
+                    var image_url = "../images/clear-day.png";
                 } else { 
-                    var image_url = "$belchertown_root_url/images/"+data['daily']['data'][i]['icon']+".png";
+                    var image_url = "../images/"+data['daily']['data'][i]['icon']+".png";
                 }
                 
                 var condition_text = "";
@@ -327,20 +483,20 @@
                     var weekday = "Today";
                 } else {
                     output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).format( "ddd M/D" ); // Requires moment.js
+                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" ); // Requires moment.js
                 }
                 output_html += '<span id="weekday">'+weekday+'</span>';
                 output_html += '<br>';
                 output_html += '<div class="forecast-conditions">';
-                output_html += '<img id="icon" src="'+image_url+'">';
+                output_html += '<img id="wxicon" src="'+image_url+'">';
                 output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
                 output_html += '</div>';
-                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'°</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'°</span>';
+                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
                 output_html += '<br>';
                 output_html += '<div class="forecast-precip">';
                 if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
                     output_html += '<div class="snow-precip">';
-                    output_html += '<img src="$belchertown_root_url/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
+                    output_html += '<img src="../images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
                     output_html += '</div>';
                 } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
                     output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
@@ -353,15 +509,15 @@
                 output_html += '</div>';
                 output_html += '</div>';
             }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).format( 'MMMM D, YYYY, h:mm A' ); // August 14, 2018, 1:00 PM
-            jQuery(".forecast-subtitle").text( "Last Updated on " + forecast_subtitle );
+            forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+            jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
             jQuery(".forecasts").html( output_html );
         }
         
         // mqtt connect
         function connect(){
             console.log("Connecting to MQTT");
-            reported = "Connecting to weather station real time data.";
+            reported = "$obs.label.mqtt_websockets_connecting";
             jQuery(".updated").text( reported );
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
@@ -385,7 +541,7 @@
         // mqtt connect callback
         function onConnect() {
             console.log("MQTT Connected. Subscribing.");
-            reported = "Connected. Waiting for data.";
+            reported = "$obs.label.mqtt_websockets_waiting";
             jQuery(".updated").text( reported );
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").hide();
@@ -398,7 +554,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Failed to connect to weather station. Retrying..." );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
             setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             console.log( d.getTime() + ": Cannot connect to MQTT broker" );
         }
@@ -409,7 +565,7 @@
             jQuery(".onlineMarker").hide();
             jQuery(".offlineMarker").show();
             jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "Connection lost to the weather station. Retrying..." );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
             setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
             if (responseObject.errorCode !== 0) {
                 console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
@@ -427,7 +583,7 @@
             jQuery(".onlineMarker").hide(); // Hide online beacon
             jQuery(".offlineMarker").show(); // Show offline beacon
             jQuery(".loadingMarker").hide(); // Hide loading beacon
-            jQuery(".updated").html( "Live updates have stopped. <button type='button' class='btn btn-primary restart-interval'>Continue live updates</button>" );
+            jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
         }
         
         // Handle MQTT message
@@ -437,9 +593,9 @@
             
             // Updated time
             epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("MMMM D, YYYY, h:mm:ss a"); // requires moment.js
+            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
             //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
-            updated_text = "Connected. Received " + updated;
+            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
             jQuery(".updated").html( updated_text );
             jQuery(".onlineMarker").show(); // Show the online beacon
             jQuery(".offlineMarker").hide(); // Hide offline beacon
@@ -457,7 +613,7 @@
             if ( data.hasOwnProperty("outTemp_F") ) {
                 outTemp = parseFloat( data["outTemp_F"] ).toFixed(1);
                 update_outtemp_F( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
+                jQuery(".outtemp").html( outTemp );
             
                 // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
                 //if ( data["outTemp_F"] <= 50 ) {
@@ -469,26 +625,26 @@
                 //}
             }
             
+            // Temperature C
+            if ( data.hasOwnProperty("outTemp_C") ) {
+                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
+                update_outtemp_C( outTemp );
+                jQuery(".outtemp").html( outTemp );
+            }
+            
             // Apparent Temperature US
             if ( data.hasOwnProperty("appTemp_F") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
             }
 
-            // Dewpoint US
-            if ( data.hasOwnProperty("dewpoint_F") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
-            }
-            
-            // Temperature C
-            if ( data.hasOwnProperty("outTemp_C") ) {
-                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
-                update_outtemp_C( outTemp );
-                jQuery(".outtemp").html( outTemp + '<sup class="tempsup">$unit.label.outTemp</sup>' );
-            }
-            
             // Apparent Temperature Metric
             if ( data.hasOwnProperty("appTemp_C") ) {
                 jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
+            }
+            
+            // Dewpoint US
+            if ( data.hasOwnProperty("dewpoint_F") ) {
+                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
             }
 
             // Dewpoint Metric
@@ -500,7 +656,7 @@
             if ( data.hasOwnProperty("windDir") ) {
                 rotateThis( data["windDir"] );
                 //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwinddeg").text( parseFloat( data["windDir"] ).toFixed(0) + "°" );
+                jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
                 jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
             }
             // Windspeed US
@@ -530,64 +686,32 @@
                 jQuery(".curwindgust").text( parseFloat( data["windGust_mps"] ).toFixed(1) );
             }
             
-            // Barometer US
-            if ( data.hasOwnProperty("altimeter_inHg") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_inHg"] ).toFixed(2) + " $unit.label.pressure" );
-            }
-            // Barometer Metric
-            if ( data.hasOwnProperty("altimeter_mbar") ) {
-                jQuery(".wx-barometer-value").text( parseFloat( data["altimeter_mbar"] ).toFixed(2) + " $unit.label.pressure" );
-            }
-            
-            // Humidity
-            if ( data.hasOwnProperty("outHumidity") ) {
-                jQuery(".wx-humidity-value").text( parseFloat( data["outHumidity"] ).toFixed(1) + "$unit.label.outHumidity" );
-            }
-            
-            // Windchill US
-            if ( data.hasOwnProperty("windchill") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill"] ).toFixed(1) + "$unit.label.outTemp" );
-            }
-            // Windchill Metric
-            if ( data.hasOwnProperty("windchill_C") ) {
-                jQuery(".curwindchill").text( parseFloat( data["windchill_C"] ).toFixed(1) + "$unit.label.outTemp" );
-            }
-            
-            // Rain Day US
-            if ( data.hasOwnProperty("dayRain_in") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_in"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            // Rain Day Metric
-            if ( data.hasOwnProperty("dayRain_cm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_cm"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            // Rain Day METRICWX
-            if ( data.hasOwnProperty("dayRain_mm") ) {
-                jQuery(".wx-rain-value").text( parseFloat( data["dayRain_mm"] ).toFixed(2) + " $unit.label.rain" );
-            }
-            
-            // Rain rate US
-            if ( data.hasOwnProperty("rainRate_inch_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_inch_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            // Rain rate Metric
-            if ( data.hasOwnProperty("rainRate_cm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_cm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            // Rain rate METRICWX
-            if ( data.hasOwnProperty("rainRate_mm_per_hour") ) {
-                jQuery(".wx-rainrate-value").text( parseFloat( data["rainRate_mm_per_hour"] ).toFixed(2) + " $unit.label.rainRate" );
-            }
-            
-            // UV
-            if ( data.hasOwnProperty("UV") ) {
-                jQuery(".wx-uv-value").text( parseFloat( data["UV"] ).toFixed(2) );
-            }
-            
-            // Sun Radiation
-            if ( data.hasOwnProperty("radiation_Wpm2") ) {
-                jQuery(".wx-radiation-value").html( parseFloat( data["radiation_Wpm2"] ).toFixed(2) + " $unit.label.radiation" );
-            }
+            // Update the station observation table
+            station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
+            jQuery('.station-observations').find("span").each(function () {
+                thisElementClass = jQuery(this).attr("class")
+                // Loop through each MQTT payload item
+                station_mqtt_data.forEach( mqttdata => {
+                    if ( thisElementClass == "rainWithRainRate" ) {
+                        // Force dayRain since that's the MQTT payload name
+                        thisElementClass = "dayRain";
+                    }
+                    if ( thisElementClass == "barometer" || thisElementClass == "pressure" || thisElementClass == "altimeter" || thisElementClass == "cloudbase" ) {
+                        // Do not group number into thousands,hundreds format
+                        localeStringUseGrouping = false;
+                    } else {
+                        localeStringUseGrouping  = true;
+                    }
+                    // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
+                    if ( mqttdata.startsWith(thisElementClass) ) {
+                        html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
+                        
+                        // Finally update the element class
+                        jQuery("." + thisElementClass).html( html_output );
+                    }
+                }); 
+            });
+
         };
         #end if
     </script>
@@ -623,8 +747,8 @@
                 
                 <div class="col-xs-6 temp-observation">
                     <div class="obs-group">
-                            $current_obs_icon<!-- AJAX -->
-                        <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
+                        <img id="wxicon" src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
+                        <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                         <div class="current-obs-text">$current_obs_summary</div><!-- AJAX -->
                     </div>
                     <div class="clear"></div>
@@ -632,7 +756,7 @@
                     <div class="tempstats">
                         <div class="feelslike"></div><!-- AJAX -->
 						<div class="highlow">
-							High <span class="high">$day.outTemp.max.format("%.1f")</span> | Low <span class="low">$day.outTemp.min.format("%.1f")</span>
+							$obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
 						</div><!-- AJAX -->
                     </div>
                     
@@ -640,29 +764,24 @@
                         <table cellpadding="0" cellspacing="0">
                             <tbody>
                                 <tr>
-                                    <td>Humidity</td>
+                                    <td class='station-observations-label'>$obs.label.outHumidity</td>
                                     <td>
-                                        <span class="wx-data-humidity">
-                                            <span class="wx-humidity-value">$current.outHumidity</span><!-- AJAX -->
-                                        </span>
+                                        <span class="outHumidity">$current.outHumidity</span><!-- AJAX -->
                                     </td>
                                 </tr>                            
                                 <tr>
-                                    <td>Rainfall</td>
+                                    <td class='station-observations-label'>$obs.label.rain</td>
                                     <td>
-                                        <span class="wx-rain-data">
-											<span class="wx-rain-value">$day.rain.sum</span><!-- AJAX -->
-											<span class="wx-rainrate-value border-left">$current.rainRate</span><!-- AJAX -->
-                                        </span>
+                                        <span class="dayRain">$day.rain.sum</span><!-- AJAX -->
+                                        <span class="border-left">&nbsp;</span>
+                                        <span class="rainRate">$current.rainRate</span><!-- AJAX -->
                                     </td>
                                 </tr>
 								<tr>
-									<td>Barometer</td>
+									<td class='station-observations-label'>$obs.label.barometer</td>
 									<td>
-										<span class="wx-barometer-data">
-											<span class="wx-barometer-value">$current.barometer.format("%.2f")</span><!-- AJAX -->
-										</span>
-										<span class="wx-barometer-trend">
+                                        <span class="barometer">$current.barometer</span><!-- AJAX -->
+										<span class="pressure-trend">
                                             #if $trend.barometer == "N/A"
                                             &nbsp;
                                             #else if "-" in str($trend.barometer)
@@ -673,16 +792,18 @@
                                         </span>
 									</td>
 								</tr>
-                            #if $day.UV.has_data
+                                #if $day.UV.has_data
                                 <tr>
-                                    <td>UV</td>
+                                    <td class='station-observations-label'>$obs.label.UV</td>
                                     <td>
-                                        <span class="wx-uv-data">
-                                            <span class="wx-uv-value">$current.UV</span><!-- AJAX --> | <span class="wx-radiation-value">$current.radiation</span><!-- AJAX -->
-                                        </span>
+                                        <span class="UV">$current.UV</span><!-- AJAX -->
+                                        #if $day.radiation.has_data
+                                        | <span class="radiation">$current.radiation</span>
+                                        #end if
+                                        <!-- AJAX -->
                                     </td>
                                 </tr>
-                            #end if
+                                #end if
                             </tbody>
                         </table>
                     </div>	
@@ -691,26 +812,32 @@
 
                 <div class="col-xs-6 wind_col">
                     <div class="wind_data">
-                                <div class="compass">
-                                    <div class="direction">
-                                        <span class="curwinddir">
-                                            #if $current.windDir.ordinal_compass == "N/A"
-                                            --
-                                            #else
-                                            $current.windDir.ordinal_compass
-                                            #end if
-                                        </span>
-                                        <span class="curwinddeg">$current.windDir.format("%.0f")</span>
-                                    </div>
-                                    <div class="arrow"></div>
-                                </div>
+                        <div class="compass">
+                            <div class="direction">
+                                <span class="curwinddir">
+                                    #if $current.windDir.ordinal_compass == "N/A"
+                                    --
+                                    #else
+                                    $current.windDir.ordinal_compass
+                                    #end if
+                                    </span>
+                                    <span class="curwinddeg">
+                                    #if $current.windDir.raw is None:
+                                    -
+                                    #else
+                                    $current.windDir.format("%.0f")
+                                    #end if
+                                </span>
+                            </div>
+                            <div class="arrow"></div>
+                        </div>
                     </div>
                     
                     <table class="wind-table">
                         <tbody>
                             <tr>
-                                <td class="windtext">Speed</td>
-                                <td class="windtext border-left">Gust</td>
+                                <td class="windtext">$obs.label.wind_speed</td>
+                                <td class="windtext border-left">$obs.label.wind_gust</td>
                             </tr>
                             <tr>
                                 <td>
@@ -728,7 +855,7 @@
                     </table>
                     
                     <div class="maxgustouter">
-                        Today Max: <span class="dailymaxgust">$day.wind.max</span> <!-- AJAX -->
+                        $obs.label.wind_today_max: <span class="dailymaxgust">$day.wind.max</span> <!-- AJAX -->
                     </div>
                 
                 
@@ -738,31 +865,31 @@
                                 <td colspan="2">
                                     <div class="row small-almanac">
                                         <div class="col-sm-5 sun">
-                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span><!-- AJAX -->
+                                            <span class="sunrise-set-image"><img src="../images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span><!-- AJAX -->
                                             &nbsp;
-                                            <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span><!-- AJAX -->
+                                            <span class="sunrise-set-image"><img src="../images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span><!-- AJAX -->
                                         </div>
                                         <div class="col-sm-7 moon">
                                             <div class="moon-container">
-                                                    <span class="moon-icon">
-                                                        #if $almanac.moon_phase.lower() == "new moon"
-                                                            <div class='wi wi-moon-alt-new'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waxing crescent"
-                                                            <div class='wi wi-moon-alt-waxing-crescent-1'></div>
-                                                        #else if $almanac.moon_phase.lower() == "first quarter"
-                                                            <div class='wi wi-moon-alt-first-quarter'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waxing gibbous"
-                                                            <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
-                                                        #else if $almanac.moon_phase.lower() == "full moon"
-                                                            <div class='wi wi-moon-alt-full'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waning gibbous"
-                                                            <div class='wi wi-moon-alt-waning-gibbous-3'></div>
-                                                        #else if $almanac.moon_phase.lower() == "last quarter"
-                                                            <div class='wi wi-moon-alt-first-quarter'></div>
-                                                        #else if $almanac.moon_phase.lower() == "waning crescent"
-                                                            <div class='wi wi-moon-alt-waning-crescent-4'></div>
-                                                        #end if
-                                                    </span><!-- AJAX -->
+                                                <span class="moon-icon">
+                                                    #if $almanac.moon_index == 0
+                                                        <div class='wi wi-moon-alt-new'></div>
+                                                    #else if $almanac.moon_index == 1
+                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                    #else if $almanac.moon_index == 2
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 3
+                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 4
+                                                        <div class='wi wi-moon-alt-full'></div>
+                                                    #else if $almanac.moon_index == 5
+                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 6
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 7
+                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                    #end if
+                                                </span><!-- AJAX -->
                                                 <span class="moon-phase">#echo $almanac.moon_phase.title()#</span><!-- AJAX -->
                                             </div>
                                         </div>

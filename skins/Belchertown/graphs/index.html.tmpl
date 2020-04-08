@@ -21,11 +21,24 @@
                             // Build all graphs
                             var i = 0;
                             for (var graphgroup in graphgroups_raw) {
+                                // Rename the graph-outer div to remove CSS
+                                jQuery(".graph-outer").attr("class", "graph-outer-all");
+                                
+                                var page_content = "";
+                                if ( graphpage_content[graphgroup] ) {
+                                    page_content = graphpage_content[graphgroup];
+                                }
+                                
                                 // Loop through every graph group defined and add a title section
-                                jQuery(".graph_outer").append('<div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">' +
-                                                                '<div class="graph-section-title wx-buttons-description"><a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a></div>' +
-                                                                '<div class="' + graphgroup + '"></div>' +
-                                                              '</div>');
+                                jQuery(".graph-outer-all").append('\
+                                    <div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">\
+                                        <div class="graphpage-title wx-buttons-description">\
+                                            <a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a>\
+                                        </div>\
+                                        <div class="graphpage-content col-sm-12">'+page_content+'</div>\
+                                        <div class="' + graphgroup + '"></div>\
+                                    </div>\
+                                ');
                                 
                                 if ( i > 0 ) {
                                     jQuery("." + graphgroup + "_outer").css("border-top", "1px solid #ccc");
@@ -33,7 +46,7 @@
                                 
                                 // Within each title section add the chart divs with the graph group prepending to avoid conflicts
                                 graphgroups_raw[graphgroup].forEach( graphID => {
-                                    jQuery("."+graphgroup).append('<div class="col-sm-6"><div id="' + graphgroup + "_" + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div></div>');
+                                    jQuery("."+graphgroup).append('<div class="col-sm-6"><div id="' + graphgroup + "_" + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
                                 });
                                 
                                 // Render the charts with the prepend_renderTo set to true
@@ -45,11 +58,14 @@
                             // Loop through the graph group for this page and add the graph divs to the page
                             try {
                                 thisPageGraphs.forEach( graphID => {
-                                    jQuery(".graph_outer").append('<div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div>');
+                                    jQuery(".graph-outer").append('<div class="col-sm-12"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
                                 });
                                 
-                                // Set page title from graph group's title setting
-                                jQuery(".wx-graph-text").html(graphgroups_titles[graph]);
+                                // Set page title
+                                jQuery(".graphpage-title").html(graphgroups_titles[graph]);
+                                
+                                // Set page content
+                                jQuery(".graphpage-content").html(graphpage_content[graph]);
                                 
                                 // Render the charts
                                 showChart(graph);
@@ -71,12 +87,14 @@
                         $graph_page_buttons
                     </div>
                     <div class="col-sm-12 wx-buttons-description">
-                        <span class='wx-graph-text'></span>
+                        <span class='graphpage-title'></span>
                     </div>
                 </div>
                 <!-- End row -->
                 
-                <div class="graph_outer"></div><!-- JS populated -->
+                <div class="graphpage-content col-sm-12"></div><!-- JS populated -->
+                
+                <div class="graph-outer"></div><!-- JS populated -->
                 
                 <div class="clear"></div>
                 

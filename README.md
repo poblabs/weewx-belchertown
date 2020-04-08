@@ -1,4 +1,5 @@
 
+  
 # Belchertown weewx skin
 
 [![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
@@ -35,6 +36,7 @@ Screenshot of light and dark modes
   * [Using Metric](#using-metric)
   * [Dark Mode Theme Options](#dark-mode-theme-options)
     + [Theme Override with URL Option](#theme-override-with-url-option)
+  * [Custom CSS](#custom-css)
   * [Skin Options](#skin-options)
     + [General Options](#general-options)
     + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
@@ -88,10 +90,6 @@ sudo /etc/init.d/weewx start
 These settings need to be enabled in order for the skin to work. Within `weewx.conf`, under `[Station]` make sure you have: 
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
-
-You need to define your URL for the skin to work properly. The full URL to your website without a trailing slash. Example: `http://yourwebsite.com` or `http://192.168.1.100`.
-Even if your website is on your LAN only, this needs to be enabled. There are 2 ways to do this which offer flexibility. See below General Options for more information. You need to only enable 1 option for the skin to work. 
-* `belchertown_root_url` - **This is the preferred option**. Add this to your skin Extras section (see below). 
 
 ### DarkSky API (optional)
 DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
@@ -162,12 +160,6 @@ I changed it so the standard skin would be in a subfolder, and the main folder h
     [[Belchertown]]
         HTML_ROOT = /var/www/html
         skin = Belchertown
-        [[[Extras]]]
-           belchertown_root_url = "http://your_full_website_url"
-           
-   [[Highcharts_Belchertown]]
-        HTML_ROOT = /var/www/html
-        skin = Highcharts_Belchertown
 ```
 
 3. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
@@ -229,6 +221,10 @@ This way when a visitor is on your site and they don't want auto mode but want d
 
 You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode, you can add `?theme=auto` to the URL, or the tab or browser must be closed and re-opened. 
 
+## Custom CSS
+
+If you have custom CSS you want to persist across upgrades, simply create a `custom.css` file in your `HTML_DIR`. Any overrides here will be present on the site right away and will persist across upgrades of the skin.
+
 ## Skin Options
 
 The Belchertown skin will work as a very basic skin once installed using the default values in the table below.
@@ -241,7 +237,6 @@ To override a default setting add the setting name and value to the Extras secti
         skin = Belchertown
         HTML_ROOT = belchertown
         [[[Extras]]]
-            belchertown_root_url = "https://belchertownweather.com"
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
@@ -260,26 +255,26 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | ----------
+| check_for_updates | 1 | Setting this to 1 will enable checking GitHub for updates automatically every 6 hours (this is a hardcoded time interval). When an update is ready you will see the notification in the footer of the website.
 | belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
-| belchertown_root_url | "" | The full URL to your website without a trailing slash. Even if your website is on your LAN only, this needs to be enabled. Example: "https://belchertownweather.com" or "http://192.168.0.25/belchertown"
 | belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  
 | theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
- |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.
+ |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
-| radar_html | A windy.com iFrame | Full HTML Required. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description. Example: `radar_html = "<a href='http://m.bom.gov.au/nsw/moss-vale/radar/' target='_blank'><img src='http://www.bom.gov.au/radar/IDR033.gif' width='360' height='360' /> </a>"`
-| show_apptemp | 0 | If you have [enabled Apparent Temperature](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (appTemp) in your database, you can show it on the site by enabling this. 
-| show_windrun | 0 | If you have [enabled Wind Run](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (windRun) in your database, you can show it on the site by enabling this.
-| show_cloudbase | 0 | If you have [enabled cloud base](https://github.com/poblabs/weewx-belchertown/wiki/Adding-a-new-observation-type-to-the-WeeWX-database) (cloudbase) in your database, you can show it on the site by enabling this.
+| radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
 | highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
+| highcharts_decimal | "auto" | This allows you to specify a custom decimal point. If set to auto or missing, the default locale decimal point will be used. 
+| highcharts_thousands | "auto" | This allows you to specify a custom thousands separator. If set to auto or missing, the default locale thousands separator will be used. 
 | googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
 | pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
+| pi_theme | "auto" | Just as with the `theme` option, options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
 | reload_hook_images | 0 | Enable or disable the refreshing of images within the hook areas.
 | reload_images_radar | 300 | Seconds to reload the radar image if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.

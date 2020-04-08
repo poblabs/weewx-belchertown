@@ -578,7 +578,7 @@ img.alignright {
 }
 
 .header-image .site-title > a {
-	background: url('') no-repeat left;
+	/* background: url('') no-repeat left; */
 	float: left;
 	min-height: 80px;
 	width: 100%;
@@ -918,10 +918,6 @@ p.entry-meta {
     .site-container .site-footer {
         text-align: center;
     }
-    
-    .site-footer .footerLeft, .site-footer .footerRight {
-        float:none;
-    }
 }
 
 /* Phones */
@@ -1008,7 +1004,6 @@ p.entry-meta {
 	
 	.site-header .widget-area {
 		float: none;
-		text-align: auto;
 	}
 	
 	.menu-toggle {
@@ -1212,8 +1207,13 @@ p.entry-meta {
     margin: 0 auto;
 }
 
-.footerLeft { float: left; padding-left:20px; }
-.footerRight { float:right; padding-right: 20px; }
+.footerLeft { }
+.footerCenter { text-align:center; }
+.footerRight { text-align:right }
+.updateavailable { 
+    display:block;
+    line-height: 10px;
+}
 
 /* Custom wx page */
 
@@ -1455,7 +1455,7 @@ p.entry-meta {
 	padding-top:20px !important;
 }
 
-.current_temp .temp {
+.current_temp .outtemp_outer {
 	font-size:65px;
 }
 
@@ -1463,7 +1463,7 @@ p.entry-meta {
 	font-size:40px;
 }
 
-.tempsup { 
+.outtempunitlabelsuper {
 	top:-1.0em;
 	font-size:50%;
 }
@@ -1662,6 +1662,15 @@ p.entry-meta {
     text-decoration:none;
 }
 
+/* Flip the weather icons for southern hemisphere */
+.southern-hemisphere {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+
 .modal-lg {
     /* width: 900px !important; */
     /* margin: 30px auto; */
@@ -1673,6 +1682,7 @@ p.entry-meta {
 
 .celestial_body { 
     display:inline-block;
+    margin-right: 22px;
 }
 
 table.celestial td.label { 
@@ -1689,14 +1699,11 @@ table.celestial td.label {
 
 .moon-container {
 	font-size:15px;
+	color:#808080;
 }
 
 .moon {
 	text-align:right;
-}
-
-.moon-container {
-	color:#808080;
 }
 
 .moon-icon {
@@ -1773,9 +1780,20 @@ table.celestial td.label {
     text-align:center;
 }
 
+.graph-outer {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .highcharts-row {
 	/* border-top:1px solid #D7D7D7; */
 	/* margin-top:25px; */
+}
+
+span.highcharts-title {
+    width: 100% !important;
+    text-align: center !important;
 }
 
 .wx-buttons { 
@@ -1934,15 +1952,11 @@ input:checked + .slider:before {
     
 	.site-footer { text-align:center !important; }
 	.footerLeft { 
-		float:none !important; 
-		display:block;
-		padding:0px !important;
+		padding-bottom:10px;
 	}
 	.footerRight { 
-		float:none !important; 
-		display:block;
-		margin-top:10px;
-		padding:0px !important;
+		text-align:center;
+		padding-top:10px;
 	}
     
     .current_obs_top img {
@@ -1955,7 +1969,7 @@ input:checked + .slider:before {
         padding-top: 0px !important;
     }
     
-    .current_temp .temp {
+    .current_temp .outtemp_outer {
         font-size: 55px;
     }
 	
@@ -2054,6 +2068,10 @@ input:checked + .slider:before {
 	
     .sun { float: left; }
     .moon { float: right; }
+    
+    .page .sun-moon-modal a {
+        font-size: 20px;
+    }
 	
 	.forecast-subtitle {
 		display: block;
@@ -2181,8 +2199,10 @@ input:checked + .slider:before {
         font-weight: normal;
         padding: 0px;
         overflow: hidden;
-        overflow-x: hidden;
+        overflow: -moz-scrollbars-none;
+        -ms-overflow-style: none;
     }
+    body.pi::-webkit-scrollbar { width: 0 !important }
 	
     /* bold kiosk display font if chosen in skin.conf or weewx.conf */	
 	.pi .site-inner-bold {
@@ -2242,7 +2262,7 @@ input:checked + .slider:before {
         /* text-align: center; */
     }
     
-    .pi .temp {
+    .pi .outtemp_outer {
         font-size:40px;
         font-weight:bold;
         float:right;
@@ -2342,7 +2362,7 @@ input:checked + .slider:before {
     .pi .station-observations {
 		font-size: 18px;
         line-height: 20px;
-		margin-top: 25px;
+		margin-top: 20px;
 	}
     
     .pi .small-almanac {
@@ -2353,7 +2373,7 @@ input:checked + .slider:before {
 	
 	.pi .maxgustouter {
 		font-size: 18px;
-		margin: 5px;
+		margin: 0px;
 	}	
 
 	.pi .sunrise-set-image {

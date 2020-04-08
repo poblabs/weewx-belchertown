@@ -36,18 +36,14 @@
         #end if
         
         jQuery(document).ready(function() {
-            #if $unit.unit_type.outTemp == "degree_F"
-            update_outtemp_F( "$current.outTemp.formatted" );
-            #else
-            update_outtemp_C( "$current.outTemp.formatted" );
-            #end if
+            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
             rotateThis( "$current.windDir.formatted" );
             
             #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
             if ( moment.unix( "$earthquake_time" ).isValid() ) {
                 // Check that the time is the time (number) and not the "no earthquake available" wording
-                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_earthquake" ) );
             } else {
                 jQuery(".earthquake-time").html( "$earthquake_time" );
             }
@@ -59,7 +55,7 @@
             // Loop through the graph groups for this page and add the graph divs to the page
             try {
                 thisPageGraphs.forEach( graphID => {
-                    jQuery(".graph_outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:350px;margin-top:20px;"></div></div>');
+                    jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
                 });
                 showChart(homepage_graphgroup);
             } catch(err) {
@@ -126,7 +122,7 @@
             #end if
             
             // Update the Last Updated timestamp with moment.js,
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_lastUpdated");
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
             updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
             
@@ -177,10 +173,12 @@
                             <div class="weather-obs-top">
                                 <div class="row temp-observation">
                                     <div class="col-sm-5 current_obs_top">
-                                        $current_obs_icon
+                                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                                        <img id="wxicon" src="$relative_url/images/$current_obs_icon">
+                                        #end if
                                     </div>
                                     <div class="col-sm-7 current_temp">
-                                        <div class="temp"><div class="outtemp">$current.outTemp</div></div><!-- AJAX -->
+                                        <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                                     </div>
                                 </div>
                                 <div class="row">
@@ -190,8 +188,8 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-7">
-                                        #if $Extras.has_key('show_apptemp') and $Extras.show_apptemp == '1'
-                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp.format("%.1f")</div><!-- AJAX -->
+                                        #if $current.appTemp.has_data
+                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
                                         #end if
                                         <div class="stn-high-low">
                                             <table class="stn-high-low-table">
@@ -201,8 +199,8 @@
                                                         <td class="stn-high-low-table-title border-left">$obs.label.lowest_temperature</td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="high">$day.outTemp.max.format("%.1f")</td>
-                                                        <td class="border-left low">$day.outTemp.min.format("%.1f")</td>
+                                                        <td class="high">$day.outTemp.max</td>
+                                                        <td class="border-left low">$day.outTemp.min</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -247,12 +245,12 @@
                                             <tr>
                                                 <td>
                                                     <span class="curwindspeed">
-                                                        $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                                        $current.windSpeed.toString(addLabel=False, NONE_string="--")
                                                     </span>
                                                 </td>
                                                 <td class="border-left gust">&nbsp;
                                                     <span class="curwindgust">
-                                                        $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                                        $current.windGust.toString(addLabel=False, NONE_string="--")
                                                     </span>
                                                 </td>
                                             </tr>
@@ -290,9 +288,9 @@
                                                 </div>
                                                 #end if
                                                 <div class="col-sm-6 sun">
-                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
                                                     <br>
-                                                    <span class="sunrise-set-image"><img src="$belchertown_root_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
                                                 </div>
                                                 <div class="col-sm-6 moon">
                                                     <div class="moon-container">
@@ -300,19 +298,19 @@
                                                             #if $almanac.moon_index == 0
                                                                 <div class='wi wi-moon-alt-new'></div>
                                                             #else if $almanac.moon_index == 1
-                                                                <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                                <div class='wi wi-moon-alt-waxing-crescent-1 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 2
-                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
                                                             #else if $almanac.moon_index == 3
-                                                                <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                                <div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 4
                                                                 <div class='wi wi-moon-alt-full'></div>
                                                             #else if $almanac.moon_index == 5
-                                                                <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                                <div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>
                                                             #else if $almanac.moon_index == 6
-                                                                <div class='wi wi-moon-alt-first-quarter'></div>
+                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
                                                             #else if $almanac.moon_index == 7
-                                                                <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                                <div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>
                                                             #end if
                                                         </span>
                                                         <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
@@ -399,7 +397,7 @@
                         <!-- Today Snapshot Stats -->
                         <div class="row">
                             <div class="snapshot-records-text">
-                                $obs.label.weather_snapshots <a href="records">$obs.label.weather_snapshots_link</a>
+                                $obs.label.weather_snapshots <a href="$relative_url/records">$obs.label.weather_snapshots_link</a>
                             </div>
                             
                             <div class="col-sm-6 stn-quick-stats">
@@ -482,10 +480,10 @@
                 <!-- Begin of fourth row - dynamic charts -->
                 <div class="row highcharts-row graph">
                     <div class="col-sm-12 wx-graph-front">
-                        <span class="homepage-graphgroup-title">$chartgroup_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$belchertown_root_url/graphs">$obs.label.homepage_graphs_link</a>
+                        <span class="homepage-graphgroup-title">$graphpage_titles_dict[$Extras.highcharts_homepage_graphgroup]</span> <a href="$relative_url/graphs">$obs.label.homepage_graphs_link</a>
                     </div>
                     
-                    <div class="graph_outer row"></div><!-- JS populated -->
+                    <div class="graph-outer row"></div><!-- JS populated -->
                     
                 </div>
                 <!-- End of fourth row -->

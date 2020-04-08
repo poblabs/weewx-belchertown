@@ -9,11 +9,11 @@
             var month = getURLvar("mo");
             var year = getURLvar("yr");
             if ( ( year !== undefined ) && ( month !== undefined ) ) {
-                url = '$belchertown_root_url/NOAA/NOAA-'+year+'-'+month+'.txt';
+                url = '$relative_url/NOAA/NOAA-'+year+'-'+month+'.txt';
             } else if ( year !== undefined ) {
-                url = '$belchertown_root_url/NOAA/NOAA-'+year+'.txt';
+                url = '$relative_url/NOAA/NOAA-'+year+'.txt';
             } else {
-                url = '$belchertown_root_url/NOAA/$default_noaa_file';
+                url = '$relative_url/NOAA/$default_noaa_file';
             }
             
             // Load the file into the pre

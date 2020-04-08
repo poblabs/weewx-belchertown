@@ -1,6 +1,8 @@
+#encoding UTF-8
 #import datetime
 {
-    "site": "$belchertown_root_url",
+    "site": "$station.location",
+    "station_url": "$station.station_url",
     "version": "$station.version",
     "belchertown_version": "$belchertown_version",
     "weewxuptime": "$station.uptime",
@@ -8,8 +10,15 @@
     "serverLocale": "$system_locale",
     "serverLocaleJS": "$system_locale_js",
     "localeEncoding": "$locale_encoding",
+    #if $Extras.has_key("check_for_updates") and $Extras.check_for_updates == '1'
+    "version": {
+        "installed": "$belchertown_version",
+        "github_version": "$github_version"
+    },
+    #end if
     "extras": {
         "belchertown_theme": "$Extras.theme",
+        "theme_toggle_enabled": "$Extras.theme_toggle_enabled",
         "belchertown_locale": "$Extras.belchertown_locale",
         "reload_hook_images": "$Extras.reload_hook_images",
         "reload_images_radar": "$Extras.reload_images_radar",
@@ -19,8 +28,8 @@
         "reload_images_hook_ac": "$Extras.reload_images_hook_ac",
         "station_observations": "$Extras.station_observations",
         "highcharts_homepage_graphgroup": "$Extras.highcharts_homepage_graphgroup",
-        "show_apptemp": "$Extras.show_apptemp",
-        "show_windrun": "$Extras.show_windrun"
+        "highcharts_decimal": "$Extras.highcharts_decimal",
+        "highcharts_thousands": "$Extras.highcharts_thousands"
     },
     "station": {
         "hardware": "$station.hardware",
@@ -34,13 +43,13 @@
         "archive_interval_ms": "$archive_interval_ms"
     },
     "station_observations": {
-        "current": $station_obs_json,
-        "rounding": $station_obs_rounding_json,
-        "unit_labels": $station_obs_unit_labels_json,
-        "trend": $station_obs_trend_json
+        "current": $station_obs_json
     },
+    "unit_rounding": $all_obs_rounding_json,
+    "unit_label": $all_obs_unit_labels_json,
     "current": {
         "datetime": "$current.dateTime",
+        "datetime_raw": "$current.dateTime.raw",
         "epoch": "#echo int( time.time() )#",
         "outTemp": "$current.outTemp",
         "outTemp_formatted": "$current.outTemp.formatted",
@@ -119,11 +128,6 @@
             "min": "$day.barometer.min",
             "mintime": "$day.barometer.mintime"
         },
-        "rain": {
-            "sum": "$day.rain.sum",
-            "max": "$day.rainRate.max",
-            "maxtime": "$day.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$day.wind.max",
             "maxtime": "$day.wind.maxtime",
@@ -139,17 +143,26 @@
             #end if
             "rms": "$day.wind.rms"
         },
+        #if $day.UV.has_data
         "uv": {
             "max": "$day.UV.max",
             "maxtime": "$day.UV.maxtime",
             "min": "$day.UV.min",
             "mintime": "$day.UV.mintime"
         },
+        #end if
+        #if $day.radiation.has_data
         "solar_radiation": {
             "max": "$day.radiation.max",
             "maxtime": "$day.radiation.maxtime",
             "min": "$day.radiation.min",
             "mintime": "$day.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$day.rain.sum",
+            "max": "$day.rainRate.max",
+            "maxtime": "$day.rainRate.maxtime"
         }
     },
     
@@ -194,11 +207,6 @@
             "min": "$week.barometer.min",
             "mintime": "$week.barometer.mintime"
         },
-        "rain": {
-            "sum": "$week.rain.sum",
-            "max": "$week.rainRate.max",
-            "maxtime": "$week.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$week.wind.max",
             "maxtime": "$week.wind.maxtime",
@@ -214,18 +222,27 @@
             #end if
             "rms": "$week.wind.rms"
         },
+        #if $week.UV.has_data
         "uv": {
             "max": "$week.UV.max",
             "maxtime": "$week.UV.maxtime",
             "min": "$week.UV.min",
             "mintime": "$week.UV.mintime"
         },
+        #end if
+        #if $week.radiation.has_data
         "solar_radiation": {
             "max": "$week.radiation.max",
             "maxtime": "$week.radiation.maxtime",
             "min": "$week.radiation.min",
             "mintime": "$week.radiation.mintime"
-        }
+        },
+        #end if
+        "rain": {
+            "sum": "$week.rain.sum",
+            "max": "$week.rainRate.max",
+            "maxtime": "$week.rainRate.maxtime"
+        } 
     },
     
     "month": {
@@ -269,11 +286,6 @@
             "min": "$month.barometer.min",
             "mintime": "$month.barometer.mintime"
         },
-        "rain": {
-            "sum": "$month.rain.sum",
-            "max": "$month.rainRate.max",
-            "maxtime": "$month.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$month.wind.max",
             "maxtime": "$month.wind.maxtime",
@@ -289,17 +301,26 @@
             #end if
             "rms": "$month.wind.rms"
         },
+        #if $month.UV.has_data
         "uv": {
             "max": "$month.UV.max",
             "maxtime": "$month.UV.maxtime",
             "min": "$month.UV.min",
             "mintime": "$month.UV.mintime"
         },
+        #end if
+        #if $month.radiation.has_data
         "solar_radiation": {
             "max": "$month.radiation.max",
             "maxtime": "$month.radiation.maxtime",
             "min": "$month.radiation.min",
             "mintime": "$month.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$month.rain.sum",
+            "max": "$month.rainRate.max",
+            "maxtime": "$month.rainRate.maxtime"
         }
     },
     
@@ -344,11 +365,6 @@
             "min": "$year.barometer.min",
             "mintime": "$year.barometer.mintime"
         },
-        "rain": {
-            "sum": "$year.rain.sum",
-            "max": "$year.rainRate.max",
-            "maxtime": "$year.rainRate.maxtime"
-        },        
         "wind": {
             "max": "$year.wind.max",
             "maxtime": "$year.wind.maxtime",
@@ -364,31 +380,51 @@
             #end if
             "rms": "$year.wind.rms"
         },
+        #if $year.UV.has_data
         "uv": {
             "max": "$year.UV.max",
             "maxtime": "$year.UV.maxtime",
             "min": "$year.UV.min",
             "mintime": "$year.UV.mintime"
         },
+        #end if
+        #if $year.radiation.has_data
         "solar_radiation": {
             "max": "$year.radiation.max",
             "maxtime": "$year.radiation.maxtime",
             "min": "$year.radiation.min",
             "mintime": "$year.radiation.mintime"
+        },
+        #end if
+        "rain": {
+            "sum": "$year.rain.sum",
+            "max": "$year.rainRate.max",
+            "maxtime": "$year.rainRate.maxtime"
         }
     },
     "almanac": {
         "sunrise": "$almanac.sunrise",
         "sunrise_epoch": "$almanac.sunrise.raw",
+		#if $almanac.sunrise.raw is not None
         "sunrise_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#",
         "sunrise_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#",
+		#else 
+        "sunrise_hour": "0",
+        "sunrise_minute": "0",
+		#end if
         "sunset": "$almanac.sunset",
         "sunset_epoch": "$almanac.sunset.raw",
+		#if $almanac.sunset.raw is not None
         "sunset_hour": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#",
         "sunset_minute": "#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#",
+		#else
+        "sunset_hour": "0",
+        "sunset_minute": "0",
+		#end if
         "moon": {
             "moon_fullness": "$almanac.moon_fullness",
-            "moon_phase": "$almanac.moon_phase"
+            "moon_phase": "$almanac.moon_phase",
+            "moon_index": "$almanac.moon_index"
         }
     }
 }

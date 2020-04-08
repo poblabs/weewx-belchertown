@@ -4,12 +4,12 @@
 from setup import ExtensionInstaller
 
 def loader():
-    return ExfoliationInstaller()
+    return BelchertownInstaller()
 
-class ExfoliationInstaller(ExtensionInstaller):
+class BelchertownInstaller(ExtensionInstaller):
     def __init__(self):
-        super(ExfoliationInstaller, self).__init__(
-            version="1.0.1",
+        super(BelchertownInstaller, self).__init__(
+            version="1.1",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
@@ -35,6 +35,7 @@ class ExfoliationInstaller(ExtensionInstaller):
                                           'skins/Belchertown/page-header.inc',
                                           'skins/Belchertown/manifest.json.tmpl',
                                           'skins/Belchertown/records.inc.example',
+                                          'skins/Belchertown/records-table.inc.example',
                                           'skins/Belchertown/robots.txt',
                                           'skins/Belchertown/skin.conf',
                                           'skins/Belchertown/belchertown-dark.min.css',
