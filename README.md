@@ -2,6 +2,8 @@
   
 # Belchertown weewx skin
 
+[![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
+
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
 
 Features include:
@@ -129,7 +131,7 @@ A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic
 ### MQTT Brokers
 
 #### Install your own MQTT Broker
-If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/how-to-setup-your-own-mqtt-broker/). 
+If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/go/mqttbroker). 
 
 #### Use a Public Broker
 These public brokers have been tested as working with MQTT and Websockets. If you have others to add the to the list, let me know.
@@ -517,9 +519,9 @@ If you're interested in this type of setup, you'll need these items:
 * A: `sudo wee_extension --uninstall Belchertown`
 
 ## Donate
-[![Donate](https://img.shields.io/badge/Donate-Support%20by%20Donating%20or%20Buying%20me%20a%20Coffee-blue.svg)](https://obrienlabs.net/donate)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
 
-This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/donate) :)
+This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/go/donate) :)
 
 ## Credits
 * DarkSky API for the weather forecasts.
