@@ -1299,7 +1299,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     yAxisLabel_config = line_options.get('yAxis_label', None)
                     # Set a default yAxis label if graphs.conf yAxis_label is none and there's a unit_label - e.g. Temperature (F)
                     if yAxisLabel_config is None and unit_label:
-                        yAxis_label = name + " (" + unit_label.strip() + ")"
+                       # Python 2/3 hack
+                        try:
+                            yAxis_label = name + " (" + unit_label.strip().encode("utf-8") + ")" # Python 2.
+                        except:
+                            yAxis_label = name + " (" + unit_label.strip() + ")" # Python 3
                     elif yAxisLabel_config:
                         yAxis_label = yAxisLabel_config
                     else:
