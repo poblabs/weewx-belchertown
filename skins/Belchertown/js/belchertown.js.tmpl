@@ -667,7 +667,7 @@ function update_forecast_data( data ) {
         }
         //var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "ddd l" ).replace(/([A-Z])|[\/\-\.]\b[0-9]{4}\b/g, ' $1'); // Creates a short date by removing "/YYYY" or ".YYYY" or "-YYYY" - https://stackoverflow.com/a/12704805/1177153
         // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
-        var weekday = moment.unix( data["daily"][i]["dt"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" );
+        var weekday = moment.unix( data["daily"][i]["dt"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
         output_html += '<span id="weekday">'+weekday+'</span>';
         output_html += '<br>';
         output_html += '<div class="forecast-conditions">';
@@ -692,6 +692,7 @@ function update_forecast_data( data ) {
         output_html += '<div class="forecast-wind">';
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"][i]["wind_speed"] ).toFixed(0) +'</span> $unit.label.windSpeed';
         output_html += '</div>';
+        // OpenWeatherMap doesn't have an easy way to get Daily Forecast from the API
         //var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
         //output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"][i]["dt"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.forecast_lang" target="_blank">$obs.label.daily_forecast</a>';
         output_html += '</div>';
