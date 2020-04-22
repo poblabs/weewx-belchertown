@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.1"
+VERSION = "1.2b1"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -558,17 +558,17 @@ class getData(SearchList):
         Forecast Data
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
-            forecast_file = local_root + "/json/darksky_forecast.json"
-            #forecast_json_url = belchertown_root_url + "/json/darksky_forecast.json"
-            darksky_secret_key = self.generator.skin_dict['Extras']['darksky_secret_key']
-            darksky_units = self.generator.skin_dict['Extras']['darksky_units'].lower()
-            darksky_lang = self.generator.skin_dict['Extras']['darksky_lang'].lower()
+            forecast_file = local_root + "/json/forecast.json"
+            forecast_api_key = self.generator.skin_dict['Extras']['forecast_api_key']
+            forecast_units = self.generator.skin_dict['Extras']['forecast_units'].lower()
+            forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
-            forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( darksky_secret_key, latitude, longitude, darksky_units, darksky_lang )
+            #forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_key, latitude, longitude, forecast_units, forecast_lang )
+            forecast_url = "http://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&units=%s&lang=%s&appid=%s" % ( latitude, longitude, forecast_units, forecast_lang, forecast_api_key )
             
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
@@ -608,28 +608,42 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
             
-            current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
-            visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
+            current_obs_summary = label_dict[ data["current"]["weather"][0]["main"].lower() ]
             
-            if data["currently"]["icon"] == "partly-cloudy-night":
-                #current_obs_icon = '<img id="wxicon" src="./images/partly-cloudy-night.png">'
-                current_obs_icon = 'partly-cloudy-night.png'
-            else:
-                #current_obs_icon = '<img id="wxicon" src="./images/'+data["currently"]["icon"]+'.png">'
-                current_obs_icon = data["currently"]["icon"]+'.png'
+            owm_icons = {
+                "01d": "clear-day.png",
+                "01n": "clear-night.png",
+                "02d": "partly-cloudy-day.png",
+                "02n": "partly-cloudy-night.png",
+                "03d": "cloudy.png",
+                "03n": "cloudy.png",
+                "04d": "cloudy.png",
+                "04n": "cloudy.png",
+                "09d": "rain.png",
+                "09n": "rain.png",
+                "10d": "rain.png",
+                "10n": "rain.png",
+                "11d": "thunderstorm.png",
+                "11n": "thunderstorm.png",
+                "13d": "snow.png",
+                "13n": "snow.png",
+                "50d": "fog.png",
+                "50n": "fog.png"
+            }
+            current_obs_icon = owm_icons.get( data["current"]["weather"][0]["icon"], "clear-day.png" )
+                
 
-            # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
-            # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
-            # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-            if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
-                visibility_unit = "miles"
-            elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
+            if ( forecast_units == "standard" ) or ( forecast_units == "metric" ):
+                visibility = locale.format("%g", float( data["current"]["visibility"] / 1000 ) ) # OWM visibility is always in meter. Divide by 1000 to convert to kilometer
                 visibility_unit = "km"
+            elif ( forecast_units == "imperial" ):
+                visibility = locale.format("%g", float( data["current"]["visibility"] / 1609 ) ) # OWM visibility is always in meter. Divide by 1609 to convert to miles
+                visibility_unit = "miles"
             else:
+                visibility = locale.format("%g", float( data["current"]["visibility"] ) ) # Meters
                 visibility_unit = ""
                 
         else:
-            #forecast_json_url = ""
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = ""
@@ -820,7 +834,7 @@ class getData(SearchList):
                 try:
                     obs_output = str(visibility) + " " + str(visibility_unit)
                 except:
-                    raise Warning( "Error adding visiblity to station observations table. Check that you have DarkSky forecast data, or remove visibility from your station_observations Extras option." )
+                    raise Warning( "Error adding visiblity to station observations table. Check that you have forecast data, or remove visibility from your station_observations Extras option." )
             elif obs == "rainWithRainRate":
                 # rainWithRainRate Rain shows rain daily sum and rain rate
                 obs_binder = weewx.tags.ObservationBinder("rain", archiveDaySpan(current_stamp), db_lookup, None, "day", self.generator.formatter, self.generator.converter)
@@ -1299,7 +1313,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     yAxisLabel_config = line_options.get('yAxis_label', None)
                     # Set a default yAxis label if graphs.conf yAxis_label is none and there's a unit_label - e.g. Temperature (F)
                     if yAxisLabel_config is None and unit_label:
-                        yAxis_label = name + " (" + unit_label.strip() + ")"
+                        # Python 2/3 hack
+                        try:
+                            yAxis_label = name + " (" + unit_label.strip().encode("utf-8") + ")" # Python 2.
+                        except:
+                            yAxis_label = name + " (" + unit_label.strip() + ")" # Python 3
                     elif yAxisLabel_config:
                         yAxis_label = yAxisLabel_config
                     else:

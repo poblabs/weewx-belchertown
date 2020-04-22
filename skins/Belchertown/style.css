@@ -1865,7 +1865,8 @@ span.highcharts-title {
 /* .col-sm-1-5 { */
 .forecast-day {
     position: relative;
-    min-height: 250px;
+    /* min-height: 250px; DarkSky */
+    min-height: 225px;
     padding-left: 10px;
     padding-right: 10px;
     /* width: 10%; */
@@ -2079,7 +2080,8 @@ input:checked + .slider:before {
 	
 	.forecast-day {
 		font-size:28px;
-        min-height: 170px !important;
+        /* min-height: 170px !important;  DarkSky */
+        min-height: 175px !important;
 		/* border-bottom:1px solid #D7D7D7; */
         padding-bottom:15px;
         margin-bottom:15px;

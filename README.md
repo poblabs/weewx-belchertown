@@ -26,7 +26,7 @@ Screenshot of light and dark modes
   * [Install weewx-belchertown](#install-weewx-belchertown)
   * [Requirements](#requirements)
     + [weewx.conf](#weewxconf)
-    + [DarkSky API (optional)](#darksky-api-optional)
+    + [OpenWeatherMap Forecast API (optional)](#openweathermap-forecast-api-optional)
     + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
     + [MQTT Brokers](#mqtt-brokers)
       - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
@@ -91,15 +91,14 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
 
-### DarkSky API (optional)
-DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
+### OpenWeatherMap Forecast API (optional)
+OpenWeatherMap's Forecast API is where the forecast data comes from. The skin will work without OpenWeatherMap integration, however it is used to show current weather observations and icons as well as the forecast. 
 
-**You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. Their free tier allows for 1,000 requests a day. The skin will download and cache every hour - 24 requests a day - well below the free 1,000.
+**You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. Their free tier allows access to the `One Call API`. OpenWeatherMap asks for 1 update every 10 minutes at a minimum. By default the skin will download and cache every hour.
 
-* Sign up at https://darksky.net/dev
-* Once you are logged in, take note of the Secret Key on the DarkSky console. 
-* Use this key as the `darksky_secret_key` option. See below options table after you have installed the skin.
-* Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
+* Sign up at [https://openweathermap.org/appid](https://openweathermap.org/appid)
+* Once you are logged in, go to [https://home.openweathermap.org/api_keys](https://home.openweathermap.org/api_keys) and create a new API Key. 
+* Use this key as the `forecast_api_key` option. See below options table after you have installed the skin.
 
 ### MQTT and MQTT Websockets (optional)
 MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
@@ -240,7 +239,7 @@ To override a default setting add the setting name and value to the Extras secti
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
-            darksky_secret_key = "your_key"
+            forecast_api_key = "your_key"
             earthquake_enabled = 1
             twitter_enabled = 1
 ```
@@ -262,7 +261,7 @@ For ease of readability I have broken them out into separate tables. However you
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
- |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
+ |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from OpenWeatherMap (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
@@ -315,12 +314,11 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from DarkSky API.
-| darksky_secret_key | "" | Your DarkSky secret key
-| darksky_units | "auto" | The units to use for the DarkSky forecast. Default of `auto` which automatically selects units based on your geographic location. [Other options](https://darksky.net/dev/docs) are: `us` (imperial), `si` (metric), `ca` (metric except that windSpeed and windGust are in kilometers per hour), `uk2` (metric except that nearestStormDistance and visibility are in miles, and windSpeed and windGust in miles per hour).
-| darksky_lang | "en" | Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
-| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being billed from DarkSky. Use at your own risk of being billed if you set this too low. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 
-| forecast_alert_enabled | 0 | Set to 1 to enable weather alerts that are included with the DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the DarkSky forecast. 
+| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from OpenWeatherMap Forecast API.
+| forecast_api_key | "" | Your OpenWeatherMap API key
+| forecast_units | "imperial" | The units to use for the OpenWeatherMap forecast. [Other unit options options]([https://openweathermap.org/api/one-call-api](https://openweathermap.org/api/one-call-api)) are: `kelvin`, `metric`, and `imperial`.
+| forecast_lang | "en" | Change the language used in the OpenWeatherMap forecast. Read the [One Call API](https://openweathermap.org/api/one-call-api) for valid language options.
+| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by OpenWeatherMap. They claim you can go as low as 10 minutes as a safe usage interval. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 600 = 10 minutes.
 
 ### Earthquake Options
 
@@ -488,9 +486,6 @@ If you're interested in this type of setup, you'll need these items:
 * Q: Do I have to use the graphs?
 * A: Nope! If you have it disabled we will hide those portions of the site. It comes packaged with this theme already though, so you can leave it enabled. 
 ---
-* Q: I have weather alerts enabled, why do I see so many duplicates alerts?
-* A: These "duplicates" come from DarkSky, however if you click on each one you'll see they aren't duplicates. They have unique links to unique alerts. Perhaps you're in a region that borders other regions? I'm not sure. As a result of this, I can't easily filter them out and take the risk of removing an alert that's important to you. It's best to reach DarkSky through your developer portal and ask this question of them. 
----
 * Q: Why does the skin take a while to generate sometimes?
 * A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
 ---
@@ -524,7 +519,7 @@ If you're interested in this type of setup, you'll need these items:
 This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/go/donate) :)
 
 ## Credits
-* DarkSky API for the weather forecasts.
+* OpenWeatherMap One Call API for current weather conditions and weather forecasts.
 * Windy.com for the iFrame embedded weather radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica CSS for the Highcharts dark mode.

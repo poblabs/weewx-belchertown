@@ -1,3 +1,20 @@
+1.2 ???, 2020
+
+### Breaking Changes
+DarkSky has announced that they were acquired by Apple and will be removing their API. This release moves the forecasting to OpenWeatherMap.
+* Forecast file darksky_forecast.json renamed to forecast.json
+* skin.conf option darksky_secret_key renamed to forecast_api_key
+* skin.conf option darksky_units renamed to forecast_units
+* skin.conf option darksky_lang renamed to forecast_lang
+
+### Changed
+* Renamed skin.conf label darksky_rain to forecast_rain
+* Renamed skin.conf label time_darksky_forecast_date to time_forecast_date
+
+### Removed
+* Weather alerts are no longer available due to switching to OpenWeatherMap
+* Daily Forecast link is no longer available due to the way OpenWeatherMap operates currently.
+
 1.1 April 8, 2020
 
 ### Breaking Changes
