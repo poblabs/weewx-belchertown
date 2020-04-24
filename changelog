@@ -14,6 +14,7 @@ DarkSky has announced that they were acquired by Apple and will be removing thei
 ### Removed
 * Weather alerts are no longer available due to switching to OpenWeatherMap
 * Daily Forecast link is no longer available due to the way OpenWeatherMap operates currently.
+* Wind gusts in forecast not widely supported by OpenWeatherMap, so it's been removed from the forecast row.
 
 1.1 April 8, 2020
 
