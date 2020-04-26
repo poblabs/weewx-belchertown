@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.2b1"
+VERSION = "1.2b2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -558,17 +558,230 @@ class getData(SearchList):
         Forecast Data
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
+            def aeris_coded_weather( data ):
+                # https://www.aerisweather.com/support/docs/api/reference/weather-codes/
+                output = ""
+                coverage_code = data.split(":")[0]
+                intensity_code = data.split(":")[1]
+                weather_code = data.split(":")[2]
+                    
+                cloud_dict = {
+                    "CL": label_dict["forecast_cloud_code_CL"],
+                    "FW": label_dict["forecast_cloud_code_FW"],
+                    "SC": label_dict["forecast_cloud_code_SC"],
+                    "BK": label_dict["forecast_cloud_code_BK"],
+                    "OV": label_dict["forecast_cloud_code_OV"]
+                }
+                
+                coverage_dict = {
+                    "AR": label_dict["forecast_coverage_code_AR"],
+                    "BR": label_dict["forecast_coverage_code_BR"],
+                    "C": label_dict["forecast_coverage_code_C"],
+                    "D": label_dict["forecast_coverage_code_D"],
+                    "FQ": label_dict["forecast_coverage_code_FQ"],
+                    "IN": label_dict["forecast_coverage_code_IN"],
+                    "IS": label_dict["forecast_coverage_code_IS"],
+                    "L": label_dict["forecast_coverage_code_L"],
+                    "NM": label_dict["forecast_coverage_code_NM"],
+                    "O": label_dict["forecast_coverage_code_O"],
+                    "PA": label_dict["forecast_coverage_code_PA"],
+                    "PD": label_dict["forecast_coverage_code_PD"],
+                    "S": label_dict["forecast_coverage_code_S"],
+                    "SC": label_dict["forecast_coverage_code_SC"],
+                    "VC": label_dict["forecast_coverage_code_VC"],
+                    "WD": label_dict["forecast_coverage_code_WD"]
+                }
+                
+                intensity_dict = {
+                    "VL": label_dict["forecast_intensity_code_VL"],
+                    "L": label_dict["forecast_intensity_code_L"],
+                    "H": label_dict["forecast_intensity_code_H"],
+                    "VH": label_dict["forecast_intensity_code_VH"]
+                }
+                
+                weather_dict = {
+                    "A": label_dict["forecast_weather_code_A"],
+                    "BD": label_dict["forecast_weather_code_BD"],
+                    "BN": label_dict["forecast_weather_code_BN"],
+                    "BR": label_dict["forecast_weather_code_BR"],
+                    "BS": label_dict["forecast_weather_code_BS"],
+                    "BY": label_dict["forecast_weather_code_BY"],
+                    "F": label_dict["forecast_weather_code_F"],
+                    "FR": label_dict["forecast_weather_code_FR"],
+                    "H": label_dict["forecast_weather_code_H"],
+                    "IC": label_dict["forecast_weather_code_IC"],
+                    "IF": label_dict["forecast_weather_code_IF"],
+                    "IP": label_dict["forecast_weather_code_IP"],
+                    "K": label_dict["forecast_weather_code_K"],
+                    "L": label_dict["forecast_weather_code_L"],
+                    "R": label_dict["forecast_weather_code_R"],
+                    "RW": label_dict["forecast_weather_code_RW"],
+                    "RS": label_dict["forecast_weather_code_RS"],
+                    "SI": label_dict["forecast_weather_code_SI"],
+                    "WM": label_dict["forecast_weather_code_WM"],
+                    "S": label_dict["forecast_weather_code_S"],
+                    "SW": label_dict["forecast_weather_code_SW"],
+                    "T": label_dict["forecast_weather_code_T"],
+                    "UP": label_dict["forecast_weather_code_UP"],
+                    "VA": label_dict["forecast_weather_code_VA"],
+                    "WP": label_dict["forecast_weather_code_WP"],
+                    "ZF": label_dict["forecast_weather_code_ZF"],
+                    "ZL": label_dict["forecast_weather_code_ZL"],
+                    "ZR": label_dict["forecast_weather_code_ZR"],
+                    "ZY": label_dict["forecast_weather_code_ZY"]
+                }
+                
+                # Check if the weather_code is in the cloud_dict and use that if it's there. If not then it's a combined weather code.
+                if weather_code in cloud_dict: 
+                    return cloud_dict[weather_code];
+                else:
+                    # Add the coverage if it's present, and full observation forecast is requested
+                    if coverage_code:
+                        output += coverage_dict[coverage_code] + " "
+                    # Add the intensity if it's present
+                    if intensity_code:
+                        output += intensity_dict[intensity_code] + " "
+                    # Weather output
+                    output += weather_dict[weather_code];
+                return output
+                
+            def aeris_icon( data ):
+                # https://www.aerisweather.com/support/docs/api/reference/icon-list/
+                icon_name = data.split(".")[0]; # Remove .png
+                
+                icon_dict = {
+                    "blizzard": "snow",
+                    "blizzardn": "snow",
+                    "blowingsnow": "snow",
+                    "blowingsnown": "snow",
+                    "clear": "clear-day",
+                    "clearn": "clear-night",
+                    "cloudy": "cloudy",
+                    "cloudyn": "cloudy",
+                    "cloudyw": "cloudy",
+                    "cloudywn": "cloudy",
+                    "cold": "TODO",
+                    "coldn": "TODO",
+                    "drizzle": "rain",
+                    "drizzlen": "rain",
+                    "dust": "TODO",
+                    "dustn": "TODO",
+                    "fair": "clear-day",
+                    "fairn": "clear-night",
+                    "drizzlef": "rain",
+                    "fdrizzlen": "rain",
+                    "flurries": "snow",
+                    "flurriesn": "snow",
+                    "flurriesw": "snow",
+                    "flurrieswn": "snow",
+                    "fog": "fog",
+                    "fogn": "fog",
+                    "freezingrain": "rain",
+                    "freezingrainn": "rain",
+                    "hazy": "TODO",
+                    "hazyn": "TODO",
+                    "hot": "clear-day",
+                    "N/A ": "N/A",
+                    "mcloudy": "partly-cloudy-day",
+                    "mcloudyn": "partly-cloudy-night",
+                    "mcloudyr": "rain",
+                    "mcloudyrn": "rain",
+                    "mcloudyrw": "rain",
+                    "mcloudyrwn": "rain",
+                    "mcloudys": "snow",
+                    "mcloudysn": "snow",
+                    "mcloudysf": "snow",
+                    "mcloudysfn": "snow",
+                    "mcloudysfw": "snow",
+                    "mcloudysfwn": "snow",
+                    "mcloudysw": "partly-cloudy-day",
+                    "mcloudyswn": "partly-cloudy-night",
+                    "mcloudyt": "thunderstorm",
+                    "mcloudytn": "thunderstorm",
+                    "mcloudytw": "thunderstorm",
+                    "mcloudytwn": "thunderstorm",
+                    "mcloudyw": "partly-cloudy-day",
+                    "mcloudywn": "partly-cloudy-night",
+                    "na": "TODO",
+                    "na": "TODO",
+                    "pcloudy": "partly-cloudy-day",
+                    "pcloudyn": "partly-cloudy-night",
+                    "pcloudyr": "rain",
+                    "pcloudyrn": "rain",
+                    "pcloudyrw": "rain",
+                    "pcloudyrwn": "rain",
+                    "pcloudys": "snow",
+                    "pcloudysn": "snow",
+                    "pcloudysf": "snow",
+                    "pcloudysfn": "snow",
+                    "pcloudysfw": "snow",
+                    "pcloudysfwn": "snow",
+                    "pcloudysw": "partly-cloudy-day",
+                    "pcloudyswn": "partly-cloudy-night",
+                    "pcloudyt": "thunderstorm",
+                    "pcloudytn": "thunderstorm",
+                    "pcloudytw": "thunderstorm",
+                    "pcloudytwn": "thunderstorm",
+                    "pcloudyw": "partly-cloudy-day",
+                    "pcloudywn": "partly-cloudy-night",
+                    "rain": "rain",
+                    "rainn": "rain",
+                    "rainandsnow": "rain",
+                    "rainandsnown": "rain",
+                    "raintosnow": "rain",
+                    "raintosnown": "rain",
+                    "rainw": "rain",
+                    "rainw": "rain",
+                    "showers": "rain",
+                    "showersn": "rain",
+                    "showersw": "rain",
+                    "showersw": "rain",
+                    "sleet": "sleet",
+                    "sleetn": "sleet",
+                    "sleetsnow": "sleet",
+                    "sleetsnown": "sleet",
+                    "smoke": "TODO",
+                    "smoken": "TODO",
+                    "snow": "snow",
+                    "snown": "snow",
+                    "snoww": "snow",
+                    "snowwn": "snow",
+                    "snowshowers": "snow",
+                    "snowshowersn": "snow",
+                    "snowshowersw": "snow",
+                    "snowshowerswn": "snow",
+                    "snowtorain": "snow",
+                    "snowtorainn": "snow",
+                    "sunny": "partly-cloudy-day",
+                    "sunnyn": "partly-cloudy-night",
+                    "sunnyw": "partly-cloudy-day",
+                    "sunnywn": "partly-cloudy-night",
+                    "tstorm": "thunderstorm",
+                    "tstormn": "thunderstorm",
+                    "tstorms": "thunderstorm",
+                    "tstormsn": "thunderstorm",
+                    "tstormsw": "thunderstorm",
+                    "tstormswn": "thunderstorm",
+                    "wind": "wind",
+                    "wind": "wind",
+                    "wintrymix": "sleet",
+                    "wintrymixn": "sleet"
+                }
+                return icon_dict[icon_name]   
+            
             forecast_file = local_root + "/json/forecast.json"
-            forecast_api_key = self.generator.skin_dict['Extras']['forecast_api_key']
+            forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
+            forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
             forecast_units = self.generator.skin_dict['Extras']['forecast_units'].lower()
-            forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
             forecast_is_stale = False
             
-            #forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_key, latitude, longitude, forecast_units, forecast_lang )
-            forecast_url = "http://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&units=%s&lang=%s&appid=%s" % ( latitude, longitude, forecast_units, forecast_lang, forecast_api_key )
+            forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            #TODO is alerts enabled in config.txt?
+            forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=10&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
             
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
@@ -589,17 +802,32 @@ class getData(SearchList):
                         from urllib2 import Request, urlopen
                     user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
                     headers = { 'User-Agent' : user_agent }
+                    # Current conditions
+                    req = Request( forecast_current_url, None, headers )
+                    response = urlopen( req )
+                    current_page = response.read()
+                    response.close()
+                    # Forecast
                     req = Request( forecast_url, None, headers )
                     response = urlopen( req )
-                    page = response.read()
+                    forecast_page = response.read()
                     response.close()
+                    # Alerts
+                    req = Request( forecast_alerts_url, None, headers )
+                    response = urlopen( req )
+                    alerts_page = response.read()
+                    response.close()
+                    
+                    # Combine all into 1 file
+                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
                     
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
                     with open( forecast_file, 'wb+' ) as file:
-                        file.write( page )
+                        # TODO Python 2/3
+                        file.write( forecast_file_result.encode('utf-8') )
                         loginf( "New forecast file downloaded to %s" % forecast_file )
                 except IOError as e:
                     raise Warning( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
@@ -607,46 +835,30 @@ class getData(SearchList):
             # Process the forecast file
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
-            
-            current_obs_summary = label_dict[ data["current"]["weather"][0]["main"].lower() ]
-            
-            owm_icons = {
-                "01d": "clear-day.png",
-                "01n": "clear-night.png",
-                "02d": "partly-cloudy-day.png",
-                "02n": "partly-cloudy-night.png",
-                "03d": "cloudy.png",
-                "03n": "cloudy.png",
-                "04d": "cloudy.png",
-                "04n": "cloudy.png",
-                "09d": "rain.png",
-                "09n": "rain.png",
-                "10d": "rain.png",
-                "10n": "rain.png",
-                "11d": "thunderstorm.png",
-                "11n": "thunderstorm.png",
-                "13d": "snow.png",
-                "13n": "snow.png",
-                "50d": "fog.png",
-                "50n": "fog.png"
-            }
-            current_obs_icon = owm_icons.get( data["current"]["weather"][0]["icon"], "clear-day.png" )
                 
+            current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
 
-            if ( forecast_units == "standard" ) or ( forecast_units == "metric" ):
-                visibility = locale.format("%g", float( data["current"]["visibility"] / 1000 ) ) # OWM visibility is always in meter. Divide by 1000 to convert to kilometer
-                visibility_unit = "km"
-            elif ( forecast_units == "imperial" ):
-                visibility = locale.format("%g", float( data["current"]["visibility"] / 1609 ) ) # OWM visibility is always in meter. Divide by 1609 to convert to miles
-                visibility_unit = "miles"
+            current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+            
+            if forecast_units == "si" or forecast_units == "ca":
+                if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
+                    visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
+                    visibility_unit = "km"
+                else:
+                    visibility = "N/A"
+                    visibility_unit = ""
             else:
-                visibility = locale.format("%g", float( data["current"]["visibility"] ) ) # Meters
-                visibility_unit = ""
-                
+                # us, uk2 and default to miles per hour
+                if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
+                    visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
+                    visibility_unit = "miles"
+                else:
+                    visibility = "N/A"
+                    visibility_unit = ""
         else:
             current_obs_icon = ""
             current_obs_summary = ""
-            visibility = ""
+            visibility = "N/A"
             visibility_unit = ""
         
         
