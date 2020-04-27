@@ -26,6 +26,7 @@ Screenshot of light and dark modes
     + [weewx.conf](#weewxconf)
     + [Aeris Weather Forecast API (optional)](#aeris-weather-forecast-api-optional)
     + [Forecast Units](#forecast-units)
+    + [Forecast Translation](#forecast-translation)
     + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
     + [MQTT Brokers](#mqtt-brokers)
       - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
@@ -120,6 +121,9 @@ SI units are as follows:
 -   `wind speed`: Meters per second.
 -   `wind gust`: Meters per second.
 -   `visibility`: Kilometers.
+
+### Forecast Translation
+Aeris Weather provides the observations in "weather codes" which allows you to translate these codes to your language. Take a look at the skin.conf and all the `forecast_` labels. As with anything in skin.conf, it's advised to copy this to weewx.conf so your changes aren't lost on upgrades. See how to do this in the [Translating the Skin](#translating-the-skin) section.
 
 ### MQTT and MQTT Websockets (optional)
 MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
@@ -331,6 +335,7 @@ For ease of readability I have broken them out into separate tables. However you
 | mqtt_websockets_topic | "" | The topic to subscribe to for your weather data. Typically this should end in `/loop`. (e.g. `weather/loop`) depending on your [MQTT] extension settings.  **Versions 0.8.2 and prior** this option is called `mqtt_topic`
 | disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
 
+
 ### Forecast Options
 
 | Name | Default | Description
@@ -341,6 +346,9 @@ For ease of readability I have broken them out into separate tables. However you
 | forecast_units | "us" | The units to use for the Aeris Weather forecast. I have chosen to keep the Dark Sky unit system going forward with the skin. Other unit options options are: `us`, `si`, `ca` and `uk2`. Check the [Forecast Units](#forecast-units) section for an explanation of the differences.
 | forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by Aeris Weather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
 | forecast_alert_enabled | 0 | **Weather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the Aeris Weather data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
+| forecast_alert_limit | 1 | **Weather Alerts are only supported for USA and Canada**. The number of alerts to show for your location. Max of 10.
+| forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
+| forecast_daily_forecast_link | "" | The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
 
 
 ### Earthquake Options
@@ -350,6 +358,7 @@ For ease of readability I have broken them out into separate tables. However you
 | earthquake_enabled | 0 | 1 = enable, 0 = disable. Show the earthquake data on the front page
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
+
 
 ### Social Options
 
@@ -361,6 +370,7 @@ These are the options for the social media sharing section at the top right of e
 | twitter_enabled | 0 | Enable the Twitter Share button
 | twitter_owner | "" | Your Twitter handle which will be mentioned when the share button is pressed
 | twitter_hashtags | "weewx #weather" | The hashtags to include in the share button's text. 
+
 
 ## Creating About Page and Records Page
 

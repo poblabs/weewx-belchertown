@@ -748,6 +748,44 @@ function update_forecast_data( data ) {
     // WX icon in temperature box    
     var icon = get_relative_url() + "/images/" + aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png";
     jQuery("#wxicon").attr( "src", icon );
+    
+    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+    // Show the weather alerts if the array is populated
+    if ( data['alerts'][0]['response'][0] ) {
+        // Empty anything that's been appended from the previous run
+        jQuery(".wx-stn-alert-text").empty();
+        var i, forecast_alert_text, forecast_alert_text_body;
+        forecast_alert_text = "";
+        forecast_alert_text_body = "";
+        for ( i = 0; i < data['alerts'][0]['response'].length; i++ ) { 
+            alert_expires = moment.unix( data['alerts'][0]['response'][i]['timestamps']['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
+            forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-"+i+"' data-toggle='modal' data-target='#forecast-alert-"+i+"'>" + data['alerts'][0]['response'][i]['details']['name'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
+            
+            forecast_alert_text_body += "<!-- Forecast Alert Modal "+i+" -->";
+                forecast_alert_text_body += "<div class='modal fade' id='forecast-alert-"+i+"' tabindex='-1' role='dialog' aria-labelledby='forecast-alert'>";
+                  forecast_alert_text_body += "<div class='modal-dialog' role='document'>";
+                    forecast_alert_text_body += "<div class='modal-content'>";
+                      forecast_alert_text_body += "<div class='modal-header'>";
+                        forecast_alert_text_body += "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>";
+                        forecast_alert_text_body += "<h4 class='modal-title' id='forecast-alert'>" + data['alerts'][0]['response'][i]['details']['name'] + "</h4>";
+                      forecast_alert_text_body += "</div>";
+                      forecast_alert_text_body += "<div class='modal-body'>";
+                        forecast_alert_text_body += data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
+                      forecast_alert_text_body += "</div>";
+                      forecast_alert_text_body += "<div class='modal-footer'>";
+                        forecast_alert_text_body += "<button type='button' class='btn btn-primary' data-dismiss='modal'>Close</button>";
+                      forecast_alert_text_body += "</div>";
+                    forecast_alert_text_body += "</div>";
+                  forecast_alert_text_body += "</div>";
+                forecast_alert_text_body += "</div>";
+        }
+        jQuery(".wx-stn-alert-text").append( forecast_alert_text );
+        jQuery(".wx-stn-alert-text").append( forecast_alert_text_body );
+        jQuery(".wx-stn-alert").show();
+    } else {
+        jQuery(".wx-stn-alert").hide();
+    }
+    #end if
         
     // Current observation text
     jQuery(".current-obs-text").html( aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true ) );
@@ -837,6 +875,10 @@ function update_forecast_data( data ) {
         output_html += '<div class="forecast-wind">';
         output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( windSpeed ).toFixed(0) +'</span> | <span> '+ parseFloat( windGust ).toFixed(0) +'$unit.label.windSpeed';        
         output_html += '</div>';
+        #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+        var forecast_link = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
+        output_html += '<a href="'+forecast_link+'" target="_blank">$obs.label.daily_forecast</a>';
+        #end if
         output_html += '</div>';
     }
     forecast_subtitle = moment.unix( data["timestamp"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );

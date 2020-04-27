@@ -5,6 +5,7 @@
 * Aeris Weather is a very close drop-in replacement and is free if you send your station data to pwsweather.com. In return they give you free access to their weather API. I was considering OpenWeatherMap, but they were lacking some key observations in my opinion. 
 * Forecast file darksky_forecast.json renamed to forecast.json
 * skin.conf option darksky_units renamed to forecast_units
+* skin.conf option time_darksky_alert_expires renamed to time_forecast_alert_expires
 
 ### Added
 * An entire forecast section to the labels. This allows you to translate the Aeris Weather observations to your language.
@@ -14,6 +15,9 @@
 * Renamed skin.conf label darksky_rain to forecast_rain
 * Renamed skin.conf label time_darksky_forecast_date to time_forecast_date
 * Weather alerts are available through Aeris but only for USA and Canada
+* Weather alerts are now in-line with the website and not a link to an external website. This is because Aeris doesn't provide an external link with the alerts, only the text itself.
+* Can now customize the Daily Forecast link
+* Updates bootstrap to 3.4.1
 
 ### Removed
 * Daily Forecast link in the forecast row is no longer available due to the way Aeris operates currently. Can't extrapolate a URL from the API.

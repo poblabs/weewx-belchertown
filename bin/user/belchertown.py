@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.2b2"
+VERSION = "1.2b3"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -780,9 +780,15 @@ class getData(SearchList):
             
             forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
             forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-            #TODO is alerts enabled in config.txt?
-            forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=10&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-            
+
+            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                if self.generator.skin_dict['Extras']['forecast_alert_limit']:
+                    forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
+                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_api_id, forecast_api_secret )
+                else:
+                    # Default to 1 alerts to show if the option is missing. Can go up to 10
+                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
                 if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
@@ -812,14 +818,19 @@ class getData(SearchList):
                     response = urlopen( req )
                     forecast_page = response.read()
                     response.close()
-                    # Alerts
-                    req = Request( forecast_alerts_url, None, headers )
-                    response = urlopen( req )
-                    alerts_page = response.read()
-                    response.close()
+                    if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                        # Alerts
+                        req = Request( forecast_alerts_url, None, headers )
+                        response = urlopen( req )
+                        alerts_page = response.read()
+                        response.close()
                     
                     # Combine all into 1 file
-                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                    if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                        forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                    else:
+                        forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                        
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
                     
