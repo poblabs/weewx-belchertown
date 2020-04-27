@@ -557,7 +557,17 @@ class getData(SearchList):
         """
         Forecast Data
         """
-        if self.generator.skin_dict['Extras']['forecast_enabled'] == "1":
+        if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "":
+        
+            forecast_file = local_root + "/json/forecast.json"
+            forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
+            forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
+            forecast_units = self.generator.skin_dict['Extras']['forecast_units'].lower()
+            latitude = self.generator.config_dict['Station']['latitude']
+            longitude = self.generator.config_dict['Station']['longitude']
+            forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
+            forecast_is_stale = False
+        
             def aeris_coded_weather( data ):
                 # https://www.aerisweather.com/support/docs/api/reference/weather-codes/
                 output = ""
@@ -768,16 +778,7 @@ class getData(SearchList):
                     "wintrymixn": "sleet"
                 }
                 return icon_dict[icon_name]   
-            
-            forecast_file = local_root + "/json/forecast.json"
-            forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
-            forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
-            forecast_units = self.generator.skin_dict['Extras']['forecast_units'].lower()
-            latitude = self.generator.config_dict['Station']['latitude']
-            longitude = self.generator.config_dict['Station']['longitude']
-            forecast_stale_timer = self.generator.skin_dict['Extras']['forecast_stale']
-            forecast_is_stale = False
-            
+                        
             forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
             forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
 
@@ -837,8 +838,11 @@ class getData(SearchList):
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
                     with open( forecast_file, 'wb+' ) as file:
-                        # TODO Python 2/3
-                        file.write( forecast_file_result.encode('utf-8') )
+                        # Python 2/3
+                        try:
+                            file.write( forecast_file_result.encode('utf-8') )
+                        except:
+                            file.write( forecast_file_result )
                         loginf( "New forecast file downloaded to %s" % forecast_file )
                 except IOError as e:
                     raise Warning( "Error writing forecast info to %s. Reason: %s" % ( forecast_file, e) )
