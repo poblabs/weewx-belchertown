@@ -40,6 +40,7 @@ class BelchertownInstaller(ExtensionInstaller):
                                           'skins/Belchertown/skin.conf',
                                           'skins/Belchertown/belchertown-dark.min.css',
                                           'skins/Belchertown/style.css'
+                                          'skins/Belchertown/custom.css'
                                          ]
                     ),
                    ('skins/Belchertown/about', ['skins/Belchertown/about/index.html.tmpl']),
