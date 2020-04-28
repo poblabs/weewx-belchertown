@@ -112,10 +112,10 @@ class getData(SearchList):
 
         # Find the right HTML ROOT
         if 'HTML_ROOT' in self.generator.skin_dict:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+            html_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
                                       self.generator.skin_dict['HTML_ROOT'])
         else:
-            local_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
+            html_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'],
                                       self.generator.config_dict['StdReport']['HTML_ROOT'])
         
         # Setup UTC offset hours for moment.js in index.html
@@ -497,14 +497,14 @@ class getData(SearchList):
         # Get the unit label from the skin dict for speed. 
         windSpeed_unit = self.generator.skin_dict["Units"]["Groups"]["group_speed"]
         windSpeed_unit_label = self.generator.skin_dict["Units"]["Labels"][windSpeed_unit]
-                
+       
         """
         Get NOAA Data
         """
         years = []
         noaa_header_html = ""
         default_noaa_file = ""
-        noaa_dir = local_root + "/NOAA/"
+        noaa_dir = html_root + "/NOAA/"
         
         try:
             noaa_file_list = os.listdir( noaa_dir )
@@ -559,7 +559,7 @@ class getData(SearchList):
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "" or 'forecast_dev_file' in self.generator.skin_dict['Extras']:
         
-            forecast_file = local_root + "/json/forecast.json"
+            forecast_file = html_root + "/json/forecast.json"
             forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
             forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
             forecast_units = self.generator.skin_dict['Extras']['forecast_units'].lower()
@@ -890,7 +890,7 @@ class getData(SearchList):
         """
         # Only process if Earthquake data is enabled
         if self.generator.skin_dict['Extras']['earthquake_enabled'] == "1":
-            earthquake_file = local_root + "/json/earthquake.json"
+            earthquake_file = html_root + "/json/earthquake.json"
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
@@ -984,7 +984,7 @@ class getData(SearchList):
         Version Update Data
         """
         if self.generator.skin_dict['Extras']['check_for_updates'] == "1":
-            github_version_file = local_root + "/json/github_version.json"
+            github_version_file = html_root + "/json/github_version.json"
             github_version_is_stale = False
             
             github_version_url = "https://api.github.com/repos/poblabs/weewx-belchertown/releases/latest"
@@ -1201,10 +1201,18 @@ class getData(SearchList):
                 social_html += twitter_html
             social_html += "</div>"
 
+        """
+        Include custom.css if it exists in the HTML_ROOT folder
+        """
+        custom_css_file = html_root + "/custom.css"
+        # Determine if the file exists
+        if os.path.isfile( custom_css_file ):
+            custom_css_exists = True
+        else:
+            custom_css_exists = False
             
         # Build the search list with the new values
         search_list_extension = { 'belchertown_version': VERSION,
-                                  #'belchertown_root_url': belchertown_root_url,
                                   'belchertown_debug': belchertown_debug,
                                   'moment_js_utc_offset': moment_js_utc_offset,
                                   'highcharts_timezoneoffset': highcharts_timezoneoffset,
@@ -1238,7 +1246,6 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeed_unit_label,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
-                                  #'forecast_json_url': forecast_json_url,
                                   'current_obs_icon': current_obs_icon,
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
@@ -1254,7 +1261,8 @@ class getData(SearchList):
                                   'earthquake_lat': eqlat,
                                   'earthquake_lon': eqlon,
                                   'github_version': github_version,
-                                  'social_html': social_html }
+                                  'social_html': social_html,
+                                  'custom_css_exists': custom_css_exists }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
