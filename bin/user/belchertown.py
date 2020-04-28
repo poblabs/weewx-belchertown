@@ -557,7 +557,7 @@ class getData(SearchList):
         """
         Forecast Data
         """
-        if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "":
+        if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "" or 'forecast_dev_file' in self.generator.skin_dict['Extras']:
         
             forecast_file = local_root + "/json/forecast.json"
             forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
@@ -809,29 +809,37 @@ class getData(SearchList):
                         from urllib2 import Request, urlopen
                     user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
                     headers = { 'User-Agent' : user_agent }
-                    # Current conditions
-                    req = Request( forecast_current_url, None, headers )
-                    response = urlopen( req )
-                    current_page = response.read()
-                    response.close()
-                    # Forecast
-                    req = Request( forecast_url, None, headers )
-                    response = urlopen( req )
-                    forecast_page = response.read()
-                    response.close()
-                    if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                        # Alerts
-                        req = Request( forecast_alerts_url, None, headers )
+                    if 'forecast_dev_file' in self.generator.skin_dict['Extras']:
+                        # Hidden option to use a pre-downloaded forecast file rather than using API calls for no reason
+                        dev_forecast_file = self.generator.skin_dict['Extras']['forecast_dev_file']
+                        req = Request( dev_forecast_file, None, headers )
                         response = urlopen( req )
-                        alerts_page = response.read()
+                        forecast_file_result = response.read()
                         response.close()
-                    
-                    # Combine all into 1 file
-                    if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                        forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
                     else:
-                        forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                        # Current conditions
+                        req = Request( forecast_current_url, None, headers )
+                        response = urlopen( req )
+                        current_page = response.read()
+                        response.close()
+                        # Forecast
+                        req = Request( forecast_url, None, headers )
+                        response = urlopen( req )
+                        forecast_page = response.read()
+                        response.close()
+                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                            # Alerts
+                            req = Request( forecast_alerts_url, None, headers )
+                            response = urlopen( req )
+                            alerts_page = response.read()
+                            response.close()
                         
+                        # Combine all into 1 file
+                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                            forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                        else:
+                            forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                            
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
                     
