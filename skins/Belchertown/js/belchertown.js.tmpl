@@ -984,7 +984,7 @@ function onConnect() {
     client.subscribe( "$Extras.mqtt_websockets_topic" );
     #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
     if ( getURLvar("stayconnected") && ( getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1" ) ) {
-        console.log("stayconnected URL var found: ignoring disconnect_live_website_visitor value");
+        belchertown_debug("stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
     var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
     }
