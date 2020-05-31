@@ -7,11 +7,12 @@
 #set global $hemisphere = "northern-hemisphere"
 #end if
 
-var pages = ["graphs", "records", "reports", "about"];
+var pages = ["graphs", "records", "reports", "about", "pi"];
+var pageName = "";
 // If this page we're on now is listed as a subpage, use ".." to get to the relative root
 function get_relative_url() {
     var sPath = window.location.pathname.replace(/\/$/, "");
-    var pageName = sPath.substring(sPath.lastIndexOf('/') + 1);
+    pageName = sPath.substring(sPath.lastIndexOf('/') + 1);
     if ( pages.includes( pageName ) ) {
         var relative_url = "..";
     } else {
@@ -442,7 +443,7 @@ function update_weewx_data( data ) {
     
     #if $Extras.has_key("theme") and $Extras.theme == 'auto'
     // Auto theme if enabled
-    autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
+    autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"] );
     #end if
     
     //station_obs_array = data["station_observations"];
@@ -976,7 +977,11 @@ function onConnect() {
     } else { 
         updated = moment.unix( "$current.dateTime.raw" ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
     }
-    reported = "$obs.label.mqtt_websockets_waiting $obs.label.header_last_updated " + updated;
+    if ( pageName == "pi" ) {
+        reported = "$obs.label.mqtt_websockets_waiting_pi $obs.label.header_last_updated " + updated;
+    } else {
+        reported = "$obs.label.mqtt_websockets_waiting $obs.label.header_last_updated " + updated;
+    }
     jQuery(".updated").html( reported );
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -986,7 +991,9 @@ function onConnect() {
     if ( getURLvar("stayconnected") && ( getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1" ) ) {
         belchertown_debug("stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
-    var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
+        if ( pageName != "pi" ) {
+            var activityTimeout = setTimeout( inactive, $Extras.disconnect_live_website_visitor ); // Stop automatic ajax refresh
+        }
     }
     #end if
 }
@@ -1058,7 +1065,9 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("interval_minute") ) {
         // Delays are recommended to allow the other skins to complete processing
         belchertown_debug( "MQTT: MQTT message indicates this is an archive interval." );
-        setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
+        if ( pageName != "pi" ) {
+            setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
+        }
         setTimeout( ajaxweewx, 10000 ); // Update weewx data
         #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
         setTimeout( ajaxforecast, 10000 ); // Update forecast data
@@ -1068,7 +1077,11 @@ function update_current_wx(data) {
         // Only show the updated time on non-archive packets
         epoch = parseFloat( data["dateTime"] ).toFixed(0);
         updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
-        updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+        if ( pageName == "pi" ) {
+            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
+        } else {
+            updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+        }
         jQuery(".updated").html( updated_text );
     }
     // If we're in this function, show the online beacon and hide the others

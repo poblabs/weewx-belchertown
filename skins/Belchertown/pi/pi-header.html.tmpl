@@ -25,6 +25,13 @@
         #end if
 #end if
 
+## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
+#if $page == "home"
+#set global $relative_url = "."
+#else
+#set global $relative_url = ".."
+#end if
+
 <!DOCTYPE html>
 <html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head >
@@ -56,9 +63,14 @@
         <!--[if lt IE 9]>
         <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
         <![endif]-->
-        <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+        <script type='text/javascript' src='//code.highcharts.com/stock/7.1.2/highstock.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/7.1.2/highcharts-more.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/7.1.2/modules/exporting.js'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
         <script>
             // Set the session variables for the theme
             if ( sessionStorage.getItem('pi_theme') === null ) {
@@ -70,6 +82,17 @@
         </script>
 
         <link rel="icon" href="../favicon.ico" />
+        
+        #if $Extras.has_key('googleAnalyticsId')
+        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '$Extras.googleAnalyticsId');
+        </script>
+        #end if
 
     </head>
     
