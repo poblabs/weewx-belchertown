@@ -893,6 +893,8 @@ function update_forecast_data( data ) {
 // Live website using MQTT Websockets enabled //
 //============================================//
 
+var mqttConnected = false;
+
 function ajaximages(section=false, reload_timer_interval_seconds=false) {
     // This function only runs if the elements have an img src.
     // Update images within the specific section
@@ -971,6 +973,7 @@ function connect() {
 
 // MQTT connect callback
 function onConnect() {
+    mqttConnected = true;
     belchertown_debug( "MQTT: MQTT Connected. Subscribing." );
     if ( reconnect_using_inactive_timestamp ) {
         updated = moment.unix( inactive_timestamp ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
@@ -1000,6 +1003,7 @@ function onConnect() {
 
 // MQTT Failure
 function onFailure() {
+    mqttConnected = false;
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
@@ -1012,10 +1016,17 @@ function onFailure() {
     }
     jQuery(".updated").html( "$obs.label.mqtt_websockets_failed $obs.label.header_last_updated " + updated );
     console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": Cannot connect to MQTT broker" );
+    // Attempt reconnect on Pi page
+    if ( pageName == "pi" ) {
+        if ( mqttConnected == false ) {
+            setTimeout( connect, 5000 ); // Wait a couple of seconds before trying to connect again
+        }
+    }
 }
 
 // MQTT connection lost
 function onConnectionLost(responseObject) {
+    mqttConnected = false;
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").show();
     jQuery(".loadingMarker").hide();
@@ -1029,6 +1040,12 @@ function onConnectionLost(responseObject) {
     jQuery(".updated").html( "$obs.label.mqtt_websockets_lost $obs.label.header_last_updated " + updated );
     if (responseObject.errorCode !== 0) {
         console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": mqtt Connection Lost: "+responseObject.errorMessage );
+    }
+    // Attempt reconnect on Pi page
+    if ( pageName == "pi" ) {
+        if ( mqttConnected == false ) {
+            setTimeout( connect, 5000 ); // Wait a couple of seconds before trying to connect again
+        }
     }
 }
 
