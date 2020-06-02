@@ -836,9 +836,15 @@ class getData(SearchList):
                         
                         # Combine all into 1 file
                         if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                            forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                            try:
+                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                            except:
+                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
                         else:
-                            forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                            try:
+                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                            except:
+                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
                             
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
@@ -1012,7 +1018,10 @@ class getData(SearchList):
                     req = Request( github_version_url, None, headers )
                     response = urlopen( req )
                     #page = response.read()
-                    page = json.load( response )
+                    try:
+                        page = json.load( response )
+                    except:
+                        page = json.load( response.decode('utf-8') )
                     response.close()
                 except Exception as error:
                     logerr( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
