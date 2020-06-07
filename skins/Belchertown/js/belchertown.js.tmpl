@@ -1017,12 +1017,6 @@ function onFailure() {
     }
     jQuery(".updated").html( "$obs.label.mqtt_websockets_failed $obs.label.header_last_updated " + updated );
     console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": Cannot connect to MQTT broker" );
-    // Attempt reconnect on Pi page
-    if ( pageName == "pi" ) {
-        if ( mqttConnected == false ) {
-            setTimeout( connect, 5000 ); // Wait a couple of seconds before trying to connect again
-        }
-    }
 }
 
 // MQTT connection lost
@@ -1041,12 +1035,6 @@ function onConnectionLost(responseObject) {
     jQuery(".updated").html( "$obs.label.mqtt_websockets_lost $obs.label.header_last_updated " + updated );
     if (responseObject.errorCode !== 0) {
         console.log( "MQTT: " + moment.unix( epoch ).utcOffset( $moment_js_utc_offset ).format() + ": mqtt Connection Lost: "+responseObject.errorMessage );
-    }
-    // Attempt reconnect on Pi page
-    if ( pageName == "pi" ) {
-        if ( mqttConnected == false ) {
-            setTimeout( connect, 5000 ); // Wait a couple of seconds before trying to connect again
-        }
     }
 }
 
