@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.2b4"
+VERSION = "1.2b5"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
@@ -559,6 +559,7 @@ class getData(SearchList):
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "" or 'forecast_dev_file' in self.generator.skin_dict['Extras']:
         
+            forecast_provider = self.generator.skin_dict['Extras']['forecast_provider']
             forecast_file = html_root + "/json/forecast.json"
             forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
             forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
@@ -779,16 +780,21 @@ class getData(SearchList):
                 }
                 return icon_dict[icon_name]   
                         
-            forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-            forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-
-            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                        
+            if forecast_provider == "aeris":
+                forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_api_id, forecast_api_secret )
                 else:
                     # Default to 1 alerts to show if the option is missing. Can go up to 10
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            elif forecast_provider == "darksky":
+                forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
+                forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
+                
+            print(forecast_url)
 
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
@@ -817,34 +823,41 @@ class getData(SearchList):
                         forecast_file_result = response.read()
                         response.close()
                     else:
-                        # Current conditions
-                        req = Request( forecast_current_url, None, headers )
-                        response = urlopen( req )
-                        current_page = response.read()
-                        response.close()
-                        # Forecast
-                        req = Request( forecast_url, None, headers )
-                        response = urlopen( req )
-                        forecast_page = response.read()
-                        response.close()
-                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                            # Alerts
-                            req = Request( forecast_alerts_url, None, headers )
+                        if forecast_provider == "aeris":
+                            # Current conditions
+                            req = Request( forecast_current_url, None, headers )
                             response = urlopen( req )
-                            alerts_page = response.read()
+                            current_page = response.read()
                             response.close()
-                        
-                        # Combine all into 1 file
-                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                            try:
-                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
-                            except:
-                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
-                        else:
-                            try:
-                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
-                            except:
-                                forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
+                            # Forecast
+                            req = Request( forecast_url, None, headers )
+                            response = urlopen( req )
+                            forecast_page = response.read()
+                            response.close()
+                            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                                # Alerts
+                                req = Request( forecast_alerts_url, None, headers )
+                                response = urlopen( req )
+                                alerts_page = response.read()
+                                response.close()
+                            
+                            # Combine all into 1 file
+                            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                                try:
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                                except:
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
+                            else:
+                                try:
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                                except:
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
+                        elif forecast_provider == "darksky":
+                            req = Request( forecast_url, None, headers )
+                            response = urlopen( req )
+                            forecast_file_result = response.read()
+                            response.close()
+                            
                             
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
@@ -865,26 +878,46 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
                 
-            current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
+            if forecast_provider == "aeris":
+                current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
 
-            current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
-            
-            if forecast_units == "si" or forecast_units == "ca":
-                if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
-                    visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
+                current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+                
+                if forecast_units == "si" or forecast_units == "ca":
+                    if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
+                        visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
+                        visibility_unit = "km"
+                    else:
+                        visibility = "N/A"
+                        visibility_unit = ""
+                else:
+                    # us, uk2 and default to miles per hour
+                    if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
+                        visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
+                        visibility_unit = "miles"
+                    else:
+                        visibility = "N/A"
+                        visibility_unit = ""
+            elif forecast_provider == "darksky":
+                current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
+                visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
+                
+                if data["currently"]["icon"] == "partly-cloudy-night":
+                    current_obs_icon = 'partly-cloudy-night.png'
+                else:
+                    current_obs_icon = data["currently"]["icon"]+'.png'
+
+                # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
+                # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
+                # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
+                if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
+                    visibility_unit = "miles"
+                elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
                     visibility_unit = "km"
                 else:
-                    visibility = "N/A"
-                    visibility_unit = ""
-            else:
-                # us, uk2 and default to miles per hour
-                if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
-                    visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
-                    visibility_unit = "miles"
-                else:
-                    visibility = "N/A"
                     visibility_unit = ""
         else:
+            forecast_provider = "N/A"
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = "N/A"
@@ -1255,6 +1288,7 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeed_unit_label,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
+                                  'forecast_provider': forecast_provider,
                                   'current_obs_icon': current_obs_icon,
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,

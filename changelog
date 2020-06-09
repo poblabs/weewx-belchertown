@@ -1,9 +1,10 @@
 1.2 ???, 2020
 
 ### Breaking Changes
-* DarkSky has announced that they were acquired by Apple and will be removing their API. This release moves the forecasting to Aeris Weather.
+* DarkSky has announced that they were acquired by Apple and will be removing their API. This release adds Aeris Weather as a forecast provider with the intent to remove DarkSky in a later version.
+* New option `forecast_provider` is added to specify which provider you are using (DarkSky or Aeris)
 * Aeris Weather is a very close drop-in replacement and is free if you send your station data to pwsweather.com. In return they give you free access to their weather API. I was considering OpenWeatherMap, but they were lacking some key observations in my opinion. 
-* Forecast file darksky_forecast.json renamed to forecast.json
+* Forecast file darksky_forecast.json renamed to forecast.json for all providers.
 * skin.conf option darksky_units renamed to forecast_units
 * skin.conf option time_darksky_alert_expires renamed to time_forecast_alert_expires
 
