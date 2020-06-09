@@ -794,8 +794,6 @@ class getData(SearchList):
                 forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
                 forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
                 
-            print(forecast_url)
-
             # Determine if the file exists and get it's modified time
             if os.path.isfile( forecast_file ):
                 if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
