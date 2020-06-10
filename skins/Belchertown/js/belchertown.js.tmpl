@@ -744,14 +744,79 @@ function aeris_icon( data ) {
     return icon_dict[icon_name];    
 }
 
+function show_forcast_alert( data, forecast_provider ) {
+    belchertown_debug("Forecast: Updating alert data for " + forecast_provider);
+    var i, forecast_alert_modal, forecast_alerts;
+    forecast_alert_modal = "";
+    forecast_alerts = [];
+    
+    // Empty anything that's been appended to the modal from the previous run
+    jQuery(".wx-stn-alert-text").empty();
+    
+    if ( forecast_provider == "darksky" ) {
+        if ( data['alerts'] ) {
+            for ( i = 0; i < data['alerts'].length; i++ ) { 
+                forecast_alert_title = data['alerts'][i]['title'];
+                forecast_alert_body = data['alerts'][i]['description'].replace(/\n/g, '<br>');
+                forecast_alert_link = data['alerts'][i]['title'];
+                forecast_alert_expires = moment.unix( data['alerts'][i]['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
+                forecast_alerts.push( { "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });
+            }
+        }
+    } else if ( forecast_provider == "aeris" ) {
+        if ( data['alerts'][0]['response'][0] ) {
+            for ( i = 0; i < data['alerts'][0]['response'].length; i++ ) {             
+                forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
+                forecast_alert_body = data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
+                forecast_alert_link = data['alerts'][0]['response'][i]['details']['name'];
+                forecast_alert_expires = moment.unix( data['alerts'][0]['response'][i]['timestamps']['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
+                forecast_alerts.push( { "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });
+            }
+        }
+    }
+
+    if ( forecast_alerts.length > 0 ) {
+        belchertown_debug("Forecast: There are " + forecast_alerts.length + " alert(s).");
+        for ( i = 0; i < forecast_alerts.length; i++ ) { 
+            
+            alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-"+i+"' data-toggle='modal' data-target='#forecast-alert-"+i+"'>" +forecast_alerts[i]["title"] + " $obs.label.alert_in_effect " + forecast_alerts[i]["expires"] + "</a><br>";
+            jQuery(".wx-stn-alert-text").append( alert_link );
+            
+            forecast_alert_modal += "<!-- Forecast Alert Modal "+i+" -->";
+            forecast_alert_modal += "<div class='modal fade' id='forecast-alert-"+i+"' tabindex='-1' role='dialog' aria-labelledby='forecast-alert'>";
+              forecast_alert_modal += "<div class='modal-dialog' role='document'>";
+                forecast_alert_modal += "<div class='modal-content'>";
+                  forecast_alert_modal += "<div class='modal-header'>";
+                    forecast_alert_modal += "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>";
+                    forecast_alert_modal += "<h4 class='modal-title' id='forecast-alert'>" + forecast_alerts[i]["title"] + "</h4>";
+                  forecast_alert_modal += "</div>";
+                  forecast_alert_modal += "<div class='modal-body'>";
+                    forecast_alert_modal += forecast_alerts[i]["body"];
+                  forecast_alert_modal += "</div>";
+                  forecast_alert_modal += "<div class='modal-footer'>";
+                    forecast_alert_modal += "<button type='button' class='btn btn-primary' data-dismiss='modal'>Close</button>";
+                  forecast_alert_modal += "</div>";
+                forecast_alert_modal += "</div>";
+              forecast_alert_modal += "</div>";
+            forecast_alert_modal += "</div>";
+            
+            jQuery(".wx-stn-alert-text").append( forecast_alert_modal );
+        }
+        jQuery(".wx-stn-alert").show();
+    } else {
+        belchertown_debug("Forecast: There are no forecast alerts");
+        jQuery(".wx-stn-alert").hide();
+    }
+}
+
 function update_forecast_data( data ) {
-    belchertown_debug("Forecast: Updating data");
     forecast_provider = "$forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
+    belchertown_debug("Forecast: Updating data");
     
     if ( forecast_provider == "N/A" ) {
         jQuery(".forecastrow").hide();
-        belchertown_debug("Forecast: Hiding .forecastrow");
+        belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
     } else if ( forecast_provider == "darksky" ) {
         
@@ -869,22 +934,6 @@ function update_forecast_data( data ) {
             #end if
             output_html += '</div>';
         }
-
-        #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-        // Weather Alerts
-        if ( data['alerts'] ) {
-            var i, forecast_alert_text;
-            forecast_alert_text = "";
-            for ( i = 0; i < data['alerts'].length; i++ ) { 
-                alert_expires = moment.unix( data['alerts'][i]['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_darksky_alert_expires' );
-                forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='" + data['alerts'][i]['uri'] + "' target='_blank'>" + data['alerts'][i]['title'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
-            }
-            jQuery(".wx-stn-alert-text").html( forecast_alert_text );
-            jQuery(".wx-stn-alert").show();
-        } else {
-            jQuery(".wx-stn-alert").hide();
-        }
-        #end if
         
     }
     
@@ -986,47 +1035,7 @@ function update_forecast_data( data ) {
             #end if
             output_html += '</div>';
         }
-        
-        #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
-        // Show the weather alerts if the array is populated
-        if ( data['alerts'][0]['response'][0] ) {
-            // Empty anything that's been appended from the previous run
-            jQuery(".wx-stn-alert-text").empty();
-            var i, forecast_alert_text, forecast_alert_text_body;
-            forecast_alert_text = "";
-            forecast_alert_text_body = "";
-            for ( i = 0; i < data['alerts'][0]['response'].length; i++ ) { 
-                alert_expires = moment.unix( data['alerts'][0]['response'][i]['timestamps']['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
-                forecast_alert_text += "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-"+i+"' data-toggle='modal' data-target='#forecast-alert-"+i+"'>" + data['alerts'][0]['response'][i]['details']['name'] + " $obs.label.alert_in_effect " + alert_expires + "</a><br>";
-                
-                forecast_alert_text_body += "<!-- Forecast Alert Modal "+i+" -->";
-                    forecast_alert_text_body += "<div class='modal fade' id='forecast-alert-"+i+"' tabindex='-1' role='dialog' aria-labelledby='forecast-alert'>";
-                      forecast_alert_text_body += "<div class='modal-dialog' role='document'>";
-                        forecast_alert_text_body += "<div class='modal-content'>";
-                          forecast_alert_text_body += "<div class='modal-header'>";
-                            forecast_alert_text_body += "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>";
-                            forecast_alert_text_body += "<h4 class='modal-title' id='forecast-alert'>" + data['alerts'][0]['response'][i]['details']['name'] + "</h4>";
-                          forecast_alert_text_body += "</div>";
-                          forecast_alert_text_body += "<div class='modal-body'>";
-                            forecast_alert_text_body += data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
-                          forecast_alert_text_body += "</div>";
-                          forecast_alert_text_body += "<div class='modal-footer'>";
-                            forecast_alert_text_body += "<button type='button' class='btn btn-primary' data-dismiss='modal'>Close</button>";
-                          forecast_alert_text_body += "</div>";
-                        forecast_alert_text_body += "</div>";
-                      forecast_alert_text_body += "</div>";
-                    forecast_alert_text_body += "</div>";
-            }
-            jQuery(".wx-stn-alert-text").append( forecast_alert_text );
-            jQuery(".wx-stn-alert-text").append( forecast_alert_text_body );
-            jQuery(".wx-stn-alert").show();
-        } else {
-            jQuery(".wx-stn-alert").hide();
-        }
-        #end if
     }
-    
-    // Forecast Agnostic Items
     
     // WX icon in temperature box    
     jQuery("#wxicon").attr( "src", wxicon );
@@ -1034,6 +1043,12 @@ function update_forecast_data( data ) {
     // Daily forecast
     jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
+    
+    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+    // Show weather alert
+    show_forcast_alert( data, forecast_provider );
+    #end if
+    
 }
 #end if
 
