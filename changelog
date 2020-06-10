@@ -19,6 +19,7 @@
 * Weather alerts are now in-line with the website and not a link to an external website. This is because Aeris doesn't provide an external link with the alerts, only the text itself.
 * Can now customize the Daily Forecast link
 * Updates bootstrap to 3.4.1
+* DarkSky weather alerts now open in a modal similar to Aeris and no longer link to the alert source.
 
 ### Removed
 * Daily Forecast link in the forecast row is no longer available due to the way Aeris operates currently. Can't extrapolate a URL from the API.
