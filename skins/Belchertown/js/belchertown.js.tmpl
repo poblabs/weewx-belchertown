@@ -810,9 +810,11 @@ function show_forcast_alert( data, forecast_provider ) {
 }
 
 function update_forecast_data( data ) {
-    forecast_provider = "$forecast_provider";
+    forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
+    
+    forecast_row = [];
     
     if ( forecast_provider == "N/A" ) {
         jQuery(".forecastrow").hide();
@@ -820,7 +822,7 @@ function update_forecast_data( data ) {
         return;
     } else if ( forecast_provider == "darksky" ) {
         
-        forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+        var forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
 
         // WX icon in temperature box
         if ( data['currently']['icon'] == "partly-cloudy-night" ) {
@@ -842,11 +844,12 @@ function update_forecast_data( data ) {
             // Visibility not in the station observation table or any of the unit arrays, so silently exit
         }
     
-        // 7 day forecast
-        var output_html = "";
+        // Force 7 day forecast
         //for (i = 0; i < data["daily"]["data"].length; i++) {
         for (i = 0; i < 7; i++) {
-            var forecastDay = data["daily"]["data"][i];
+            
+            var weekday = moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
+            
             if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
                 var image_url = get_relative_url() + "/images/clear-day.png";
             } else { 
@@ -859,7 +862,7 @@ function update_forecast_data( data ) {
                     condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
                     break;
                 case "clear-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL";
+                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
                     break;
                 case "rain":
                     condition_text = "$obs.label.forecast_weather_code_R"; // Rain
@@ -883,7 +886,7 @@ function update_forecast_data( data ) {
                     condition_text = "$obs.label.forecast_cloud_code_SC"; // Partly Cloudy
                     break;
                 case "partly-cloudy-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
+                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear - https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
                     break;
                 case "hail":
                     condition_text = "$obs.label.forecast_weather_code_A"; // Hail
@@ -896,45 +899,39 @@ function update_forecast_data( data ) {
                     break;
             }
             
-            if ( i == 0 ) {
-                output_html += '<div class="col-sm-1-5 forecast-day">';
-            } else {
-                output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-            }
-            // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
-            var weekday = moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
-            output_html += '<span id="weekday">'+weekday+'</span>';
-            output_html += '<br>';
-            output_html += '<div class="forecast-conditions">';
-            output_html += '<img id="icon" src="'+image_url+'">';
-            output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
-            output_html += '</div>';
-            output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
-            output_html += '<br>';
-            output_html += '<div class="forecast-precip">';
             if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
-                output_html += '<div class="snow-precip">';
-                // Relative URL with .
-                output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
-                output_html += '</div>';
+                var snow_depth = data["daily"]["data"][i]["precipAccumulation"];
+                var snow_unit = "in";
             } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
-                output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
+                var precip = data["daily"]["data"][i]["precipProbability"] * 100;
             } else {
-                output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>';
+                var precip = 0;
+                var snow_depth = 0;
+                var snow_unit = "";
             }
-            output_html += '</div>';
-            output_html += '<div class="forecast-wind">';
-            output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( data["daily"]["data"][i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';
-            output_html += '</div>';
             var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
+            
             #if $Extras.has_key("darksky_lang")
-            output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
+            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
             #else
-            output_html += '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/" target="_blank">$obs.label.daily_forecast</a>';
+            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/" target="_blank">$obs.label.daily_forecast</a>';
             #end if
-            output_html += '</div>';
+
+            forecast_row.push( {
+                    "weekday": weekday,
+                    "image_url": image_url,
+                    "condition_text": condition_text,
+                    "minTemp": data["daily"]["data"][i]["temperatureLow"],
+                    "maxTemp": data["daily"]["data"][i]["temperatureHigh"],
+                    "windSpeed": data["daily"]["data"][i]["windSpeed"],
+                    "windGust": data["daily"]["data"][i]["windGust"],
+                    "snow_depth": snow_depth,
+                    "snow_unit": snow_unit,
+                    "precip": precip,
+                    "forecast_link": forecast_link,
+            
+            } );
         }
-        
     }
     
     if ( forecast_provider == "aeris" ) {
@@ -962,10 +959,10 @@ function update_forecast_data( data ) {
             // Visibility not in the station observation table or any of the unit arrays, so silently exit
         }
         
-        var output_html = "";
         for (i = 0; i < data["forecast"][0]["response"][0]["periods"].length; i++) {
             var image_url = get_relative_url() + "/images/" + aeris_icon( data["forecast"][0]["response"][0]["periods"][i]["icon"] ) + ".png";
             var condition_text = aeris_coded_weather( data["forecast"][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
+            var weekday = moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
 
             // Determine temperature units
             if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk" ) || ( "$Extras.forecast_units" == "si" ) ) {
@@ -991,23 +988,7 @@ function update_forecast_data( data ) {
                 windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedMPH"];
                 windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustMPH"];
             }
-
-            if ( i == 0 ) {
-                output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
-            } else {
-                output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-            }
-            // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
-            var weekday = moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
-            output_html += '<span id="weekday">'+weekday+'</span>';
-            output_html += '<br>';
-            output_html += '<div class="forecast-conditions">';
-            output_html += '<img id="icon" src="'+image_url+'">';
-            output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
-            output_html += '</div>';
-            output_html += '<span class="forecast-high">'+ parseFloat( maxTemp ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( minTemp ).toFixed(0) +'&deg;</span>';
-            output_html += '<br>';
-            output_html += '<div class="forecast-precip">';
+            
             if ( ( data["forecast"][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data["forecast"][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
                 // Determine snow unit
                 if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
@@ -1017,30 +998,76 @@ function update_forecast_data( data ) {
                     snow_depth = data["forecast"][0]["response"][0]["periods"][i]["snowIN"];
                     snow_unit = "in";
                 }
-                output_html += '<div class="snow-precip">';
-                output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( snow_depth ).toFixed(0) +'<span> ' + snow_unit;
-                output_html += '</div>';
             } else if ( data["forecast"][0]["response"][0]["periods"][i]["pop"] > 0 ) {
-                output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["forecast"][0]["response"][0]["periods"][i]["pop"] ).toFixed(0) +'%</span>';
+                // Rain percent of precip
+                precip = data["forecast"][0]["response"][0]["periods"][i]["pop"];
             } else {
-                output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+                precip = 0;
+                snow_depth = 0;
+                snow_unit = "";
             }
-            output_html += '</div>';
-            output_html += '<div class="forecast-wind">';
-            output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( windSpeed ).toFixed(0) +'</span> | <span> '+ parseFloat( windGust ).toFixed(0) +'$unit.label.windSpeed';        
-            output_html += '</div>';
-            #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
-            var forecast_link = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
-            output_html += '<a href="'+forecast_link+'" target="_blank">$obs.label.daily_forecast</a>';
-            #end if
-            output_html += '</div>';
+            
+            var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
+            var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
+            
+            forecast_row.push( {
+                    "weekday": weekday,
+                    "image_url": image_url,
+                    "condition_text": condition_text,
+                    "minTemp": minTemp,
+                    "maxTemp": maxTemp,
+                    "windSpeed": windSpeed,
+                    "windGust": windGust,
+                    "snow_depth": snow_depth,
+                    "snow_unit": snow_unit,
+                    "precip": precip,
+                    "forecast_link": forecast_link
+            
+            } );
         }
     }
-    
+
     // WX icon in temperature box    
     jQuery("#wxicon").attr( "src", wxicon );
 
-    // Daily forecast
+    // Build daily forecast row
+    var output_html = "";
+    for (i = 0; i < forecast_row.length; i++) {
+        if ( i == 0 ) {
+            output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
+        } else {
+            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+        }
+        // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+        output_html += '<span id="weekday">'+forecast_row[i]["weekday"]+'</span>';
+        output_html += '<br>';
+        output_html += '<div class="forecast-conditions">';
+        output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
+        output_html += '<span class="forecast-condition-text">'+forecast_row[i]["condition_text"]+'</span>';
+        output_html += '</div>';
+        output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'&deg;</span>';
+        output_html += '<br>';
+        output_html += '<div class="forecast-precip">';
+        if ( forecast_row[i]["snow_depth"] > 0 ) {
+            output_html += '<div class="snow-precip">';
+            output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+            output_html += '</div>';
+        } else if ( forecast_row[i]["precip"] > 0 ) {
+            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
+        } else {
+            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+        }
+        output_html += '</div>';
+        output_html += '<div class="forecast-wind">';
+        output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
+        output_html += '</div>';
+        #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+        output_html += forecast_row[i]["forecast_link"];
+        #end if
+        output_html += '</div>';
+    }
+    
+    // Show the forecast row
     jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
     jQuery(".forecasts").html( output_html );
     

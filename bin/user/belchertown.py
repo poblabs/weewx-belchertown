@@ -915,7 +915,6 @@ class getData(SearchList):
                 else:
                     visibility_unit = ""
         else:
-            forecast_provider = "N/A"
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = "N/A"
@@ -1286,7 +1285,6 @@ class getData(SearchList):
                                   'windSpeedUnitLabel': windSpeed_unit_label,
                                   'noaa_header_html': noaa_header_html,
                                   'default_noaa_file': default_noaa_file,
-                                  'forecast_provider': forecast_provider,
                                   'current_obs_icon': current_obs_icon,
                                   'current_obs_summary': current_obs_summary,
                                   'visibility': visibility,
