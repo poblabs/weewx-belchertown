@@ -978,7 +978,11 @@ class getData(SearchList):
                 # Save earthquake data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
                     with open( earthquake_file, 'wb+' ) as file:
-                        file.write( page )
+                        # Python 2/3
+                        try:
+                            file.write( page.encode('utf-8') )
+                        except:
+                            file.write( page )
                         if weewx.debug:
                             logdbg( "Earthquake data saved to %s" % earthquake_file )
                 except IOError as e:
@@ -1025,9 +1029,9 @@ class getData(SearchList):
             
             github_version_url = "https://api.github.com/repos/poblabs/weewx-belchertown/releases/latest"
             
-            # Determine if the file exists and get it's modified time. If it's older than an hour then it's stale
+            # Determine if the file exists and get it's modified time. If it's older than 12 hours then it's stale
             if os.path.isfile( github_version_file ):
-                if ( int( time.time() ) - int( os.path.getmtime( github_version_file ) ) ) > 21600:
+                if ( int( time.time() ) - int( os.path.getmtime( github_version_file ) ) ) > 43200:
                     github_version_is_stale = True
             else:
                 # File doesn't exist, download a new copy
@@ -1048,21 +1052,25 @@ class getData(SearchList):
                     req = Request( github_version_url, None, headers )
                     response = urlopen( req )
                     #page = response.read()
-                    try:
-                        page = json.load( response )
-                    except:
-                        page = json.load( response.decode('utf-8') )
+                    #try:
+                    #    page = response.read().decode('utf-8')
+                    #except:
+                    page = response.read()
                     response.close()
                 except Exception as error:
                     logerr( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
                     
                 try:
                     # Only save the tag_name. Typical tag is weewx-belchertown-x.y where x.y is the version number. So split on "-" and save the version number only
-                    tag_name = page["tag_name"].split("-")[2]
+                    tag_name = json.loads(page)["tag_name"].split("-")[2]
                     try:
                         # Save data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                         with open( github_version_file, 'wb+' ) as file:
-                            file.write( tag_name )
+                            # Python 2/3
+                            try:
+                                file.write( tag_name.encode('utf-8') )
+                            except:
+                                file.write( tag_name )
                             loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
                     except IOError as e:
                         logerr( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
