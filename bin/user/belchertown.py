@@ -1051,44 +1051,22 @@ class getData(SearchList):
                     headers = { 'User-Agent' : user_agent }
                     req = Request( github_version_url, None, headers )
                     response = urlopen( req )
-                    #page = response.read()
-                    #try:
-                    #    page = response.read().decode('utf-8')
-                    #except:
                     page = response.read()
                     response.close()
                 except Exception as error:
-                    logerr( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
-                    
-                try:
-                    # Only save the tag_name. Typical tag is weewx-belchertown-x.y where x.y is the version number. So split on "-" and save the version number only
-                    tag_name = json.loads(page)["tag_name"].split("-")[2]
-                    try:
-                        # Save data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
-                        with open( github_version_file, 'wb+' ) as file:
-                            # Python 2/3
-                            try:
-                                file.write( tag_name.encode('utf-8') )
-                            except:
-                                file.write( tag_name )
-                            loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
-                    except IOError as e:
-                        logerr( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
-                except:
-                    pass
+                    loginf( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
                 
-            try:
-                # Process the file
-                with open( github_version_file, "r" ) as read_file:
-                    data = read_file.read()
-            except IOError as e:
-                logerr( "Update Checker: Unable to open %s. Reason: %s" % ( github_version_file, e) )
-                data = ""
-            
-            github_version = data
-        else:
-            # Empty default
-            github_version = ""
+                # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
+                try:
+                    with open( github_version_file, 'wb+' ) as file:
+                        # Python 2/3
+                        try:
+                            file.write( page.encode('utf-8') )
+                        except:
+                            file.write( page )
+                        loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
+                except IOError as e:
+                    loginf( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
 
         
         """
@@ -1307,7 +1285,6 @@ class getData(SearchList):
                                   'earthquake_magnitude': eqmag,
                                   'earthquake_lat': eqlat,
                                   'earthquake_lon': eqlon,
-                                  'github_version': github_version,
                                   'social_html': social_html,
                                   'custom_css_exists': custom_css_exists }
 
