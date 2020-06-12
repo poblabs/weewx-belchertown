@@ -2364,7 +2364,7 @@ input:checked + .slider:before {
     .pi .station-observations {
 		font-size: 18px;
         line-height: 20px;
-		margin-top: 20px;
+		margin-top: 10px;
 	}
     
     .pi .small-almanac {
