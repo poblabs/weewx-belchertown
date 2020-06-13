@@ -1536,6 +1536,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     elif time_length == "timespan_specific":
                         minstamp = line_options.get('timespan_start', None)
                         maxstamp = line_options.get('timespan_stop', None)
+                        if minstamp is not None:
+                            minstamp = int(minstamp)
+                        if maxstamp is not None:
+                            maxstamp = int(maxstamp)
                         if minstamp is None or maxstamp is None:
                             raise Warning( "Error trying to create timespan_specific graph. You are missing either timespan_start or timespan_stop options." )
                     elif time_length == "all":
