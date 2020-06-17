@@ -1019,55 +1019,6 @@ class getData(SearchList):
             eqlat = ""
             eqlon = ""
             
-       
-        """
-        Version Update Data
-        """
-        if self.generator.skin_dict['Extras']['check_for_updates'] == "1":
-            github_version_file = html_root + "/json/github_version.json"
-            github_version_is_stale = False
-            
-            github_version_url = "https://api.github.com/repos/poblabs/weewx-belchertown/releases/latest"
-            
-            # Determine if the file exists and get it's modified time. If it's older than 12 hours then it's stale
-            if os.path.isfile( github_version_file ):
-                if ( int( time.time() ) - int( os.path.getmtime( github_version_file ) ) ) > 43200:
-                    github_version_is_stale = True
-            else:
-                # File doesn't exist, download a new copy
-                github_version_is_stale = True
-            
-            # File is stale, download a new copy
-            if github_version_is_stale:
-                # Download new GitHub data
-                try:
-                    try:
-                        # Python 3
-                        from urllib.request import Request, urlopen
-                    except ImportError:
-                        # Python 2
-                        from urllib2 import Request, urlopen
-                    user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
-                    headers = { 'User-Agent' : user_agent }
-                    req = Request( github_version_url, None, headers )
-                    response = urlopen( req )
-                    page = response.read()
-                    response.close()
-                except Exception as error:
-                    loginf( "Update Checker: Error downloading GitHub Version data. The error is: %s" % error )
-                
-                # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
-                try:
-                    with open( github_version_file, 'wb+' ) as file:
-                        # Python 2/3
-                        try:
-                            file.write( page.encode('utf-8') )
-                        except:
-                            file.write( page )
-                        loginf( "Update Checker: New GitHub Version file downloaded to %s" % github_version_file )
-                except IOError as e:
-                    loginf( "Update Checker: Error writing GitHub Version info to %s. Reason: %s" % ( github_version_file, e) )
-
         
         """
         Get Current Station Observation Data for the table html
@@ -1536,10 +1487,6 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     elif time_length == "timespan_specific":
                         minstamp = line_options.get('timespan_start', None)
                         maxstamp = line_options.get('timespan_stop', None)
-                        if minstamp is not None:
-                            minstamp = int(minstamp)
-                        if maxstamp is not None:
-                            maxstamp = int(maxstamp)
                         if minstamp is None or maxstamp is None:
                             raise Warning( "Error trying to create timespan_specific graph. You are missing either timespan_start or timespan_stop options." )
                     elif time_length == "all":
@@ -2117,6 +2064,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         except Exception as e:
             raise Warning( "Error trying to use database binding %s to graph observation %s. Error was: %s." % (binding, obs_lookup, e) )
         
+        if time_length == "year":
+            print("archive.getSqlVectors(TimeSpan(%s, %s), %s, %s, %s)" % (start_ts, end_ts, obs_lookup, aggregate_type, aggregate_interval ) )
+            
         obs_vt = self.converter.convert(obs_vt)
                 
         # Special handling for the rain.

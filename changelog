@@ -25,6 +25,7 @@
 * Daily Forecast link in the forecast row is no longer available due to the way Aeris operates currently. Can't extrapolate a URL from the API.
 * skin.conf option darksky_secret_key
 * skin.conf option darksky_lang
+* The GitHub check for updates has been removed since it is not reliable.
 
 1.1 April 8, 2020
 
