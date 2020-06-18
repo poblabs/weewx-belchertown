@@ -2063,9 +2063,6 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             (time_start_vt, time_stop_vt, obs_vt) = archive.getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
         except Exception as e:
             raise Warning( "Error trying to use database binding %s to graph observation %s. Error was: %s." % (binding, obs_lookup, e) )
-        
-        if time_length == "year":
-            print("archive.getSqlVectors(TimeSpan(%s, %s), %s, %s, %s)" % (start_ts, end_ts, obs_lookup, aggregate_type, aggregate_interval ) )
             
         obs_vt = self.converter.convert(obs_vt)
                 
