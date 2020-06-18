@@ -47,31 +47,31 @@
 
 ## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which will set the font-style to bold
  #if $Extras.pi_kiosk_bold == "true"  
-		<div class="site-inner-bold site-inner">
+        <div class="site-inner-bold site-inner">
  #else
-		<div class="site-inner">
+        <div class="site-inner">
  #end if
-	<div class="content-sidebar-wrap">
-	
-	<article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
-		
-		<div class="entry-content wx-content" itemprop="text">
-			<!-- Top bar with city and share -->
-			<div class="wx-stn-info-container">
-				<!-- Updated time ago -->
-				<div class="updated-wrapper">
+    <div class="content-sidebar-wrap">
+    
+    <article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
+        
+        <div class="entry-content wx-content" itemprop="text">
+            <!-- Top bar with city and share -->
+            <div class="wx-stn-info-container">
+                <!-- Updated time ago -->
+                <div class="updated-wrapper">
                     <div class="onlineMarkerOuter">
                         <span class="loadingMarker" style="display:none"></span>
                         <span class="onlineMarker" style="display:none"></span>
                         <span class="offlineMarker" style="display:none"></span>
                     </div>
-					<div class="updated"></div><!-- AJAX -->
-				</div>
-				<div class="clear"></div>
-			</div>
-			
-			<!-- First row with temperature, observation data and radar -->
-			<div class="row">
+                    <div class="updated"></div><!-- AJAX -->
+                </div>
+                <div class="clear"></div>
+            </div>
+            
+            <!-- First row with temperature, observation data and radar -->
+            <div class="row">
                 <!-- Temperature -->
                 
                 <div class="col-xs-6 temp-observation">
@@ -86,9 +86,9 @@
                         #if $current.appTemp.has_data
                         <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
                         #end if
-						<div class="highlow">
-							$obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
-						</div><!-- AJAX -->
+                        <div class="highlow">
+                            $obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
+                        </div><!-- AJAX -->
                     </div>
                     
                     <div class="station-observations weather-obs-top">
@@ -114,11 +114,11 @@
                                         <span class="rainRate">$current.rainRate</span><!-- AJAX -->
                                     </td>
                                 </tr>
-								<tr>
-									<td class='station-observations-label'>$obs.label.barometer</td>
-									<td>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.barometer</td>
+                                    <td>
                                         <span class="barometer">$current.barometer</span><!-- AJAX -->
-										<span class="pressure-trend">
+                                        <span class="pressure-trend">
                                             #if $trend.barometer == "N/A"
                                             &nbsp;
                                             #else if "-" in str($trend.barometer)
@@ -127,8 +127,8 @@
                                             <i class="fa fa-arrow-up barometer-up"></i>
                                             #end if
                                         </span>
-									</td>
-								</tr>
+                                    </td>
+                                </tr>
                                 #if $day.UV.has_data
                                 <tr>
                                     <td class='station-observations-label'>$obs.label.UV</td>
@@ -143,7 +143,7 @@
                                 #end if
                             </tbody>
                         </table>
-                    </div>	
+                    </div>    
                     
                 </div>
 
@@ -240,14 +240,14 @@
                     
                 <div class="clear"></div>
                         
-			</div>
-			<!-- End of first row -->
+            </div>
+            <!-- End of first row -->
             
-			<div class="clear"></div>
-			
-		</div> <!-- End entry-content -->
-		
-	</article>
+            <div class="clear"></div>
+            
+        </div> <!-- End entry-content -->
+        
+    </article>
 
     </div>
 </div>
