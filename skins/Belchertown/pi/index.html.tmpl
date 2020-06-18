@@ -83,7 +83,9 @@
                     <div class="clear"></div>
                 
                     <div class="tempstats">
-                        <div class="feelslike"></div><!-- AJAX -->
+                        #if $current.appTemp.has_data
+                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
+                        #end if
 						<div class="highlow">
 							$obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
 						</div><!-- AJAX -->
