@@ -373,7 +373,7 @@ These are the options for the social media sharing section at the top right of e
 | twitter_owner | "" | Your Twitter handle which will be mentioned when the share button is pressed
 | twitter_hashtags | "weewx #weather" | The hashtags to include in the share button's text. 
 | social_share_html | "" | This is the URL which users who click on your social share will be sent back to. Typically set this to your homepage.
-| twitter_text | ""Check out my website: My Weather Website Weather Conditions"" | **Located under the labels section** - This is the text which will get auto-generated for the Twitter share button
+| twitter_text | "Check out my website: My Weather Website Weather Conditions" | **Located under the labels section** - This is the text which will get auto-generated for the Twitter share button
 | twitter_owner | "YourTwitterUsernameHere" | **Located under the labels section** - This is the username or owner of the Twitter account that will be mentioned in shares
 | twitter_hashtags | "weewx #weather" | **Located under the labels section** - The hashtags to include in the Twitter share. Do not include the first hashtag since it is already provided as part of the share code.
 
