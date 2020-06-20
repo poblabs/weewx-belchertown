@@ -926,7 +926,7 @@ function update_forecast_data( data ) {
             var weekday = moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
 
             // Determine temperature units
-            if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk" ) || ( "$Extras.forecast_units" == "si" ) ) {
+            if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) || ( "$Extras.forecast_units" == "si" ) ) {
                 minTemp = data["forecast"][0]["response"][0]["periods"][i]["minTempC"];
                 maxTemp = data["forecast"][0]["response"][0]["periods"][i]["maxTempC"];
             } else {
