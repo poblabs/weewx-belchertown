@@ -48,6 +48,7 @@ Screenshot of light and dark modes
   * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
   * [Translating the Skin](#translating-the-skin)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
+  * [How to install the development version](#how-to-install-the-development-version)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Raspberry Pi Console](#raspberry-pi-console)
   * [Donate](#donate)
@@ -474,6 +475,18 @@ If you're interested in this type of setup, you'll need these items:
 * Point your new Raspberry Pi Kiosk to your weather website's `/pi` page, and you should be good to go!
 
 ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
+
+## How to install the development version
+
+If you want to try out the latest features the skin has to offer, you can [install the development branch](https://github.com/poblabs/weewx-belchertown/tree/development). To start download the [development zip file](https://github.com/poblabs/weewx-belchertown/archive/development.zip). Then you can 
+
+1. upload it to your weewx system and install it using `wee_extension --install development.zip` 
+
+or
+
+2. manually replace the files from the zip file with your weewx Belchertown skin files. 
+
+Either way, we need to overwrite your current Belchertown skin install in the `skins` folder and the `bin/user` foler with the development files. Then you can configure the new features you want and restart weewx when done. 
 
 ## Frequently Asked Questions
 
