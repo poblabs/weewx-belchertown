@@ -159,7 +159,7 @@
                         <p class="site-title" itemprop="headline">
                             <a href="$relative_url/">
                                 #if $Extras.has_key("logo_image") and $Extras.logo_image != ''
-                                <img src="$Extras.logo_image" title="$head_title" alt="$head_title">
+                                <img src="$Extras.logo_image" id="logo_image" title="$head_title" alt="$head_title">
                                 #else if $Extras.has_key("site_title") and $Extras.site_title != ''
                                 $Extras.site_title
                                 #end if

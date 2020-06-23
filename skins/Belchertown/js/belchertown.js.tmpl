@@ -379,6 +379,9 @@ function changeTheme(themeName, toggleOverride=false) {
         jQuery("#themeSwitch").prop( "checked", true );
         #end if
         sessionStorage.setItem('currentTheme', 'dark');
+        #if $Extras.has_key('logo_image_dark') and $Extras.logo_image_dark != ""
+        jQuery("#logo_image").attr("src","$Extras.logo_image_dark" );
+        #end if
     } else if ( themeName == "light" ) {
         // Apply light theme
         jQuery('body').addClass("light");
@@ -387,6 +390,9 @@ function changeTheme(themeName, toggleOverride=false) {
         jQuery("#themeSwitch").prop( "checked", false );
         #end if
         sessionStorage.setItem('currentTheme', 'light');
+        #if $Extras.has_key('logo_image') and $Extras.logo_image != ""
+        jQuery("#logo_image").attr("src", "$Extras.logo_image");
+        #end if
     }
 }
 
