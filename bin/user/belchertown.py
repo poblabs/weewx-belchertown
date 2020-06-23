@@ -1430,6 +1430,14 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 output[chart_group][plotname]["options"]["css_width"] = plot_options.get('width', "")
                 output[chart_group][plotname]["options"]["css_height"] = plot_options.get('height', "")
                 
+                # Setup legend option
+                legend = plot_options.get("legend", None)
+                if legend is None:
+                    # Default to true if the option is missing
+                    output[chart_group][plotname]["options"]["legend"] = "true"
+                else:
+                    output[chart_group][plotname]["options"]["legend"] = legend
+                
                 # Setup exporting option
                 exporting = plot_options.get('exporting', None)
                 if exporting is not None and to_bool(exporting):
