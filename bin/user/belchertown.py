@@ -2090,7 +2090,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             for rain in obs_vt[0]:
                 # If the rain value is None or "", add it as 0.0
                 if rain is None or rain == "":
-                    rain = 0.0
+                    #rain = 0.0
+                    # Do not keep adding None or empty results, so that full-length charts (like weewx v4 archiveYearSpan) don't have a line that continues past the last actual plot
+                    continue
                 rain_count = rain_count + rain
                 obs_round_vt.append( round( rain_count, 2 ) )
         else:
