@@ -13,6 +13,7 @@
 * skin.conf option forecast_units. I incorporated the old DarkSky approach to the units. Options are si, ca, uk2 or us. See README for more info.
 * graphs.conf option for legend. This allows you to show/hide the legend per-chart. More information under legend in the graphs wiki.
 * graphs.conf option for year_to_now. In weewx 4, the method which gets results from the database for archiveYearSpan (aka time_length = year) will return a full year's worth of data - even if the year hasn't ended. So if your chart is being created on February 1, you'll have data from Jan 1 to Feb 1, but the chart will continue to Dec 31 with empty plots. If you do not want a semi-empty chart, and instead want Jan 1 to "today", then use the year_to_now for time_length.
+* Adds logo_image_dark option to specify an alternate logo when in dark mode. 
 
 ### Changed
 * Renamed skin.conf label darksky_rain to forecast_rain
