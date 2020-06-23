@@ -1544,6 +1544,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             yAxis_label = name + " (" + unit_label.strip().encode("utf-8") + ")" # Python 2.
                         except:
                             yAxis_label = name + " (" + unit_label.strip() + ")" # Python 3
+                    elif yAxisLabel_config and unit_label:
+                        # Python 2/3 hack
+                        try:
+                            yAxis_label = yAxisLabel_config + " (" + unit_label.strip().encode("utf-8") + ")" # Python 2.
+                        except:
+                            yAxis_label = yAxisLabel_config + " (" + unit_label.strip() + ")" # Python 3
                     elif yAxisLabel_config:
                         yAxis_label = yAxisLabel_config
                     else:
