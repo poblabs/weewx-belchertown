@@ -11,6 +11,7 @@
 ### Added
 * An entire forecast section to the labels. This allows you to translate the Aeris Weather observations to your language.
 * skin.conf option forecast_units. I incorporated the old DarkSky approach to the units. Options are si, ca, uk2 or us. See README for more info.
+* graphs.conf option for legend. This allows you to show/hide the legend per-chart. More information under legend in the graphs wiki.
 
 ### Changed
 * Renamed skin.conf label darksky_rain to forecast_rain
