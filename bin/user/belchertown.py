@@ -1468,6 +1468,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                     elif time_length == "year":
                         minstamp, maxstamp = archiveYearSpan( timespan.stop )
+                    elif time_length == "year_to_now":
+                        minstamp, maxstamp = self.timespan_year_to_now( timespan.stop )
                     elif time_length == "days_ago":
                         minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
                     elif time_length == "weeks_ago":
@@ -2127,6 +2129,20 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             except:
                 value = None
         return value
+
+    def timespan_year_to_now(self, time_ts, grace=1, years_ago=0):
+        """In weewx 4 the get_series() for archiveYearSpan returns the full 365 day chart.
+           if users do not want a full year (with empty data) and would rather a Jan 1 to "now", then
+           they can use this custom timespan
+           
+           This is taken right from weewx, but adapted to end at the current timestamp, and not the following Jan 1.
+        """
+        if time_ts is None:
+            return None
+        time_ts -= grace
+        _day_date = datetime.date.fromtimestamp(time_ts)
+        return TimeSpan(int(time.mktime((_day_date.year - years_ago, 1, 1, 0, 0, 0, 0, 0, -1))),
+                        int(time_ts))
 
     def create_windrose_data(self, windDir_list, windSpeed_list):
         # List comprehension borrowed from weewx-wd extension
