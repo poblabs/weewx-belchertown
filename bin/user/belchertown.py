@@ -2092,6 +2092,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 if rain is None or rain == "":
                     #rain = 0.0
                     # Do not keep adding None or empty results, so that full-length charts (like weewx v4 archiveYearSpan) don't have a line that continues past the last actual plot
+                    obs_round_vt.append( rain )
                     continue
                 rain_count = rain_count + rain
                 obs_round_vt.append( round( rain_count, 2 ) )
@@ -2144,7 +2145,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         time_ts -= grace
         _day_date = datetime.date.fromtimestamp(time_ts)
         return TimeSpan(int(time.mktime((_day_date.year - years_ago, 1, 1, 0, 0, 0, 0, 0, -1))),
-                        int(time_ts))
+                        int(float(time_ts)))
 
     def create_windrose_data(self, windDir_list, windSpeed_list):
         # List comprehension borrowed from weewx-wd extension
