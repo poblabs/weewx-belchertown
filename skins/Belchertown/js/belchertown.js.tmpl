@@ -486,6 +486,11 @@ function update_weewx_data( data ) {
     }
     jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
     jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> $obs.label.moon_visible" );
+    #if $almanac.hasExtras
+    // Close current modal if open
+    jQuery('#almanac').modal('hide');
+    jQuery(".almanac-extras-modal-body").html( data["almanac"]["almanac_extras_modal_html"] );
+    #end if
 }
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'

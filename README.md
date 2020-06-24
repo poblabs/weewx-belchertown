@@ -291,6 +291,7 @@ For ease of readability I have broken them out into separate tables. However you
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
+| almanac_extras | 1 | Show the extra almanac details if available. **Requires pyephem to be installed on your machine.** Refer to the weewx user guide on more information.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf

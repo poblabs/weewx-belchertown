@@ -319,7 +319,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
-                                                #if os.path.exists("celestial.inc")
+                                                #if $Extras.has_key("almanac_extras") and $Extras.almanac_extras == '1' and $almanac.hasExtras
+                                                <!-- Almanac Modal -->
                                                 <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
                                                 <!-- Almanac Modal -->
                                                 <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
@@ -331,9 +332,9 @@
                                                                 </button>
                                                                 <h5 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h5>
                                                             </div>
-                                                            <div class="modal-body">
+                                                            <div class="almanac-extras-modal-body">
                                                                 #include "celestial.inc"
-                                                            </div>
+                                                            </div><!-- AJAX -->
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-primary" data-dismiss="modal">$obs.label.close</button>
                                                             </div>
