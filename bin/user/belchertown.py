@@ -1858,7 +1858,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                         
             group_0 = { "name": group_0_name,            
                         "type": "column",
-                        "_colorIndex": 0,
+                        "color": "#1278c8",
                         "zIndex": 106, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1866,7 +1866,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_1 = { "name": group_1_name,            
                         "type": "column",
-                        "_colorIndex": 1,
+                        "color": "#1fafdd",
                         "zIndex": 105, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1874,7 +1874,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_2 = { "name": group_2_name,            
                         "type": "column",
-                        "_colorIndex": 2,
+                        "color": "#71bc3c",
                         "zIndex": 104,
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1882,7 +1882,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_3 = { "name": group_3_name,            
                         "type": "column",
-                        "_colorIndex": 3,
+                        "color": "#ffae00",
                         "zIndex": 103, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1890,7 +1890,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_4 = { "name": group_4_name,            
                         "type": "column",
-                        "_colorIndex": 4,
+                        "color": "#ff7f00",
                         "zIndex": 102, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1898,7 +1898,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_5 = { "name": group_5_name,            
                         "type": "column",
-                        "_colorIndex": 5,
+                        "color": "#ff4500",
                         "zIndex": 101, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1906,7 +1906,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_6 = { "name": group_6_name,            
                         "type": "column",
-                        "_colorIndex": 6,
+                        "color": "#9f00c5",
                         "zIndex": 100, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
