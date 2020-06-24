@@ -490,6 +490,8 @@ function update_weewx_data( data ) {
     // Close current modal if open
     jQuery('#almanac').modal('hide');
     jQuery(".almanac-extras-modal-body").html( data["almanac"]["almanac_extras_modal_html"] );
+    almanac_updated = "$obs.label.header_last_updated " + moment.unix( data["current"]["datetime_raw"] ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
+    jQuery(".almanac_last_updated").html( almanac_updated );
     #end if
 }
 
