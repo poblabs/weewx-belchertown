@@ -1487,7 +1487,8 @@ p.entry-meta {
     /* margin-top: 25px; */
     border-top: 1px solid #D7D7D7;
     padding-top: 10px;
-    margin: 0 -15px 0 -15px;
+    /* margin: 0 -15px 0 -15px; */
+    margin: 0 0 0 0;
 }
 
 .curwind {
@@ -1530,8 +1531,9 @@ p.entry-meta {
     position: relative;
     color: #555;
     border: solid #808080 5px;
-        margin-left: 60px;
+    margin-left: 60px;
     /* margin-top: -10px; */
+    margin: 0 auto;
 }
 
 .compass:before {
@@ -1584,7 +1586,8 @@ p.entry-meta {
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
     /* border-bottom: 21px solid red; */
-    border-top: 21px solid red;
+    /* border-top: 21px solid red; */
+    border-top: 21px solid #c50a1d;
     position: absolute;
     top: -10px;
     left: 38px;
@@ -1725,7 +1728,8 @@ table.celestial td.label {
 }
 
 .forecast-conditions {
-	min-height:160px;
+	/* min-height:160px; */
+	min-height:133px;
     word-wrap:break-word;
 }
 
@@ -1770,8 +1774,10 @@ table.celestial td.label {
 }
 
 .wx-graph-front {
-    font-size:25px;
-    padding-top:10px;
+    font-size: 24px;
+    padding-top: 30px;
+    /* font-size:25px; */
+    /* padding-top:10px; */
     padding-bottom:10px;
     text-align:center;
 }
