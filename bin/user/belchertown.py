@@ -1620,13 +1620,13 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
                     # Set default colors, unless the user has specified otherwise in graphs.conf
                     wind_rose_color = {}
-                    wind_rose_color[0] = line_options.get('beauford0', "#1278c8")
-                    wind_rose_color[1] = line_options.get('beauford1', "#1fafdd")
-                    wind_rose_color[2] = line_options.get('beauford2', "#71bc3c")
-                    wind_rose_color[3] = line_options.get('beauford3', "#ffae00")
-                    wind_rose_color[4] = line_options.get('beauford4', "#ff7f00")
-                    wind_rose_color[5] = line_options.get('beauford5', "#ff4500")
-                    wind_rose_color[6] = line_options.get('beauford6', "#9f00c5")
+                    wind_rose_color[0] = line_options.get('beauford0', "#7cb5ec")
+                    wind_rose_color[1] = line_options.get('beauford1', "#b2df8a")
+                    wind_rose_color[2] = line_options.get('beauford2', "#f7a35c")
+                    wind_rose_color[3] = line_options.get('beauford3', "#8c6bb1")
+                    wind_rose_color[4] = line_options.get('beauford4', "#dd3497")
+                    wind_rose_color[5] = line_options.get('beauford5', "#e4d354")
+                    wind_rose_color[6] = line_options.get('beauford6', "#268bd2")
                     
                     # Build series data
                     series_data = self.get_observation_data(binding, archive, observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup, wind_rose_color)
