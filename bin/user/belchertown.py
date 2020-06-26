@@ -1617,9 +1617,19 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     except:
                         # Not a valid weewx schema name - maybe this is windRose or something?
                         output[chart_group][plotname]["series"][line_name]["rounding"] = "-1"
+
+                    # Set default colors, unless the user has specified otherwise in graphs.conf
+                    wind_rose_color = {}
+                    wind_rose_color[0] = line_options.get('beauford0', "#1278c8")
+                    wind_rose_color[1] = line_options.get('beauford1', "#1fafdd")
+                    wind_rose_color[2] = line_options.get('beauford2', "#71bc3c")
+                    wind_rose_color[3] = line_options.get('beauford3', "#ffae00")
+                    wind_rose_color[4] = line_options.get('beauford4', "#ff7f00")
+                    wind_rose_color[5] = line_options.get('beauford5', "#ff4500")
+                    wind_rose_color[6] = line_options.get('beauford6', "#9f00c5")
                     
                     # Build series data
-                    series_data = self.get_observation_data(binding, archive, observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup)
+                    series_data = self.get_observation_data(binding, archive, observation_type, minstamp, maxstamp, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup, wind_rose_color)
 
                     # Build the final series data JSON
                     if isinstance(series_data, dict):
@@ -1651,7 +1661,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             with open(chart_json_filename, mode='w') as cjf:
                 cjf.write( json.dumps( self.chart_dict ) )
 
-    def get_observation_data(self, binding, archive, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup):
+    def get_observation_data(self, binding, archive, observation, start_ts, end_ts, aggregate_type, aggregate_interval, time_length, xAxis_groupby, xAxis_categories, mirrored_value, weatherRange_obs_lookup, wind_rose_color):
         """Get the SQL vectors for the observation, the aggregate type and the interval of time"""
         
         if observation == "windRose":
@@ -1665,7 +1675,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             # Force no aggregate_interval
             if aggregate_interval:
                 aggregate_interval = None
-            
+ 
             # Get windDir observations.
             obs_lookup = "windDir"
             (time_start_vt, time_stop_vt, windDir_vt) = archive.getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
@@ -1871,10 +1881,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             group_4_name = "%s %s" % (group_4_speedRange, windSpeed_unit_label)
             group_5_name = "%s %s" % (group_5_speedRange, windSpeed_unit_label)
             group_6_name = "%s %s" % (group_6_speedRange, windSpeed_unit_label)
-                                        
+
             group_0 = { "name": group_0_name,            
                         "type": "column",
-                        "_colorIndex": 0,
+                        "color": wind_rose_color[0],
                         "zIndex": 106, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1882,7 +1892,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_1 = { "name": group_1_name,            
                         "type": "column",
-                        "_colorIndex": 1,
+                        "color": wind_rose_color[1],
                         "zIndex": 105, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1890,7 +1900,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_2 = { "name": group_2_name,            
                         "type": "column",
-                        "_colorIndex": 2,
+                        "color": wind_rose_color[2],
                         "zIndex": 104,
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1898,7 +1908,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_3 = { "name": group_3_name,            
                         "type": "column",
-                        "_colorIndex": 3,
+                        "color": wind_rose_color[3],
                         "zIndex": 103, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1906,7 +1916,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_4 = { "name": group_4_name,            
                         "type": "column",
-                        "_colorIndex": 4,
+                        "color": wind_rose_color[4],
                         "zIndex": 102, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1914,7 +1924,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_5 = { "name": group_5_name,            
                         "type": "column",
-                        "_colorIndex": 5,
+                        "color": wind_rose_color[5],
                         "zIndex": 101, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
@@ -1922,7 +1932,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                       }
             group_6 = { "name": group_6_name,            
                         "type": "column",
-                        "_colorIndex": 6,
+                        "color": wind_rose_color[6],
                         "zIndex": 100, 
                         "stacking": "normal", 
                         "fillOpacity": 0.75, 
