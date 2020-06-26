@@ -26,6 +26,7 @@
 * Updates bootstrap to 3.4.1
 * DarkSky weather alerts now open in a modal similar to Aeris and no longer link to the alert source.
 * rainTotal now charts only rain values which exist. This is a fix so that full-length charts (like year) do not have rainTotal past the actual last observation plot.
+* windRose beaufort group colors can now be changed. See charts wiki for more info.
 
 ### Removed
 * Daily Forecast link in the forecast row is no longer available due to the way Aeris operates currently. Can't extrapolate a URL from the API.
