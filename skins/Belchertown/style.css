@@ -1481,6 +1481,7 @@ p.entry-meta {
 
 .stn-high-low-table td {
 	text-align:center;
+    width:50%;
 }
 
 .windrow {
@@ -1597,6 +1598,7 @@ p.entry-meta {
 
 .wind-table td {
 	text-align:center !important;
+    width:50%;
 }
 
 .windtext {
