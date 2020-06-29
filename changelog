@@ -16,6 +16,7 @@
 * Adds logo_image_dark option to specify an alternate logo when in dark mode. 
 * skin.conf: new option almanac_extras to enable or disable showing the extended almanac information table. Requires pyephem to be installed. 
 * The almanac extras table is now updated automatically with the ajaxweewx() function.
+* New chart type called "haysChart". Thanks to @uajqq for this one! Check the charts wiki for more information.
 
 ### Changed
 * Renamed skin.conf label darksky_rain to forecast_rain
