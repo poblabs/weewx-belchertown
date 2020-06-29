@@ -1995,6 +1995,51 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             
             return data
 
+        # Hays chart
+        if observation == "haysChart":
+
+            start_ts = int(start_ts)
+            end_ts = int(end_ts)
+
+            # Set aggregate interval based on timespan and make sure it is between 5 minutes and 1 day
+            logging.debug("Start time is %s and end time is %s" % (start_ts, end_ts))
+            aggregate_interval = (end_ts - start_ts)/360
+            if (aggregate_interval < 300):
+                aggregate_interval = 300
+            elif (aggregate_interval > 86400):
+                aggregate_interval = 86400
+            logging.debug("Interval is: %s" % aggregate_interval)
+            
+            aggregate_type = "max"
+            # Get min values
+            obs_lookup = "windSpeed" 
+            try:
+                (time_start_vt, time_stop_vt, obs_vt) = archive.getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
+            except Exception as e:
+                raise Warning( "Error trying to use database binding %s to graph observation %s. Error was: %s." % (binding, obs_lookup, e) )
+            
+            min_obs_vt = self.converter.convert(obs_vt)
+            
+            # Get max values
+            obs_lookup = "windGust" 
+            try:
+                (time_start_vt, time_stop_vt, obs_vt) = archive.getSqlVectors(TimeSpan(start_ts, end_ts), obs_lookup, aggregate_type, aggregate_interval)
+            except Exception as e:
+                raise Warning( "Error trying to use database binding %s to graph observation %s. Error was: %s." % (binding, obs_lookup, e) )
+            
+            max_obs_vt = self.converter.convert(obs_vt)
+            
+            obs_unit = max_obs_vt[1]
+            obs_unit_label = self.skin_dict['Units']['Labels'].get(obs_unit, "")
+            
+            # Convert to millis and zip all together
+            time_ms = [float(x) * 1000 for x in time_start_vt[0]]            
+            output_data = zip(time_ms, min_obs_vt[0], max_obs_vt[0]) 
+
+            data = {"haysChart": True, "obsdata": output_data, "range_unit": obs_unit, "range_unit_label": obs_unit_label}
+            
+            return data
+
         # Special Belchertown Skin rain counter
         if observation == "rainTotal":
             obs_lookup = "rain"

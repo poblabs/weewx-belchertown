@@ -1897,6 +1897,91 @@ function showChart(json_file, prepend_renderTo=false) {
                 });
             }
             
+            // If Hays chart is present, configure a special chart to show that data
+            if (observation_type == "haysChart") {
+                options.chart.type = "arearange"
+                options.chart.polar = true;
+                options.plotOptions = {
+                    turboThreshold: 0,
+                    series: {
+         //               states: {
+         //                   hover: {
+         //                       enabled: false 
+         //                   }
+         //               },
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                };
+
+                // Find min and max of the series data for the yAxis min and max
+                var maximum_flattened = [];
+                options.series[0].data.forEach( seriesData => {
+                    maximum_flattened.push(seriesData[2]);
+                });
+                var range_max = Math.max(...maximum_flattened);
+                
+                options.legend = { "enabled": false }
+
+                options.yAxis = {
+                    showFirstLabel: false,
+                    tickInterval: 2,
+                    tickmarkPlacement: 'on',
+                    min: -1,
+                    softMax: 15,
+                    title: {
+                        text: options.series[0].yAxis_label,
+                    },
+                    labels: {
+                        align: 'center',
+                        x: 0,
+                        y: 0
+                    },
+                }
+
+                options.tooltip = {
+                    split: false,
+                    shared: true,
+                    followPointer: true,
+                    useHTML: true,
+                    formatter: function (tooltip) {
+                        return this.points.map(function (point) {
+                            var rounding = point.series.userOptions.rounding;
+                            var mirrored = point.series.userOptions.mirrored_value;
+                            var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat );
+                        });
+                    }
+                }
+
+                var currentSeries = options.series;
+                var currentSeriesData = options.series[0].data;
+                var range_unit = options.series[0].range_unit;
+                var newSeriesData = [];
+                var color = "#ff4500";
+                currentSeriesData.forEach( seriesData => {
+                    // If a data point is from the future, max/min are set to null. For some reason Highcharts draws a glitchy connection between the end and beginning of the data set on the radial graph (i.e. when the day is only half over and the graph only half filled), even if connectEnds is turned off. Until that's fixed, set null values to 0 so the chart renders cleanly all the way through 360 degrees 
+                    if ( seriesData[1] == null ) {
+                        seriesData[1] = 0;
+                        seriesData[2] = 0;
+                    };
+                    newSeriesData.push({
+                        x: seriesData[0],
+                        low: seriesData[1],
+                        high: seriesData[2],
+                    });
+                });
+                options.series = [];
+                options.series.push({
+                    data: newSeriesData,
+                    obsType: "haysChart",
+                    obsUnit: range_unit,
+                    color: color,
+                    fillColor: color,
+                });
+            }
+
             // If weather range is present, configure a special chart to show that data
             // https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
             if (observation_type == "weatherRange") {
