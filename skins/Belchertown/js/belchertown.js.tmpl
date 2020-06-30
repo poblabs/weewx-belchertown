@@ -281,10 +281,11 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
 }
 
 // Handle wind arrow rotation with the ability to "rollover" past 0 
-// without spinning back around. e.g 350 to 3 would spin back around
+// without spinning back around. e.g 350 to 3 would normally spin back around
 // https://stackoverflow.com/a/19872672/1177153
 function rotateThis(newRotation) {
     if ( newRotation == "N/A") { return; }
+    belchertown_debug("rotateThis: rotating to " + newRotation);
     var currentRotation;
     finalRotation = finalRotation || 0; // if finalRotation undefined or 0, make 0, else finalRotation
     currentRotation = finalRotation % 360;
