@@ -1918,6 +1918,11 @@ function showChart(json_file, prepend_renderTo=false) {
                 });
                 var range_max = Math.max(...maximum_flattened);
                 
+                if (options.series[0].yAxis_softMax) {
+                    console.log(options.series[0].yAxis_softMax);
+                    var range_max = options.series[0].yAxis_softMax;
+                }
+                
                 options.legend = { "enabled": false }
 
                 options.yAxis = {
@@ -1925,7 +1930,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     tickInterval: 2,
                     tickmarkPlacement: 'on',
                     min: -1,
-                    softMax: options.series[0].yAxis_softMax,
+                    softMax: range_max,
                     title: {
                         text: options.series[0].yAxis_label,
                     },
