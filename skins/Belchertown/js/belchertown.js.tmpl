@@ -1905,11 +1905,6 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.plotOptions = {
                     turboThreshold: 0,
                     series: {
-         //               states: {
-         //                   hover: {
-         //                       enabled: false 
-         //                   }
-         //               },
                         marker: {
                             enabled: false
                         }
@@ -1930,7 +1925,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     tickInterval: 2,
                     tickmarkPlacement: 'on',
                     min: -1,
-                    softMax: 15,
+                    softMax: options.series[0].yAxis_softMax,
                     title: {
                         text: options.series[0].yAxis_label,
                     },
@@ -1951,7 +1946,7 @@ function showChart(json_file, prepend_renderTo=false) {
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat );
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat );
                         });
                     }
                 }
@@ -1960,7 +1955,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 var currentSeriesData = options.series[0].data;
                 var range_unit = options.series[0].range_unit;
                 var newSeriesData = [];
-                var color = "#ff4500";
+                var currentSeriesColor = options.series[0].color;
                 currentSeriesData.forEach( seriesData => {
                     // If a data point is from the future, max/min are set to null. For some reason Highcharts draws a glitchy connection between the end and beginning of the data set on the radial graph (i.e. when the day is only half over and the graph only half filled), even if connectEnds is turned off. Until that's fixed, set null values to 0 so the chart renders cleanly all the way through 360 degrees 
                     if ( seriesData[1] == null ) {
@@ -1978,8 +1973,8 @@ function showChart(json_file, prepend_renderTo=false) {
                     data: newSeriesData,
                     obsType: "haysChart",
                     obsUnit: range_unit,
-                    color: color,
-                    fillColor: color,
+                    color: currentSeriesColor,
+                    fillColor: currentSeriesColor,
                 });
             }
 
