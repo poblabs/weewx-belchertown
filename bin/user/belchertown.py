@@ -717,6 +717,10 @@ class getData(SearchList):
                     eqmag = eqdata["features"][0]["properties"]["mag"]
                 elif self.generator.skin_dict['Extras']['earthquake_server'] = "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
+                    #convert time to UNIX format
+                    eqtime = eqtime.replace("Z","")
+                    eqtime = datetime.datetime.fromisoformat(eqtime)
+                    eqtime = int(eqtime.replace(tzinfo=datetime.timezone.utc).timestamp())
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
