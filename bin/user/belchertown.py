@@ -649,7 +649,7 @@ class getData(SearchList):
             #Sample URL from Belchertown Weather: http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             if self.generator.skin_dict['Extras']['earthquake_server'] == "USGS":
                 earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
-            elif self.generator.skin_dict['Extras']['earthquake_server'] = "GeoNet":
+            elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                 earthquake_url = "https://api.geonet.org.nz/quake?MMI=4"
             earthquake_is_stale = False
             
@@ -710,12 +710,12 @@ class getData(SearchList):
                     eqdata = ""
             
             try:
-                if self.generator.skin_dict['Extras']['earthquake_server'] = "USGS":
+                if self.generator.skin_dict['Extras']['earthquake_server'] == "USGS":
                     eqtime = eqdata["features"][0]["properties"]["time"] / 1000
                     equrl = eqdata["features"][0]["properties"]["url"]
                     eqplace = eqdata["features"][0]["properties"]["place"]
                     eqmag = eqdata["features"][0]["properties"]["mag"]
-                elif self.generator.skin_dict['Extras']['earthquake_server'] = "GeoNet":
+                elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     #convert time to UNIX format
                     eqtime = eqtime.replace("Z","")
