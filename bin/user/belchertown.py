@@ -647,7 +647,10 @@ class getData(SearchList):
             longitude = self.generator.config_dict['Station']['longitude']
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
             #Sample URL from Belchertown Weather: http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
-            earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
+            if self.generator.skin_dict['Extras']['earthquake_server'] == "USGS":
+                earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
+            elif self.generator.skin_dict['Extras']['earthquake_server'] = "GeoNet":
+                earthquake_url = "https://api.geonet.org.nz/quake?MMI=4"
             earthquake_is_stale = False
             
             # Determine if the file exists and get it's modified time
@@ -707,10 +710,17 @@ class getData(SearchList):
                     eqdata = ""
             
             try:
-                eqtime = eqdata["features"][0]["properties"]["time"] / 1000
-                equrl = eqdata["features"][0]["properties"]["url"]
-                eqplace = eqdata["features"][0]["properties"]["place"]
-                eqmag = eqdata["features"][0]["properties"]["mag"]
+                if self.generator.skin_dict['Extras']['earthquake_server'] = "USGS":
+                    eqtime = eqdata["features"][0]["properties"]["time"] / 1000
+                    equrl = eqdata["features"][0]["properties"]["url"]
+                    eqplace = eqdata["features"][0]["properties"]["place"]
+                    eqmag = eqdata["features"][0]["properties"]["mag"]
+                elif self.generator.skin_dict['Extras']['earthquake_server'] = "GeoNet":
+                    eqtime = eqdata["features"][0]["properties"]["time"]
+                    equrl = ("https://www.geonet.org.nz/earthquake/" +
+                            eqdata["features"][0]["properties"]["publicID"])
+                    eqplace = eqdata["features"][0]["properties"]["locality"]
+                    eqmag = round(eqdata["features"][0]["properties"]["magnitude"],1)
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
             except:
