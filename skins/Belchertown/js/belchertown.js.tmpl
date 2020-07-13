@@ -1862,7 +1862,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
-                options.xAxis.labels = { useHTML: true }
+                //options.xAxis.labels = { useHTML: true }
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
                 options.legend.x = 210;
@@ -1874,6 +1874,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.yAxis[0].reversedStacks = false;
                 options.yAxis[0].title.text = "$obs.label.graphs_windrose_frequency (%)";
                 options.yAxis[0].gridLineWidth = 0;
+                options.yAxis[0].labels = { enabled: false }
                 options.plotOptions = { column: {
                                             stacking: 'normal',
                                             shadow: false,
