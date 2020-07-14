@@ -509,6 +509,16 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
                 graphs_page_day_button = Today
 ```
 ---
+* Q: My units are wrong in the station observation or other MQTT enabled field.
+* A: You need to configure your MQTT extension to send the units you want. For example if you're using METRIC and your rain in MQTT is in centimeters, but you want to show rain as MM, you need to use the code below as an example:
+```
+[[MQTT]]
+        [[[inputs]]]
+                [[[[dayRain]]]]
+                        name = dayRain_mm
+                        units = mm
+```
+---
 * Q: How do I make this skin my default website?
 * A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
 ---
