@@ -1862,7 +1862,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
-                //options.xAxis.labels = { useHTML: true }
+                //options.xAxis.labels = { useHTML: true } // Option disabled in highcharts 8
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
                 options.legend.x = 210;
@@ -1875,6 +1875,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.yAxis[0].title.text = "$obs.label.graphs_windrose_frequency (%)";
                 options.yAxis[0].gridLineWidth = 0;
                 options.yAxis[0].labels = { enabled: false }
+                options.yAxis[0].zIndex = 800;
                 options.plotOptions = { column: {
                                             stacking: 'normal',
                                             shadow: false,
