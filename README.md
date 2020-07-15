@@ -48,6 +48,7 @@ Screenshot of light and dark modes
   * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
   * [Translating the Skin](#translating-the-skin)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
+  * [How to use debug](#how-to-use-debug)
   * [How to install the development version](#how-to-install-the-development-version)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Raspberry Pi Console](#raspberry-pi-console)
