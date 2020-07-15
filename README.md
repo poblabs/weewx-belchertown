@@ -477,6 +477,15 @@ If you're interested in this type of setup, you'll need these items:
 
 ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
 
+## How to use debug
+
+Debug information will show a lot of useful information for troubleshooting a problem. Information such as MQTT messages, to skin theme and time settings to re-creating a chart for external debugging. If you need to use debug to find a problem with the skin, there are 2 ways to do this. 
+
+1. Preferred method: Add `/?debug=true` to your website's URL to enable it on adhoc. Example: http://example.com/?debug=true
+2. Set the skin option `belchertown_debug` to 1 and restart weewx.
+
+In both cases, you'll need to open the browsers console to find the debug information. [Refer to this to find the developer console for your browser](https://webmasters.stackexchange.com/a/77337).
+
 ## How to install the development version
 
 If you want to try out the latest features the skin has to offer, you can [install the development branch](https://github.com/poblabs/weewx-belchertown/tree/development). To start download the [development zip file](https://github.com/poblabs/weewx-belchertown/archive/development.zip). Then you can 
