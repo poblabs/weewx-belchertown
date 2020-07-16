@@ -82,7 +82,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "1.2rc1"
+VERSION = "1.2rc2"
 loginf("version %s" % VERSION)
 
 class getData(SearchList):
