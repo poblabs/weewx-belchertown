@@ -32,7 +32,7 @@ from collections import OrderedDict
 
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
-from weeutil.weeutil import to_bool, TimeSpan, to_float, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, startOfDay, timestamp_to_string, option_as_list
+from weeutil.weeutil import to_bool, TimeSpan, to_float, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, archiveSpanSpan, startOfDay, timestamp_to_string, option_as_list
 try:
     from weeutil.config import search_up
 except:
@@ -1459,6 +1459,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     day_specific = line_options.get('day_specific', 1) # Force a day so we don't error out
                     month_specific = line_options.get('month_specific', 8) # Force a month so we don't error out
                     year_specific = line_options.get('year_specific', 2019) # Force a year so we don't error out
+                    start_at_midnight = to_bool( line_options.get('start_at_midnight', False) ) # Should our timespan start at midnight?
                     if time_length == "today":
                         minstamp, maxstamp = archiveDaySpan( timespan.stop )
                     elif time_length == "week":
@@ -1468,8 +1469,6 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp, maxstamp = archiveMonthSpan( timespan.stop )
                     elif time_length == "year":
                         minstamp, maxstamp = archiveYearSpan( timespan.stop )
-                    elif time_length == "year_to_now":
-                        minstamp, maxstamp = self.timespan_year_to_now( timespan.stop )
                     elif time_length == "days_ago":
                         minstamp, maxstamp = archiveDaySpan( timespan.stop, days_ago=time_ago )
                     elif time_length == "weeks_ago":
@@ -1494,6 +1493,43 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         year_dt = datetime.datetime.strptime(str(year_specific) + '-8-1', '%Y-%m-%d')
                         yearstamp = int(time.mktime(year_dt.timetuple()))
                         minstamp, maxstamp = archiveYearSpan( yearstamp )
+                    elif time_length == "year_to_now":
+                        minstamp, maxstamp = self.timespan_year_to_now( timespan.stop )
+                    elif time_length == "hour_ago_to_now":
+                        if start_at_midnight:
+                            span_start, span_stop = archiveSpanSpan( timespan.stop, hour_delta=time_ago )
+                            minstamp, maxstamp = TimeSpan( startOfDay( span_start ), span_stop )
+                        else:
+                            minstamp, maxstamp = archiveSpanSpan( timespan.stop, hour_delta=time_ago )
+                    elif time_length == "day_ago_to_now":
+                        if start_at_midnight:
+                            span_start, span_stop = archiveSpanSpan( timespan.stop, day_delta=time_ago )
+                            minstamp, maxstamp = TimeSpan( startOfDay( span_start ), span_stop )
+                        else:
+                            minstamp, maxstamp = archiveSpanSpan( timespan.stop, day_delta=time_ago )
+                    elif time_length == "week_ago_to_now":
+                        if start_at_midnight:
+                            span_start, span_stop = archiveSpanSpan( timespan.stop, week_delta=time_ago )
+                            minstamp, maxstamp = TimeSpan( startOfDay( span_start ), span_stop )
+                        else:
+                            minstamp, maxstamp = archiveSpanSpan( timespan.stop, week_delta=time_ago )
+                    elif time_length == "month_ago_to_now":
+                        if start_at_midnight:
+                            span_start, span_stop = archiveSpanSpan( timespan.stop, month_delta=time_ago )
+                            minstamp, maxstamp = TimeSpan( startOfDay( span_start ), span_stop )
+                        else:
+                            minstamp, maxstamp = archiveSpanSpan( timespan.stop, month_delta=time_ago )
+                    elif time_length == "year_ago_to_now":
+                        if start_at_midnight:
+                            span_start, span_stop = archiveSpanSpan( timespan.stop, year_delta=time_ago )
+                            minstamp, maxstamp = TimeSpan( startOfDay( span_start ), span_stop )
+                        else:
+                            minstamp, maxstamp = archiveSpanSpan( timespan.stop, year_delta=time_ago )
+                    elif time_length == "timestamp_ago_to_now":
+                        if start_at_midnight:
+                            minstamp, maxstamp = TimeSpan( startOfDay( time_ago ), timespan.stop )
+                        else:
+                            minstamp, maxstamp = TimeSpan( time_ago, timespan.stop )
                     elif time_length == "timespan_specific":
                         minstamp = line_options.get('timespan_start', None)
                         maxstamp = line_options.get('timespan_stop', None)
@@ -1505,7 +1541,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     else:
                         # Rolling timespans using seconds
                         time_length = int(time_length) # Convert to int() for minstamp math and for point_timestamp conditional later
-                        minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
+                        if start_at_midnight:
+                            span_start = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
+                            minstamp = startOfDay( span_start )
+                        else:
+                            minstamp = plotgen_ts - time_length # Take the generation time and subtract the time_length to get our start time
                         maxstamp = plotgen_ts
                     
                     # Find if this chart is using a new database binding. Default to the binding set in plot_options
