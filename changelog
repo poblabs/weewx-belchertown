@@ -12,11 +12,13 @@
 * An entire forecast section to the labels. This allows you to translate the Aeris Weather observations to your language.
 * skin.conf option forecast_units. I incorporated the old DarkSky approach to the units. Options are si, ca, uk2 or us. See README for more info.
 * graphs.conf option for legend. This allows you to show/hide the legend per-chart. More information under legend in the graphs wiki.
-* graphs.conf option for year_to_now. In weewx 4, the method which gets results from the database for archiveYearSpan (aka time_length = year) will return a full year's worth of data - even if the year hasn't ended. So if your chart is being created on February 1, you'll have data from Jan 1 to Feb 1, but the chart will continue to Dec 31 with empty plots. If you do not want a semi-empty chart, and instead want Jan 1 to "today", then use the year_to_now for time_length.
 * Adds logo_image_dark option to specify an alternate logo when in dark mode. 
 * skin.conf: new option almanac_extras to enable or disable showing the extended almanac information table. Requires pyephem to be installed. 
 * The almanac extras table is now updated automatically with the ajaxweewx() function.
 * New chart type called "haysChart". Thanks to @uajqq for this one! Check the charts wiki for more information.
+* graphs.conf option for year_to_now. In weewx 4, the method which gets results from the database for archiveYearSpan (aka time_length = year) will return a full year's worth of data - even if the year hasn't ended. So if your chart is being created on February 1, you'll have data from Jan 1 to Feb 1, but the chart will continue to Dec 31 with empty plots. If you do not want a semi-empty chart, and instead want Jan 1 to "today", then use the year_to_now for time_length.
+* Added new `time_length` options. year_to_now, hour_ago_to_now, day_ago_to_now, week_ago_to_now, month_ago_to_now, year_ago_to_now and timestamp_ago_to_now. See charts wiki for more info on these time lengths.
+* Added new `start_at_midnight` option for use with specific time_length options. See charts wiki for more information.
 
 ### Changed
 * Renamed skin.conf label darksky_rain to forecast_rain
