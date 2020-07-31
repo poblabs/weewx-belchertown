@@ -248,7 +248,15 @@ class getData(SearchList):
         if self.generator.skin_dict['Extras']['radar_html'] == "":
             lat = self.generator.config_dict['Station']['latitude']
             lon = self.generator.config_dict['Station']['longitude']
-            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom=8&level=surface&overlay=radar&menu=&message=true&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, lat, lon )
+            if 'radar_zoom' in self.generator.skin_dict['Extras']:
+                zoom = self.generator.skin_dict['Extras']['radar_zoom']
+            else:
+                zoom = "8"
+            if 'radar_marker' in self.generator.skin_dict['Extras'] and self.generator.skin_dict['Extras']['radar_marker'] == "1":
+                marker = "true"
+            else:
+                marker = ""
+            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
