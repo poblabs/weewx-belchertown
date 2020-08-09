@@ -2,6 +2,8 @@
   
 # Belchertown weewx skin
 
+# DarkSky has announced that they are shutting down public access. You can use Aeris Weather with the [development version of the skin]([https://github.com/poblabs/weewx-belchertown/tree/development](https://github.com/poblabs/weewx-belchertown/tree/development)).
+
 [![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
 
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
