@@ -2,7 +2,7 @@
   
 # Belchertown weewx skin
 
-# DarkSky has announced that they are shutting down public access. You can use Aeris Weather with the [development version of the skin]([https://github.com/poblabs/weewx-belchertown/tree/development](https://github.com/poblabs/weewx-belchertown/tree/development)).
+# DarkSky has announced that they are shutting down public access. You can use Aeris Weather with the [development version of the skin](https://github.com/poblabs/weewx-belchertown/tree/development).
 
 [![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
 
