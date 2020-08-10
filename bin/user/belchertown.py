@@ -1000,8 +1000,8 @@ class getData(SearchList):
                 equrl = eqdata["features"][0]["properties"]["url"]
                 eqplace = eqdata["features"][0]["properties"]["place"]
                 eqmag = eqdata["features"][0]["properties"]["mag"]
-                eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
-                eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
+                eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
+                eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
             except:
                 # No earthquake data
                 eqtime = label_dict["earthquake_no_data"]
