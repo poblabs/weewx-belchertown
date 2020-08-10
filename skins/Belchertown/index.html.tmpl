@@ -452,16 +452,11 @@
                             <span class="earthquake-time"></span><!-- moment.js -->
                             #if $earthquake_place != ''
                             <br>
+                            <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
+                            <br>
                             <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
-                                </div>
-                                <div class="col-sm-6 border-left">
-                                    <span>$earthquake_lat &deg;
-                                    <br>$earthquake_lon &deg;</span>
-                                </div>
-                            </div>
+                            <br>
+                            $earthquake_distance_away $obs.label.earthquake_distance_away
                             #end if
                         </div>
                     </div>

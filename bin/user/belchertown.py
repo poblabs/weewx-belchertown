@@ -30,6 +30,8 @@ import weeplot.utilities
 
 from collections import OrderedDict
 
+from math import radians, cos, sin, asin, sqrt
+
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import to_bool, TimeSpan, to_float, to_int, archiveDaySpan, archiveWeekSpan, archiveMonthSpan, archiveYearSpan, archiveSpanSpan, startOfDay, timestamp_to_string, option_as_list
@@ -84,6 +86,28 @@ except ImportError:
 # Print version in syslog for easier troubleshooting
 VERSION = "1.2rc2"
 loginf("version %s" % VERSION)
+
+from math import radians, cos, sin, asin, sqrt 
+
+def latlon_distance(lat1, lon1, lat2, lon2, distance_unit): 
+    # https://www.geeksforgeeks.org/program-distance-two-points-earth/
+    # The math module contains a function named radians which converts from degrees to radians. 
+    lat1 = radians(lat1) 
+    lon1 = radians(lon1) 
+    lat2 = radians(lat2) 
+    lon2 = radians(lon2) 
+    # Haversine formula  
+    dlat = lat2 - lat1 
+    dlon = lon2 - lon1  
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * asin(sqrt(a))  
+    # Radius of earth in kilometers is 6371. Use 3956 for miles 
+    if distance_unit == "km":
+        r = 6371
+    else:
+        # Assume mile
+        r = 3956
+    return(c * r) 
 
 class getData(SearchList):
     def __init__(self, generator):
@@ -930,6 +954,8 @@ class getData(SearchList):
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
+            distance_unit = converter.group_unit_dict["group_distance"]
+            distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
             #Sample URL from Belchertown Weather: http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
@@ -1002,6 +1028,7 @@ class getData(SearchList):
                 eqmag = eqdata["features"][0]["properties"]["mag"]
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
+                eqdistance = str( round( latlon_distance(float(latitude), float(longitude), float(eqlat), float(eqlon), distance_unit), 2 ) ) + " " + distance_label
             except:
                 # No earthquake data
                 eqtime = label_dict["earthquake_no_data"]
@@ -1010,6 +1037,8 @@ class getData(SearchList):
                 eqmag = ""
                 eqlat = ""
                 eqlon = ""
+                eqdistance = ""
+            
                 
         else:
             eqtime = ""
@@ -1018,6 +1047,7 @@ class getData(SearchList):
             eqmag = ""
             eqlat = ""
             eqlon = ""
+            eqdistance = ""
             
         
         """
@@ -1236,6 +1266,7 @@ class getData(SearchList):
                                   'earthquake_magnitude': eqmag,
                                   'earthquake_lat': eqlat,
                                   'earthquake_lon': eqlon,
+                                  'earthquake_distance_away': eqdistance,
                                   'social_html': social_html,
                                   'custom_css_exists': custom_css_exists }
 
