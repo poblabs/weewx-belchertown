@@ -30,7 +30,7 @@ import weeplot.utilities
 
 from collections import OrderedDict
 
-from math import radians, cos, sin, asin, sqrt
+from math import atan2, degrees, radians, cos, sin, asin, sqrt
 
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
@@ -87,31 +87,83 @@ except ImportError:
 VERSION = "1.2rc2"
 loginf("version %s" % VERSION)
 
-from math import radians, cos, sin, asin, sqrt 
-
-def latlon_distance(lat1, lon1, lat2, lon2, distance_unit): 
-    # https://www.geeksforgeeks.org/program-distance-two-points-earth/
-    # The math module contains a function named radians which converts from degrees to radians. 
-    lat1 = radians(lat1) 
-    lon1 = radians(lon1) 
-    lat2 = radians(lat2) 
-    lon2 = radians(lon2) 
-    # Haversine formula  
-    dlat = lat2 - lat1 
-    dlon = lon2 - lon1  
-    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-    c = 2 * asin(sqrt(a))  
-    # Radius of earth in kilometers is 6371. Use 3956 for miles 
-    if distance_unit == "km":
-        r = 6371
-    else:
-        # Assume mile
-        r = 3956
-    return(c * r) 
-
 class getData(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
+
+    def latlon_distance(self, lat1, lon1, lat2, lon2, distance_unit): 
+        # https://www.geeksforgeeks.org/program-distance-two-points-earth/
+        # The math module contains a function named radians which converts from degrees to radians. 
+        lat1r = radians(lat1)
+        lon1r = radians(lon1)
+        lat2r = radians(lat2)
+        lon2r = radians(lon2)
+        # Haversine formula  
+        dlat = lat2r - lat1r
+        dlon = lon2r - lon1r
+        a = sin(dlat / 2)**2 + cos(lat1r) * cos(lat2r) * sin(dlon / 2)**2
+        c = 2 * asin(sqrt(a))  
+        # Radius of earth in kilometers is 6371. Use 3956 for miles 
+        if distance_unit == "km":
+            r = 6371
+        else:
+            # Assume mile
+            r = 3956
+        # https://stackoverflow.com/a/29958276. Test with https://www.sunearthtools.com/tools/distance.php
+        bearing = atan2(sin(lon2-lon1)*cos(lat2), cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon2-lon1))
+        bearing = degrees(bearing)
+        bearing = (bearing + 360) % 360
+        # Returns distance as object 0 and bearing as object 1
+        return[(c * r), self.get_cardinal_direction(bearing), bearing]
+
+    def get_cardinal_direction(self, degree, return_only_labels=False):
+        default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
+        try:
+            ordinate_names = weeutil.weeutil.option_as_list(self.generator.skin_dict['Units']['Ordinates']['directions'])
+            try:
+                ordinate_names = [unicode(x, "utf-8") for x in ordinate_names] # Python 2, convert to unicode
+            except:
+                pass
+        except KeyError:
+            ordinate_names = default_ordinate_names
+            
+        if return_only_labels:
+            return ordinate_names
+
+        if 0 <= degree <= 11.25:
+            return ordinate_names[0]
+        elif 11.26 <= degree <= 33.75:
+            return ordinate_names[1]
+        elif 33.76 <= degree <= 56.25:
+            return ordinate_names[2]
+        elif 56.26 <= degree <= 78.75:
+            return ordinate_names[3]
+        elif 78.76 <= degree <= 101.25:
+            return ordinate_names[4]
+        elif 101.26 <= degree <= 123.75:
+            return ordinate_names[5]
+        elif 123.76 <= degree <= 146.25:
+            return ordinate_names[6]
+        elif 146.26 <= degree <= 168.75:
+            return ordinate_names[7]
+        elif 168.76 <= degree <= 191.25:
+            return ordinate_names[8]
+        elif 191.26 <= degree <= 213.75:
+            return ordinate_names[9]
+        elif 213.76 <= degree <= 236.25:
+            return ordinate_names[10]
+        elif 236.26 <= degree <= 258.75:
+            return ordinate_names[11]
+        elif 258.76 <= degree <= 281.25:
+            return ordinate_names[12]
+        elif 281.26 <= degree <= 303.75:
+            return ordinate_names[13]
+        elif 303.76 <= degree <= 326.25:
+            return ordinate_names[14]
+        elif 326.26 <= degree <= 348.75:
+            return ordinate_names[15]
+        elif 348.76 <= degree <= 360:
+            return ordinate_names[0]
 
     def get_extension_list(self, timespan, db_lookup):
         """
@@ -202,15 +254,7 @@ class getData(SearchList):
             archive_interval_ms = 300000 # 300*1000 for archive_interval emulated to millis
         
         # Get the ordinal labels
-        default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
-        try:
-            ordinate_names = weeutil.weeutil.option_as_list(self.generator.skin_dict['Units']['Ordinates']['directions'])
-            try:
-                ordinate_names = [unicode(x, "utf-8") for x in ordinate_names] # Python 2, convert to unicode
-            except:
-                pass
-        except KeyError:
-            ordinate_names = default_ordinate_names
+        ordinate_names = self.get_cardinal_direction("", True)
             
         # Build the chart array for the HTML
         # Outputs a dict of nested lists which allow you to have different charts for different timespans on the site in different order with different names.
@@ -955,7 +999,7 @@ class getData(SearchList):
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
             distance_unit = converter.group_unit_dict["group_distance"]
-            distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
+            eq_distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
             #Sample URL from Belchertown Weather: http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
@@ -1028,7 +1072,10 @@ class getData(SearchList):
                 eqmag = eqdata["features"][0]["properties"]["mag"]
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
-                eqdistance = str( round( latlon_distance(float(latitude), float(longitude), float(eqlat), float(eqlon), distance_unit), 2 ) ) + " " + distance_label
+                eqdistance_bearing = self.latlon_distance(float(latitude), float(longitude), float(eqlat), float(eqlon), distance_unit)
+                eqdistance = round( eqdistance_bearing[0], 2 )
+                eqbearing = eqdistance_bearing[1]
+                eqbearing_raw = eqdistance_bearing[2]
             except:
                 # No earthquake data
                 eqtime = label_dict["earthquake_no_data"]
@@ -1038,8 +1085,9 @@ class getData(SearchList):
                 eqlat = ""
                 eqlon = ""
                 eqdistance = ""
+                eqbearing = ""
+                eqbearing_raw = ""
             
-                
         else:
             eqtime = ""
             equrl = ""
@@ -1048,6 +1096,8 @@ class getData(SearchList):
             eqlat = ""
             eqlon = ""
             eqdistance = ""
+            eqbearing = ""
+            eqbearing_raw = ""
             
         
         """
@@ -1267,6 +1317,9 @@ class getData(SearchList):
                                   'earthquake_lat': eqlat,
                                   'earthquake_lon': eqlon,
                                   'earthquake_distance_away': eqdistance,
+                                  'earthquake_distance_label': eq_distance_label,
+                                  'earthquake_bearing': eqbearing,
+                                  'earthquake_bearing_raw': eqbearing_raw,
                                   'social_html': social_html,
                                   'custom_css_exists': custom_css_exists }
 
