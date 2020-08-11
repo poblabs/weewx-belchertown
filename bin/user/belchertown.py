@@ -1000,6 +1000,7 @@ class getData(SearchList):
             longitude = self.generator.config_dict['Station']['longitude']
             distance_unit = converter.group_unit_dict["group_distance"]
             eq_distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
+            eq_distance_round = self.generator.skin_dict['Units']['StringFormats'].get(distance_unit, "%.1f")
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
             #Sample URL from Belchertown Weather: http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
@@ -1073,7 +1074,7 @@ class getData(SearchList):
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.latlon_distance(float(latitude), float(longitude), float(eqlat), float(eqlon), distance_unit)
-                eqdistance = round( eqdistance_bearing[0], 2 )
+                eqdistance = eq_distance_round % eqdistance_bearing[0]
                 eqbearing = eqdistance_bearing[1]
                 eqbearing_raw = eqdistance_bearing[2]
             except:
