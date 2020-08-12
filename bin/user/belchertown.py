@@ -1135,6 +1135,7 @@ class getData(SearchList):
             eqdistance = ""
             eqbearing = ""
             eqbearing_raw = ""
+            eq_distance_label = ""
             
         
         """
