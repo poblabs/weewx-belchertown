@@ -453,11 +453,11 @@
                             #if $earthquake_place != ''
                             <br>
                             <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
-                            <div class="row">
+                            <div class="row earthquake-info">
                                 <div class="col-sm-6">
                                     <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
                                 </div>
-                                <div class="col-sm-6 border-left">
+                                <div class="col-sm-6 earthquake-distance-outer border-left">
                                     <span class="earthquake-distance">$earthquake_distance_away $earthquake_distance_label $earthquake_bearing</span>
                                 </div>
                             </div>

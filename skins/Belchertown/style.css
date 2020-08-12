@@ -1758,6 +1758,10 @@ table.celestial td.label {
     min-height: 180px;
 }
 
+.earthquake-container .earthquake-distance-outer {
+    min-height: 64px;
+}    
+
 .snapshot-records-text, .eq-title {
     font-size:24px;
     text-align:center;
