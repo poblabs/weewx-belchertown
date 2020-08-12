@@ -178,6 +178,11 @@
                                         #end if
                                     </div>
                                     <div class="col-sm-6 current_temp">
+										#if $obs.label.main_sensor_label and $obs.label.main_sensor_label != ''
+                                        <div class="main_sensor_label">
+                                            $obs.label.main_sensor_label
+                                        </div>
+                                        #end if                                    
                                         <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                                     </div>
                                 </div>

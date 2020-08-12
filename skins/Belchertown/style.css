@@ -1228,7 +1228,7 @@ p.entry-meta {
 }
 
 .toprow-height {
-	min-height:375px !important;
+	min-height:300px !important;
 }
 
 .border-top {
@@ -1448,11 +1448,12 @@ p.entry-meta {
 }
 
 .current_temp {
-	padding-top:20px !important;
+	padding-top:0px !important;
 }
 
 .current_temp .outtemp_outer {
 	font-size:65px;
+	padding-top: 20px;
 }
 
 .current_temp h1 {
@@ -1651,6 +1652,13 @@ p.entry-meta {
 	font-size:25px;
 	text-align:left;
 	padding-bottom: 10px;
+}
+
+.main_sensor_label {
+	font-size:20px;
+	text-align:center;
+	/*padding-bottom: 20px;*/
+    color: #e5554e;
 }
 
 .sun-moon-modal {
@@ -1977,6 +1985,7 @@ input:checked + .slider:before {
     
     .current_temp .outtemp_outer {
         font-size: 55px;
+		padding-top: 20px;
     }
 	
 	.wx-content {
