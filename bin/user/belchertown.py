@@ -121,13 +121,10 @@ class getData(SearchList):
         """
         https://gist.github.com/jeromer/2005586
         Calculates the bearing between two points.
-        The formulae used is the following:
-            θ = atan2(sin(Δlong).cos(lat2),
-                      cos(lat1).sin(lat2) − sin(lat1).cos(lat2).cos(Δlong))
         :Parameters:
-          - `pointA: The tuple representing the latitude/longitude for the
+          - pointA: The tuple representing the latitude/longitude for the
             first point. Latitude and longitude must be in decimal degrees
-          - `pointB: The tuple representing the latitude/longitude for the
+          - pointB: The tuple representing the latitude/longitude for the
             second point. Latitude and longitude must be in decimal degrees
         :Returns:
           The bearing in degrees
