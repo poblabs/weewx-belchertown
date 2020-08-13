@@ -141,7 +141,7 @@ class getData(SearchList):
                 * cos(lat2) * cos(diffLong))
         initial_bearing = atan2(x, y)
         # Now we have the initial bearing but math.atan2 return values
-        # from -180° to + 180° which is not what we want for a compass bearing
+        # from -180 to + 180 degrees which is not what we want for a compass bearing
         # The solution is to normalize the initial bearing as shown below
         initial_bearing = degrees(initial_bearing)
         compass_bearing = (initial_bearing + 360) % 360
