@@ -91,13 +91,17 @@ class getData(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
 
-    def latlon_distance(self, lat1, lon1, lat2, lon2, distance_unit): 
-        # https://www.geeksforgeeks.org/program-distance-two-points-earth/
+    def get_gps_distance(self, pointA, pointB, distance_unit): 
+        # https://www.geeksforgeeks.org/program-distance-two-points-earth/ and https://stackoverflow.com/a/43960736
         # The math module contains a function named radians which converts from degrees to radians. 
-        lat1r = radians(lat1)
-        lon1r = radians(lon1)
-        lat2r = radians(lat2)
-        lon2r = radians(lon2)
+        if (type(pointA) != tuple) or (type(pointB) != tuple):
+            raise TypeError("Only tuples are supported as arguments")
+        lat1 = pointA[0]
+        lon1 = pointA[1]
+        lat2 = pointB[0]
+        lon2 = pointB[1]
+        # convert decimal degrees to radians 
+        lat1r, lon1r, lat2r, lon2r = map(radians, [lat1, lon1, lat2, lon2]) 
         # Haversine formula  
         dlat = lat2r - lat1r
         dlon = lon2r - lon1r
@@ -109,12 +113,39 @@ class getData(SearchList):
         else:
             # Assume mile
             r = 3956
-        # https://stackoverflow.com/a/29958276. Test with https://www.sunearthtools.com/tools/distance.php
-        bearing = atan2(sin(lon2-lon1)*cos(lat2), cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon2-lon1))
-        bearing = degrees(bearing)
-        bearing = (bearing + 360) % 360
+        bearing = self.get_gps_bearing(pointA, pointB)
         # Returns distance as object 0 and bearing as object 1
-        return[(c * r), self.get_cardinal_direction(bearing), bearing]
+        return [(c * r), self.get_cardinal_direction(bearing), bearing]
+
+    def get_gps_bearing(self, pointA, pointB):
+        """
+        https://gist.github.com/jeromer/2005586
+        Calculates the bearing between two points.
+        :Parameters:
+          - pointA: The tuple representing the latitude/longitude for the
+            first point. Latitude and longitude must be in decimal degrees
+          - pointB: The tuple representing the latitude/longitude for the
+            second point. Latitude and longitude must be in decimal degrees
+        :Returns:
+          The bearing in degrees
+        :Returns Type:
+          float
+        """
+        if (type(pointA) != tuple) or (type(pointB) != tuple):
+            raise TypeError("Only tuples are supported as arguments")
+        lat1 = radians(pointA[0])
+        lat2 = radians(pointB[0])
+        diffLong = radians(pointB[1] - pointA[1])
+        x = sin(diffLong) * cos(lat2)
+        y = cos(lat1) * sin(lat2) - (sin(lat1)
+                * cos(lat2) * cos(diffLong))
+        initial_bearing = atan2(x, y)
+        # Now we have the initial bearing but math.atan2 return values
+        # from -180 to + 180 degrees which is not what we want for a compass bearing
+        # The solution is to normalize the initial bearing as shown below
+        initial_bearing = degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        return compass_bearing
 
     def get_cardinal_direction(self, degree, return_only_labels=False):
         default_ordinate_names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N/A']
@@ -1073,7 +1104,9 @@ class getData(SearchList):
                 eqmag = eqdata["features"][0]["properties"]["mag"]
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
-                eqdistance_bearing = self.latlon_distance(float(latitude), float(longitude), float(eqlat), float(eqlon), distance_unit)
+                eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
+                                                           (float(eqlat), float(eqlon)), 
+                                                           distance_unit)
                 eqdistance = eq_distance_round % eqdistance_bearing[0]
                 eqbearing = eqdistance_bearing[1]
                 eqbearing_raw = eqdistance_bearing[2]
@@ -1099,6 +1132,7 @@ class getData(SearchList):
             eqdistance = ""
             eqbearing = ""
             eqbearing_raw = ""
+            eq_distance_label = ""
             
         
         """
