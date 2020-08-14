@@ -362,6 +362,14 @@
                 </div>
                 <!-- End of first row -->
                 
+				#if $Extras.has_key("user_extension") and $Extras.user_extension != ''
+					#if os.path.exists($Extras.user_extension)
+					<div class="row user_extension_row">					
+						#include $Extras.user_extension
+					</div>											
+					#end if
+                #end if
+												
                 #if os.path.exists("index_hook_after_station_info.inc")
                 <!-- Start of index_hook_after_station_info row -->
                 <div class="row index-hook-after-station-info border-bottom">

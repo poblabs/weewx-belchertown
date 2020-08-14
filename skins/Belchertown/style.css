@@ -1409,7 +1409,7 @@ p.entry-meta {
 }
 
 
-.temperature-row, .forecastrow, .eq-stats-row {
+.temperature-row, .forecastrow, .eq-stats-row, .user_extension_row {
 	border-bottom:1px solid #D7D7D7;
 }
 
