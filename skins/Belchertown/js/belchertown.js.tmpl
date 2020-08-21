@@ -1963,11 +1963,6 @@ function showChart(json_file, prepend_renderTo=false) {
                 var newSeriesData = [];
                 var currentSeriesColor = options.series[0].color;
                 currentSeriesData.forEach( seriesData => {
-                    // If a data point is from the future, max/min are set to null. For some reason Highcharts draws a glitchy connection between the end and beginning of the data set on the radial graph (i.e. when the day is only half over and the graph only half filled), even if connectEnds is turned off. Until that's fixed, set null values to 0 so the chart renders cleanly all the way through 360 degrees 
-                    if ( seriesData[1] == null ) {
-                        seriesData[1] = 0;
-                        seriesData[2] = 0;
-                    };
                     newSeriesData.push({
                         x: seriesData[0],
                         low: seriesData[1],
@@ -1981,6 +1976,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     obsUnit: range_unit,
                     color: currentSeriesColor,
                     fillColor: currentSeriesColor,
+                    connectEnds: false,
                 });
             }
 
