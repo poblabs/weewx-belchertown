@@ -309,6 +309,7 @@ For ease of readability I have broken them out into separate tables. However you
 | reload_images_hook_af | -1 | Seconds to reload images within the `index_hook_after_forecast.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
 | reload_images_hook_as | -1 | Seconds to reload images within the `index_hook_after_snapshot.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
 | reload_images_hook_ac | -1 | Seconds to reload images within the `index_hook_after_charts.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
+| user_extension | "" | Name of the file containing source code to support user specific hardware/sensors and display its output on a dedicated row directly beneath the standard observations.
 | show_last_updated_alert | 0 | Enable the alert banner that will show if MQTT Websockets are disabled, and the weewx hasn't updated the website information beyond the threshold (see next option)
 | last_updated_alert_threshold | 1800 | Number of seconds before considering the information on the page stale and showing an alert in the header. `show_last_updated_alert` must be enabled, and MQTT Websockets disabled. 
 
@@ -324,6 +325,7 @@ For ease of readability I have broken them out into separate tables. However you
 | powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
 | footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
 | footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
+| main_sensor_label | "" | Display an optional label above main temperature reading (e.g. manufacturer or location).
 
 
 
