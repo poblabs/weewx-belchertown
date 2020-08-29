@@ -984,25 +984,34 @@ class getData(SearchList):
                 data = json.load( read_file )
                 
             if forecast_provider == "aeris":
-                current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
-
-                current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
-                
-                if forecast_units == "si" or forecast_units == "ca":
-                    if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
-                        visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
-                        visibility_unit = "km"
+                if len(data["current"][0]["response"]) > 0:
+                    current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
+                    current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+                    
+                    if forecast_units == "si" or forecast_units == "ca":
+                        if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
+                            visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
+                            visibility_unit = "km"
+                        else:
+                            visibility = "N/A"
+                            visibility_unit = ""
                     else:
-                        visibility = "N/A"
-                        visibility_unit = ""
+                        # us, uk2 and default to miles per hour
+                        if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
+                            visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
+                            visibility_unit = "miles"
+                        else:
+                            visibility = "N/A"
+                            visibility_unit = ""
                 else:
-                    # us, uk2 and default to miles per hour
-                    if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
-                        visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
-                        visibility_unit = "miles"
-                    else:
-                        visibility = "N/A"
-                        visibility_unit = ""
+                    # If there's no data in the ob array then it's probably because of an error. Example:
+                    # "code": "warn_no_data",
+                    # "description": "Valid request. No results available based on your query parameters."
+                    current_obs_summary = "No data"
+                    current_obs_icon = ""
+                    visibility = "N/A"
+                    visibility_unit = ""
+                    
             elif forecast_provider == "darksky":
                 current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
                 visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
