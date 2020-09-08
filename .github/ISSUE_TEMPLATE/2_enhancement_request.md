@@ -1,6 +1,6 @@
 ---
 name: Enhancement Request
-about: Got a great idea? Let us know!
+about: Got an idea to enhance the skin?
 title: ''
 labels: 'enhancement'
 assignees: ''
