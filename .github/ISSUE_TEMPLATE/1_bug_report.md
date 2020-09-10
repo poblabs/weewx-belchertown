@@ -6,6 +6,9 @@ labels: 'bug'
 assignees: ''
 
 ---
+**First step**
+Try to debug the skin yourself. If you can't figure it out, please include the debug information. See this guide on debugging. https://github.com/poblabs/weewx-belchertown/tree/development#how-to-use-debug
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
