@@ -9,11 +9,11 @@ def loader():
 class BelchertownInstaller(ExtensionInstaller):
     def __init__(self):
         super(BelchertownInstaller, self).__init__(
-            version="1.2rc3",
+            version="1.2",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
-            author_email="pat@obrienlabs.net",
+            author_email="https://github.com/poblabs/weewx-belchertown",
             config={
                 'StdReport': {
                     'Belchertown': {

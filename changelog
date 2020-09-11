@@ -1,4 +1,4 @@
-1.2 ???, 2020
+1.2 September 11, 2020
 
 ### Breaking Changes
 * DarkSky has announced that they were acquired by Apple and will be removing their API. This release adds Aeris Weather as a forecast provider with the intent to remove DarkSky in a later version.
