@@ -987,12 +987,15 @@ class getData(SearchList):
                 data = json.load( read_file )
                 
             if forecast_provider == "aeris":
-                if len(data["current"][0]["response"]) > 0:
-                    try:
-                        current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
-                        current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
-                    except:
-                        raise Warning( "Error: your forecast data contains nulls which means it may not be metar. Set your Extras option forecast_aeris_use_metar = 0" )
+                if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
+                    # Non-metar responses do not contain these values. Set them to empty.
+                    current_obs_summary = ""
+                    current_obs_icon = ""
+                    visibility = "N/A"
+                    visibility_unit = ""
+                elif len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "1":
+                    current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
+                    current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
                     
                     if forecast_units == "si" or forecast_units == "ca":
                         if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
