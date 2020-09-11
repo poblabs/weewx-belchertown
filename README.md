@@ -1,7 +1,5 @@
 # Belchertown weewx skin
 
-# DarkSky has announced that they are shutting down public access. You can use Aeris Weather with the [development version of the skin](https://github.com/poblabs/weewx-belchertown/tree/development).
-
 [![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
 
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
@@ -105,6 +103,9 @@ Aeris Weather's Forecast API is where the current observations and forecast data
 * Then sign up for a free Aeris Weather developer account by linking your pwsweather account here [https://www.aerisweather.com/signup/pws](https://www.aerisweather.com/signup/pws/)
 * Once you are logged in, you should make a Demo Project as part of the sign up process, then go to [https://www.aerisweather.com/account/apps](https://www.aerisweather.com/account/apps) and and save these keys as `forecast_api_id` and `forecast_api_secret`.
 * The rest of the options can be found below in the [Forecast Options](#forecast-options) table.
+
+### DarkSky API (optional, no longer accepting new applications)
+**DarkSky has been shut down, but if you still have an API key, you can continue using it until DarkSky shuts your API key down.**
 
 ### Forecast Units
 Aeris Weather provides all units in 1 API call which is great but the skin still needs a way to determine what units you want it to show. This is why I've decided to keep the Dark Sky unit method so you can determine which units you'd like Aeris Weather to show. **All of the unit determination is now being done within the skin, not the API.** 
