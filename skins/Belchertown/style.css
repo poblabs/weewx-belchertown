@@ -836,7 +836,7 @@ p.entry-meta {
 /* # Media Queries
 ---------------------------------------------------------------------------------------------------- */
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1196px) {
 
 	.site-inner,
 	.wrap {
