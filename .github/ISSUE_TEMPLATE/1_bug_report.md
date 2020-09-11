@@ -7,13 +7,14 @@ assignees: ''
 
 ---
 **First step**
-Try to debug the skin yourself. If you can't figure it out, please include the debug information. See this guide on debugging. https://github.com/poblabs/weewx-belchertown/tree/development#how-to-use-debug
+Try to debug the skin yourself. If you can't figure it out, please include the debug information (text, screenshots, etc.). See this guide on debugging the skin. https://github.com/poblabs/weewx-belchertown#how-to-use-debug
+
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 
-**Link to your website**
+**Link to your website (IMPORTANT)**
 
 
 **Version of the skin you're using**
@@ -43,7 +44,7 @@ If applicable, add screenshots to help explain your problem.
 
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here. Maybe a potential fix?
 
 
 **HELP WANTED**
