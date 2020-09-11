@@ -1,3 +1,44 @@
+1.2 September 11, 2020
+
+### Breaking Changes
+* DarkSky has announced that they were acquired by Apple and will be removing their API. This release adds Aeris Weather as a forecast provider with the intent to remove DarkSky in a later version.
+* New option `forecast_provider` is added to specify which provider you are using (DarkSky or Aeris)
+* Aeris Weather is a very close drop-in replacement and is free if you send your station data to pwsweather.com. In return they give you free access to their weather API. I was considering OpenWeatherMap, but they were lacking some key observations in my opinion. 
+* graphs.conf gapsize is now in seconds, not milliseconds. This is to stay consistent with other graphs.conf settings. **Make sure to update your graphs.conf. Divide by 1000 to get the seconds you need for the new gapsize setting**.
+* Forecast file darksky_forecast.json renamed to forecast.json for all providers.
+* skin.conf option darksky_units renamed to forecast_units
+* skin.conf option time_darksky_alert_expires renamed to time_forecast_alert_expires
+
+### Added
+* An entire forecast section to the labels. This allows you to translate the Aeris Weather observations to your language.
+* skin.conf option forecast_units. I incorporated the old DarkSky approach to the units. Options are si, ca, uk2 or us. See README for more info.
+* graphs.conf option for legend. This allows you to show/hide the legend per-chart. More information under legend in the graphs wiki.
+* Adds logo_image_dark option to specify an alternate logo when in dark mode. 
+* skin.conf: new option almanac_extras to enable or disable showing the extended almanac information table. Requires pyephem to be installed. 
+* The almanac extras table is now updated automatically with the ajaxweewx() function.
+* New chart type called "haysChart". Thanks to @uajqq for this one! Check the charts wiki for more information.
+* graphs.conf option for year_to_now. In weewx 4, the method which gets results from the database for archiveYearSpan (aka time_length = year) will return a full year's worth of data - even if the year hasn't ended. So if your chart is being created on February 1, you'll have data from Jan 1 to Feb 1, but the chart will continue to Dec 31 with empty plots. If you do not want a semi-empty chart, and instead want Jan 1 to "today", then use the year_to_now for time_length.
+* Added new `time_length` options. year_to_now, hour_ago_to_now, day_ago_to_now, week_ago_to_now, month_ago_to_now, year_ago_to_now and timestamp_ago_to_now. See charts wiki for more info on these time lengths.
+* Added new `start_at_midnight` option for use with specific time_length options. See charts wiki for more information.
+
+### Changed
+* Renamed skin.conf label darksky_rain to forecast_rain
+* Renamed skin.conf label time_darksky_forecast_date to time_forecast_date
+* Weather alerts are available through Aeris but only for USA and Canada
+* Weather alerts are now in-line with the website and not a link to an external website. This is because Aeris doesn't provide an external link with the alerts, only the text itself.
+* Can now customize the Daily Forecast link
+* Updates bootstrap to 3.4.1
+* DarkSky weather alerts now open in a modal similar to Aeris and no longer link to the alert source.
+* rainTotal now charts only rain values which exist. This is a fix so that full-length charts (like year) do not have rainTotal past the actual last observation plot.
+* windRose beaufort group colors can now be changed. See charts wiki for more info.
+* The earthquake table now shows the earthquake's distance away from your station's lat/lon from weewx, and general bearing direction.
+
+### Removed
+* Daily Forecast link in the forecast row is no longer available due to the way Aeris operates currently. Can't extrapolate a URL from the API.
+* skin.conf option darksky_secret_key
+* skin.conf option darksky_lang
+* The GitHub check for updates has been removed since it is not reliable.
+
 1.1 April 8, 2020
 
 ### Breaking Changes

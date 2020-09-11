@@ -9,740 +9,69 @@
 ##
 #set global $page = "pi"
 
-## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
-#if $page == "home"
-#set global $relative_url = "."
-#else
-#set global $relative_url = ".."
-#end if
-
-    #include "pi/pi-header.html.tmpl"
+    #include "header.html.tmpl"
     
-        <script type="text/javascript">
+    <script type="text/javascript">
         var finalRotation;
         #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
+        var moment_locale = "$system_locale_js";
+        moment.locale(moment_locale);
+                
+        ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
         
-        // Determine if debug is on via URL var or config setting
-        if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
-            var belchertown_debug_config = true;
-            belchertown_debug("Debug: URL debug variable enabled");
-        } else {
-            var belchertown_debug_config = $belchertown_debug;
-            belchertown_debug("Debug: skin.conf belchertown_debug enabled");
-        }
-        
-        function belchertown_debug(message) {
-            if (belchertown_debug_config > 0) {
-                console.log(message);
-            }
-        }
+        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+        // Load forecast
+        ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
+        #end if
         
         jQuery(document).ready(function() {
-            // Change theme if a URL variable is set
-            if ( window.location.search.indexOf('theme') ) {
-                if (window.location.search.indexOf('?theme=dark') === 0) {
-                    belchertown_debug("Theme: Setting dark theme because of URL override");
-                    changeTheme("dark", true);
-                } else if (window.location.search.indexOf('?theme=light') === 0) {
-                    belchertown_debug("Theme: Setting light theme because of URL override");
-                    changeTheme("light", true);
-                } else if (window.location.search.indexOf('?theme=auto') === 0) {
-                    belchertown_debug("Theme: Setting auto theme because of URL override");
-                    sessionStorage.setItem('pi_theme', 'auto')
-                    autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
-                }
-            }
-
-            #if $unit.unit_type.outTemp == "degree_F"
-            update_outtemp_F( "$current.outTemp.formatted" );
-            #else
-            update_outtemp_C( "$current.outTemp.formatted" );
-            #end if
+            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
+            
             rotateThis( "$current.windDir.formatted" );
             
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
-            ajaxweewx(); // Initial call. Load from weewx (daily high, low, etc)
-            ajaxforecast(); // Initial call. Load forecast data like 8 day outlook, weather icon and observation text
             connect(); // Begin mqtt after weewx initial load
-            // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
-            jQuery(document).on('click', '.restart-interval', function() { 
-                ajaxweewx(); // Update weewx data
-                ajaxforecast(); // Update forecast data
-                connect(); // Restart mqtt after weewx data's re-loaded
-            });
-            #end if
-
-        });
-        
-        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
-        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
-        function autoRefreshPage() {
-            window.location = window.location.href;
-        }
-        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
-        #end if
-        
-        // Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
-        function getURLvar(k) {
-            var p={};
-            location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v});
-            return k?p[k]:p;
-        }
-        
-        // Handle wind arrow rotation with the ability to "rollover" past 0 
-        // without spinning back around. e.g 350 to 3 would spin back around
-        // https://stackoverflow.com/a/19872672/1177153
-        function rotateThis(newRotation) {
-            if ( newRotation == "N/A") { return; }
-            var currentRotation;
-            finalRotation = finalRotation || 0; // if finalRotation undefined or 0, make 0, else finalRotation
-            currentRotation = finalRotation % 360;
-            if ( currentRotation < 0 ) { currentRotation += 360; }
-            if ( currentRotation < 180 && (newRotation > (currentRotation + 180)) ) { finalRotation -= 360; }
-            if ( currentRotation >= 180 && (newRotation <= (currentRotation - 180)) ) { finalRotation += 360; }
-            finalRotation += (newRotation - currentRotation);
-            jQuery(".wind-arrow").css( "transform", "rotate(" + finalRotation + "deg)" );
-            jQuery(".arrow").css( "transform", "rotate(" + finalRotation + "deg)" );
-        }
-        
-        // Change the color of the outTemp_F variable
-        function update_outtemp_F( outTemp ) {
-            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-            if ( outTemp <= 0 ) {
-                jQuery(".outtemp_outer").css( "color", "#1278c8" );
-            } else if ( outTemp <= 25 ) {
-                jQuery(".outtemp_outer").css( "color", "#30bfef" );
-            } else if ( outTemp <= 32 ) {
-                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
-            } else if ( outTemp <= 40 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
-            } else if ( outTemp <= 50 ) {
-                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
-            } else if ( outTemp <= 55 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
-            } else if ( outTemp <= 65 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
-            } else if ( outTemp <= 70 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
-            } else if ( outTemp <= 75 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
-            } else if ( outTemp <= 80 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
-            } else if ( outTemp <= 85 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
-            } else if ( outTemp <= 90 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
-            } else if ( outTemp <= 95 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
-            } else if ( outTemp <= 110 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
-            } else if ( outTemp >= 111 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
-            }
-        }
-
-        // Change the color of the outTemp_C variable
-        function update_outtemp_C( outTemp ) {
-            outTemp = parseFloat( outTemp ).toFixed(0); // Convert back to decimal literal
-            if ( outTemp <= 0 ) {
-                jQuery(".outtemp_outer").css( "color", "#1278c8" );
-            } else if ( outTemp <= -3.8 ) {
-                jQuery(".outtemp_outer").css( "color", "#30bfef" );
-            } else if ( outTemp <= 0 ) {
-                jQuery(".outtemp_outer").css( "color", "#1fafdd" );
-            } else if ( outTemp <= 4.4 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(0,172,223,1)" );
-            } else if ( outTemp <= 10 ) {
-                jQuery(".outtemp_outer").css( "color", "#71bc3c" );
-            } else if ( outTemp <= 12.7 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(90,179,41,0.8)" );
-            } else if ( outTemp <= 18.3 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(131,173,45,1)" );
-            } else if ( outTemp <= 21.1 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(206,184,98,1)" );
-            } else if ( outTemp <= 23.8 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,174,0,0.9)" );
-            } else if ( outTemp <= 26.6 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,153,0,0.9)" );
-            } else if ( outTemp <= 29.4 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,127,0,1)" );
-            } else if ( outTemp <= 32.2 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,79,0,0.9)" );
-            } else if ( outTemp <= 35 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,69,69,1)" );
-            } else if ( outTemp <= 43.3 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(255,104,104,1)" );
-            } else if ( outTemp >= 43.4 ) {
-                jQuery(".outtemp_outer").css( "color", "rgba(218,113,113,1)" );
-            }
-        }
-                
-        function get_cardinal_direction(degree) {
-            if (degree >= 0 && degree <= 11.25) {
-                return "N";
-            } else if (degree >= 11.26 && degree <= 33.75) {
-                return "NNE";
-            } else if (degree >= 33.76 && degree <= 56.25) {
-                return "NE";
-            } else if (degree >= 56.26 && degree <= 78.75) {
-                return "ENE";
-            } else if (degree >= 78.76 && degree <= 101.25) {
-                return "E";
-            } else if (degree >= 101.26 && degree <= 123.75) {
-                return "ESE";
-            } else if (degree >= 123.76 && degree <= 146.25) {
-                return "SE";
-            } else if (degree >= 146.26 && degree <= 168.75) {
-                return "SSE";
-            } else if (degree >= 168.76 && degree <= 191.25) {
-                return "S";
-            } else if (degree >= 191.26 && degree <= 213.75) {
-                return "SSW";
-            } else if (degree >= 213.76 && degree <= 236.25) {
-                return "SW";
-            } else if (degree >= 236.26 && degree <= 258.75) {
-                return "WSW";
-            } else if (degree >= 258.76 && degree <= 281.25) {
-                return "W";
-            } else if (degree >= 281.26 && degree <= 303.75) {
-                return "WNW";
-            } else if (degree >= 303.76 && degree <= 326.25) {
-                return "NW";
-            } else if (degree >= 326.26 && degree <= 348.75) {
-                return "NNW";
-            } else if (degree >= 348.76 && degree <= 360) {
-                return "N";
-            }
-        }
-        
-        // Title case strings. https://stackoverflow.com/a/45253072/1177153
-        function titleCase(str) {
-            return str.toLowerCase().split(' ').map(function(word) {
-                return word.replace(word[0], word[0].toUpperCase());
-            }).join(' ');
-        }
-        
-        // Disable AJAX caching
-        jQuery.ajaxSetup({
-            cache:false
-        });
-        
-        function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
-            // First check if ?theme= is in URL. If so, bail out and do not change anything. 
-            if ( getURLvar("theme") && getURLvar("theme") != "auto" ) {
-                belchertown_debug("Auto theme: theme override detected in URL. Skipping auto theme");
-                return true;
-            }
-            belchertown_debug("Auto theme: checking to see if theme needs to be switched");
             
-            var d = new Date();
-            var nowHour = d.getHours();
-            var nowMinutes = d.getMinutes();
-            nowHour = nowHour;
-            sunrise_hour = sunrise_hour;
-            sunset_hour = sunset_hour;
-            
-            // Determine if it's day time. https://stackoverflow.com/a/14718577/1177153
-            if ( sunrise_hour <= nowHour && nowHour < sunset_hour ) {
-                dayTime = true;
-            } else {
-                dayTime = false;
-            }
-            
-            belchertown_debug("Auto theme: sunrise: " + sunrise_hour);
-            belchertown_debug("Auto theme: now: " + nowHour);
-            belchertown_debug("Auto theme: sunset: " + sunset_hour);
-            belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
-            belchertown_debug("Auto theme: sessionStorage.getItem('pi_theme') = " + sessionStorage.getItem('pi_theme'));
-            
-            if ( dayTime ) {
-                // Day time, set light if needed
-                if ( document.body.classList.contains("dark") ) {
-                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
-                        belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
-                    } else {
-                        belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
-                    }
-                    // Only change theme if user has not overridden the auto option with the toggle
-                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
-                        changeTheme("light");
-                    }
-                }
-            } else {
-                // Night time, set dark if needed
-                if ( document.body.classList.contains("light") ) {
-                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
-                        belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
-                    } else {
-                        belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
-                    }
-                    // Only change theme if user has not overridden the auto option with the toggle
-                    if ( sessionStorage.getItem('pi_theme') == "auto" ) {
-                        changeTheme("dark");
-                    }
-                }
-            }
-        }
-
-        
-        function changeTheme(themeName, toggleOverride=false) {
-            belchertown_debug("Theme: Changing to " + themeName);
-            // If the configured theme is auto, but the user toggles light/dark, remove the auto option.
-            if ( toggleOverride ) {
-                belchertown_debug("Theme: toggle override clicked.");
-                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') was previously: " + sessionStorage.getItem('pi_theme') );
-                // This was applied only to auto theme config, but now it's applied to all themes so visitor has full control on light/dark mode
-                //if ( sessionStorage.getItem('theme') == "auto" ) { }
-                sessionStorage.setItem('pi_theme', 'toggleOverride');
-                belchertown_debug("Theme: sessionStorage.getItem('pi_theme') is now: " + sessionStorage.getItem('pi_theme') );
-            }
-            if ( themeName == "dark" ) {
-                // Apply dark theme
-                jQuery('body').addClass("dark");
-                jQuery('body').removeClass("light");
-                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
-                jQuery("#themeSwitch").prop( "checked", true );
-                #end if
-                sessionStorage.setItem('pi_currentTheme', 'dark');
-            } else if ( themeName == "light" ) {
-                // Apply light theme
-                jQuery('body').addClass("light");
-                jQuery('body').removeClass("dark");
-                #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
-                jQuery("#themeSwitch").prop( "checked", false );
-                #end if
-                sessionStorage.setItem('pi_currentTheme', 'light');
-            }
-        }
-        
-        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
-        //=================================//
-        // Live website using MQTT enabled //
-        //=================================//
-        
-        function ajaxweewx() {
-            jQuery.getJSON("../json/weewx_data.json", update_weewx_data);
-        };
-        
-        function ajaxforecast() {
-            jQuery.getJSON("../json/darksky_forecast.json", update_forecast_data);
-        };
-        
-        // Initial load of cached data
-        // Update weewx data elements
-        var unit_rounding_array = "";
-        var unit_label_array = "";
-        function update_weewx_data( data ) {
-            console.log("Updating weewx data");
-            
-            #if $Extras.has_key("pi_theme") and $Extras.pi_theme == 'auto'
-            // Auto theme is enabled
-            autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"], );
-            #end if
-            
-            unit_rounding_array = data["unit_rounding"];
-            unit_label_array = data["unit_label"];
-
-            // Daily High Low
-            high = data["day"]["outTemp"]["max"];
-            low = data["day"]["outTemp"]["min"];
-            jQuery(".high").html( high );
-            jQuery(".low").html( low );
-            
-            // Barometer trending by finding a negative number
-            count = ( data["current"]["barometer_trend"].match(/-/g) || [] ).length
-            
-            if ( count >= 1 ) {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-down barometer-down"></i>' );
-            } else {
-                jQuery(".wx-barometer-trend").html( '<i class="fa fa-arrow-up barometer-up"></i>' );
-            }
-            
-            // Current wind gust
-            jQuery(".curwindgust").text( parseFloat( data["current"]["windGust"] ).toFixed(1) );
-            
-            // Daily max gust span
-            jQuery(".dailymaxgust").html( parseFloat( data["day"]["wind"]["max"] ).toFixed(1) );
-            
-            // Daily stats section
-            jQuery(".dailystatshigh").html( data["day"]["outTemp"]["max"] );
-            jQuery(".dailystatslow").html( data["day"]["outTemp"]["min"] );
-            jQuery(".dailystatswind").html( data["day"]["wind"]["max"] );
-            jQuery(".dailystatsuv").html( data["day"]["uv"]["max"] );
-            jQuery(".dailystatsrain").html( data["day"]["rain"]["sum"] );
-            jQuery(".dailystatsrainrate").html( data["day"]["rain"]["max"] );
-            
-            // Sunrise and Sunset            
-            sunrise = moment(data["almanac"]["sunrise"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
-            sunset = moment(data["almanac"]["sunset"], "HH:mm:ss A").format("h:mm A"); // Requires moment.js
-            jQuery(".sunrise-value").html( sunrise );
-            jQuery(".sunset-value").html( sunset );
-            
-            // Moon icon, phase and illumination percent
-            switch ( data["almanac"]["moon"]["moon_index"] ) {
-                case "0":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
-                    break;
-                case "1":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-1'></div>" );
-                    break;
-                case "2":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "3":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3'></div>" );
-                    break;
-                case "4":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
-                    break;
-                case "5":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3'></div>" );
-                    break;
-                case "6":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter'></div>" );
-                    break;
-                case "7":
-                    jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4'></div>" );
-                    break;
-            }
-            jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
-            jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> visible" );
-        }
-        
-        function update_forecast_data( data ) {
-            console.log("Updating forecast data");
-            // WX Icon
-            if ( data['currently']['icon'] == "partly-cloudy-night" ) {
-                // partly-cloudy-night could also be clear-day
-                jQuery("#wxicon").attr( "src", "../images/partly-cloudy-night.png" );
-            } else {
-                jQuery("#wxicon").attr( "src", "../images/" + data['currently']['icon'] + ".png" );
-            }
-            
-            // Current observation text
-            jQuery(".current-obs-text").html( data["currently"]["summary"] );
-            
-            // 8 day forecast
-            var output_html = "";
-            for (i = 0; i < data["daily"]["data"].length; i++) {
-                var forecastDay = data["daily"]["data"][i];
-                if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                    var image_url = "../images/clear-day.png";
-                } else { 
-                    var image_url = "../images/"+data['daily']['data'][i]['icon']+".png";
-                }
-                
-                var condition_text = "";
-                switch ( data["daily"]["data"][i]["icon"] ) {
-                    case "clear-day":
-                        condition_text = "Clear";
-                        break;
-                    case "clear-night":
-                        condition_text = "Clear";
-                        break;
-                    case "rain":
-                        condition_text = "Rain";
-                        break;
-                    case "snow":
-                        condition_text = "Snow";
-                        break;
-                    case "sleet":
-                        condition_text = "Sleet";
-                        break;
-                    case "wind":
-                        condition_text = "Windy";
-                        break;
-                    case "fog":
-                        condition_text = "Fog";
-                        break;
-                    case "cloudy":
-                        condition_text = "Overcast";
-                        break;
-                    case "partly-cloudy-day":
-                        condition_text = "Partly Cloudy";
-                        break;
-                    case "partly-cloudy-night":
-                        condition_text = "Clear"; // https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                        break;
-                    case "hail":
-                        condition_text = "Hail";
-                        break;
-                    case "thunderstorm":
-                        condition_text = "Thunderstorm";
-                        break;
-                    case "tornado":
-                        condition_text = "Tornado";
-                        break;
-                }
-                
-                if ( i == 0 ) {
-                    output_html += '<div class="col-sm-1-5 forecast-day">';
-                    var weekday = "Today";
-                } else {
-                    output_html += '<div class="col-sm-1-5 forecast-day border-left">';
-                    var weekday = moment.unix( data["daily"]["data"][i]["time"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_darksky_forecast_date" ); // Requires moment.js
-                }
-                output_html += '<span id="weekday">'+weekday+'</span>';
-                output_html += '<br>';
-                output_html += '<div class="forecast-conditions">';
-                output_html += '<img id="wxicon" src="'+image_url+'">';
-                output_html += '<span class="forecast-condition-text">'+condition_text+'</span>';
-                output_html += '</div>';
-                output_html += '<span class="forecast-high">'+ parseFloat( data["daily"]["data"][i]["temperatureHigh"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( data["daily"]["data"][i]["temperatureLow"] ).toFixed(0) +'&deg;</span>';
-                output_html += '<br>';
-                output_html += '<div class="forecast-precip">';
-                if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
-                    output_html += '<div class="snow-precip">';
-                    output_html += '<img src="../images/snowflake-icon-15px.png"> <span>'+ parseFloat( data["daily"]["data"][i]["precipAccumulation"] ).toFixed(0) +'<span> in';
-                    output_html += '</div>';
-                } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
-                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( data["daily"]["data"][i]["precipProbability"] * 100 ).toFixed(0) +'%</span>';
-                } else {
-                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span >0%</span>';
-                }
-                output_html += '</div>';
-                output_html += '<div class="forecast-wind">';
-                output_html += '<i class="wi wi-strong-wind"></i> '+ parseFloat( data["daily"]["data"][i]["windGust"] ).toFixed(0) + '$unit.label.windSpeed';
-                output_html += '</div>';
-                output_html += '</div>';
-            }
-            forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
-            jQuery(".forecast-subtitle").text( "$obs.label.forecast_last_updated " + forecast_subtitle );
-            jQuery(".forecasts").html( output_html );
-        }
-        
-        // mqtt connect
-        function connect(){
-            console.log("Connecting to MQTT");
-            reported = "$obs.label.mqtt_websockets_connecting";
-            jQuery(".updated").text( reported );
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").hide();
-            jQuery(".loadingMarker").show();
-            
-            client = new Paho.MQTT.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
-            client.onConnectionLost = onConnectionLost;
-            client.onMessageArrived = onMessageArrived;
-            var options = {
-                #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
-                useSSL: true,
-                #else
-                useSSL: false,
-                #end if
-                onSuccess:onConnect,
-                onFailure:onFailure
-              }
-            client.connect( options );
-        }
-        
-        // mqtt connect callback
-        function onConnect() {
-            console.log("MQTT Connected. Subscribing.");
-            reported = "$obs.label.mqtt_websockets_waiting";
-            jQuery(".updated").text( reported );
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").hide();
-            jQuery(".loadingMarker").show();            
-            client.subscribe( "$Extras.mqtt_websockets_topic" );
-        }
-        
-        function onFailure() {
-            var d = new Date();
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").show();
-            jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "$obs.label.mqtt_websockets_failed" );
-            setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
-            console.log( d.getTime() + ": Cannot connect to MQTT broker" );
-        }
-
-        // mqtt connection lost
-        function onConnectionLost(responseObject) {
-            var d = new Date();
-            jQuery(".onlineMarker").hide();
-            jQuery(".offlineMarker").show();
-            jQuery(".loadingMarker").hide();
-            jQuery(".updated").html( "$obs.label.mqtt_websockets_lost" );
-            setTimeout( connect, 10000 ); // Retry to connect in 10 seconds
-            if (responseObject.errorCode !== 0) {
-                console.log( d.getTime() + ": mqtt Connection Lost: "+responseObject.errorMessage);
-            }
-        }
-        
-        // new message from mqtt, process it
-        function onMessageArrived(message) {
-            update_current_wx( message.payloadString );
-        }
-        
-        function inactive(){
-            client.disconnect(); // Disconnect mqtt
-            console.log("Inactive timer expired. MQTT Disconnected");
-            jQuery(".onlineMarker").hide(); // Hide online beacon
-            jQuery(".offlineMarker").show(); // Show offline beacon
-            jQuery(".loadingMarker").hide(); // Hide loading beacon
-            jQuery(".updated").html( "$obs.label.mqtt_websockets_stopped <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>" );
-        }
-        
-        // Handle MQTT message
-        function update_current_wx(data) {
-            //console.log( data );
-            data = jQuery.parseJSON( data );
-            
-            // Updated time
-            epoch = parseFloat( data["dateTime"] ).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
-            //seconds_ago = moment(updated, "MMMM Do YYYY, h:mm:ss a").fromNow(); // "a few seconds ago || in a few seconds"
-            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated_text = "$obs.label.header_last_updated " + updated;
             jQuery(".updated").html( updated_text );
-            jQuery(".onlineMarker").show(); // Show the online beacon
-            jQuery(".offlineMarker").hide(); // Hide offline beacon
-            jQuery(".loadingMarker").hide(); // Hide loading beacon
             
-            // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
-            if ( data.hasOwnProperty("interval_minute") ) {
-                // Delays are recommended to allow the other skins to complete processing
-                console.log("MQTT message indicates this is an archive interval.");
-                setTimeout( ajaxweewx, 10000 ); // Update weewx data
-                setTimeout( ajaxforecast, 10000 ); // Update forecast data
-            }
-            
-            // Temperature F
-            if ( data.hasOwnProperty("outTemp_F") ) {
-                outTemp = parseFloat( data["outTemp_F"] ).toFixed(1);
-                update_outtemp_F( outTemp );
-                jQuery(".outtemp").html( outTemp );
-            
-                // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
-                //if ( data["outTemp_F"] <= 50 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["windchill_F"] ).toFixed(1) + " $unit.label.outTemp" );
-                //} else if ( data["outTemp_F"] >= 80 ) {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["heatindex_F"] ).toFixed(1) + " $unit.label.outTemp" );
-                //} else {
-                //    jQuery(".feelslike").html( "Feels like: " + parseFloat( data["outTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
-                //}
-            }
-            
-            // Temperature C
-            if ( data.hasOwnProperty("outTemp_C") ) {
-                outTemp = parseFloat( data["outTemp_C"] ).toFixed(1);
-                update_outtemp_C( outTemp );
-                jQuery(".outtemp").html( outTemp );
-            }
-            
-            // Apparent Temperature US
-            if ( data.hasOwnProperty("appTemp_F") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_F"] ).toFixed(1) + " $unit.label.outTemp" );
-            }
-
-            // Apparent Temperature Metric
-            if ( data.hasOwnProperty("appTemp_C") ) {
-                jQuery(".feelslike").html( "Feels like: " + parseFloat( data["appTemp_C"] ).toFixed(1) + " $unit.label.outTemp" );
-            }
-            
-            // Dewpoint US
-            if ( data.hasOwnProperty("dewpoint_F") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_F"]).toFixed(1) + " $unit.label.outTemp" );
-            }
-
-            // Dewpoint Metric
-            if ( data.hasOwnProperty("dewpoint_C") ) {
-                jQuery(".wx-dewpoint-value").html( parseFloat(data["dewpoint_C"]).toFixed(1) + " $unit.label.outTemp" );
-            }            
-            
-            // Wind
-            if ( data.hasOwnProperty("windDir") ) {
-                rotateThis( data["windDir"] );
-                //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-                jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
-                jQuery(".curwinddir").text( get_cardinal_direction( parseFloat( data["windDir"] ).toFixed(0) ) );
-            }
-            // Windspeed US
-            if ( data.hasOwnProperty("windSpeed_mph") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mph"] ).toFixed(1) );
-            }
-            // Windspeed Metric
-            if ( data.hasOwnProperty("windSpeed_kph") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_kph"] ).toFixed(1) );
-            }
-            // Windspeed METRICWX
-            if ( data.hasOwnProperty("windSpeed_mps") ) {
-                jQuery(".curwindspeed").text( parseFloat( data["windSpeed_mps"] ).toFixed(1) );
-            }
-            
-            // Wind Gust US
-            // May not be provided in mqtt, but just in case.
-            if ( data.hasOwnProperty("windGust_mph") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_mph"] ).toFixed(1) );
-            }
-            // Wind Gust Metric
-            if ( data.hasOwnProperty("windGust_kph") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_kph"] ).toFixed(1) );
-            }
-            // Wind Gust METRICWX
-            if ( data.hasOwnProperty("windGust_mps") ) {
-                jQuery(".curwindgust").text( parseFloat( data["windGust_mps"] ).toFixed(1) );
-            }
-            
-            // Update the station observation table
-            station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
-            jQuery('.station-observations').find("span").each(function () {
-                thisElementClass = jQuery(this).attr("class")
-                // Loop through each MQTT payload item
-                station_mqtt_data.forEach( mqttdata => {
-                    if ( thisElementClass == "rainWithRainRate" ) {
-                        // Force dayRain since that's the MQTT payload name
-                        thisElementClass = "dayRain";
-                    }
-                    if ( thisElementClass == "barometer" || thisElementClass == "pressure" || thisElementClass == "altimeter" || thisElementClass == "cloudbase" ) {
-                        // Do not group number into thousands,hundreds format
-                        localeStringUseGrouping = false;
-                    } else {
-                        localeStringUseGrouping  = true;
-                    }
-                    // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
-                    if ( mqttdata.startsWith(thisElementClass) ) {
-                        html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
-                        
-                        // Finally update the element class
-                        jQuery("." + thisElementClass).html( html_output );
-                    }
-                }); 
-            });
-
-        };
-        #end if
+            #end if
+        });
+        
     </script>
 
 ## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which will set the font-style to bold
  #if $Extras.pi_kiosk_bold == "true"  
-		<div class="site-inner-bold site-inner">
+        <div class="site-inner-bold site-inner">
  #else
-		<div class="site-inner">
+        <div class="site-inner">
  #end if
-	<div class="content-sidebar-wrap">
-	
-	<article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
-		
-		<div class="entry-content wx-content" itemprop="text">
-			<!-- Top bar with city and share -->
-			<div class="wx-stn-info-container">
-				<!-- Updated time ago -->
-				<div class="updated-wrapper">
+    <div class="content-sidebar-wrap">
+    
+    <article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
+        
+        <div class="entry-content wx-content" itemprop="text">
+            <!-- Top bar with city and share -->
+            <div class="wx-stn-info-container">
+                <!-- Updated time ago -->
+                <div class="updated-wrapper">
                     <div class="onlineMarkerOuter">
                         <span class="loadingMarker" style="display:none"></span>
                         <span class="onlineMarker" style="display:none"></span>
                         <span class="offlineMarker" style="display:none"></span>
                     </div>
-					<div class="updated"></div><!-- AJAX -->
-				</div>
-				<div class="clear"></div>
-			</div>
-			
-			<!-- First row with temperature, observation data and radar -->
-			<div class="row">
+                    <div class="updated"></div><!-- AJAX -->
+                </div>
+                <div class="clear"></div>
+            </div>
+            
+            <!-- First row with temperature, observation data and radar -->
+            <div class="row">
                 <!-- Temperature -->
                 
                 <div class="col-xs-6 temp-observation">
@@ -754,10 +83,12 @@
                     <div class="clear"></div>
                 
                     <div class="tempstats">
-                        <div class="feelslike"></div><!-- AJAX -->
-						<div class="highlow">
-							$obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
-						</div><!-- AJAX -->
+                        #if $current.appTemp.has_data
+                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
+                        #end if
+                        <div class="highlow">
+                            $obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
+                        </div><!-- AJAX -->
                     </div>
                     
                     <div class="station-observations weather-obs-top">
@@ -768,6 +99,12 @@
                                     <td>
                                         <span class="outHumidity">$current.outHumidity</span><!-- AJAX -->
                                     </td>
+                                </tr>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.dewpoint</td>
+                                    <td>
+                                        <span class="dewpoint">$current.dewpoint</span><!-- AJAX -->
+                                    </td>
                                 </tr>                            
                                 <tr>
                                     <td class='station-observations-label'>$obs.label.rain</td>
@@ -777,11 +114,11 @@
                                         <span class="rainRate">$current.rainRate</span><!-- AJAX -->
                                     </td>
                                 </tr>
-								<tr>
-									<td class='station-observations-label'>$obs.label.barometer</td>
-									<td>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.barometer</td>
+                                    <td>
                                         <span class="barometer">$current.barometer</span><!-- AJAX -->
-										<span class="pressure-trend">
+                                        <span class="pressure-trend">
                                             #if $trend.barometer == "N/A"
                                             &nbsp;
                                             #else if "-" in str($trend.barometer)
@@ -790,8 +127,8 @@
                                             <i class="fa fa-arrow-up barometer-up"></i>
                                             #end if
                                         </span>
-									</td>
-								</tr>
+                                    </td>
+                                </tr>
                                 #if $day.UV.has_data
                                 <tr>
                                     <td class='station-observations-label'>$obs.label.UV</td>
@@ -806,7 +143,7 @@
                                 #end if
                             </tbody>
                         </table>
-                    </div>	
+                    </div>    
                     
                 </div>
 
@@ -903,14 +240,14 @@
                     
                 <div class="clear"></div>
                         
-			</div>
-			<!-- End of first row -->
+            </div>
+            <!-- End of first row -->
             
-			<div class="clear"></div>
-			
-		</div> <!-- End entry-content -->
-		
-	</article>
+            <div class="clear"></div>
+            
+        </div> <!-- End entry-content -->
+        
+    </article>
 
     </div>
 </div>

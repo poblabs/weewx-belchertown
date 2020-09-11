@@ -1,5 +1,3 @@
-
-  
 # Belchertown weewx skin
 
 # DarkSky has announced that they are shutting down public access. You can use Aeris Weather with the [development version of the skin](https://github.com/poblabs/weewx-belchertown/tree/development).
@@ -12,7 +10,7 @@ Features include:
 * Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required.)
 * Extensive graphing system with full customized control on observations, historical timescale, grouping and more. Graphs also update automatically without needing to reload the website.
 * Light and Dark Mode with automatic switching based on sunset and sunrise.
-* Forecast data updated every hour without needing to reload the website. (A free DarkSky API key required.)
+* Forecast data updated every hour without needing to reload the website. (A free Aeris Weather API key required. You qualify for a free key by submitting weather observations to pwsweather.)
 * Information on your closest Earthquake updated automatically.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
@@ -28,7 +26,9 @@ Screenshot of light and dark modes
   * [Install weewx-belchertown](#install-weewx-belchertown)
   * [Requirements](#requirements)
     + [weewx.conf](#weewxconf)
-    + [DarkSky API (optional)](#darksky-api-optional)
+    + [Aeris Weather Forecast API (optional)](#aeris-weather-forecast-api-optional)
+    + [Forecast Units](#forecast-units)
+    + [Forecast Translation](#forecast-translation)
     + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
     + [MQTT Brokers](#mqtt-brokers)
       - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
@@ -50,6 +50,8 @@ Screenshot of light and dark modes
   * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
   * [Translating the Skin](#translating-the-skin)
   * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
+  * [How to use debug](#how-to-use-debug)
+  * [How to install the development version](#how-to-install-the-development-version)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Raspberry Pi Console](#raspberry-pi-console)
   * [Donate](#donate)
@@ -93,15 +95,39 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
 
-### DarkSky API (optional)
-DarkSky API is where the forecast data comes from. The skin will work without DarkSky's integration, however it is used to show current weather observations and icons. 
+### Aeris Weather Forecast API (optional)
+Aeris Weather's Forecast API is where the current observations and forecast data comes from. The skin will work without this integration, however it is used to show current weather observations and icons as well as the forecast. 
 
-**You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. Their free tier allows for 1,000 requests a day. The skin will download and cache every hour - 24 requests a day - well below the free 1,000.
+**You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. In order to get a free developer key, you have to send your weather data to pwsweather.com - which is an integration built into weewx. You just need to activate it! Once enabled, by default the skin will download and cache every hour.
 
-* Sign up at https://darksky.net/dev
-* Once you are logged in, take note of the Secret Key on the DarkSky console. 
-* Use this key as the `darksky_secret_key` option. See below options table after you have installed the skin.
-* Make sure you place the "Powered by DarkSky" somewhere on your website. Like the About page (see below after install for customizing the About page). 
+* If you haven't already; sign up for pwsweather at [https://www.pwsweather.com/register](https://www.pwsweather.com/register)
+* Add a new station, and configure your weewx.conf to start sending your weather data to pwsweather.
+* Then sign up for a free Aeris Weather developer account by linking your pwsweather account here [https://www.aerisweather.com/signup/pws](https://www.aerisweather.com/signup/pws/)
+* Once you are logged in, you should make a Demo Project as part of the sign up process, then go to [https://www.aerisweather.com/account/apps](https://www.aerisweather.com/account/apps) and and save these keys as `forecast_api_id` and `forecast_api_secret`.
+* The rest of the options can be found below in the [Forecast Options](#forecast-options) table.
+
+### Forecast Units
+Aeris Weather provides all units in 1 API call which is great but the skin still needs a way to determine what units you want it to show. This is why I've decided to keep the Dark Sky unit method so you can determine which units you'd like Aeris Weather to show. **All of the unit determination is now being done within the skin, not the API.** 
+
+Here's the differences and what's available.
+
+*   `us`: Imperial units (the default)
+*   `ca`: same as  `si`, except that  `wind speed`  and  `wind gust`  are in kilometers per hour
+*   `uk2`: same as  `si`, except that `visibility`  is in miles, and  `wind speed`  and  `wind gust`  in miles per hour
+*   `si`: SI units
+
+SI units are as follows:
+
+-   `chance of precipitation`: Centimeters.
+-   `temperature`: Degrees Celsius.
+-   `temperature min`: Degrees Celsius.
+-   `temperature max`: Degrees Celsius.
+-   `wind speed`: Meters per second.
+-   `wind gust`: Meters per second.
+-   `visibility`: Kilometers.
+
+### Forecast Translation
+Aeris Weather provides the observations in "weather codes" which allows you to translate these codes to your language. Take a look at the skin.conf and all the `forecast_` labels. As with anything in skin.conf, it's advised to copy this to weewx.conf so your changes aren't lost on upgrades. See how to do this in the [Translating the Skin](#translating-the-skin) section.
 
 ### MQTT and MQTT Websockets (optional)
 MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
@@ -242,8 +268,9 @@ To override a default setting add the setting name and value to the Extras secti
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
-            darksky_secret_key = "your_key"
+            forecast_api_key = "your_key"
             earthquake_enabled = 1
+            earthquake_server = USGS
             twitter_enabled = 1
 ```
 
@@ -257,17 +284,20 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | ----------
-| check_for_updates | 1 | Setting this to 1 will enable checking GitHub for updates automatically every 6 hours (this is a hardcoded time interval). When an update is ready you will see the notification in the footer of the website.
 | belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
 | belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  
 | theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
 | theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
 | logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
+| logo_image_dark | "" | The **full** URL to your logo image to be used when the dark theme is active. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
- |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from DarkSky (if enabled), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
+ |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from Aeris Weather (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
+| radar_zoom | 8 | Initial zoom level for radar. 11 = highest zoom, 1 = lowest zoom.
+| radar_marker | 0 | Shows a marker on the radar indicating the position of the weather station. 1 = enable, 0 = disable.
+| almanac_extras | 1 | Show the extra almanac details if available. **Requires pyephem to be installed on your machine.** Refer to the weewx user guide on more information.
 | highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
 | graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
 | graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
@@ -313,16 +343,24 @@ For ease of readability I have broken them out into separate tables. However you
 | mqtt_websockets_topic | "" | The topic to subscribe to for your weather data. Typically this should end in `/loop`. (e.g. `weather/loop`) depending on your [MQTT] extension settings.  **Versions 0.8.2 and prior** this option is called `mqtt_topic`
 | disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
 
+
 ### Forecast Options
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from DarkSky API.
-| darksky_secret_key | "" | Your DarkSky secret key
-| darksky_units | "auto" | The units to use for the DarkSky forecast. Default of `auto` which automatically selects units based on your geographic location. [Other options](https://darksky.net/dev/docs) are: `us` (imperial), `si` (metric), `ca` (metric except that windSpeed and windGust are in kilometers per hour), `uk2` (metric except that nearestStormDistance and visibility are in miles, and windSpeed and windGust in miles per hour).
-| darksky_lang | "en" | Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
-| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being billed from DarkSky. Use at your own risk of being billed if you set this too low. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 
-| forecast_alert_enabled | 0 | Set to 1 to enable weather alerts that are included with the DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the DarkSky forecast. 
+| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from Aeris Weather Forecast API.
+| forecast_provider | "aeris" | The weather forecast provider. Options currently are "aeris" or "darksky"
+| forecast_api_id | "" | Your Aeris Weather API ID
+| forecast_api_secret | "" | Your Aeris Weather API secret
+| forecast_units | "us" | The units to use for the Aeris Weather forecast. I have chosen to keep the Dark Sky unit system going forward with the skin. Other unit options options are: `us`, `si`, `ca` and `uk2`. Check the [Forecast Units](#forecast-units) section for an explanation of the differences.
+| forecast_lang | "en" | **Only applies to DarkSky Weather** Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
+| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by Aeris Weather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
+| forecast_aeris_use_metar | 1 | **Aeris Weather Only** The metar option gets observations located at airports or permanent weather stations. If you select this to 0 to disable METAR, then Aeris will get your weather conditions data from local personal weather stations instead.
+| forecast_alert_enabled | 0 | **Aeris Weather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the Aeris Weather or DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
+| forecast_alert_limit | 1 | **Only applies to Aeris Weather Alerts**. The number of alerts to show for your location. Max of 10.
+| forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
+| forecast_daily_forecast_link | "" | **Only applies to Aeris Weather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
+
 
 ### Earthquake Options
 
@@ -331,6 +369,8 @@ For ease of readability I have broken them out into separate tables. However you
 | earthquake_enabled | 0 | 1 = enable, 0 = disable. Show the earthquake data on the front page
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
+| earthquake_server | USGS | USGS for USGS website (best for North American Users) or GeoNet for NZ GeoNet website (best for NZ users)
+
 
 ### Social Options
 
@@ -342,6 +382,10 @@ These are the options for the social media sharing section at the top right of e
 | twitter_enabled | 0 | Enable the Twitter Share button
 | twitter_owner | "" | Your Twitter handle which will be mentioned when the share button is pressed
 | twitter_hashtags | "weewx #weather" | The hashtags to include in the share button's text. 
+| social_share_html | "" | This is the URL which users who click on your social share will be sent back to. Typically set this to your homepage.
+| twitter_text | "Check out my website: My Weather Website Weather Conditions" | **Located under the labels section** - This is the text which will get auto-generated for the Twitter share button
+| twitter_owner | "YourTwitterUsernameHere" | **Located under the labels section** - This is the username or owner of the Twitter account that will be mentioned in shares
+| twitter_hashtags | "weewx #weather" | **Located under the labels section** - The hashtags to include in the Twitter share. Do not include the first hashtag since it is already provided as part of the share code.
 
 ## Creating About Page and Records Page
 
@@ -441,6 +485,27 @@ If you're interested in this type of setup, you'll need these items:
 
 ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
 
+## How to use debug
+
+Debug information will show a lot of useful information for troubleshooting a problem. Information such as MQTT messages, to skin theme and time settings to re-creating a chart for external debugging. If you need to use debug to find a problem with the skin, there are 2 ways to do this. 
+
+1. Preferred method: Add `/?debug=true` to your website's URL to enable it on adhoc. Example: http://example.com/?debug=true
+2. Set the skin option `belchertown_debug` to 1 and restart weewx.
+
+In both cases, you'll need to open the browsers console to find the debug information. [Refer to this to find the developer console for your browser](https://webmasters.stackexchange.com/a/77337).
+
+## How to install the development version
+
+If you want to try out the latest features the skin has to offer, you can [install the development branch](https://github.com/poblabs/weewx-belchertown/tree/development). To start download the [development zip file](https://github.com/poblabs/weewx-belchertown/archive/development.zip). Then you can 
+
+1. upload it to your weewx system and install it using `wee_extension --install development.zip` 
+
+or
+
+2. manually replace the files from the zip file with your weewx Belchertown skin files. 
+
+Either way, we need to overwrite your current Belchertown skin install in the `skins` folder and the `bin/user` foler with the development files. Then you can configure the new features you want and restart weewx when done. 
+
 ## Frequently Asked Questions
 
 * Q: How do I change my site title and page headers? I don't want to be called "My Weather Website"...
@@ -459,6 +524,16 @@ If you're interested in this type of setup, you'll need these items:
                 twitter_hashtags = "PWS #weewx #weather #wx"
                 rain = My Custom Rain Label
                 graphs_page_day_button = Today
+```
+---
+* Q: My units are wrong in the station observation or other MQTT enabled field.
+* A: You need to configure your MQTT extension to send the units you want. For example if you're using METRIC and your rain in MQTT is in centimeters, but you want to show rain as MM, you need to use the code below as an example:
+```
+[[MQTT]]
+        [[[inputs]]]
+                [[[[dayRain]]]]
+                        name = dayRain_mm
+                        units = mm
 ```
 ---
 * Q: How do I make this skin my default website?
@@ -489,9 +564,6 @@ If you're interested in this type of setup, you'll need these items:
 ---
 * Q: Do I have to use the graphs?
 * A: Nope! If you have it disabled we will hide those portions of the site. It comes packaged with this theme already though, so you can leave it enabled. 
----
-* Q: I have weather alerts enabled, why do I see so many duplicates alerts?
-* A: These "duplicates" come from DarkSky, however if you click on each one you'll see they aren't duplicates. They have unique links to unique alerts. Perhaps you're in a region that borders other regions? I'm not sure. As a result of this, I can't easily filter them out and take the risk of removing an alert that's important to you. It's best to reach DarkSky through your developer portal and ask this question of them. 
 ---
 * Q: Why does the skin take a while to generate sometimes?
 * A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
@@ -526,9 +598,10 @@ If you're interested in this type of setup, you'll need these items:
 This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/go/donate) :)
 
 ## Credits
-* DarkSky API for the weather forecasts.
+* Aeris Weather API for current weather conditions and weather forecasts.
 * Windy.com for the iFrame embedded weather radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica CSS for the Highcharts dark mode.
 * Gary for the initial Highcharts help from skin version 0.1 through to 0.9.1. 
 * Brian at [weather34.com](http://weather34.com) for the weather icons from the simplicty 2015 theme. Used with agreement.
+* Some icons remixed by michaelundwd. Thanks!

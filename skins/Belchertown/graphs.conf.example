@@ -38,7 +38,7 @@ tooltip_date_format = "LLL"
     button_text = "Homepage"
     time_length = today
     tooltip_date_format = "LLL"
-    gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
+    gapsize = 300 # This should be your archive_interval from weewx.conf
 
     [[chart1]]
         title = Temperature
@@ -90,7 +90,7 @@ tooltip_date_format = "LLL"
     button_text = "Day"
     time_length = today
     tooltip_date_format = "LLL"
-    gapsize = 300000 # This should be your archive_interval from weewx.conf multiplied by 1000 to get milliseconds. Standard is 5 minutes
+    gapsize = 300 # This should be your archive_interval from weewx.conf
 
     [[chart1]]
         title = Temperature
@@ -143,7 +143,7 @@ tooltip_date_format = "LLL"
     tooltip_date_format = "LLLL"
     aggregate_type = max
     aggregate_interval = 3600 # 1 hour
-    gapsize = 3600000 # 1 hour in milliseconds
+    gapsize = 3600 # 1 hour in seconds
 
     [[chart1]]
         title = Temperature
@@ -200,7 +200,7 @@ tooltip_date_format = "LLL"
     tooltip_date_format = "dddd LL"
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
-    gapsize = 86400000 # 1 day in milliseconds
+    gapsize = 86400 # 1 day in seconds
 
     [[chart1]]
         title = Temperature
@@ -258,7 +258,7 @@ tooltip_date_format = "LLL"
     tooltip_date_format = "dddd LL"
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
-    gapsize = 86400000 # 1 day in milliseconds
+    gapsize = 86400 # 1 day in seconds
 
     [[chart1]]
         title = Temperature
