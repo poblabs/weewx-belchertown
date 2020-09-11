@@ -988,8 +988,11 @@ class getData(SearchList):
                 
             if forecast_provider == "aeris":
                 if len(data["current"][0]["response"]) > 0:
-                    current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
-                    current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+                    try:
+                        current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
+                        current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+                    except:
+                        raise Warning( "Error: your forecast data contains nulls which means it may not be metar. Set your Extras option forecast_aeris_use_metar = 0" )
                     
                     if forecast_units == "si" or forecast_units == "ca":
                         if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
@@ -1007,10 +1010,11 @@ class getData(SearchList):
                             visibility = "N/A"
                             visibility_unit = ""
                 else:
+                    # If the user selected to not use METAR, then these observations are null.
                     # If there's no data in the ob array then it's probably because of an error. Example:
                     # "code": "warn_no_data",
                     # "description": "Valid request. No results available based on your query parameters."
-                    current_obs_summary = "No data"
+                    current_obs_summary = ""
                     current_obs_icon = ""
                     visibility = "N/A"
                     visibility_unit = ""
