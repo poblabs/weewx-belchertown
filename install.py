@@ -65,6 +65,10 @@ class BelchertownInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/cloudy.png',
                                                  'skins/Belchertown/images/fog.png',
                                                  'skins/Belchertown/images/hail.png',
+                                                 'skins/Belchertown/images/mostly-clear-day.png',
+                                                 'skins/Belchertown/images/mostly-clear-night.png',
+                                                 'skins/Belchertown/images/mostly-cloudy-day.png',
+                                                 'skins/Belchertown/images/mostly-cloudy-night.png',
                                                  'skins/Belchertown/images/partly-cloudy-day.png',
                                                  'skins/Belchertown/images/partly-cloudy-night.png',
                                                  'skins/Belchertown/images/rain.png',
@@ -82,7 +86,9 @@ class BelchertownInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/sunset.png',
                                                  'skins/Belchertown/images/thunderstorm.png',
                                                  'skins/Belchertown/images/tornado.png',
+                                                 'skins/Belchertown/images/unknown.png',
                                                  'skins/Belchertown/images/wind.png',
+                                                 'skins/Belchertown/images/windy.png',
                                                  'skins/Belchertown/images/index.html'
                                                 ]
                     )
