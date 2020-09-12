@@ -6,6 +6,9 @@ labels: 'bug'
 assignees: ''
 
 ---
+Please don't delete these questions! They are asked almost with every issue - answering them as below saves us time from asking them!
+
+
 **First step**
 Try to debug the skin yourself. If you can't figure it out, please include the debug information (text, screenshots, etc.). See this guide on debugging the skin. https://github.com/poblabs/weewx-belchertown#how-to-use-debug
 
