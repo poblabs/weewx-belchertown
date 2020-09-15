@@ -141,7 +141,7 @@ Your weewx server will **publish** it's weather data to a broker (using the [wee
 
 With the [`weewx-mqtt` extension](https://github.com/weewx/weewx/wiki/mqtt) installed, everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
 
-A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suite your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS. Update the `unit_system` if needed.
+A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suit your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS. Update the `unit_system` if needed.
 
 ```
     [[MQTT]]
