@@ -896,10 +896,10 @@ class getData(SearchList):
                 forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
-                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_api_id, forecast_api_secret )
+                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
                 else:
                     # Default to 1 alerts to show if the option is missing. Can go up to 10
-                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_lang, forecast_api_id, forecast_api_secret )
             elif forecast_provider == "darksky":
                 forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
                 forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
