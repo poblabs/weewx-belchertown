@@ -1272,9 +1272,9 @@ class getData(SearchList):
             if obs not in all_obs_rounding_json:
                 all_obs_rounding_json[obs] = str(obs_round)
             # Get the unit's label
-                obs_unit_label = self.generator.skin_dict['Units']['Labels'].get(obs_unit, "")
             # Add to label array and strip whitespace if possible
             if obs not in all_obs_unit_labels_json:
+                obs_unit_label = weewx.units.get_label_string(self.generator.formatter, self.generator.converter, obs)                
                 all_obs_unit_labels_json[obs] = obs_unit_label
             
             # Special handling items
