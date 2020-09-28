@@ -146,6 +146,10 @@
         </script>
         #end if
 
+        #if os.path.exists("header.inc")
+        #include "header.inc"
+        #end if
+
     </head>
     
     #if $page == "pi"
