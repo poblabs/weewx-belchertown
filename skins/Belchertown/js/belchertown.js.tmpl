@@ -97,7 +97,6 @@ jQuery(document).ready(function() {
             }, 500);
         }
     });
-    
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
@@ -202,7 +201,7 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
     if ( mirrored ) {
         obsvalue = Math.abs( obsvalue );
     }
-            
+
     if ( point_obsType == "windDir" ) {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
             ordinal = "$ordinate_names[0]"; // N
@@ -250,12 +249,14 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
         try {
             // Setup any graphs.conf overrides on formatting
             var { decimals, decimalPoint, thousandsSep } = numberFormat;
-            
+			
             // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf StringFormats.
-            // -1 is set from Python to notate no rounding data available and decimals from graphs.conf is undefined.
-            if ( rounding == "-1" && typeof decimals === "undefined" ) {
-                output = Highcharts.numberFormat(obsvalue);
-            } else {
+			if ( typeof decimals === "undefined" ) {
+			
+				output = parseFloat(parseFloat(obsvalue)).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[point_obsType], maximumFractionDigits: unit_rounding_array[point_obsType]});
+				
+			} else {
+						
                 // If the amount of decimal is defined, use that instead since rounding is provided to the function.
                 if ( typeof decimals !== "undefined" ) {
                     rounding = decimals;
@@ -1590,7 +1591,6 @@ function update_current_wx(data) {
 };
 #end if
 
-
 Highcharts.setOptions({
     global: {
         //useUTC: false
@@ -1845,10 +1845,11 @@ function showChart(json_file, prepend_renderTo=false) {
                                             this.points.map(function (point) {
                                                 // If observation_type is in the series array, use that otherwise use the obsType
                                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+												if (point_obsType == "rainTotal") {point_obsType = "rain";}
                                                 var rounding = point.series.userOptions.rounding;
                                                 var mirrored = point.series.userOptions.mirrored_value;
                                                 var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat );
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat ) + unit_label_array[point_obsType];
                                             })
                                         );
                                     } catch(e) {
@@ -1920,9 +1921,11 @@ function showChart(json_file, prepend_renderTo=false) {
                             this.points.map(function (point) {
                                 // If observation_type is in the series array, use that otherwise use the obsType
                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+								if (point_obsType == "rainTotal") {point_obsType = "rain";}
                                 var rounding = point.series.userOptions.rounding;
                                 var mirrored = point.series.userOptions.mirrored_value;
-                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored );
+                                var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat ) + unit_label_array[point_obsType];
                             })
                         );
                     },
@@ -2161,6 +2164,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                 }
 
+                options.tooltip = {}
                 options.tooltip = {
                     split: false,
                     shared: true,
@@ -2169,18 +2173,18 @@ function showChart(json_file, prepend_renderTo=false) {
                     formatter: function (tooltip) {
                         return this.points.map(function (point) {
                             var rounding = point.series.userOptions.rounding;
-                            var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat );
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"] + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"];
                         });
                     }
                 }
 
-                var currentSeries = options.series;
+                var currentSeries = options.series;				
                 var currentSeriesData = options.series[0].data;
-                var range_unit = options.series[0].range_unit;
-                var newSeriesData = [];
                 var currentSeriesColor = options.series[0].color;
+				var currentSeriesNumberFormat = options.series[0].numberFormat;
+				var currentSeriesRounding = options.series[0].rounding;
+				var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     newSeriesData.push({
                         x: seriesData[0],
@@ -2188,15 +2192,17 @@ function showChart(json_file, prepend_renderTo=false) {
                         high: seriesData[2],
                     });
                 });
+								
                 options.series = [];
                 options.series.push({
                     data: newSeriesData,
                     obsType: "haysChart",
-                    obsUnit: range_unit,
                     color: currentSeriesColor,
                     fillColor: currentSeriesColor,
                     connectEnds: false,
-                });
+					numberFormat: currentSeriesNumberFormat,
+					rounding: currentSeriesRounding,				
+                });																
             }
 
             // If weather range is present, configure a special chart to show that data
@@ -2256,6 +2262,7 @@ function showChart(json_file, prepend_renderTo=false) {
                   }
                 }
 
+                options.tooltip = {}
                 options.tooltip = {
                     split: false,
                     shared: true,
@@ -2263,10 +2270,11 @@ function showChart(json_file, prepend_renderTo=false) {
                     useHTML: true,
                     formatter: function (tooltip) {
                         return this.points.map(function (point) {
+                            var range_type = point.series.userOptions.range_type;
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, observation_type, true, rounding, mirrored, numberFormat );
+                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type];
                         });
                     }
                 }
@@ -2274,7 +2282,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Update data
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
+				var currentSeriesNumberFormat = options.series[0].numberFormat;
+				var currentSeriesRounding = options.series[0].rounding;				
                 var range_unit = options.series[0].range_unit;
+                var currentRange_type = options.series[0].range_type;
                 var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     if ( options.series[0].color ) {
@@ -2295,7 +2306,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.series.push({
                     data: newSeriesData,
                     obsType: "weatherRange",
-                    obsUnit: range_unit
+                    obsUnit: range_unit,
+					range_type: currentRange_type,
+					numberFormat: currentSeriesNumberFormat,
+					rounding: currentSeriesRounding,
                 });
             }
             

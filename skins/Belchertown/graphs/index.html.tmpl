@@ -9,6 +9,16 @@
             <article class="weewx graphs" itemscope itemtype="https://schema.org/CreativeWork">
 
                 <script type="text/javascript">
+				
+					var unit_rounding_array = "";
+					var unit_label_array = "";
+					jQuery.getJSON(get_relative_url() + "/json/weewx_data.json", load_weewx_data_json);
+					
+					function load_weewx_data_json( data ) {
+						unit_rounding_array = data["unit_rounding"];
+						unit_label_array = data["unit_label"];
+					}
+					
                     var graph = getURLvar("graph");
                     if ( graph === undefined ) {
                         // If no URL VAR, default to the graph group defined in Extras
