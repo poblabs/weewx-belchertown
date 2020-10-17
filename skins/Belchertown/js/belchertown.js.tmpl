@@ -102,7 +102,12 @@ jQuery(document).ready(function() {
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
 // Run this on every page for dark mode if skin theme is auto
-ajaxweewx();
+ajaxweewx().then(function(weewx_data){
+	update_weewx_data(weewx_data); // Update weewx data
+	belchertown_debug(weewx_data);
+}).catch(function(e){
+	console.log(e);
+});
 #end if
 
 // Disable AJAX caching
@@ -399,10 +404,14 @@ function changeTheme(themeName, toggleOverride=false) {
     }
 }
 
-function ajaxweewx() {
-    // Relative URL
-    jQuery.getJSON(get_relative_url() + "/json/weewx_data.json", update_weewx_data);
-};
+async function ajaxweewx() {
+    resp = await fetch(get_relative_url() + "/json/weewx_data.json");
+	if (!resp.ok) {
+		throw new Error("HTTP error! Unable to load weewx_data.json");
+	} else {	
+		return await resp.json();
+	}
+}
 
 // Update weewx data elements
 //var station_obs_array = "";
@@ -1459,11 +1468,18 @@ function update_current_wx(data) {
         if ( pageName != "pi" ) {
             setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
         }
-        setTimeout( ajaxweewx, 10000 ); // Update weewx data
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-        setTimeout( ajaxforecast, 10000 ); // Update forecast data
-        #end if
-        setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
+		ajaxweewx().then(function(weewx_data){
+
+			setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Update weewx data
+			setTimeout(belchertown_debug.bind(null, weewx_data), 10000);
+
+            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+            setTimeout( ajaxforecast, 10000 ); // Update forecast data
+            #end if
+            setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
+		}).catch(function(e){
+			console.log(e);
+		});		
     } else {
         // Only show the updated time on non-archive packets
         epoch = parseFloat( data["dateTime"] ).toFixed(0);
