@@ -1052,7 +1052,7 @@ class getData(SearchList):
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
-            distance_unit = converter.group_unit_dict["group_distance"]
+            distance_unit = self.generator.converter.group_unit_dict["group_distance"]
             eq_distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
             eq_distance_round = self.generator.skin_dict['Units']['StringFormats'].get(distance_unit, "%.1f")
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
@@ -1128,7 +1128,7 @@ class getData(SearchList):
                     eqtime = eqdata["features"][0]["properties"]["time"] / 1000
                     equrl = eqdata["features"][0]["properties"]["url"]
                     eqplace = eqdata["features"][0]["properties"]["place"]
-                    eqmag = eqdata["features"][0]["properties"]["mag"]
+                    eqmag = locale.format("%g", float(eqdata["features"][0]["properties"]["mag"]) )
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     #convert time to UNIX format
@@ -1144,13 +1144,13 @@ class getData(SearchList):
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
-                    eqmag = round(eqdata["features"][0]["properties"]["magnitude"],1)
+                    eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
                                                            (float(eqlat), float(eqlon)), 
                                                             distance_unit)
-                eqdistance = eq_distance_round % eqdistance_bearing[0]
+                eqdistance = locale.format("%g", float(eq_distance_round % eqdistance_bearing[0]) )
                 eqbearing = eqdistance_bearing[1]
                 eqbearing_raw = eqdistance_bearing[2]
             except:
