@@ -461,7 +461,7 @@ th {
 .first {
 	clear: both;
 	margin-left: 0;
-}
+}   
 
 
 /* # Common Classes
@@ -904,6 +904,23 @@ p.entry-meta {
     .forecasts .forecast-day {
         width: 165px;
     }
+    
+    .1hr_forecasts .forecast-1hour {
+        width: 72px;
+    }
+
+    .3hr_forecasts .forecast-3hour {
+        width: 144px;
+    }
+    
+    .24hr_forecasts .forecast-24hour {
+        width: 165px;
+    }
+    
+    .clear {
+        clear: both;
+    }
+   
     
     .eq-stats-row .col-sm-9 {
         width: 100%;
@@ -1719,28 +1736,77 @@ table.celestial td.label {
 }
 
 .forecastrow {
-	text-align:center;
+	text-align: center;
 }
 
+.row-no-padding {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+
 .forecast-title {
-	text-align:left;
-	font-size:25px;
-	margin-bottom:5px;
+	text-align: left;
+	font-size: 25px;
+	margin-bottom: 5px;
 }
 
 .forecast-subtitle {
-	font-size:14px;
+	font-size: 14px;
 }
+
+.forecast-menu {
+    display: inline-block;
+    position: relative;
+    right: 0px;
+    height: 40px;
+
+	text-align:right;
+	font-size:16px;
+}
+
+.forecast-button {
+    box-sizing: border-box;
+    display: inline-block;
+    margin: 10px 5px 0px;
+    border-style: hidden;
+    border-color: #D7D7D7;
+    border-radius: 5px;
+    border-width: 2px;
+    padding: 0px 10px;
+}
+
+.forecast-button:hover {
+    cursor: pointer;
+}
+
 
 .forecast-conditions {
 	min-height:160px;
     word-wrap:break-word;
 }
 
+.forecast-image {
+	height:50px;
+}
+
+.forecast-conditions-1hour {
+	min-height:144px;
+    word-wrap:break-word;
+}
+
+
 .forecast-high, .forecast-low {
 	font-size:20px;
 	font-weight:500;
 }
+
+.forecast-temp-graph {
+	font-size:20px;
+	font-weight:250;
+    height:179px;   /* 179 critical to align 1, 3 & 24hr forecasts */
+}
+
 
 .forecast-precip, .forecast-wind {
 	font-size:15px;
@@ -1885,6 +1951,36 @@ table.celestial td.label {
     display: inline-block;
     width: 165px;
 }
+
+.forecast-1hour {
+    position: relative;
+    min-height: 270px;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: inline-block;
+    width: 72px;
+    font-size: 75%;
+}
+
+.forecast-3hour {
+    position: relative;
+    min-height: 270px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: inline-block;
+    width: 144px;
+    font-size: 100%;
+}
+
+.forecast-24hour {
+    position: relative;
+    min-height: 270px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: inline-block;
+    width: 165px;
+}
+
 
 /* Dark Mode Switch */
 
