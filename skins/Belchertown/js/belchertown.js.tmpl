@@ -1001,212 +1001,269 @@ function update_forecast_data( data ) {
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
     
-    forecast_row = [];
+                      
     
     if ( forecast_provider == "N/A" ) {
         jQuery(".forecastrow").hide();
         belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
-    } else if ( forecast_provider == "darksky" ) {
-        
-        var forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+    } else if ( forecast_provider == "aeris" ) {        
+        var forecast_subtitle = moment.unix( data["timestamp"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
 
-        // WX icon in temperature box
-        if ( data['currently']['icon'] == "partly-cloudy-night" ) {
-            // partly-cloudy-night could also be clear-day
-            var wxicon = get_relative_url() + "/images/partly-cloudy-night.png";
-        } else {
-            var wxicon = get_relative_url() + "/images/" + data['currently']['icon'] + ".png";
-        }
-        belchertown_debug("Forecast: icon is " + wxicon);
-        
+        var wxicon = get_relative_url() + "/images/" + aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png";
         // Current observation text
-        jQuery(".current-obs-text").html( data["currently"]["summary"] );
-
+        jQuery(".current-obs-text").html( aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true ) );
+        
         // Visibility text in station observation table
+        if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) ) {
+            // si and ca = kilometer
+            visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
+                                                          
+                                                                                
+        } else {
+            // us and uk2 and default = miles
+            visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
+        }
+                                                         
+        
+                                   
+                                                                         
+
+                                                       
         try {
-            visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
+            visibility_output = parseFloat(parseFloat( visibility )).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
             jQuery(".station-observations .visibility").html( visibility_output );
         } catch(err) {
             // Visibility not in the station observation table or any of the unit arrays, so silently exit
         }
     
-        // Force 7 day forecast
-        //for (i = 0; i < data["daily"]["data"].length; i++) {
-        for (i = 0; i < 7; i++) {
+                               
+                                                              
+                                 
             
-            var weekday = moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
+                                                                                                                                                            
             
-            if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                var image_url = get_relative_url() + "/images/clear-day.png";
-            } else { 
-                var image_url = get_relative_url() + "/images/"+data['daily']['data'][i]['icon']+".png";
-            }
+                                                                              
+                                                                             
+                     
+                                                                                                        
+             
             
-            var condition_text = "";
-            switch ( data["daily"]["data"][i]["icon"] ) {
-                case "clear-day":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
-                    break;
-                case "clear-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
-                    break;
-                case "rain":
-                    condition_text = "$obs.label.forecast_weather_code_R"; // Rain
-                    break;
-                case "snow":
-                    condition_text = "$obs.label.forecast_weather_code_S"; // Snow
-                    break;
-                case "sleet":
-                    condition_text = "$obs.label.forecast_weather_code_IP"; // Sleet
-                    break;
-                case "wind":
-                    condition_text = "$obs.label.forecast_weather_code_W"; // Windy
-                    break;
-                case "fog":
-                    condition_text = "$obs.label.forecast_weather_code_F"; // Fog
-                    break;
-                case "cloudy":
-                    condition_text = "$obs.label.forecast_cloud_code_OV"; // Overcast
-                    break;
-                case "partly-cloudy-day":
-                    condition_text = "$obs.label.forecast_cloud_code_SC"; // Partly Cloudy
-                    break;
-                case "partly-cloudy-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear - https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                    break;
-                case "hail":
-                    condition_text = "$obs.label.forecast_weather_code_A"; // Hail
-                    break;
-                case "thunderstorm":
-                    condition_text = "$obs.label.forecast_weather_code_T"; // Thunderstorm
-                    break;
-                case "tornado":
-                    condition_text = "$obs.label.forecast_weather_code_TO"; // Tornado
-                    break;
-            }
+                                    
+                                                         
+                                 
+                                                                                  
+                          
+                                   
+                                                                                  
+                          
+                            
+                                                                                  
+                          
+                            
+                                                                                  
+                          
+                             
+                                                                                    
+                          
+                            
+                                                                                   
+                          
+                           
+                                                                                 
+                          
+                              
+                                                                                     
+                          
+                                         
+                                                                                          
+                          
+                                           
+                                                                                                                                                                                                                                                          
+                          
+                            
+                                                                                  
+                          
+                                    
+                                                                                          
+                          
+                               
+                                                                                      
+                          
+             
             
-            if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
-                var snow_depth = data["daily"]["data"][i]["precipAccumulation"];
-                var snow_unit = "in";
-            } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
-                var precip = data["daily"]["data"][i]["precipProbability"] * 100;
-            } else {
-                var precip = 0;
-                var snow_depth = 0;
-                var snow_unit = "";
-            }
-            var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
+                                                                                                                              
+                                                                                
+                                     
+                                                                                                                                     
+                                                                                 
+                    
+                               
+                                   
+                                   
+             
+                                                                                                                                                                   
             
-            #if $Extras.has_key("darksky_lang")
-            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
-            #else
-            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/" target="_blank">$obs.label.daily_forecast</a>';
-            #end if
+                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                 
+                                                                                                                                                                                                                                                                                                                                                                                    
+                   
 
-            forecast_row.push( {
-                    "weekday": weekday,
-                    "image_url": image_url,
-                    "condition_text": condition_text,
-                    "minTemp": data["daily"]["data"][i]["temperatureLow"],
-                    "maxTemp": data["daily"]["data"][i]["temperatureHigh"],
-                    "windSpeed": data["daily"]["data"][i]["windSpeed"],
-                    "windGust": data["daily"]["data"][i]["windGust"],
-                    "snow_depth": snow_depth,
-                    "snow_unit": snow_unit,
-                    "precip": precip,
-                    "forecast_link": forecast_link,
+                                
+                                       
+                                           
+                                                     
+                                                                          
+                                                                           
+                                                                       
+                                                                     
+                                             
+                                           
+                                     
+                                                   
             
-            } );
-        }
-    }
+                
+         
+     
     
-    if ( forecast_provider == "aeris" ) {
-        var forecast_subtitle = moment.unix( data["timestamp"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+                                         
+                                                                                                                                                    
         
-        try {
-            belchertown_debug("Forecast: icon from Aeris data is " + data["current"][0]["response"]["ob"]["icon"] );
-            var wxicon = get_relative_url() + "/images/" + aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png";
-            belchertown_debug("Forecast: Belchertown icon is " + wxicon);
-            // Current observation text
-            jQuery(".current-obs-text").html( aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true ) );
+//  start of new composite version of forecast code
+                                                                                                                    
+                                                                                                                               
+                                                                         
+                                       
+                                                                                                                                         
             
-            // Visibility text in station observation table
-            if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) ) {
-                // si and ca = kilometer
-                visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
-            } else {
-                // us and uk2 and default = miles
-                visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
-            }
+                                                           
+                                                                                                 
+                                        
+                                                                                  
+                    
+                                                 
+                                                                                  
+             
             
-            try {
-                visibility_output = parseFloat(parseFloat( visibility )).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
+                 
+                                                                                                                                                                                                                                                                                                                                            
 
-                jQuery(".station-observations .visibility").html( visibility_output );
-            } catch(err) {
-                // Visibility not in the station observation table or any of the unit arrays, so silently exit
-            }
-        } catch(err) {
-            // Probably a non-metar current observation, which does not have visibility, icon, conditions, etc. So silently exit.
-        }
+        var forecast_types = ["forecast_1hr","forecast_3hr","forecast_24hr"];
+                          
+                                                                                                              
+             
+                      
+                                                                                                                                 
+         
         
-        for (i = 0; i < data["forecast"][0]["response"][0]["periods"].length; i++) {
-            var image_url = get_relative_url() + "/images/" + aeris_icon( data["forecast"][0]["response"][0]["periods"][i]["icon"] ) + ".png";
-            var condition_text = aeris_coded_weather( data["forecast"][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
-            var weekday = moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
-
-            // Determine temperature units
-            if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) || ( "$Extras.forecast_units" == "si" ) ) {
-                minTemp = data["forecast"][0]["response"][0]["periods"][i]["minTempC"];
-                maxTemp = data["forecast"][0]["response"][0]["periods"][i]["maxTempC"];
-            } else {
-                // Default
-                minTemp = data["forecast"][0]["response"][0]["periods"][i]["minTempF"];
-                maxTemp = data["forecast"][0]["response"][0]["periods"][i]["maxTempF"];
-            }
+                                                                                    
+                                                                                                                                              
+                                                                                                                                       
+        var forecast_interval
+		for (forecast_interval of forecast_types) {
+                                          
+            var forecast_row = [];
+            var output_html = "";
+            for (i = 0; i < data[(forecast_interval)][0]["response"][0]["periods"].length; i++) {
+                    
+                          
+                                                                                       
+                                                                                       
+             
             
-            // Determine wind units
-            if ( "$Extras.forecast_units" == "ca" ) {
-                // ca = kph
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKPH"];
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKPH"];
-            } else if ( "$Extras.forecast_units" == "si" ) {
-                // si = meters per second. MPS is KPH / 3.6
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
-            } else {
-                // us and uk2 and default = mph
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedMPH"];
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustMPH"];
-            }
-            
-            if ( ( data["forecast"][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data["forecast"][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
-                // Determine snow unit
-                if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
-                    snow_depth = data["forecast"][0]["response"][0]["periods"][i]["snowCM"];
-                    snow_unit = "cm";
+                //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+                if ( forecast_interval == "forecast_24hr" ) {
+                    var image_url = get_relative_url() + "/images/" + aeris_icon( data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"] ) + ".png";
+                    var condition_text = aeris_coded_weather( data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
+                    var weekday = moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
                 } else {
-                    snow_depth = data["forecast"][0]["response"][0]["periods"][i]["snowIN"];
-                    snow_unit = "in";
+                    var image_url = get_relative_url() + "/images/" + aeris_icon( data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"] ) + ".png";
+                    var condition_text = aeris_coded_weather( data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
+                    var weekday = moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_time" );
                 }
-            } else if ( data["forecast"][0]["response"][0]["periods"][i]["pop"] > 0 ) {
-                // Rain percent of precip
-                precip = data["forecast"][0]["response"][0]["periods"][i]["pop"];
-            } else {
-                precip = 0;
-                snow_depth = 0;
-                snow_unit = "";
-            }
+			
+                // Determine temperature units
+                if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) || ( "$Extras.forecast_units" == "si" ) ) {
+                    avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempC"];
+                    minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempC"];
+                    maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempC"];
+                } else {
+                    // Default
+                    avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempF"];
+                    minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempF"];
+                    maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempF"];
+                }
+                
+                //  for 1hr interval determine temperature range, set to a minimum value of 2; also avoids div by zero
+                if ( forecast_interval == "forecast_1hr" ) {
+                    if ( i == 0 ) {
+                        var lowTemp = avgTemp;
+                        var highTemp = avgTemp;
+                    } else {
+                        if ( lowTemp > avgTemp ) lowTemp = avgTemp;
+                        if ( highTemp < avgTemp ) highTemp = avgTemp;
+                    }
+                }
+           
+                // Determine wind units
+                if ( "$Extras.forecast_units" == "ca" ) {
+                    // ca = kph
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"];
+                } else if ( "$Extras.forecast_units" == "si" ) {
+                    // si = meters per second. MPS is KPH / 3.6
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
+                } else {
+                    // us and uk2 and default = mph
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedMPH"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustMPH"];
+                }
+                
+                if ( ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
+                    // Determine snow unit
+                    if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
+                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"];
+                        var snow_unit = "cm";
+                    } else {
+                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
+                        var snow_unit = "in";
+                    }
+                } else if ( data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] > 0 ) {
+                    // Rain percent of precip
+                    precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"];
+                } else {
+                    precip = 0;
+                    snow_depth = 0;
+                    var snow_unit = "";
+                }
+                
+                //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+                if ( forecast_interval == "forecast_24hr" ) {
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
+                } else {
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "DD" ));
+                                     
+                }
+                                                                                       
+                                         
+                                                                                 
+                    
+                           
+                               
+                               
+             
             
-            var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
-            var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
-            
-            forecast_row.push( {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
+                
+                forecast_row.push( {
                     "weekday": weekday,
                     "image_url": image_url,
                     "condition_text": condition_text,
+                    "avgTemp": avgTemp,
                     "minTemp": minTemp,
                     "maxTemp": maxTemp,
                     "windSpeed": windSpeed,
@@ -1215,63 +1272,220 @@ function update_forecast_data( data ) {
                     "snow_unit": snow_unit,
                     "precip": precip,
                     "forecast_link": forecast_link
-            
-            } );
-        }
-    }
+                } );
+            }
 
-    // WX icon in temperature box    
-    jQuery("#wxicon").attr( "src", wxicon );
-    belchertown_debug("Forecast: Changing icon to " + wxicon);
+            //  Create individual forecast rows
+            if ( forecast_interval == "forecast_1hr" ) {
+                //  set temperature range and offset to centralise output
+                var rangeTemp = highTemp - lowTemp;
+                var offset = 0;
+                if ( highTemp - lowTemp < 2 ) {
+                    rangeTemp = 2;
+                    if ( highTemp - lowTemp == 0 ) offset = 1; //sets the only value 1/2 way down
+                    else if ( highTemp - lowTemp == 1 ) offset = 0.67;  //sets the top value 1/3 way down
+                }
+                // Build 1 hour forecast row
+                for (i = 0; i < forecast_row.length; i++) {
+                    if ( i == 0 ) {
+                        output_html += '<div class="col-sm-1-5 forecast-1hour forecast-today">';
+                    } else {
+                        output_html += '<div class="col-sm-1-5 forecast-1hour border-left">';
+                    }
+                    output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
+                    output_html += '<br>';
+                    output_html += '<div class="forecast-temp-graph" style="padding-top:';              
+                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding 
+                    output_html += parseInt( ( highTemp - forecast_row[i]["avgTemp"] + offset ) * 100 / ( rangeTemp) )  +'px">';
+                    output_html += '<div class="forecast-image">';
+                    output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
+                    output_html += '</div>';
+                    output_html += parseFloat( forecast_row[i]["avgTemp"] ).toFixed(0) +'&deg;</div>';                           
+                    //  output_html += '<br>';
+                    output_html += '<div class="forecast-precip">';
+                    if ( forecast_row[i]["snow_depth"] > 0 ) {
+                        output_html += '<div class="snow-precip">';
+                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
+                        //  output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+                        output_html += '</div>';
+                    } else if ( forecast_row[i]["precip"] > 0 ) {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
+                    } else {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+                    }
+                    output_html += '</div>';
+                    output_html += '<div class="forecast-wind">';
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span>';        
+                    //  output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
+                    output_html += '</div>';
+                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    output_html += forecast_row[i]["forecast_link"];
+                    #end if
+                    output_html += '</div>';
+                }
+            } else {
 
-    // Build daily forecast row
-    var output_html = "";
-    for (i = 0; i < forecast_row.length; i++) {
-        if ( i == 0 ) {
-            output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
-        } else {
-            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+            // Build 3 or 24 hour forecast rows
+                for (i = 0; i < forecast_row.length; i++) {
+                    if ( forecast_interval == "forecast_3hr") {
+                        if ( i == 0 ) {
+                            output_html += '<div class="col-sm-1-5 forecast-3hour forecast-today">';
+                        } else {
+                            output_html += '<div class="col-sm-1-5 forecast-3hour border-left">';
+                        }
+                    } else if ( forecast_interval == "forecast_24hr") {
+                        if ( i == 0 ) {
+                            output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
+                        } else {
+                            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+                        }
+                    }
+                    output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
+                    output_html += '<br>';
+                    output_html += '<div class="forecast-conditions">';
+                    output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
+                    output_html += '<br>';
+                    output_html += '<span class="forecast-condition-text">'+forecast_row[i]["condition_text"]+'</span>';  
+                    output_html += '</div>';
+                    output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'&deg;</span>';
+                    output_html += '<br>';
+                    output_html += '<div class="forecast-precip">';
+                    if ( forecast_row[i]["snow_depth"] > 0 ) {
+                        output_html += '<div class="snow-precip">';
+                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+                        output_html += '</div>';
+                    } else if ( forecast_row[i]["precip"] > 0 ) {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
+                    } else {
+                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+                    }
+                    output_html += '</div>';
+                    output_html += '<div class="forecast-wind">';
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
+                    output_html += '</div>';
+                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    output_html += forecast_row[i]["forecast_link"];
+                    #end if
+                    output_html += '</div>';
+                }
+            }
+        
+        // Show the forecasts rows
+        if ( forecast_interval == "forecast_1hr" ) {
+            jQuery(".1hr_forecasts").html( output_html );
+        } else if ( forecast_interval == "forecast_3hr" ) {
+            jQuery(".3hr_forecasts").html( output_html );
+        } else if ( forecast_interval == "forecast_24hr" ) {
+            jQuery(".24hr_forecasts").html( output_html );
         }
-        // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
-        output_html += '<span id="weekday">'+forecast_row[i]["weekday"]+'</span>';
-        output_html += '<br>';
-        output_html += '<div class="forecast-conditions">';
-        output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
-        output_html += '<span class="forecast-condition-text">'+forecast_row[i]["condition_text"]+'</span>';
-        output_html += '</div>';
-        output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'&deg;</span>';
-        output_html += '<br>';
-        output_html += '<div class="forecast-precip">';
-        if ( forecast_row[i]["snow_depth"] > 0 ) {
-            output_html += '<div class="snow-precip">';
-            output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
-            output_html += '</div>';
-        } else if ( forecast_row[i]["precip"] > 0 ) {
-            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
-        } else {
-            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
-        }
-        output_html += '</div>';
-        output_html += '<div class="forecast-wind">';
-        output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
-        output_html += '</div>';
-        #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
-        output_html += forecast_row[i]["forecast_link"];
-        #end if
-        output_html += '</div>';
-    }
+		// Show the forecast_subtitle
+        jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );        
+    }    
+
+//	End of new composite version of forecast code
+
+		
+                                            
+                                                              
+
+                               
+                         
+                                               
+                       
+                                                                                  
+                
+                                                                               
+         
+                                                                                                                                                                                             
+                                                                                  
+                              
+                                                           
+                                                                                
+                                                                                                            
+                                
+                                                                                                                                                                                                                              
+                              
+                                                       
+                                                  
+                                                       
+                                                                                                                                                                                                                                                                          
+                                    
+                                                     
+                                                                                                                                                            
+                
+                                                                                                        
+         
+                                
+                                                     
+                                                                                                                                                                                                                                     
+                                
+                                                                                                                     
+                                                        
+               
+                                
+     
     
-    // Show the forecast row
-    jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
-    jQuery(".forecasts").html( output_html );
+                            
+                                                                                                 
+                                             
     
     #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
     // Show weather alert
     show_forcast_alert( data, forecast_provider );
     #end if
+
+    // WX icon in temperature box    
+    jQuery("#wxicon").attr( "src", wxicon );
     
+    }
 }
+
 #end if
+//  function to display selected forecast according to value of interval (1, 3 or 24); 0 hides all forecasts
+function forecast_select(interval) {
+    if (interval == 0 ) {
+        jQuery(".forecastrow").hide();
+    } else {
+        oldinterval = sessionStorage.getItem( "forecastInterval" );
+        if ( interval != oldinterval ) {
+            //  hide the old forecast
+            var forecast = document.getElementById ( ( oldinterval + "hour-selected-forecast") );
+            var button =   document.getElementById ( ( "button" + oldinterval ) );
+            if ( forecast != null ) forecast.style.display = "none";
+            if ( button != null ) button.style.borderStyle = "hidden";
+            //  display the new forecast and store its interval value
+            forecast = document.getElementById ( ( interval + "hour-selected-forecast") );
+            button =   document.getElementById ( ( "button" + interval ) );
+            if ( forecast != null ) forecast.style.display = "block";
+            if ( button != null ) button.style.borderStyle = "solid";
+            sessionStorage.setItem( "forecastInterval" ,interval );
+        }    
+    }
+}
+
+function forecast_default ( interval ) {
+    sessionStorage.setItem ( "defaultInterval", interval );
+}
+
+//  function adjusts daytime format for forecast_1hr & _3hr; assumes "ddd LT" format for daytime
+function forecast_time ( i, interval, daytime ) {
+    if ( ( daytime.indexOf( " " ) == -1 ) || ( interval == "forecast_24hr" ) ) return daytime;
+    var output = daytime
+    var strday = daytime.substr( 0, daytime.indexOf( " ") );
+    var strtime = daytime.substr( daytime.indexOf( " " ) +1 );
+    if ( interval == "forecast_1hr" ) {
+        if ( ( i == 0 ) ||  ( strtime == "00:00" ) || ( strtime == "12:00 AM" ) ) {
+            output = strtime + "<br>" + strday;    
+        } else {
+            output = strtime + "<br>";    
+        }    
+    } else if ( interval == "forecast_3hr" ) {
+        if ( ( i != 0 ) && ( ( strtime > "02:59" ) || ( strtime > "02:59 AM" ) ) ) {
+            output = strtime;    
+        }
+    }
+    return output;
+}
 
 #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
 //============================================//
