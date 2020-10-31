@@ -129,8 +129,23 @@
                 jQuery(".last-updated-alert").show();
             }
             #end if
+                        
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated_text = "$obs.label.header_last_updated " + updated;
+            jQuery(".updated").html( updated_text );
             
             #end if
+            
+            //  display the relevant forecast; a new session will display the default forecast, a reloaded session the currently displayed forecast
+            if ( sessionStorage.getItem ("forecastInterval")  ) {
+                interval = sessionStorage.getItem("forecastInterval");
+                sessionStorage.setItem ( "forecastInterval" , null );
+                forecast_select( interval );
+            } else {
+                sessionStorage.setItem ( "forecastInterval" , null );
+                forecast_select( sessionStorage.getItem( "defaultInterval") );
+            }
         });
         
     </script>
@@ -369,19 +384,50 @@
                 <!-- End of index_hook_after_station_info row -->
                 #end if
 
-                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1' and (($Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours != '0') or not ($Extras.has_key("forecast_interval_hours")))
                 <!-- Start of second row -->
                 <div class="row forecastrow">
                     <!-- Forecast -->
-                    <div class="col-lg-12 forecast">
-                        <div class="forecast-title">
-                            $obs.label.forecast_header <span class="forecast-subtitle"></span><!-- moment.js -->
-                        </div>
-                        <div class="row forecasts"></div><!-- JS -->
+                    <div class="col-lg-7 forecast-title">
+                        $obs.label.forecast_header <span class="forecast-subtitle"></span><!-- moment.js -->
+                    </div>
+                    <div class="col-lg-5 forecast-menu">
+                        $obs.label.forecast_interval_caption <div class="forecast-button" onclick="forecast_select(1);" id="button1">1</div>
+                        <div class="forecast-button" onclick="forecast_select(3);" id="button3">3</div>
+                        <div class="forecast-button" onclick="forecast_select(24);" id="button24">24</div>
+                    </div>
+                        
+                    #if $Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours != '0'
+                    #if $Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours == '1'
+                    <script>forecast_default(1);</script>
+                    #end if
+                    <div id="1hour-selected-forecast" style="display: none;">
+                        <!-- 1hour Forecast -->
+                        <div class="col-lg-12 row 1hr_forecasts row-no-padding"></div><!-- JS -->
+                    </div>
+                    #end if
+                
+                    #if $Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours == '3'
+                    <script>forecast_default(3);</script>
+                    #end if
+                    <div id="3hour-selected-forecast" style="display: none;">
+                        <!-- 3hour-Forecast -->
+                        <div class="col-lg-12 row 3hr_forecasts row-no-padding"></div><!-- JS -->
+                    </div>        
+                
+                    #if $Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours == '24'
+                    <script>forecast_default(24);</script>
+                    #end if
+                    <div id="24hour-selected-forecast" style="display: none;">
+                        <!-- 24hour-Forecast -->
+                        <div class="col-lg-12 row 24hr_forecasts row-no-padding"></div><!-- JS -->
                     </div>        
                 </div>
-                <!-- End of second row -->
+
+                                          
                 #end if
+                
+                <!-- End of second row -->
                 
                 #if os.path.exists("index_hook_after_forecast.inc")
                 <!-- Start of index_hook_after_forecast row -->
