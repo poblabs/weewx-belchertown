@@ -1000,7 +1000,7 @@ function update_forecast_data( data ) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
-    
+	belchertown_debug(data);    
                       
     
     if ( forecast_provider == "N/A" ) {
@@ -1024,12 +1024,6 @@ function update_forecast_data( data ) {
             // us and uk2 and default = miles
             visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
         }
-                                                         
-        
-                                   
-                                                                         
-
-                                                       
         try {
             visibility_output = parseFloat(parseFloat( visibility )).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
@@ -1037,142 +1031,16 @@ function update_forecast_data( data ) {
         } catch(err) {
             // Visibility not in the station observation table or any of the unit arrays, so silently exit
         }
-    
-                               
-                                                              
-                                 
-            
-                                                                                                                                                            
-            
-                                                                              
-                                                                             
-                     
-                                                                                                        
-             
-            
-                                    
-                                                         
-                                 
-                                                                                  
-                          
-                                   
-                                                                                  
-                          
-                            
-                                                                                  
-                          
-                            
-                                                                                  
-                          
-                             
-                                                                                    
-                          
-                            
-                                                                                   
-                          
-                           
-                                                                                 
-                          
-                              
-                                                                                     
-                          
-                                         
-                                                                                          
-                          
-                                           
-                                                                                                                                                                                                                                                          
-                          
-                            
-                                                                                  
-                          
-                                    
-                                                                                          
-                          
-                               
-                                                                                      
-                          
-             
-            
-                                                                                                                              
-                                                                                
-                                     
-                                                                                                                                     
-                                                                                 
-                    
-                               
-                                   
-                                   
-             
-                                                                                                                                                                   
-            
-                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                 
-                                                                                                                                                                                                                                                                                                                                                                                    
-                   
-
-                                
-                                       
-                                           
-                                                     
-                                                                          
-                                                                           
-                                                                       
-                                                                     
-                                             
-                                           
-                                     
-                                                   
-            
-                
-         
-     
-    
-                                         
-                                                                                                                                                    
         
 //  start of new composite version of forecast code
                                                                                                                     
-                                                                                                                               
-                                                                         
-                                       
-                                                                                                                                         
-            
-                                                           
-                                                                                                 
-                                        
-                                                                                  
-                    
-                                                 
-                                                                                  
-             
-            
-                 
-                                                                                                                                                                                                                                                                                                                                            
-
         var forecast_types = ["forecast_1hr","forecast_3hr","forecast_24hr"];
-                          
-                                                                                                              
-             
-                      
-                                                                                                                                 
-         
-        
-                                                                                    
-                                                                                                                                              
-                                                                                                                                       
         var forecast_interval
-		for (forecast_interval of forecast_types) {
-                                          
+        for (forecast_interval of forecast_types) {
             var forecast_row = [];
             var output_html = "";
             for (i = 0; i < data[(forecast_interval)][0]["response"][0]["periods"].length; i++) {
                     
-                          
-                                                                                       
-                                                                                       
-             
-            
                 //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
                 if ( forecast_interval == "forecast_24hr" ) {
                     var image_url = get_relative_url() + "/images/" + aeris_icon( data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"] ) + ".png";
@@ -1248,15 +1116,6 @@ function update_forecast_data( data ) {
                                      
                 }
                                                                                        
-                                         
-                                                                                 
-                    
-                           
-                               
-                               
-             
-            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
                 var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
                 
                 forecast_row.push( {
@@ -1288,12 +1147,13 @@ function update_forecast_data( data ) {
                 // Build 1 hour forecast row
                 for (i = 0; i < forecast_row.length; i++) {
                     if ( i == 0 ) {
-                        output_html += '<div class="col-sm-1-5 forecast-1hour forecast-today">';
+                        output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour forecast-today">';
                     } else {
-                        output_html += '<div class="col-sm-1-5 forecast-1hour border-left">';
+                        output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour border-left">';
                     }
                     output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
                     output_html += '<br>';
+                    output_html += '<div class="forecast-conditions">';
                     output_html += '<div class="forecast-temp-graph" style="padding-top:';              
                     //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding 
                     output_html += parseInt( ( highTemp - forecast_row[i]["avgTemp"] + offset ) * 100 / ( rangeTemp) )  +'px">';
@@ -1301,6 +1161,7 @@ function update_forecast_data( data ) {
                     output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
                     output_html += '</div>';
                     output_html += parseFloat( forecast_row[i]["avgTemp"] ).toFixed(0) +'&deg;</div>';                           
+                    output_html += '</div>';
                     //  output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
                     if ( forecast_row[i]["snow_depth"] > 0 ) {
@@ -1329,15 +1190,15 @@ function update_forecast_data( data ) {
                 for (i = 0; i < forecast_row.length; i++) {
                     if ( forecast_interval == "forecast_3hr") {
                         if ( i == 0 ) {
-                            output_html += '<div class="col-sm-1-5 forecast-3hour forecast-today">';
+                            output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour forecast-today">';
                         } else {
-                            output_html += '<div class="col-sm-1-5 forecast-3hour border-left">';
+                            output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour border-left">';
                         }
                     } else if ( forecast_interval == "forecast_24hr") {
                         if ( i == 0 ) {
-                            output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
+                            output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour forecast-today">';
                         } else {
-                            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+                            output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour border-left">';
                         }
                     }
                     output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
@@ -1373,61 +1234,19 @@ function update_forecast_data( data ) {
         // Show the forecasts rows
         if ( forecast_interval == "forecast_1hr" ) {
             jQuery(".1hr_forecasts").html( output_html );
+            belchertown_debug( "html_1hr: " + output_html);
         } else if ( forecast_interval == "forecast_3hr" ) {
             jQuery(".3hr_forecasts").html( output_html );
+            belchertown_debug( "html_3hr: " + output_html);
         } else if ( forecast_interval == "forecast_24hr" ) {
             jQuery(".24hr_forecasts").html( output_html );
+            belchertown_debug( "html_24hr: " + output_html);
         }
 		// Show the forecast_subtitle
         jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );        
     }    
 
 //	End of new composite version of forecast code
-
-		
-                                            
-                                                              
-
-                               
-                         
-                                               
-                       
-                                                                                  
-                
-                                                                               
-         
-                                                                                                                                                                                             
-                                                                                  
-                              
-                                                           
-                                                                                
-                                                                                                            
-                                
-                                                                                                                                                                                                                              
-                              
-                                                       
-                                                  
-                                                       
-                                                                                                                                                                                                                                                                          
-                                    
-                                                     
-                                                                                                                                                            
-                
-                                                                                                        
-         
-                                
-                                                     
-                                                                                                                                                                                                                                     
-                                
-                                                                                                                     
-                                                        
-               
-                                
-     
-    
-                            
-                                                                                                 
-                                             
     
     #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
     // Show weather alert
@@ -1436,7 +1255,6 @@ function update_forecast_data( data ) {
 
     // WX icon in temperature box    
     jQuery("#wxicon").attr( "src", wxicon );
-    
     }
 }
 
