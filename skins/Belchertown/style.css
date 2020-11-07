@@ -1795,7 +1795,6 @@ table.celestial td.label {
     word-wrap:break-word;
 }
 
-
 .forecast-high, .forecast-low {
 	font-size:20px;
 	font-weight:500;
@@ -1804,9 +1803,8 @@ table.celestial td.label {
 .forecast-temp-graph {
 	font-size:20px;
 	font-weight:250;
-    height:179px;   /* 179 critical to align 1, 3 & 24hr forecasts */
+    height: 179px;   /* 179 critical to align 1, 3 & 24hr forecasts */
 }
-
 
 .forecast-precip, .forecast-wind {
 	font-size:15px;
@@ -2046,6 +2044,42 @@ input:checked + .slider:before {
 
 /* End Dark Mode Switch */
 
+/*  Nexus 10 1280*800 landscape */
+@media only screen and (width: 1280px) and (height: 800px) and (orientation: landscape) {
+    .updated-wrapper-nexus10 {
+        display: block !important;
+    }
+
+    .site-header {
+        padding-bottom: 7px;
+    }
+
+    .title-area {
+        width: 600px; 
+    }
+
+    .widget-area {
+        width: 600px !important; 
+    }
+
+    .site-title {
+        margin-bottom: 10px !important;
+        width: 600px;
+    }
+
+    .updated {
+        /*display: block;*/
+        padding-left: 15px;
+        vertical-align: bottom;
+    }
+    .wx-stn-info-container {
+        display: none;
+    }
+    .temperature-row {
+        border-top: 1px solid #D7D7D7 !important;
+    }   
+}
+
 @media only screen and (max-width: 800px) {
 	
     .themeSwitchLabel {
@@ -2205,6 +2239,20 @@ input:checked + .slider:before {
         width: 85%;
     }
     	
+    .forecast-1hour {
+        width: 25% !important;
+    }
+        
+	.forecast-temp-graph {
+        padding-top: 0px !important;
+        height: 75px !important;
+	}
+    
+	.forecast-temp-graph img {
+		width: 50% !important;
+        height: auto;
+	}
+    
 	.forecast-condition-text {
 		display:block;
 	}
@@ -2220,7 +2268,7 @@ input:checked + .slider:before {
 	}
         
     .forecast-conditions {
-        min-height: 70px;
+        min-height: 80px;
     }
     
     .forecast-conditions img {
