@@ -860,6 +860,10 @@ p.entry-meta {
 		width: 400px;
 	}
 
+    .obs-wind-divider {
+        display: none;    
+    }
+
 }
 
 /* iPad Landscape */
@@ -1484,15 +1488,21 @@ p.entry-meta {
     width:50%;
 }
 
+.obs-wind-divider {
+    height: 1px;
+    width: 105%;
+    background-color: #D7D7D7;   
+}
+
 .windrow {
-    /* margin-top: 25px; */
-    box-sizing: border-box;
-    border-top: 1px solid #D7D7D7;
-    padding-top: 10px;
-    padding-right: 15px;
-    /* margin: 0 -15px 0 -15px; */
-    margin: 0 0 0 0;
-    width: 385px;
+	/* margin-top: 25px; */
+	/* box-sizing: border-box; */
+	border-top: 1px solid #D7D7D7;
+	padding-top: 10px;
+	/* padding-right: 15px; */
+	/* margin: 0 -15px 0 -15px; */
+	margin: -1px  0 0 0;
+	/* width: 105%;	*/	
 }
 
 .curwind {
