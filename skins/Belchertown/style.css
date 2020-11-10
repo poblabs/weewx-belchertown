@@ -2054,42 +2054,6 @@ input:checked + .slider:before {
 
 /* End Dark Mode Switch */
 
-/*  Nexus 10 1280*800 landscape */
-@media only screen and (width: 1280px) and (height: 800px) and (orientation: landscape) {
-    .updated-wrapper-nexus10 {
-        display: block !important;
-    }
-
-    .site-header {
-        padding-bottom: 7px;
-    }
-
-    .title-area {
-        width: 600px; 
-    }
-
-    .widget-area {
-        width: 600px !important; 
-    }
-
-    .site-title {
-        margin-bottom: 10px !important;
-        width: 600px;
-    }
-
-    .updated {
-        /*display: block;*/
-        padding-left: 15px;
-        vertical-align: bottom;
-    }
-    .wx-stn-info-container {
-        display: none;
-    }
-    .temperature-row {
-        border-top: 1px solid #D7D7D7 !important;
-    }   
-}
-
 @media only screen and (max-width: 800px) {
 	
     .themeSwitchLabel {
