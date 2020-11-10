@@ -1,4 +1,3 @@
-/*  mju version - Nov 2020 */
 /*
  CSS file for Belchertown weather website.
  This website was originally created in WordPress on Genesis WP. 
@@ -2279,7 +2278,7 @@ input:checked + .slider:before {
 	}
         
     .forecast-conditions {
-        min-height: 80px;
+        min-height: 90px;
     }
     
     .forecast-conditions img {
