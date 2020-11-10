@@ -1,3 +1,4 @@
+/*  mju version - Nov 2020 */
 /*
  CSS file for Belchertown weather website.
  This website was originally created in WordPress on Genesis WP. 
@@ -860,6 +861,10 @@ p.entry-meta {
 		width: 400px;
 	}
 
+    .obs-wind-divider {
+        display: none;    
+    }
+
 }
 
 /* iPad Landscape */
@@ -1501,15 +1506,21 @@ p.entry-meta {
     width:50%;
 }
 
+.obs-wind-divider {
+    height: 1px;
+    width: 105%;
+    background-color: #D7D7D7;   
+}
+
 .windrow {
-    /* margin-top: 25px; */
-    box-sizing: border-box;
-    border-top: 1px solid #D7D7D7;
-    padding-top: 10px;
-    padding-right: 15px;
-    /* margin: 0 -15px 0 -15px; */
-    margin: 0 0 0 0;
-    width: 385px;
+	/* margin-top: 25px; */
+	/* box-sizing: border-box; */
+	border-top: 1px solid #D7D7D7;
+	padding-top: 10px;
+	/* padding-right: 15px; */
+	/* margin: 0 -15px 0 -15px; */
+	margin: -1px  0 0 0;
+	/* width: 105%;	*/	
 }
 
 .curwind {
@@ -1749,6 +1760,7 @@ table.celestial td.label {
 	text-align: left;
 	font-size: 25px;
 	margin-bottom: 5px;
+    padding-right: 0 !important;
 }
 
 .forecast-subtitle {
@@ -1758,11 +1770,10 @@ table.celestial td.label {
 .forecast-menu {
     display: inline-block;
     position: relative;
-    right: 0px;
     height: 40px;
-
-	text-align:right;
-	font-size:16px;
+    padding-left: 0 !important;
+	text-align: right;
+	font-size: 16px;
 }
 
 .forecast-button {
