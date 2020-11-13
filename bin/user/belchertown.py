@@ -463,7 +463,8 @@ class getData(SearchList):
         if rainiest_day_query is not None:
             rainiest_day_tuple = (rainiest_day_query[1], rain_unit, 'group_rain')
             rainiest_day_converted = rain_round % self.generator.converter.convert(rainiest_day_tuple)[0]
-            rainiest_day = [ rainiest_day_query[0], rainiest_day_converted ]
+            # rainiest_day = [ rainiest_day_query[0], rainiest_day_converted ]
+            rainiest_day = [ rainiest_day_query[0], locale.format("%g", float(rainiest_day_converted)) ]
         else:
             rainiest_day = [ calendar.timegm( time.gmtime() ), locale.format("%.2f", 0) ]
             
@@ -472,7 +473,8 @@ class getData(SearchList):
         at_rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain ORDER BY sum DESC LIMIT 1' )
         at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, 'group_rain')
         at_rainiest_day_converted = rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
-        at_rainiest_day = [ at_rainiest_day_query[0], at_rainiest_day_converted ]
+        # at_rainiest_day = [ at_rainiest_day_query[0], at_rainiest_day_converted ]
+        at_rainiest_day = [ at_rainiest_day_query[0], locale.format("%g", float(at_rainiest_day_converted)) ]
         
 
         # Find what kind of database we're working with and specify the correctly tailored SQL Query for each type of database
@@ -890,20 +892,26 @@ class getData(SearchList):
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 else:
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                #forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_24hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_3hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_1hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
                 else:
                     # Default to 1 alerts to show if the option is missing. Can go up to 10
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_lang, forecast_api_id, forecast_api_secret )
-            elif forecast_provider == "darksky":
-                forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
+            #elif forecast_provider == "darksky":
+                #forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
                 
-            # Determine if the file exists and get it's modified time
+            # Determine if the file exists and get it's modified time, enhanced for 1 hr forecast to load close to the hour
             if os.path.isfile( forecast_file ):
                 if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
                     forecast_is_stale = True
+                else:
+                    if ( time.strftime("%M") < "05" and int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( 300 ) :    # catches repeated calls to this function every archive interval (300secs)
+                        forecast_is_stale = True					
             else:
                 # File doesn't exist, download a new copy
                 forecast_is_stale = True
@@ -934,9 +942,22 @@ class getData(SearchList):
                             current_page = response.read()
                             response.close()
                             # Forecast
-                            req = Request( forecast_url, None, headers )
+                            #req = Request( forecast_url, None, headers )
+                            # 24hr forecast (was Forecast)
+                            req = Request( forecast_24hr_url, None, headers )
+                            response = urlopen( req )							
+                            forecast_24hr_page = response.read()
+                            response.close()
+                            # 3hr forecast
+                            req = Request( forecast_3hr_url, None, headers )							
+                            response = urlopen( req )							
+                            #forecast_page = response.read()
+                            forecast_3hr_page = response.read()
+                            response.close()
+                            # 1hr forecast
+                            req = Request( forecast_1hr_url, None, headers )
                             response = urlopen( req )
-                            forecast_page = response.read()
+                            forecast_1hr_page = response.read()							
                             response.close()
                             if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
                                 # Alerts
@@ -948,23 +969,28 @@ class getData(SearchList):
                             # Combine all into 1 file
                             if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
                                 try:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                                    #forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast_24hr": [json.loads(forecast_24hr_page)], "forecast_3hr": [json.loads(forecast_3hr_page)], "forecast_1hr": [json.loads(forecast_1hr_page)], "alerts": [json.loads(alerts_page)]} )									
                                 except:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
+                                    #forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast_24hr": [json.loads(forecast_24hr_page.decode('utf-8'))], "forecast_3hr": [json.loads(forecast_3hr_page.decode('utf-8'))], "forecast_1hr": [json.loads(forecast_1hr_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )									
                             else:
                                 try:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                                    #forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast_24hr": [json.loads(forecast_24hr_page)], "forecast_3hr": [json.loads(forecast_3hr_page)], "forecast_1hr": [json.loads(forecast_1hr_page)]} )									
                                 except:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
-                        elif forecast_provider == "darksky":
-                            req = Request( forecast_url, None, headers )
-                            response = urlopen( req )
-                            forecast_file_result = response.read()
-                            response.close()
+                                    #forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
+                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast_24hr": [json.loads(forecast_24hr_page.decode('utf-8'))], "forecast_3hr": [json.loads(forecast_3hr_page.decode('utf-8'))], "forecast_1hr": [json.loads(forecast_1hr_page.decode('utf-8'))]} )									
+                        #elif forecast_provider == "darksky":
+                            #req = Request( forecast_url, None, headers )
+                            #response = urlopen( req )
+                            #forecast_file_result = response.read()
+                            #response.close()
                             
                             
                 except Exception as error:
-                    raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
+                    #raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
+                    raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_24hr_url, error ) )					
                     
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
@@ -1018,24 +1044,24 @@ class getData(SearchList):
                     visibility = "N/A"
                     visibility_unit = ""
                     
-            elif forecast_provider == "darksky":
-                current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
-                visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
+            #elif forecast_provider == "darksky":
+                #current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
+                #visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
                 
-                if data["currently"]["icon"] == "partly-cloudy-night":
-                    current_obs_icon = 'partly-cloudy-night.png'
-                else:
-                    current_obs_icon = data["currently"]["icon"]+'.png'
+                #if data["currently"]["icon"] == "partly-cloudy-night":
+                    #current_obs_icon = 'partly-cloudy-night.png'
+                #else:
+                    #current_obs_icon = data["currently"]["icon"]+'.png'
 
                 # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
                 # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
                 # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-                if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
-                    visibility_unit = "miles"
-                elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
-                    visibility_unit = "km"
-                else:
-                    visibility_unit = ""
+                #if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
+                    #visibility_unit = "miles"
+                #elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
+                    #visibility_unit = "km"
+                #else:
+                    #visibility_unit = ""
         else:
             current_obs_icon = ""
             current_obs_summary = ""
@@ -1052,7 +1078,8 @@ class getData(SearchList):
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
             longitude = self.generator.config_dict['Station']['longitude']
-            distance_unit = self.generator.converter.group_unit_dict["group_distance"]
+            #distance_unit = converter.group_unit_dict["group_distance"]
+            distance_unit = self.generator.converter.group_unit_dict["group_distance"]			
             eq_distance_label = self.generator.skin_dict['Units']['Labels'].get(distance_unit, "")
             eq_distance_round = self.generator.skin_dict['Units']['StringFormats'].get(distance_unit, "%.1f")
             earthquake_maxradiuskm = self.generator.skin_dict['Extras']['earthquake_maxradiuskm']
@@ -1128,6 +1155,7 @@ class getData(SearchList):
                     eqtime = eqdata["features"][0]["properties"]["time"] / 1000
                     equrl = eqdata["features"][0]["properties"]["url"]
                     eqplace = eqdata["features"][0]["properties"]["place"]
+                    #eqmag = eqdata["features"][0]["properties"]["mag"]
                     eqmag = locale.format("%g", float(eqdata["features"][0]["properties"]["mag"]) )
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
@@ -1144,13 +1172,16 @@ class getData(SearchList):
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
+                    #eqmag = round(eqdata["features"][0]["properties"]["magnitude"],1)
                     eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
                                                            (float(eqlat), float(eqlon)), 
                                                             distance_unit)
+                #eqdistance = eq_distance_round % eqdistance_bearing[0]
                 eqdistance = locale.format("%g", float(eq_distance_round % eqdistance_bearing[0]) )
+                #eqmag = locale.format("%g", float(eqmag) )
                 eqbearing = eqdistance_bearing[1]
                 eqbearing_raw = eqdistance_bearing[2]
             except:
@@ -1274,7 +1305,7 @@ class getData(SearchList):
             # Get the unit's label
             # Add to label array and strip whitespace if possible
             if obs not in all_obs_unit_labels_json:
-                obs_unit_label = weewx.units.get_label_string(self.generator.formatter, self.generator.converter, obs)                
+                obs_unit_label = weewx.units.get_label_string(self.generator.formatter, self.generator.converter, obs)
                 all_obs_unit_labels_json[obs] = obs_unit_label
             
             # Special handling items
@@ -1819,7 +1850,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name]["rounding"] = obs_round
                     except:
                         # Not a valid weewx schema name - maybe this is windRose or something?
-                        output[chart_group][plotname]["series"][line_name]["rounding"] = "-1"
+                        output[chart_group][plotname]["series"][line_name]["rounding"] = "1" # CHANGED FROM -1 to 1
 
                     # Set default colors, unless the user has specified otherwise in graphs.conf
                     wind_rose_color = {}

@@ -23,13 +23,16 @@ function get_relative_url() {
     return relative_url;
 }
 
-// Determine if debug is on via URL var or config setting
-if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
-    var belchertown_debug_config = true;
-    belchertown_debug("Debug: URL debug variable enabled");
-} else {
-    var belchertown_debug_config = $belchertown_debug;
-    belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+var allow_debugging = true;
+if (allow_debugging) {
+	// Determine if debug is on via URL var or config setting
+	if ( getURLvar("debug") && ( getURLvar("debug") == "true" || getURLvar("debug") == "1" ) ) {
+		var belchertown_debug_config = true;
+		belchertown_debug("Debug: URL debug variable enabled");
+	} else {
+		var belchertown_debug_config = $belchertown_debug;
+		belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+	}
 }
 
 var moment_locale = "$system_locale_js";
@@ -97,12 +100,17 @@ jQuery(document).ready(function() {
             }, 500);
         }
     });
-    
+	// console.log("unit_rounding_array: " + Object.keys(unit_rounding_array)); // REMOVE
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
 // Run this on every page for dark mode if skin theme is auto
-ajaxweewx();
+ajaxweewx().then(function(weewx_data){
+	update_weewx_data(weewx_data); // Update weewx data
+	belchertown_debug(weewx_data);
+}).catch(function(e){
+	console.log(e);
+});
 #end if
 
 // Disable AJAX caching
@@ -198,11 +206,14 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
 }
 
 function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false, numberFormat) {
+
+	// console.log("Observatie :" + point_obsType + " Waarde :" + obsvalue + " Rounding: " + rounding + " Numberformat: " + numberFormat);
+			
     // Mirrored values have the negative sign removed
     if ( mirrored ) {
         obsvalue = Math.abs( obsvalue );
     }
-            
+
     if ( point_obsType == "windDir" ) {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
             ordinal = "$ordinate_names[0]"; // N
@@ -247,15 +258,32 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=fa
             output = ordinal;
         }
     } else {
+
         try {
             // Setup any graphs.conf overrides on formatting
             var { decimals, decimalPoint, thousandsSep } = numberFormat;
-            
+			
             // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf StringFormats.
             // -1 is set from Python to notate no rounding data available and decimals from graphs.conf is undefined.
-            if ( rounding == "-1" && typeof decimals === "undefined" ) {
-                output = Highcharts.numberFormat(obsvalue);
-            } else {
+/*            if ( rounding == "-1" && typeof decimals === "undefined" ) {
+
+				if ( point_obsType == "haysChart" ) {			
+					output = parseFloat(parseFloat(obsvalue)).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]});
+				} else {
+					output = Highcharts.numberFormat(obsvalue);
+				}
+				
+            } else if ( rounding != "-1" && typeof decimals === "undefined" ) {*/
+
+			if ( typeof decimals === "undefined" ) {
+			
+				//console.log("Observatie :" + point_obsType + " Waarde :" + obsvalue);
+				output = parseFloat(parseFloat(obsvalue)).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[point_obsType], maximumFractionDigits: unit_rounding_array[point_obsType]});
+				
+			} else {
+			
+				//console.log("Observatie :" + point_obsType + " Waarde :" + obsvalue);
+			
                 // If the amount of decimal is defined, use that instead since rounding is provided to the function.
                 if ( typeof decimals !== "undefined" ) {
                     rounding = decimals;
@@ -399,10 +427,14 @@ function changeTheme(themeName, toggleOverride=false) {
     }
 }
 
-function ajaxweewx() {
-    // Relative URL
-    jQuery.getJSON(get_relative_url() + "/json/weewx_data.json", update_weewx_data);
-};
+async function ajaxweewx() {
+    resp = await fetch(get_relative_url() + "/json/weewx_data.json");
+	if (!resp.ok) {
+		throw new Error("HTTP error! Unable to load weewx_data.json");
+	} else {	
+		return await resp.json();
+	}
+}
 
 // Update weewx data elements
 //var station_obs_array = "";
@@ -419,7 +451,7 @@ function update_weewx_data( data ) {
     //station_obs_array = data["station_observations"];
     unit_rounding_array = data["unit_rounding"];
     unit_label_array = data["unit_label"];
-    
+	
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
     low = data["day"]["outTemp"]["min"];
@@ -463,39 +495,48 @@ function update_weewx_data( data ) {
     // Moon icon, phase and illumination percent
     switch ( data["almanac"]["moon"]["moon_index"] ) {
         case "0":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-new'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-new'></div>" );			
             break;
         case "1":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-3 $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-crescent-3 $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-waxing-crescent-3 $hemisphere'></div>" );			
             break;
         case "2":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-first-quarter $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-first-quarter $hemisphere'></div>" );			
             break;
         case "3":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-waxing-gibbous-3 $hemisphere'></div>" );			
             break;
         case "4":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-full'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-full'></div>" );
             break;
         case "5":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-waning-gibbous-3 $hemisphere'></div>" );			
             break;
         case "6":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-third-quarter $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-third-quarter $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-third-quarter $hemisphere'></div>" );			
             break;
         case "7":
-            jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>" );
+            //jQuery(".moon-icon").html( "<div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>" );
+            jQuery(".moon-icon").html( "<div class='wi wi-moon-waning-crescent-4 $hemisphere'></div>" );			
             break;
     }
     jQuery(".moon-phase").html( titleCase( data["almanac"]["moon"]["moon_phase"] ) ); // Javascript function above
     jQuery(".moon-visible").html( "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> $obs.label.moon_visible" );
     #if $almanac.hasExtras
     // Close current modal if open
-    jQuery('#almanac').modal('hide');
+    //jQuery('#almanac').modal('hide');
     jQuery(".almanac-extras-modal-body").html( data["almanac"]["almanac_extras_modal_html"] );
     almanac_updated = "$obs.label.header_last_updated " + moment.unix( data["current"]["datetime_raw"] ).utcOffset( $moment_js_utc_offset ).format( "$obs.label.time_last_updated" );
     jQuery(".almanac_last_updated").html( almanac_updated );
     #end if
+	
 }
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
@@ -929,44 +970,73 @@ function aeris_icon( data ) {
     return icon_dict[icon_name];    
 }
 
+// Determine if alerts need to be refreshed, if true: modal will be closed and alerts created again
+function allow_modal_close_alert_update( forecast_provider, current_alerts, forecast_alerts ) {
+
+	var close_modal = false;
+	
+	if ( forecast_alerts.length != current_alerts.length ) return true; //number of alerts not equal allways return true
+	
+	// Compare current alert IDs with (new) forecast alert IDs, Aeris only, Darksky has no IDs
+	if ( forecast_provider == "aeris" ) {
+		current_alerts.forEach(	
+			function(currentValue) {
+				if ( forecast_alerts.filter( function ( new_alerts ) { return new_alerts.id == currentValue.dataset.alertId }).length == 0) {close_modal = true;}
+			}, 
+		);
+	}
+	
+	return close_modal;
+}
+
 function show_forcast_alert( data, forecast_provider ) {
     belchertown_debug("Forecast: Updating alert data for " + forecast_provider);
     var i, forecast_alert_modal, forecast_alerts;
+	
     forecast_alert_modal = "";
     forecast_alerts = [];
-    
-    // Empty anything that's been appended to the modal from the previous run
-    jQuery(".wx-stn-alert-text").empty();
     
     if ( forecast_provider == "darksky" ) {
         if ( data['alerts'] ) {
             for ( i = 0; i < data['alerts'].length; i++ ) { 
+                forecast_alert_id = "dummy_id"; // Use dummy on darksky, they don't seem to provide an ID in alerts
                 forecast_alert_title = data['alerts'][i]['title'];
                 forecast_alert_body = data['alerts'][i]['description'].replace(/\n/g, '<br>');
                 forecast_alert_link = data['alerts'][i]['title'];
                 forecast_alert_expires = moment.unix( data['alerts'][i]['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
-                forecast_alerts.push( { "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });
+                forecast_alerts.push( { "id": forecast_alert_id, "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });
             }
         }
     } else if ( forecast_provider == "aeris" ) {
         if ( data['alerts'][0]['response'][0] ) {
             for ( i = 0; i < data['alerts'][0]['response'].length; i++ ) {             
-                //forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
+                forecast_alert_id = data['alerts'][0]['response'][i]['id']; // Use ID provided by aeris, according to their docs should be unique to each alert
                 forecast_alert_title = aeris_coded_alerts( data['alerts'][0]['response'][i]['details']['type'] );
                 forecast_alert_body = data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
-                //forecast_alert_link = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_link = data['alerts'][0]['response'][i]['details']['type'];
                 forecast_alert_expires = moment.unix( data['alerts'][0]['response'][i]['timestamps']['expires'] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_alert_expires' );
-                forecast_alerts.push( { "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });
+                forecast_alerts.push( { "id": forecast_alert_id, "title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires });				
             }
         }
     }
+	
+	// Get current alerts
+	current_alerts = document.querySelectorAll("[data-alert-id]");
+	
+    if ( forecast_alerts.length > 0 && allow_modal_close_alert_update( forecast_provider, current_alerts, forecast_alerts )) {	
 
-    if ( forecast_alerts.length > 0 ) {
+		// Bootstrap closing modal has some quirks, requires extra code
+		jQuery(".wx-stn-alert").hide();
+		jQuery(".modal-backdrop").remove();
+		jQuery('body').removeClass('modal-open');
+		
+		// Empty anything that's been appended to the modal from the previous run
+		jQuery(".wx-stn-alert-text").empty();
+			
         belchertown_debug("Forecast: There are " + forecast_alerts.length + " alert(s).");
         for ( i = 0; i < forecast_alerts.length; i++ ) { 
             
-            alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-"+i+"' data-toggle='modal' data-target='#forecast-alert-"+i+"'>" +forecast_alerts[i]["title"] + " $obs.label.alert_in_effect " + forecast_alerts[i]["expires"] + "</a><br>";
+            alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-"+i+"' data-toggle='modal' data-target='#forecast-alert-"+i+"' data-alert-id="+forecast_alerts[i]["id"]+">" +forecast_alerts[i]["title"] + " $obs.label.alert_in_effect " + forecast_alerts[i]["expires"] + "</a><br>";			
             jQuery(".wx-stn-alert-text").append( alert_link );
             
             forecast_alert_modal += "<!-- Forecast Alert Modal "+i+" -->";
@@ -981,7 +1051,7 @@ function show_forcast_alert( data, forecast_provider ) {
                     forecast_alert_modal += forecast_alerts[i]["body"];
                   forecast_alert_modal += "</div>";
                   forecast_alert_modal += "<div class='modal-footer'>";
-                    forecast_alert_modal += "<button type='button' class='btn btn-primary' data-dismiss='modal'>Close</button>";
+                    forecast_alert_modal += "<button type='button' class='btn btn-primary' data-dismiss='modal'>$obs.label.close</button>";
                   forecast_alert_modal += "</div>";
                 forecast_alert_modal += "</div>";
               forecast_alert_modal += "</div>";
@@ -991,8 +1061,16 @@ function show_forcast_alert( data, forecast_provider ) {
         }
         jQuery(".wx-stn-alert").show();
     } else {
-        belchertown_debug("Forecast: There are no forecast alerts");
-        jQuery(".wx-stn-alert").hide();
+        belchertown_debug("Forecast: There are no (new) forecast alerts");
+		if ( forecast_alerts.length == 0 && current_alerts.length > 0 ) {
+			// Bootstrap closing modal has some quirks, requires extra code		
+			jQuery(".wx-stn-alert").hide();
+			jQuery(".modal-backdrop").remove();
+			jQuery('body').removeClass('modal-open');
+			
+			// Empty anything that's been appended to the modal from the previous run
+			jQuery(".wx-stn-alert-text").empty();		
+		}
     }
 }
 
@@ -1000,213 +1078,132 @@ function update_forecast_data( data ) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
-    
-    forecast_row = [];
+	belchertown_debug(data);
     
     if ( forecast_provider == "N/A" ) {
         jQuery(".forecastrow").hide();
         belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
-    } else if ( forecast_provider == "darksky" ) {
-        
-        var forecast_subtitle = moment.unix( data["currently"]["time"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
+    } else if ( forecast_provider == "aeris" ) {        
+        var forecast_subtitle = moment.unix( data["timestamp"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
 
-        // WX icon in temperature box
-        if ( data['currently']['icon'] == "partly-cloudy-night" ) {
-            // partly-cloudy-night could also be clear-day
-            var wxicon = get_relative_url() + "/images/partly-cloudy-night.png";
-        } else {
-            var wxicon = get_relative_url() + "/images/" + data['currently']['icon'] + ".png";
-        }
-        belchertown_debug("Forecast: icon is " + wxicon);
-        
+        var wxicon = get_relative_url() + "/images/" + aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png";
         // Current observation text
-        jQuery(".current-obs-text").html( data["currently"]["summary"] );
-
+        jQuery(".current-obs-text").html( aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true ) );
+        
         // Visibility text in station observation table
+        if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) ) {
+            // si and ca = kilometer
+            visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
+                                                          
+                                                                                
+        } else {
+            // us and uk2 and default = miles
+            visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
+        }
+                                                       
         try {
-            visibility_output = parseFloat(parseFloat(data["currently"]["visibility"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
+            visibility_output = parseFloat(parseFloat( visibility )).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
             jQuery(".station-observations .visibility").html( visibility_output );
         } catch(err) {
             // Visibility not in the station observation table or any of the unit arrays, so silently exit
         }
-    
-        // Force 7 day forecast
-        //for (i = 0; i < data["daily"]["data"].length; i++) {
-        for (i = 0; i < 7; i++) {
-            
-            var weekday = moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
-            
-            if ( data['daily']['data'][i]['icon'] == "partly-cloudy-night" ) {
-                var image_url = get_relative_url() + "/images/clear-day.png";
-            } else { 
-                var image_url = get_relative_url() + "/images/"+data['daily']['data'][i]['icon']+".png";
-            }
-            
-            var condition_text = "";
-            switch ( data["daily"]["data"][i]["icon"] ) {
-                case "clear-day":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
-                    break;
-                case "clear-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear
-                    break;
-                case "rain":
-                    condition_text = "$obs.label.forecast_weather_code_R"; // Rain
-                    break;
-                case "snow":
-                    condition_text = "$obs.label.forecast_weather_code_S"; // Snow
-                    break;
-                case "sleet":
-                    condition_text = "$obs.label.forecast_weather_code_IP"; // Sleet
-                    break;
-                case "wind":
-                    condition_text = "$obs.label.forecast_weather_code_W"; // Windy
-                    break;
-                case "fog":
-                    condition_text = "$obs.label.forecast_weather_code_F"; // Fog
-                    break;
-                case "cloudy":
-                    condition_text = "$obs.label.forecast_cloud_code_OV"; // Overcast
-                    break;
-                case "partly-cloudy-day":
-                    condition_text = "$obs.label.forecast_cloud_code_SC"; // Partly Cloudy
-                    break;
-                case "partly-cloudy-night":
-                    condition_text = "$obs.label.forecast_cloud_code_CL"; // Clear - https://darksky.net/dev/docs/faq - So you can just treat partly-cloudy-night as an alias for clear-day.
-                    break;
-                case "hail":
-                    condition_text = "$obs.label.forecast_weather_code_A"; // Hail
-                    break;
-                case "thunderstorm":
-                    condition_text = "$obs.label.forecast_weather_code_T"; // Thunderstorm
-                    break;
-                case "tornado":
-                    condition_text = "$obs.label.forecast_weather_code_TO"; // Tornado
-                    break;
-            }
-            
-            if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "snow" ) {
-                var snow_depth = data["daily"]["data"][i]["precipAccumulation"];
-                var snow_unit = "in";
-            } else if ( data["daily"]["data"][i].hasOwnProperty("precipType") && data["daily"]["data"][i]["precipType"] == "rain" ) {
-                var precip = data["daily"]["data"][i]["precipProbability"] * 100;
-            } else {
-                var precip = 0;
-                var snow_depth = 0;
-                var snow_unit = "";
-            }
-            var darksky_link_units = data["flags"]["units"].toLowerCase().concat("12"); // Currently the DarkSky forecast link uses a "{unit}12" string in the URL.
-            
-            #if $Extras.has_key("darksky_lang")
-            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/$Extras.darksky_lang" target="_blank">$obs.label.daily_forecast</a>';
-            #else
-            var forecast_link = '<a href="https://darksky.net/details/'+data["latitude"]+','+data["longitude"]+'/'+moment.unix( data["daily"]["data"][i]["time"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY-M-D" )+'/'+darksky_link_units+'/" target="_blank">$obs.label.daily_forecast</a>';
-            #end if
-
-            forecast_row.push( {
-                    "weekday": weekday,
-                    "image_url": image_url,
-                    "condition_text": condition_text,
-                    "minTemp": data["daily"]["data"][i]["temperatureLow"],
-                    "maxTemp": data["daily"]["data"][i]["temperatureHigh"],
-                    "windSpeed": data["daily"]["data"][i]["windSpeed"],
-                    "windGust": data["daily"]["data"][i]["windGust"],
-                    "snow_depth": snow_depth,
-                    "snow_unit": snow_unit,
-                    "precip": precip,
-                    "forecast_link": forecast_link,
-            
-            } );
-        }
-    }
-    
-    if ( forecast_provider == "aeris" ) {
-        var forecast_subtitle = moment.unix( data["timestamp"] ).utcOffset($moment_js_utc_offset).format( '$obs.label.time_forecast_last_updated' );
         
-        try {
-            belchertown_debug("Forecast: icon from Aeris data is " + data["current"][0]["response"]["ob"]["icon"] );
-            var wxicon = get_relative_url() + "/images/" + aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png";
-            belchertown_debug("Forecast: Belchertown icon is " + wxicon);
-            // Current observation text
-            jQuery(".current-obs-text").html( aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true ) );
-            
-            // Visibility text in station observation table
-            if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) ) {
-                // si and ca = kilometer
-                visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
-            } else {
-                // us and uk2 and default = miles
-                visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
-            }
-            
-            try {
-                visibility_output = parseFloat(parseFloat( visibility )).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
+//  start of new composite version of forecast code
 
-                jQuery(".station-observations .visibility").html( visibility_output );
-            } catch(err) {
-                // Visibility not in the station observation table or any of the unit arrays, so silently exit
-            }
-        } catch(err) {
-            // Probably a non-metar current observation, which does not have visibility, icon, conditions, etc. So silently exit.
-        }
-        
-        for (i = 0; i < data["forecast"][0]["response"][0]["periods"].length; i++) {
-            var image_url = get_relative_url() + "/images/" + aeris_icon( data["forecast"][0]["response"][0]["periods"][i]["icon"] ) + ".png";
-            var condition_text = aeris_coded_weather( data["forecast"][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
-            var weekday = moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
-
-            // Determine temperature units
-            if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) || ( "$Extras.forecast_units" == "si" ) ) {
-                minTemp = data["forecast"][0]["response"][0]["periods"][i]["minTempC"];
-                maxTemp = data["forecast"][0]["response"][0]["periods"][i]["maxTempC"];
-            } else {
-                // Default
-                minTemp = data["forecast"][0]["response"][0]["periods"][i]["minTempF"];
-                maxTemp = data["forecast"][0]["response"][0]["periods"][i]["maxTempF"];
-            }
-            
-            // Determine wind units
-            if ( "$Extras.forecast_units" == "ca" ) {
-                // ca = kph
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKPH"];
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKPH"];
-            } else if ( "$Extras.forecast_units" == "si" ) {
-                // si = meters per second. MPS is KPH / 3.6
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
-            } else {
-                // us and uk2 and default = mph
-                windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedMPH"];
-                windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustMPH"];
-            }
-            
-            if ( ( data["forecast"][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data["forecast"][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
-                // Determine snow unit
-                if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
-                    snow_depth = data["forecast"][0]["response"][0]["periods"][i]["snowCM"];
-                    snow_unit = "cm";
+        var forecast_types = ["forecast_1hr","forecast_3hr","forecast_24hr"];
+        var forecast_interval
+		for (forecast_interval of forecast_types) {
+                                          
+            var forecast_row = [];
+            var output_html = "";
+            for (i = 0; i < data[(forecast_interval)][0]["response"][0]["periods"].length; i++) {
+                    
+                //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+                if ( forecast_interval == "forecast_24hr" ) {
+                    var image_url = get_relative_url() + "/images/" + aeris_icon( data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"] ) + ".png";
+                    var condition_text = aeris_coded_weather( data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
+                    var weekday = moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_date" );
                 } else {
-                    snow_depth = data["forecast"][0]["response"][0]["periods"][i]["snowIN"];
-                    snow_unit = "in";
+                    var image_url = get_relative_url() + "/images/" + aeris_icon( data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"] ) + ".png";
+                    var condition_text = aeris_coded_weather( data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false );
+                    var weekday = moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_forecast_time" );
                 }
-            } else if ( data["forecast"][0]["response"][0]["periods"][i]["pop"] > 0 ) {
-                // Rain percent of precip
-                precip = data["forecast"][0]["response"][0]["periods"][i]["pop"];
-            } else {
-                precip = 0;
-                snow_depth = 0;
-                snow_unit = "";
-            }
-            
-            var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data["forecast"][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
-            var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
-            
-            forecast_row.push( {
+			
+                // Determine temperature units
+                if ( ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) || ( "$Extras.forecast_units" == "si" ) ) {
+                    avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempC"];
+                    minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempC"];
+                    maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempC"];
+                } else {
+                    // Default
+                    avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempF"];
+                    minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempF"];
+                    maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempF"];
+                }
+                
+                //  for 1hr interval determine temperature range, set to a minimum value of 2; also avoids div by zero
+                if ( forecast_interval == "forecast_1hr" ) {
+                    if ( i == 0 ) {
+                        var lowTemp = avgTemp;
+                        var highTemp = avgTemp;
+                    } else {
+                        if ( lowTemp > avgTemp ) lowTemp = avgTemp;
+                        if ( highTemp < avgTemp ) highTemp = avgTemp;
+                    }
+                }
+           
+                // Determine wind units
+                if ( "$Extras.forecast_units" == "ca" ) {
+                    // ca = kph
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"];
+                } else if ( "$Extras.forecast_units" == "si" ) {
+                    // si = meters per second. MPS is KPH / 3.6
+                    //windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
+                    //windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"];					
+                } else {
+                    // us and uk2 and default = mph
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedMPH"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustMPH"];
+                }
+                
+                if ( ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
+                    // Determine snow unit
+                    if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
+                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"];
+                        var snow_unit = "cm";
+                    } else {
+                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
+                        var snow_unit = "in";
+                    }
+                } else if ( data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] > 0 ) {
+                    // Rain percent of precip
+                    precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"];
+                } else {
+                    precip = 0;
+                    snow_depth = 0;
+                    var snow_unit = "";
+                }
+                
+                //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
+                if ( forecast_interval == "forecast_24hr" ) {
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200 ).utcOffset($moment_js_utc_offset).format( "DD" ));
+                } else {
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "YYYY" )).replace("MM", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "MM" )).replace("DD", moment.unix( data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] ).utcOffset($moment_js_utc_offset).format( "DD" ));
+                                     
+                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                var forecast_link = '<a href="'+forecast_link_setup+'" target="_blank">$obs.label.daily_forecast</a>';
+                
+                forecast_row.push( {
                     "weekday": weekday,
                     "image_url": image_url,
                     "condition_text": condition_text,
+                    "avgTemp": avgTemp,
                     "minTemp": minTemp,
                     "maxTemp": maxTemp,
                     "windSpeed": windSpeed,
@@ -1215,63 +1212,186 @@ function update_forecast_data( data ) {
                     "snow_unit": snow_unit,
                     "precip": precip,
                     "forecast_link": forecast_link
-            
-            } );
-        }
-    }
+                } );
+            }
 
-    // WX icon in temperature box    
-    jQuery("#wxicon").attr( "src", wxicon );
-    belchertown_debug("Forecast: Changing icon to " + wxicon);
+            //  Create individual forecast rows
+            if ( forecast_interval == "forecast_1hr" ) {
+                //  set temperature range and offset to centralise output
+                var rangeTemp = highTemp - lowTemp;
+                var offset = 0;
+                if ( highTemp - lowTemp < 2 ) {
+                    rangeTemp = 2;
+                    if ( highTemp - lowTemp == 0 ) offset = 1; //sets the only value 1/2 way down
+                    else if ( highTemp - lowTemp == 1 ) offset = 0.67;  //sets the top value 1/3 way down
+                }
+                // Build 1 hour forecast row
+                for (i = 0; i < forecast_row.length; i++) {
+                    if ( i == 0 ) {
+                        //output_html += '<div class="col-sm-1-5 forecast-1hour forecast-today">';
+						output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour forecast-today">';
+                    } else {
+                        //output_html += '<div class="col-sm-1-5 forecast-1hour border-left">';
+						output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour border-left">';
+                    }
+                    output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
+                    output_html += '<br>';
+					output_html += '<div class="forecast-conditions">';
+                    output_html += '<div class="forecast-temp-graph" style="padding-top:';              
+                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding 
+                    output_html += parseInt( ( highTemp - forecast_row[i]["avgTemp"] + offset ) * 100 / ( rangeTemp) )  +'px">';
+                    output_html += '<div class="forecast-image">';
+                    output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
+                    output_html += '</div>';
+                    //output_html += parseFloat( forecast_row[i]["avgTemp"] ).toFixed(0) +'&deg;</div>';
+                    //output_html += '<span class="forecast-average">'+ parseFloat( forecast_row[i]["avgTemp"] ).toFixed(0) +'&deg;</span></div>';
+					output_html += parseFloat( forecast_row[i]["avgTemp"] ).toFixed(0) + '$unit.label.outTemp' + '</div>';
+					output_html += '</div>';
+                    //  output_html += '<br>';
+                    output_html += '<div class="forecast-precip">';
+                    if ( forecast_row[i]["snow_depth"] > 0 ) {
+                        output_html += '<div class="snow-precip">';
+                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
+                        //  output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+                        output_html += '</div>';
+                    } else if ( forecast_row[i]["precip"] > 0 ) {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
+                    } else {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+                    }
+                    output_html += '</div>';
+                    output_html += '<div class="forecast-wind">';
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) + '</span>' + '$unit.label.windSpeed';        
+                    // output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
+                    output_html += '</div>';
+                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    output_html += forecast_row[i]["forecast_link"];
+                    #end if
+                    output_html += '</div>';
+                }
+            } else {
 
-    // Build daily forecast row
-    var output_html = "";
-    for (i = 0; i < forecast_row.length; i++) {
-        if ( i == 0 ) {
-            output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
-        } else {
-            output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+            // Build 3 or 24 hour forecast rows
+                for (i = 0; i < forecast_row.length; i++) {
+                    if ( forecast_interval == "forecast_3hr") {
+                        if ( i == 0 ) {
+                            //output_html += '<div class="col-sm-1-5 forecast-3hour forecast-today">';
+							output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour forecast-today">';
+                        } else {
+                            //output_html += '<div class="col-sm-1-5 forecast-3hour border-left">';
+							output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour border-left">';
+                        }
+                    } else if ( forecast_interval == "forecast_24hr") {
+                        if ( i == 0 ) {
+                            //output_html += '<div class="col-sm-1-5 forecast-day forecast-today">';
+							output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour forecast-today">';
+                        } else {						
+                            //output_html += '<div class="col-sm-1-5 forecast-day border-left">';
+							output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour border-left">';
+                        }
+                    }
+                    output_html += '<span id="weekday">'+forecast_time( i, forecast_interval, forecast_row[i]["weekday"] )+'</span>';
+                    output_html += '<br>';
+                    output_html += '<div class="forecast-conditions">';
+                    output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
+                    output_html += '<br>';
+                    output_html += '<span class="forecast-condition-text">'+forecast_row[i]["condition_text"]+'</span>';  
+                    output_html += '</div>';
+                    //output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'&deg;</span>';
+                    output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'$unit.label.outTemp</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'$unit.label.outTemp</span>';
+                    output_html += '<br>';
+                    output_html += '<div class="forecast-precip">';
+                    if ( forecast_row[i]["snow_depth"] > 0 ) {
+                        output_html += '<div class="snow-precip">';
+                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+                        output_html += '</div>';
+                    } else if ( forecast_row[i]["precip"] > 0 ) {
+                        output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
+                    } else {
+                    output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
+                    }
+                    output_html += '</div>';
+                    output_html += '<div class="forecast-wind">';
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
+                    output_html += '</div>';
+                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    output_html += forecast_row[i]["forecast_link"];
+                    #end if
+                    output_html += '</div>';
+                }
+            }
+        
+        // Show the forecasts rows
+        if ( forecast_interval == "forecast_1hr" ) {
+            jQuery(".1hr_forecasts").html( output_html );
+        } else if ( forecast_interval == "forecast_3hr" ) {
+            jQuery(".3hr_forecasts").html( output_html );
+        } else if ( forecast_interval == "forecast_24hr" ) {
+            jQuery(".24hr_forecasts").html( output_html );
         }
-        // Add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
-        output_html += '<span id="weekday">'+forecast_row[i]["weekday"]+'</span>';
-        output_html += '<br>';
-        output_html += '<div class="forecast-conditions">';
-        output_html += '<img id="icon" src="'+forecast_row[i]["image_url"]+'">';
-        output_html += '<span class="forecast-condition-text">'+forecast_row[i]["condition_text"]+'</span>';
-        output_html += '</div>';
-        output_html += '<span class="forecast-high">'+ parseFloat( forecast_row[i]["maxTemp"] ).toFixed(0) +'&deg;</span> | <span class="forecast-low">'+ parseFloat( forecast_row[i]["minTemp"] ).toFixed(0) +'&deg;</span>';
-        output_html += '<br>';
-        output_html += '<div class="forecast-precip">';
-        if ( forecast_row[i]["snow_depth"] > 0 ) {
-            output_html += '<div class="snow-precip">';
-            output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
-            output_html += '</div>';
-        } else if ( forecast_row[i]["precip"] > 0 ) {
-            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
-        } else {
-            output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-no-precip"></i> <span>0%</span>';
-        }
-        output_html += '</div>';
-        output_html += '<div class="forecast-wind">';
-        output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
-        output_html += '</div>';
-        #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
-        output_html += forecast_row[i]["forecast_link"];
-        #end if
-        output_html += '</div>';
-    }
-    
-    // Show the forecast row
-    jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );
-    jQuery(".forecasts").html( output_html );
-    
+		// Show the forecast_subtitle
+        jQuery(".forecast-subtitle").html( "$obs.label.forecast_last_updated " + forecast_subtitle );        
+    }    
+
+//	End of new composite version of forecast code
+
     #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
     // Show weather alert
     show_forcast_alert( data, forecast_provider );
     #end if
+
+    // WX icon in temperature box    
+    jQuery("#wxicon").attr( "src", wxicon );
     
+    }
 }
 #end if
+
+//  function to display selected forecast according to value of interval (1, 3 or 24); 0 hides all forecasts
+function forecast_select(interval) {
+    if (interval == 0 ) {
+        jQuery(".forecastrow").hide();
+    } else {
+        oldinterval = sessionStorage.getItem( "forecastInterval" );
+        if ( interval != oldinterval ) {
+            //  hide the old forecast
+            var forecast = document.getElementById ( ( oldinterval + "hour-selected-forecast") );
+            var button =   document.getElementById ( ( "button" + oldinterval ) );
+            if ( forecast != null ) forecast.style.display = "none";
+            if ( button != null ) button.style.borderStyle = "hidden";
+            //  display the new forecast and store its interval value
+            forecast = document.getElementById ( ( interval + "hour-selected-forecast") );
+            button =   document.getElementById ( ( "button" + interval ) );
+            if ( forecast != null ) forecast.style.display = "block";
+            if ( button != null ) button.style.borderStyle = "solid";
+            sessionStorage.setItem( "forecastInterval" ,interval );
+        }    
+    }
+}
+
+function forecast_default ( interval ) {
+    sessionStorage.setItem ( "defaultInterval", interval );
+}
+
+//  function adjusts daytime format for forecast_1hr & _3hr; assumes "ddd LT" format for daytime
+function forecast_time ( i, interval, daytime ) {
+    if ( ( daytime.indexOf( " " ) == -1 ) || ( interval == "forecast_24hr" ) ) return daytime;
+    var output = daytime
+    var strday = daytime.substr( 0, daytime.indexOf( " ") );
+    var strtime = daytime.substr( daytime.indexOf( " " ) +1 );
+    if ( interval == "forecast_1hr" ) {
+        if ( ( i == 0 ) ||  ( strtime == "00:00" ) || ( strtime == "12:00 AM" ) ) {
+            output = strtime + "<br>" + strday;    
+        } else {
+            output = strtime + "<br>";    
+        }    
+    } else if ( interval == "forecast_3hr" ) {
+        if ( ( i != 0 ) && ( ( strtime > "02:59" ) || ( strtime > "02:59 AM" ) ) ) {
+            output = strtime;    
+        }
+    }
+    return output;
+}
 
 #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
 //============================================//
@@ -1459,11 +1579,18 @@ function update_current_wx(data) {
         if ( pageName != "pi" ) {
             setTimeout( showChart, 30000, homepage_graphgroup ); // Load updated charts. 
         }
-        setTimeout( ajaxweewx, 10000 ); // Update weewx data
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-        setTimeout( ajaxforecast, 10000 ); // Update forecast data
-        #end if
-        setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
+		ajaxweewx().then(function(weewx_data){ // Update weewx data
+
+			setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Update weewx data
+			setTimeout(belchertown_debug.bind(null, weewx_data), 10000);
+			
+			#if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+			setTimeout( ajaxforecast, 10000 ); // Update forecast data
+			#end if
+			setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present						
+		}).catch(function(e){
+			console.log(e);
+		});		
     } else {
         // Only show the updated time on non-archive packets
         epoch = parseFloat( data["dateTime"] ).toFixed(0);
@@ -1590,20 +1717,24 @@ function update_current_wx(data) {
 };
 #end if
 
-
 Highcharts.setOptions({
     global: {
         //useUTC: false
         timezoneOffset: $highcharts_timezoneoffset
     },
     lang: {
+		months: moment.months(),
+		//shortMonths: moment.monthsShort(), // with trailing period
+		shortMonths: moment.monthsShort('-MMM-'), // without trailing period (some languages don't prefer them)
+		weekdays: moment.weekdays(),
+		shortWeekdays: moment.weekdaysShort(),
         decimalPoint: "$highcharts_decimal",
         thousandsSep: "$highcharts_thousands"
     }
 });
 
 function showChart(json_file, prepend_renderTo=false) {
-
+	
     // Relative URL by finding what page we're on currently.
     jQuery.getJSON(get_relative_url() + '/json/' + json_file + '.json', function(data) {
         
@@ -1724,6 +1855,62 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
                 
                 exporting: {
+					chartOptions: {
+						chart: {
+							events: {
+								load: function () {
+									this.title.update({style:{color: '#e5554e'}});
+
+									if ( sessionStorage.getItem('currentTheme') === 'dark' ) {
+										var darktheme_textcolor = '#fff';
+										for (var i = this.yAxis.length-1; i >= 0; i--) {
+											this.yAxis[i].update({
+												title:{style:{color: darktheme_textcolor}},												
+												labels:{style:{color: darktheme_textcolor}},
+												gridLineColor: '#707073',
+												tickColor: '#707073'
+											});
+										}
+										
+										for (var i = this.xAxis.length-1; i >= 0; i--) {									
+											this.xAxis[i].update({
+												title:{style:{color: darktheme_textcolor}},
+												labels:{style:{color: darktheme_textcolor}},
+												gridLineColor: '#707073',
+												tickColor: '#707073'
+											});
+										}
+										
+										this.legend.update({itemStyle:{color: darktheme_textcolor}});
+
+										this.credits.update({style:{color: darktheme_textcolor}});																			
+									
+										this.subtitle.update({style:{color: darktheme_textcolor}});
+									
+										this.chartBackground.attr({fill: jQuery( ".highcharts-background" ).css( "fill" )});
+									} else {
+										var lighttheme_textcolor = '#666666';
+										for (var i = this.yAxis.length-1; i >= 0; i--) {
+											this.yAxis[i].update({
+												title:{style:{color: lighttheme_textcolor}},												
+												labels:{style:{color: lighttheme_textcolor}},
+											});
+										}
+										
+										for (var i = this.xAxis.length-1; i >= 0; i--) {									
+											this.xAxis[i].update({
+												title:{style:{color: lighttheme_textcolor}},
+												labels:{style:{color: lighttheme_textcolor}},
+											});
+										}									
+									}
+								}
+							}
+						}
+					},
+					scale: 1,
+					width: 1000,
+					sourceWidth: 1000,
                     enabled: JSON.parse( String( exporting_enabled ) ) // Convert string to bool
                 },
 
@@ -1740,7 +1927,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     enabled: JSON.parse( String( legend_enabled ) ) // Convert string to bool
                 },
 
-                xAxis: {
+                xAxis: {					
                     dateTimeLabelFormats: {
                         day: '%e %b',
                         week: '%e %b',
@@ -1831,6 +2018,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
 
                 tooltip: {
+					useHTML: true, // toegevoegd 1-11-2020
                     enabled: true,
                     crosshairs: true,
                     dateTimeLabelFormats: {
@@ -1841,14 +2029,18 @@ function showChart(json_file, prepend_renderTo=false) {
                                     try {
                                         // The first returned item is the header, subsequent items are the points.
                                         // Mostly applies to line style charts (line, spline, area)
-                                        return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format )].concat(
+                                        //return [moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format )].concat(
+                                        return ["<span class='tooltip_text_class'> " + moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + " </span>"].concat(
                                             this.points.map(function (point) {
                                                 // If observation_type is in the series array, use that otherwise use the obsType
                                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+												if (point_obsType == "rainTotal") {point_obsType = "rain";} // NEW
+												if (point_obsType == "lowTemperature") {point_obsType = "outTemp";} // NEW												
                                                 var rounding = point.series.userOptions.rounding;
                                                 var mirrored = point.series.userOptions.mirrored_value;
                                                 var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat );
+                                                //return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat ) + unit_label_array[point_obsType]; // ADDED/NEW numberFormat and unit label
+                                                return "<span style='color:" + point.series.color + "'>\u25CF</span><span class='tooltip_text_class'> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat ) + unit_label_array[point_obsType] + " </span>"; // ADDED/NEW numberFormat and unit label
                                             })
                                         );
                                     } catch(e) {
@@ -1858,12 +2050,14 @@ function showChart(json_file, prepend_renderTo=false) {
                                             var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
                                             var rounding = this.series.userOptions.rounding;
                                             var mirrored = this.series.userOptions.mirrored_value;
-                                            return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );
+                                            //return moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );
+                                            return "<span class='tooltip_text_class'> " + moment.unix( this.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + " </span>" +'<br><b>' + highcharts_tooltip_factory( this.point.y, point_obsType, true, rounding, mirrored );											
                                         } else if (this.series.userOptions.type == "scatter") {
                                             // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                             return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
                                         } else {
-                                            return tooltip.defaultFormatter.call(this, tooltip);
+                                            //return tooltip.defaultFormatter.call(this, tooltip);
+                                            return "<span class='tooltip_text_class'> " + tooltip.defaultFormatter.call(this, tooltip) + " </span>";
                                         }
                                     }
                     },
@@ -1895,6 +2089,18 @@ function showChart(json_file, prepend_renderTo=false) {
             options.chart.type = type;
             options.title.text = "<a href='#"+options.chart.renderTo+"'>"+title+"</a>"; // Anchor link to chart for direct linking
             options.subtitle.text = subtitle;
+			
+/*			if (title === "Neerslag 2020") { // Only apply to chart with this title
+				options.xAxis.labels = {
+					formatter: function () {
+						var shortMonth = moment.unix( this.value / 1000).utcOffset($moment_js_utc_offset).format( "MMM" ); // Get locale month name
+						shortMonth = shortMonth.charAt(0).toUpperCase() + shortMonth.slice(1); // Turn first character into uppercase
+						if (shortMonth.lastIndexOf(".") !== -1) {shortMonth = shortMonth.slice(0, -1);} // Remove trailing period when present
+						return shortMonth;
+					},
+				}
+			}*/
+						
             options.plotOptions.area.gapSize = gapsize;
             options.plotOptions.line.gapSize = gapsize;
             options.plotOptions.spline.gapSize = gapsize;
@@ -1920,9 +2126,11 @@ function showChart(json_file, prepend_renderTo=false) {
                             this.points.map(function (point) {
                                 // If observation_type is in the series array, use that otherwise use the obsType
                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+								if (point_obsType == "rainTotal") {point_obsType = "rain";} // NEW
                                 var rounding = point.series.userOptions.rounding;
                                 var mirrored = point.series.userOptions.mirrored_value;
-                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored );
+                                var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : ""; // NEW
+                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory( point.y, point_obsType, true, rounding, mirrored, numberFormat ) + unit_label_array[point_obsType]; // ADDED/NEW numberFormat and unit label
                             })
                         );
                     },
@@ -1993,7 +2201,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 this_yAxis = s.yAxis;
                 
                 belchertown_debug( options.chart.renderTo + ": " + s.obsType + " is on yAxis " + this_yAxis );
-                
+                				
                 // Some charts may require a defined min/max on the yAxis
                 options.yAxis[this_yAxis].min = s.yAxis_min !== "undefined" ? s.yAxis_min : null;
                 options.yAxis[this_yAxis].max = s.yAxis_max !== "undefined" ? s.yAxis_max : null;
@@ -2014,10 +2222,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    if ( typeof s.yAxis_tickInterval === "undefined" ) { 
+                    /*if ( typeof s.yAxis_tickInterval === "undefined" ) { 
                         // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
                         options.yAxis[this_yAxis].tickInterval = 0.01;
-                    }
+                    }*/
                     // Define yAxis label float format if rounding is defined. Default to 2 decimals if nothing defined
                     if ( typeof s.rounding !== "undefined" ) {
                         options.yAxis[this_yAxis].labels = { format: '{value:.'+s.rounding+'f}' }
@@ -2035,7 +2243,12 @@ function showChart(json_file, prepend_renderTo=false) {
 
                 if (s.obsType == "windDir") {
                     options.yAxis[this_yAxis].tickInterval = 90;
-                    options.yAxis[this_yAxis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+					
+                    //options.yAxis[this_yAxis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                    options.yAxis[this_yAxis].labels = { 
+						useHTML: true, // toegevoegd 1-11-2020
+						formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } 
+					}
                 }
                 
                 // Check if this series has a gapsize override
@@ -2081,10 +2294,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
-                //options.xAxis.labels = { useHTML: true } // Option disabled in highcharts 8
+                options.xAxis.labels = { useHTML: true } // Option disabled in highcharts 8
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
-                options.legend.x = 210;
+                options.legend.x = 220; //210
                 options.legend.y = 119;
                 options.legend.layout = "vertical";
                 options.legend.floating = true;
@@ -2103,7 +2316,7 @@ function showChart(json_file, prepend_renderTo=false) {
                                         }
                                     }
                 // Reset the tooltip
-                options.tooltip = {}
+                options.tooltip = {}				
                 options.tooltip.shared = true;
                 options.tooltip.valueSuffix = '%';
                 options.tooltip.followPointer = true;
@@ -2161,6 +2374,7 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                 }
 
+                options.tooltip = {}
                 options.tooltip = {
                     split: false,
                     shared: true,
@@ -2169,18 +2383,25 @@ function showChart(json_file, prepend_renderTo=false) {
                     formatter: function (tooltip) {
                         return this.points.map(function (point) {
                             var rounding = point.series.userOptions.rounding;
-                            var mirrored = point.series.userOptions.mirrored_value;
+							//var rounding = 1;
+                            // var mirrored = point.series.userOptions.mirrored_value; // not needed REMOVE
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat );
+							//console.log("Rounding = " + rounding + "Mirrored = " + mirrored + "Numberformat = " + numberFormat); // REMOVE
+                            //return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ); // REMOVE
+                            //return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, false, numberFormat ) + unit_label_array["windSpeed"] + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, false, numberFormat ) + unit_label_array["windSpeed"]; // ADDED/NEW rounding and unit label
+                            //return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"] + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"]; // ADDED/NEW rounding and unit label
+                            return "<span class='tooltip_text_class'><strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong></span><br><span style='color:" + options.series[0].color + "'>\u25CF</span><span class='tooltip_text_class'> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"] + "</span><br><span style='color:" + options.series[0].color + "'>\u25CF</span><span class='tooltip_text_class'> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, "windSpeed", true, rounding, false, numberFormat ) + unit_label_array["windSpeed"] + "</span>"; // ADDED/NEW rounding and unit label							
                         });
                     }
                 }
 
-                var currentSeries = options.series;
+                var currentSeries = options.series;				
                 var currentSeriesData = options.series[0].data;
-                var range_unit = options.series[0].range_unit;
-                var newSeriesData = [];
+                //var range_unit = options.series[0].range_unit; // obsolete REMOVE
                 var currentSeriesColor = options.series[0].color;
+				var currentSeriesNumberFormat = options.series[0].numberFormat; // NEW
+				var currentSeriesRounding = options.series[0].rounding; // NEW
+				var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     newSeriesData.push({
                         x: seriesData[0],
@@ -2188,15 +2409,21 @@ function showChart(json_file, prepend_renderTo=false) {
                         high: seriesData[2],
                     });
                 });
+								
                 options.series = [];
                 options.series.push({
                     data: newSeriesData,
                     obsType: "haysChart",
-                    obsUnit: range_unit,
+                    //obsUnit: range_unit, // obsolete REMOVE
                     color: currentSeriesColor,
                     fillColor: currentSeriesColor,
                     connectEnds: false,
+					numberFormat: currentSeriesNumberFormat, // NEW
+					rounding: currentSeriesRounding, // NEW					
                 });
+
+
+																
             }
 
             // If weather range is present, configure a special chart to show that data
@@ -2235,12 +2462,12 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                 }
                 
-                options.xAxis = {}
                 options.xAxis = {
-                    labels: {
-                        format: "{value: %b}"
+                    dateTimeLabelFormats: {
+                        day: '%e %b',
+                        week: '%e %b',
+                        month: '%b %y',
                     },
-                    tickInterval: 2592000000, // 30 days
                     showLastLabel: true,
                     crosshair: true,
                     type: "datetime"
@@ -2256,6 +2483,7 @@ function showChart(json_file, prepend_renderTo=false) {
                   }
                 }
 
+                options.tooltip = {}
                 options.tooltip = {
                     split: false,
                     shared: true,
@@ -2263,10 +2491,15 @@ function showChart(json_file, prepend_renderTo=false) {
                     useHTML: true,
                     formatter: function (tooltip) {
                         return this.points.map(function (point) {
+                            var range_type = point.series.userOptions.range_type;
+							// console.log("Het type is : " + range_type);
                             var rounding = point.series.userOptions.rounding;
+							// var rounding = 1;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, observation_type, true, rounding, mirrored, numberFormat );
+                            //return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, observation_type, true, rounding, mirrored, numberFormat ) + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, observation_type, true, rounding, mirrored, numberFormat );
+                            //return "<strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "<br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type];
+                            return "<span class='tooltip_text_class'><strong>" + moment.unix( point.x / 1000).utcOffset($moment_js_utc_offset).format( tooltip_date_format ) + "</strong></span><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span><span class='tooltip_text_class'> $obs.label.highest_temperature: " + highcharts_tooltip_factory( point.point.high, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "</span><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span><span class='tooltip_text_class'> $obs.label.lowest_temperature: " + highcharts_tooltip_factory( point.point.low, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "</span><br><span style='color:" + get_outTemp_color( point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span><span class='tooltip_text_class'> $obs.label.average_temperature: " + highcharts_tooltip_factory( point.point.average, range_type, true, rounding, mirrored, numberFormat ) + unit_label_array[range_type] + "</span>";							
                         });
                     }
                 }
@@ -2274,7 +2507,11 @@ function showChart(json_file, prepend_renderTo=false) {
                 // Update data
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
+				var currentSeriesNumberFormat = options.series[0].numberFormat; // NEW
+				var currentSeriesRounding = options.series[0].rounding; // NEW				
                 var range_unit = options.series[0].range_unit;
+                var currentRange_type = options.series[0].range_type;
+				//console.log("range_type = " + range_type);
                 var newSeriesData = [];
                 currentSeriesData.forEach( seriesData => {
                     if ( options.series[0].color ) {
@@ -2295,7 +2532,10 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.series.push({
                     data: newSeriesData,
                     obsType: "weatherRange",
-                    obsUnit: range_unit
+                    obsUnit: range_unit,
+					range_type: currentRange_type,
+					numberFormat: currentSeriesNumberFormat, // NEW
+					rounding: currentSeriesRounding, // NEW										
                 });
             }
             
@@ -2327,7 +2567,8 @@ function showChart(json_file, prepend_renderTo=false) {
             var chart = new Highcharts.chart(options);
             
             // If using debug, show a copy paste debug for use with jsfiddle
-            belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
+            //belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
+            belchertown_debug(options);
 
         });
     
