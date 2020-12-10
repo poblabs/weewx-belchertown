@@ -891,6 +891,7 @@ class getData(SearchList):
                 else:
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=25mi&limit=10&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
@@ -900,7 +901,7 @@ class getData(SearchList):
             elif forecast_provider == "darksky":
                 forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
                 
-            # Determine if the file exists and get it's modified time
+            # Determine if the file exists and get its modified time
             if os.path.isfile( forecast_file ):
                 if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
                     forecast_is_stale = True
@@ -938,6 +939,11 @@ class getData(SearchList):
                             response = urlopen( req )
                             forecast_page = response.read()
                             response.close()
+                            # AQI
+                            req = Request( aqi_url, None, headers )
+                            response = urlopen( req )
+                            aqi_page = response.read()
+                            response.close()
                             if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
                                 # Alerts
                                 req = Request( forecast_alerts_url, None, headers )
@@ -948,14 +954,46 @@ class getData(SearchList):
                             # Combine all into 1 file
                             if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
                                 try:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)], "alerts": [json.loads(alerts_page)]} )
+                                    forecast_file_result = json.dumps( {"timestamp":
+                                                                        int(time.time()),
+                                                                        "current":
+                                                                        [json.loads(current_page)],
+                                                                        "forecast":
+                                                                        [json.loads(forecast_page)],
+                                                                        "alerts":
+                                                                        [json.loads(alerts_page)],
+                                                                        "aqi":
+                                                                        [json.loads(aqi_page)]} )
                                 except:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))], "alerts": [json.loads(alerts_page.decode('utf-8'))]} )
+                                    forecast_file_result = json.dumps( {"timestamp":
+                                                                        int(time.time()),
+                                                                        "current":
+                                                                        [json.loads(current_page.decode('utf-8'))],
+                                                                        "forecast":
+                                                                        [json.loads(forecast_page.decode('utf-8'))],
+                                                                        "alerts":
+                                                                        [json.loads(alerts_page.decode('utf-8'))],
+                                                                        "aqi":
+                                                                        [json.loads(aqi_page.decode('utf-8'))]} )
                             else:
                                 try:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page)], "forecast": [json.loads(forecast_page)]} )
+                                    forecast_file_result = json.dumps( {"timestamp":
+                                                                        int(time.time()),
+                                                                        "current":
+                                                                        [json.loads(current_page)],
+                                                                        "forecast":
+                                                                        [json.loads(forecast_page)],
+                                                                        "aqi":
+                                                                        [json.loads(aqi_page)]} )
                                 except:
-                                    forecast_file_result = json.dumps( {"timestamp": int(time.time()), "current": [json.loads(current_page.decode('utf-8'))], "forecast": [json.loads(forecast_page.decode('utf-8'))]} )
+                                    forecast_file_result = json.dumps( {"timestamp":
+                                                                        int(time.time()),
+                                                                        "current":
+                                                                        [json.loads(current_page.decode('utf-8'))],
+                                                                        "forecast":
+                                                                        [json.loads(forecast_page.decode('utf-8'))],
+                                                                        "aqi":
+                                                                        [json.loads(aqi_page.decode('utf-8'))]} )
                         elif forecast_provider == "darksky":
                             req = Request( forecast_url, None, headers )
                             response = urlopen( req )
@@ -983,6 +1021,7 @@ class getData(SearchList):
                 data = json.load( read_file )
                 
             if forecast_provider == "aeris":
+                aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
                 if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
                     # Non-metar responses do not contain these values. Set them to empty.
                     current_obs_summary = ""
@@ -1399,7 +1438,8 @@ class getData(SearchList):
                                   'earthquake_bearing': eqbearing,
                                   'earthquake_bearing_raw': eqbearing_raw,
                                   'social_html': social_html,
-                                  'custom_css_exists': custom_css_exists }
+                                  'custom_css_exists': custom_css_exists,
+                                  'aqi': aqi }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
