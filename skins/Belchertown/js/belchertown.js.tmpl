@@ -197,6 +197,30 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
     }
 }
 
+// Change the color of the aqi variable
+function get_aqi_color( aqi, returnColor=false ) {
+    if ( aqi <= 50 ) {
+        var aqi_color = "#71bc3c";
+    } else if ( aqi <= 100 ) {
+        var aqi_color = "#ffff00";
+    } else if ( aqi <= 150 ) {
+        var aqi_color = "#ff7e00";
+    } else if ( aqi <= 200 ) {
+        var aqi_color = "#ff0000";
+    } else if ( aqi <= 300 ) {
+        var aqi_color = "#8f3f97";
+    } else if ( aqi > 300 ) {
+        var aqi_color = "#7e0023";
+    }
+
+// Return the color value if requested, otherwise just set the div color
+    if ( returnColor ) {
+        return aqi_color;
+    } else {
+        jQuery(".aqi_outer").css( "color", aqi_color );
+    }
+}
+
 function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false, numberFormat) {
     // Mirrored values have the negative sign removed
     if ( mirrored ) {
