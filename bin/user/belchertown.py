@@ -1022,6 +1022,7 @@ class getData(SearchList):
                 
             if forecast_provider == "aeris":
                 aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
+                aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
                 if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
                     # Non-metar responses do not contain these values. Set them to empty.
                     current_obs_summary = ""
@@ -1439,7 +1440,8 @@ class getData(SearchList):
                                   'earthquake_bearing_raw': eqbearing_raw,
                                   'social_html': social_html,
                                   'custom_css_exists': custom_css_exists,
-                                  'aqi': aqi }
+                                  'aqi': aqi,
+                                  'aqi_category': aqi_category }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
