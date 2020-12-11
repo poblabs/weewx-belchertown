@@ -192,9 +192,11 @@
                                         <div class="current-obs-text">
                                             $current_obs_summary
                                         </div>
+                                        #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
                                         <div class="aqi_outer">
                                             AQI:  $aqi
                                         </div>
+                                        #end if
                                     </div>
                                     <div class="col-sm-6">
                                         #if $current.appTemp.has_data
