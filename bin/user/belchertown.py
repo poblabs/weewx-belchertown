@@ -1023,6 +1023,36 @@ class getData(SearchList):
             if forecast_provider == "aeris":
                 aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
                 aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
+
+                # Substitute label names if defined in config files, to allow users to supply their own translations
+                # see https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
+                if aqi_category == "good" and label_dict["aqi_good"] != "aqi_good":
+                    aqi_category = label_dict["aqi_good"]
+                elif aqi_category == "good" and label_dict["aqi_good"] == "aqi_good":
+                    aqi_category = "good"
+                elif aqi_category == "moderate" and label_dict["aqi_moderate"] != "aqi_moderate":
+                    aqi_category = label_dict["aqi_moderate"]
+                elif aqi_category == "moderate" and label_dict["aqi_moderate"] == "aqi_moderate":
+                    aqi_category = "moderate"
+                elif aqi_category == "usq" and label_dict["aqi_usq"] != "aqi_usq":
+                    aqi_category = label_dict["aqi_usq"]
+                elif aqi_category == "usq" and label_dict["aqi_usq"] == "aqi_usq":
+                    aqi_category = "unhealthy for some"
+                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] != "aqi_unhealthy":
+                    aqi_category = label_dict["aqi_unhealthy"]
+                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] == "aqi_unhealthy":
+                    aqi_category = "unhealthy"
+                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] != "aqi_very_unhealthy":
+                    aqi_category = label_dict["aqi_very_unhealthy"]
+                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] == "aqi_very_unhealthy":
+                    aqi_category = "very unhealthy"
+                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] != "aqi_hazardous":
+                    aqi_category = label_dict["aqi_hazardous"]
+                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] == "aqi_hazardous":
+                    aqi_category = "hazardous"
+                else:
+                    aqi_category = "unknown"
+
                 if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
                     # Non-metar responses do not contain these values. Set them to empty.
                     current_obs_summary = ""
