@@ -39,6 +39,11 @@
             get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
             rotateThis( "$current.windDir.formatted" );
+
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated_text = "$obs.label.header_last_updated " + updated;
+            jQuery(".updated").html( updated_text );
             
             #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
             if ( moment.unix( "$earthquake_time" ).isValid() ) {
@@ -64,19 +69,23 @@
             #end if
             
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
-            connect(); // Begin mqtt after weewx initial load
-            // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
-            jQuery(document).on('click', '.restart-interval', function() { 
-                ajaxweewx(); // Update weewx data
-                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                ajaxforecast(); // Update forecast data
-                #end if
-                ajaximages(); // Update radar and home page hook "img src" if present
-                connect(); // Restart mqtt after weewx data's re-loaded
-                #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                showChart(homepage_graphgroup);
-                #end if
-            });
+            if ( getURLvar("offline") && ( getURLvar("offline") == "true" || getURLvar("offline") == "1" ) ) {
+                belchertown_debug("MQTT: offline url var detected. Skipping MQTT connect.");
+            } else {
+                connect(); // Begin mqtt after weewx initial load
+                // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
+                jQuery(document).on('click', '.restart-interval', function() { 
+                    ajaxweewx(); // Update weewx data
+                    #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                    ajaxforecast(); // Update forecast data
+                    #end if
+                    ajaximages(); // Update radar and home page hook "img src" if present
+                    connect(); // Restart mqtt after weewx data's re-loaded
+                    #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                    showChart(homepage_graphgroup);
+                    #end if
+                });
+            }
             
             #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
             // Update any images in the radar section or hooks
@@ -120,11 +129,6 @@
                 jQuery(".last-updated-alert").show();
             }
             #end if
-            
-            // Update the Last Updated timestamp with moment.js,
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
-            updated_text = "$obs.label.header_last_updated " + updated;
-            jQuery(".updated").html( updated_text );
             
             #end if
         });
@@ -172,22 +176,22 @@
                             <!-- Temperature -->
                             <div class="weather-obs-top">
                                 <div class="row temp-observation">
-                                    <div class="col-sm-5 current_obs_top">
-                                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                                    <div class="col-sm-6 current_obs_top">
+                                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1' and $current_obs_icon != ""
                                         <img id="wxicon" src="$relative_url/images/$current_obs_icon">
                                         #end if
                                     </div>
-                                    <div class="col-sm-7 current_temp">
+                                    <div class="col-sm-6 current_temp">
                                         <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-5 current-obs-container">
+                                    <div class="col-sm-6 current-obs-container">
                                         <div class="current-obs-text">
                                             $current_obs_summary
                                         </div>
                                     </div>
-                                    <div class="col-sm-7">
+                                    <div class="col-sm-6">
                                         #if $current.appTemp.has_data
                                         <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
                                         #end if
@@ -287,12 +291,12 @@
                                                     $obs.label.sun_and_moon
                                                 </div>
                                                 #end if
-                                                <div class="col-sm-6 sun">
+                                                <div class="col-sm-5 sun">
                                                     <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
                                                     <br>
                                                     <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
                                                 </div>
-                                                <div class="col-sm-6 moon">
+                                                <div class="col-sm-7 moon">
                                                     <div class="moon-container">
                                                         <span class="moon-icon">
                                                             #if $almanac.moon_index == 0
@@ -319,7 +323,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
-                                                #if os.path.exists("celestial.inc")
+                                                #if $Extras.has_key("almanac_extras") and $Extras.almanac_extras == '1' and $almanac.hasExtras
+                                                <!-- Almanac Modal -->
                                                 <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
                                                 <!-- Almanac Modal -->
                                                 <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
@@ -329,11 +334,11 @@
                                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
                                                                 </button>
-                                                                <h5 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h5>
+                                                                <h4 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h4>
                                                             </div>
-                                                            <div class="modal-body">
+                                                            <div class="almanac-extras-modal-body modal-body">
                                                                 #include "celestial.inc"
-                                                            </div>
+                                                            </div><!-- AJAX -->
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-primary" data-dismiss="modal">$obs.label.close</button>
                                                             </div>
@@ -452,13 +457,12 @@
                             #if $earthquake_place != ''
                             <br>
                             <i class="fa fa-map-marker"></i> <a href="$earthquake_url" target="_blank">$earthquake_place</a>
-                            <div class="row">
+                            <div class="row earthquake-info">
                                 <div class="col-sm-6">
                                     <i class="wi wi-earthquake"></i>$obs.label.earthquake_magnitude <span class="magnitude">$earthquake_magnitude</span>
                                 </div>
-                                <div class="col-sm-6 border-left">
-                                    <span>$earthquake_lat &deg;
-                                    <br>$earthquake_lon &deg;</span>
+                                <div class="col-sm-6 earthquake-distance-outer border-left">
+                                    <span class="earthquake-distance">$earthquake_distance_away $earthquake_distance_label $earthquake_bearing</span>
                                 </div>
                             </div>
                             #end if

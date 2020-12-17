@@ -9,11 +9,11 @@ def loader():
 class BelchertownInstaller(ExtensionInstaller):
     def __init__(self):
         super(BelchertownInstaller, self).__init__(
-            version="1.1",
+            version="1.2",
             name='Belchertown',
             description='A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com',
             author="Pat OBrien",
-            author_email="pat@obrienlabs.net",
+            author_email="https://github.com/poblabs/weewx-belchertown",
             config={
                 'StdReport': {
                     'Belchertown': {
@@ -48,10 +48,7 @@ class BelchertownInstaller(ExtensionInstaller):
                                                'skins/Belchertown/NOAA/NOAA-YYYY.txt.tmpl'
                                               ]
                     ),
-                   ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl',
-                                               'skins/Belchertown/pi/pi-header.html.tmpl'
-                                              ]
-                    ),                    
+                   ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl']),                    
                    ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
                    ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
                    ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown.js.tmpl',
@@ -68,6 +65,10 @@ class BelchertownInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/cloudy.png',
                                                  'skins/Belchertown/images/fog.png',
                                                  'skins/Belchertown/images/hail.png',
+                                                 'skins/Belchertown/images/mostly-clear-day.png',
+                                                 'skins/Belchertown/images/mostly-clear-night.png',
+                                                 'skins/Belchertown/images/mostly-cloudy-day.png',
+                                                 'skins/Belchertown/images/mostly-cloudy-night.png',
                                                  'skins/Belchertown/images/partly-cloudy-day.png',
                                                  'skins/Belchertown/images/partly-cloudy-night.png',
                                                  'skins/Belchertown/images/rain.png',
@@ -85,7 +86,9 @@ class BelchertownInstaller(ExtensionInstaller):
                                                  'skins/Belchertown/images/sunset.png',
                                                  'skins/Belchertown/images/thunderstorm.png',
                                                  'skins/Belchertown/images/tornado.png',
+                                                 'skins/Belchertown/images/unknown.png',
                                                  'skins/Belchertown/images/wind.png',
+                                                 'skins/Belchertown/images/windy.png',
                                                  'skins/Belchertown/images/index.html'
                                                 ]
                     )
