@@ -2280,7 +2280,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             return data
 
         if observation == "aqiChart":
-            data = { "aqiChart": True, "obsdata": [aqi] }
+            data = { "aqiChart": True, "obsdata": [{'y': aqi, 'category': aqi_category}] }
             return data
 
         # Hays chart

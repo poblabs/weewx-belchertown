@@ -2148,30 +2148,38 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.plotOptions = {
                     solidgauge: {
                         dataLabels: {
+                            useHTML: true,
                             enabled: true, 
-                            y: -35,
+                            y: -30,
                             borderWidth: 0,
+                            format: '<span style="text-align:center">{y}</span><br><span style="font-size:12px;text-align:center">' + options.series[0].data[0]['category'] + '</span>',
                             style: {
                                 fontWeight: 'bold',
-                                fontSize: '50px'
+                                lineHeight: '0.5em',
+                                textAlign: 'center',
+                                fontSize: '50px',
+                                color: get_aqi_color(options.series[0].data[0]['y'], true),
+                                textOutline: 'none'
                             }
                         },
                         linecap: 'round',
                         rounded: true
                     }
                 }
+                options.series[0].data[0].color = get_aqi_color(options.series[0].data[0]['y'], true)
                 options.chart.type = "solidgauge"
+                options.pane = { background: [{
+                        outerRadius: '100%',
+                        innerRadius: '60%',
+                        backgroundColor: '#e6e6e6',
+                        borderWidth: 0
+                    }] 
+                }
+
                 options.yAxis = {
-                    stops: [
-                        [0.1, "#71bc3c"],
-                        [0.2, "rgba(255,174,0,0.9)"],
-                        [0.3, "rgba(255,127,0,1)"],
-                        [0.4, "rgba(255,69,69,1)"],
-                        [0.6, "#b16286"],
-                        [1.0, "#cc241d"]
-                    ],
                     min: 0,
                     max: 500,
+                    lineColor: null,
                     tickPositions: []
                 }
                 options.tooltip.enabled = false
