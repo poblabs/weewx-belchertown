@@ -2143,6 +2143,41 @@ function showChart(json_file, prepend_renderTo=false) {
                 });
             }
 
+            // // If AQI chart is present, configure a special chart
+            if (observation_type == "aqiChart") {
+                options.plotOptions = {
+                    solidgauge: {
+                        dataLabels: {
+                            enabled: true, 
+                            y: -35,
+                            borderWidth: 0,
+                            style: {
+                                fontWeight: 'bold',
+                                fontSize: '50px'
+                            }
+                        },
+                        linecap: 'round',
+                        rounded: true
+                    }
+                }
+                options.chart.type = "solidgauge"
+                options.yAxis = {
+                    stops: [
+                        [0.1, "#71bc3c"],
+                        [0.2, "rgba(255,174,0,0.9)"],
+                        [0.3, "rgba(255,127,0,1)"],
+                        [0.4, "rgba(255,69,69,1)"],
+                        [0.6, "#b16286"],
+                        [1.0, "#cc241d"]
+                    ],
+                    min: 0,
+                    max: 500,
+                    tickPositions: []
+                }
+                options.tooltip.enabled = false
+                options.xAxis.crosshair = false
+            }
+
             // If Hays chart is present, configure a special chart to show that data
             if (observation_type == "haysChart") {
                 options.chart.type = "arearange"
