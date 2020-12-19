@@ -36,6 +36,8 @@
         #end if
         
         jQuery(document).ready(function() {
+            get_aqi_color( "$aqi" );
+
             get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
             rotateThis( "$current.windDir.formatted" );
@@ -190,6 +192,11 @@
                                         <div class="current-obs-text">
                                             $current_obs_summary
                                         </div>
+                                        #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
+                                        <div class="aqi_outer">
+                                            AQI:  $aqi ($aqi_category)
+                                        </div>
+                                        #end if
                                     </div>
                                     <div class="col-sm-6">
                                         #if $current.appTemp.has_data
