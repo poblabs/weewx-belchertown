@@ -1133,14 +1133,9 @@ class getData(SearchList):
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     #convert time to UNIX format
                     eqtime = eqtime.replace("Z","")
-                    try:
-                        # Python 3.7+
-                        eqtime = datetime.datetime.fromisoformat(eqtime)
-                    except:
-                        # Python 2/3.6:
-                        from dateutil import parser
-                        eqtime = parser.parse(eqtime)
-                    eqtime = int(eqtime.strftime('%s'))
+                    from dateutil import parser
+                    eqtime = parser.parse(eqtime)
+                    eqtime = int((eqtime-datetime.datetime(1970,1,1)).total_seconds()) 
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
