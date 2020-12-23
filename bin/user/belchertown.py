@@ -355,7 +355,7 @@ class getData(SearchList):
                 marker = "true"
             else:
                 marker = ""
-            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
+            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=wind&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
@@ -1048,6 +1048,7 @@ class getData(SearchList):
         """
         # Only process if Earthquake data is enabled
         if self.generator.skin_dict['Extras']['earthquake_enabled'] == "1":
+            loginf("Using earthquake server %s" % self.generator.skin_dict['Extras']['earthquake_server'] )
             earthquake_file = html_root + "/json/earthquake.json"
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
@@ -1131,15 +1132,20 @@ class getData(SearchList):
                     eqmag = locale.format("%g", float(eqdata["features"][0]["properties"]["mag"]) )
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
+                    loginf("Converting %s time to UNIX timestamp" % eqtime)    
                     #convert time to UNIX format
                     eqtime = eqtime.replace("Z","")
                     from dateutil import parser
                     eqtime = parser.parse(eqtime)
                     eqtime = int((eqtime-datetime.datetime(1970,1,1)).total_seconds()) 
+                    loginf("UNIX timestamp for latest quake is: %d" % eqtime)  
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
+                    loginf("EQ URL is: %s" % equrl)         
                     eqplace = eqdata["features"][0]["properties"]["locality"]
+                    loginf("EQ place is: %s" % eqplace)   
                     eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
+                    loginf("EQ mag is: %5.1f" % eqmag)   
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
