@@ -1212,19 +1212,12 @@ class getData(SearchList):
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     #convert time to UNIX format
-                    eqtime = eqtime.replace("Z","")
-                    try:
-                        # Python 3.7+
-                        eqtime = datetime.datetime.fromisoformat(eqtime)
-                    except:
-                        # Python 2/3.6:
-                        from dateutil import parser
-                        eqtime = parser.isoparse(eqtime)
-                    eqtime = int(eqtime.replace(tzinfo=datetime.timezone.utc).timestamp())
+                    eqtime = datetime.datetime.strptime(eqtime, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    eqtime = int((eqtime-datetime.datetime(1970,1,1)).total_seconds()) 
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
-                    eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
+                    eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) ) 
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
