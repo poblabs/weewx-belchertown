@@ -355,7 +355,7 @@ class getData(SearchList):
                 marker = "true"
             else:
                 marker = ""
-            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=wind&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
+            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
         
@@ -1137,8 +1137,7 @@ class getData(SearchList):
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
                     eqplace = eqdata["features"][0]["properties"]["locality"]
-                    eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
-                    #loginf("EQ mag is: %s" % eqmag)   
+                    eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) ) 
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
