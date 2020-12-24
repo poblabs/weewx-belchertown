@@ -1134,9 +1134,7 @@ class getData(SearchList):
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     loginf("Converting %s time to UNIX timestamp" % eqtime)    
                     #convert time to UNIX format
-                    eqtime = eqtime.replace("Z","")
-                    from dateutil import parser
-                    eqtime = parser.parse(eqtime)
+                    eqtime = datetime.datetime.strptime(eqtime, "%Y-%m-%dT%H:%M:%S.%fZ")
                     eqtime = int((eqtime-datetime.datetime(1970,1,1)).total_seconds()) 
                     loginf("UNIX timestamp for latest quake is: %d" % eqtime)  
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
