@@ -1048,7 +1048,6 @@ class getData(SearchList):
         """
         # Only process if Earthquake data is enabled
         if self.generator.skin_dict['Extras']['earthquake_enabled'] == "1":
-            loginf("Using earthquake server %s" % self.generator.skin_dict['Extras']['earthquake_server'] )
             earthquake_file = html_root + "/json/earthquake.json"
             earthquake_stale_timer = self.generator.skin_dict['Extras']['earthquake_stale']
             latitude = self.generator.config_dict['Station']['latitude']
