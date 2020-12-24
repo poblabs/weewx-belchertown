@@ -2236,12 +2236,12 @@ function showChart(json_file, prepend_renderTo=false) {
                     },
                 }
                 
-                options.xAxis = {}
                 options.xAxis = {
-                    labels: {
-                        format: "{value: %b}"
+                    dateTimeLabelFormats: {
+                        day: '%e %b',
+                        week: '%e %b',
+                        month: '%b %y',
                     },
-                    tickInterval: 2592000000, // 30 days
                     showLastLabel: true,
                     crosshair: true,
                     type: "datetime"
