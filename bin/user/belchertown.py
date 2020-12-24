@@ -1132,16 +1132,12 @@ class getData(SearchList):
                     eqmag = locale.format("%g", float(eqdata["features"][0]["properties"]["mag"]) )
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
-                    loginf("Converting %s time to UNIX timestamp" % eqtime)    
                     #convert time to UNIX format
                     eqtime = datetime.datetime.strptime(eqtime, "%Y-%m-%dT%H:%M:%S.%fZ")
                     eqtime = int((eqtime-datetime.datetime(1970,1,1)).total_seconds()) 
-                    loginf("UNIX timestamp for latest quake is: %d" % eqtime)  
                     equrl = ("https://www.geonet.org.nz/earthquake/" +
                             eqdata["features"][0]["properties"]["publicID"])
-                    loginf("EQ URL is: %s" % equrl)         
                     eqplace = eqdata["features"][0]["properties"]["locality"]
-                    loginf("EQ place is: %s" % eqplace)   
                     eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
                     #loginf("EQ mag is: %s" % eqmag)   
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
