@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-sm-1 wx-stn-info-current-obs">
             <span class="obs-header-icon">
-                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1' and $current_obs_icon != ""
                 <img id="wxicon" src="$relative_url/images/$current_obs_icon">
                 #end if
             </span>
