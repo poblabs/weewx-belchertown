@@ -1143,7 +1143,7 @@ class getData(SearchList):
                     eqplace = eqdata["features"][0]["properties"]["locality"]
                     loginf("EQ place is: %s" % eqplace)   
                     eqmag = locale.format("%g", float(round(eqdata["features"][0]["properties"]["magnitude"],1)) )
-                    loginf("EQ mag is: %s" % eqmag)   
+                    #loginf("EQ mag is: %s" % eqmag)   
                 eqlat = str( round( eqdata["features"][0]["geometry"]["coordinates"][1], 4 ) )
                 eqlon = str( round( eqdata["features"][0]["geometry"]["coordinates"][0], 4 ) )
                 eqdistance_bearing = self.get_gps_distance((float(latitude), float(longitude)), 
