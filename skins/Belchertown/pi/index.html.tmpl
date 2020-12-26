@@ -1,0 +1,257 @@
+#import datetime
+
+#errorCatcher Echo
+##
+## Specifying an encoding of UTF-8 is usually safe, but if your text is 
+## actually in Latin-1, then you should replace the string "UTF-8" with "latin-1"
+## If you do this, you should also change the 'Content-Type' metadata below.
+#encoding UTF-8
+##
+#set global $page = "pi"
+
+    #include "header.html.tmpl"
+    
+    <script type="text/javascript">
+        var finalRotation;
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        var mqttMsg;
+        var mqttclient = "website" + Math.floor(Math.random() * 999999999);
+        #end if
+        var moment_locale = "$system_locale_js";
+        moment.locale(moment_locale);
+                
+        ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
+        
+        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+        // Load forecast
+        ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
+        #end if
+        
+        jQuery(document).ready(function() {
+            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
+            
+            rotateThis( "$current.windDir.formatted" );
+            
+            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+            connect(); // Begin mqtt after weewx initial load
+            
+            // Update the Last Updated timestamp with moment.js,
+            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated_text = "$obs.label.header_last_updated " + updated;
+            jQuery(".updated").html( updated_text );
+            
+            #end if
+        });
+        
+    </script>
+
+## If bold_kiosk_font is true invoke the ".pi .site-inner-bold" class in style.css which will set the font-style to bold
+ #if $Extras.pi_kiosk_bold == "true"  
+        <div class="site-inner-bold site-inner">
+ #else
+        <div class="site-inner">
+ #end if
+    <div class="content-sidebar-wrap">
+    
+    <article class="weewx page type-page status-publish entry" itemscope="" itemtype="http://schema.org/CreativeWork">
+        
+        <div class="entry-content wx-content" itemprop="text">
+            <!-- Top bar with city and share -->
+            <div class="wx-stn-info-container">
+                <!-- Updated time ago -->
+                <div class="updated-wrapper">
+                    <div class="onlineMarkerOuter">
+                        <span class="loadingMarker" style="display:none"></span>
+                        <span class="onlineMarker" style="display:none"></span>
+                        <span class="offlineMarker" style="display:none"></span>
+                    </div>
+                    <div class="updated"></div><!-- AJAX -->
+                </div>
+                <div class="clear"></div>
+            </div>
+            
+            <!-- First row with temperature, observation data and radar -->
+            <div class="row">
+                <!-- Temperature -->
+                
+                <div class="col-xs-6 temp-observation">
+                    <div class="obs-group">
+                        <img id="wxicon" src="$relative_url/images/$current_obs_icon"><!-- AJAX -->
+                        <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
+                        <div class="current-obs-text">$current_obs_summary</div><!-- AJAX -->
+                    </div>
+                    <div class="clear"></div>
+                
+                    <div class="tempstats">
+                        #if $current.appTemp.has_data
+                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
+                        #end if
+                        <div class="highlow">
+                            $obs.label.highest_temperature <span class="high">$day.outTemp.max</span> | $obs.label.lowest_temperature <span class="low">$day.outTemp.min</span>
+                        </div><!-- AJAX -->
+                    </div>
+                    
+                    <div class="station-observations weather-obs-top">
+                        <table cellpadding="0" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.outHumidity</td>
+                                    <td>
+                                        <span class="outHumidity">$current.outHumidity</span><!-- AJAX -->
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.dewpoint</td>
+                                    <td>
+                                        <span class="dewpoint">$current.dewpoint</span><!-- AJAX -->
+                                    </td>
+                                </tr>                            
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.rain</td>
+                                    <td>
+                                        <span class="dayRain">$day.rain.sum</span><!-- AJAX -->
+                                        <span class="border-left">&nbsp;</span>
+                                        <span class="rainRate">$current.rainRate</span><!-- AJAX -->
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.barometer</td>
+                                    <td>
+                                        <span class="barometer">$current.barometer</span><!-- AJAX -->
+                                        <span class="pressure-trend">
+                                            #if $trend.barometer == "N/A"
+                                            &nbsp;
+                                            #else if "-" in str($trend.barometer)
+                                            <i class="fa fa-arrow-down barometer-down"></i>
+                                            #else
+                                            <i class="fa fa-arrow-up barometer-up"></i>
+                                            #end if
+                                        </span>
+                                    </td>
+                                </tr>
+                                #if $day.UV.has_data
+                                <tr>
+                                    <td class='station-observations-label'>$obs.label.UV</td>
+                                    <td>
+                                        <span class="UV">$current.UV</span><!-- AJAX -->
+                                        #if $day.radiation.has_data
+                                        | <span class="radiation">$current.radiation</span>
+                                        #end if
+                                        <!-- AJAX -->
+                                    </td>
+                                </tr>
+                                #end if
+                            </tbody>
+                        </table>
+                    </div>    
+                    
+                </div>
+
+                <div class="col-xs-6 wind_col">
+                    <div class="wind_data">
+                        <div class="compass">
+                            <div class="direction">
+                                <span class="curwinddir">
+                                    #if $current.windDir.ordinal_compass == "N/A"
+                                    --
+                                    #else
+                                    $current.windDir.ordinal_compass
+                                    #end if
+                                    </span>
+                                    <span class="curwinddeg">
+                                    #if $current.windDir.raw is None:
+                                    -
+                                    #else
+                                    $current.windDir.format("%.0f")
+                                    #end if
+                                </span>
+                            </div>
+                            <div class="arrow"></div>
+                        </div>
+                    </div>
+                    
+                    <table class="wind-table">
+                        <tbody>
+                            <tr>
+                                <td class="windtext">$obs.label.wind_speed</td>
+                                <td class="windtext border-left">$obs.label.wind_gust</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="curwindspeed">
+                                        $current.windSpeed.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                    </span>
+                                </td><!-- AJAX -->
+                                <td class="border-left">&nbsp;
+                                    <span class="curwindgust">
+                                        $current.windGust.toString(useThisFormat="%.1f", addLabel=False, NONE_string="N/A")
+                                    </span>
+                                </td><!-- AJAX -->
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="maxgustouter">
+                        $obs.label.wind_today_max: <span class="dailymaxgust">$day.wind.max</span> <!-- AJAX -->
+                    </div>
+                
+                
+                    <table cellpadding="0" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="row small-almanac">
+                                        <div class="col-sm-5 sun">
+                                            <span class="sunrise-set-image"><img src="../images/sunrise.png"></span><span class="sunrise-value">$almanac.sunrise.format("%-I:%M %p")</span><!-- AJAX -->
+                                            &nbsp;
+                                            <span class="sunrise-set-image"><img src="../images/sunset.png"></span><span class="sunset-value">$almanac.sunset.format("%-I:%M %p")</span><!-- AJAX -->
+                                        </div>
+                                        <div class="col-sm-7 moon">
+                                            <div class="moon-container">
+                                                <span class="moon-icon">
+                                                    #if $almanac.moon_index == 0
+                                                        <div class='wi wi-moon-alt-new'></div>
+                                                    #else if $almanac.moon_index == 1
+                                                        <div class='wi wi-moon-alt-waxing-crescent-1'></div>
+                                                    #else if $almanac.moon_index == 2
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 3
+                                                        <div class='wi wi-moon-alt-waxing-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 4
+                                                        <div class='wi wi-moon-alt-full'></div>
+                                                    #else if $almanac.moon_index == 5
+                                                        <div class='wi wi-moon-alt-waning-gibbous-3'></div>
+                                                    #else if $almanac.moon_index == 6
+                                                        <div class='wi wi-moon-alt-first-quarter'></div>
+                                                    #else if $almanac.moon_index == 7
+                                                        <div class='wi wi-moon-alt-waning-crescent-4'></div>
+                                                    #end if
+                                                </span><!-- AJAX -->
+                                                <span class="moon-phase">#echo $almanac.moon_phase.title()#</span><!-- AJAX -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                
+                </div>
+                    
+                <div class="clear"></div>
+                        
+            </div>
+            <!-- End of first row -->
+            
+            <div class="clear"></div>
+            
+        </div> <!-- End entry-content -->
+        
+    </article>
+
+    </div>
+</div>
+
+<!-- close div and body tags from pi-header.html.tmpl -->
+</div>
+</body>

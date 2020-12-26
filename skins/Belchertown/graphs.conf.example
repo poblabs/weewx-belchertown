@@ -1,0 +1,308 @@
+# This is the Belchertown skin charting system which utilizes Highcharts to display the chart data.
+#
+# PLEASE READ THE CHARTS WIKI! A lot of information is there and it will help you! 
+# It is located here: https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation
+#   
+# Caution!
+# The more charts you have, the slower things can become. This is especially true at the YEAR level. These are interactive charts which have to build plot points from the database on every archive interval. This could result in large file sizes to generate, and for your website visitors to download. You're welcome to customize as many charts as you want, but be warned things could slow down if you do too much!
+# The defaults in this skin have proven to be a good baseline for the number of charts and options without overwhelming your system. 
+#
+# Overview of options:
+# A timespan refers to "day", "week", "month" or "year". 
+# The first configuration item is the graph group, such as [day], [week], [month], [year] sections. 
+# The charts are defined under the graph group and can be renamed and reorganized. They will display on your website in the order they appear here.
+# Under the chart are the observation names from the WeeWX database. Any item within your database "archive type" can be charted. For a list of "archive types" refer to this chart. http://weewx.com/docs/customizing.htm#archive_types
+# Each observation can be customized with built-in Highcharts "series" options. Popular ones are color, name and zIndex. For a list of Highcharts Series options refer to https://api.highcharts.com/highcharts/series 
+#
+# If a custom option broke your charts:
+# Undo your change and run wee_reports. You do not need to restart weewx if you make a graphs.conf change.
+# If that doesn't work, undo ALL changes and go back to the default graphs.conf.example configuration.
+# There is no guarantee that every customization option will work. 
+#
+# Detailed settings overview can be found in the wiki under Detailed Configuration Settings Overview
+#
+###############################################################################
+
+# Global Chart Defaults
+# These are fallback options that charts will use if an option is not defined. 
+aggregate_type = None
+time_length = 90000 # Last 25 hours
+type = line
+colors = "#7cb5ec, #b2df8a, #f7a35c, #8c6bb1, #dd3497, #e4d354, #268bd2, #f45b5b, #6a3d9a, #33a02c"
+tooltip_date_format = "LLL"
+
+[homepage]
+    # Chart Timespan Defaults
+    title = "Homepage"
+    show_button = true
+    button_text = "Homepage"
+    time_length = today
+    tooltip_date_format = "LLL"
+    gapsize = 300 # This should be your archive_interval from weewx.conf
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yAxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yAxis_max = 360
+            lineWidth = 0
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        type = spline
+        [[[barometer]]]
+            color = "#BECC00"
+            yAxis_tickinterval = 0.01
+            
+[day]
+    # Chart Timespan Defaults
+    title = "Today"
+    show_button = true
+    button_text = "Day"
+    time_length = today
+    tooltip_date_format = "LLL"
+    gapsize = 300 # This should be your archive_interval from weewx.conf
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yAxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yAxis_max = 360
+            lineWidth = 0
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        type = spline
+        [[[barometer]]]
+            color = "#BECC00"
+            
+[week]
+    # Chart Timespan Defaults
+    title = "This Week"
+    show_button = true
+    button_text = "Week"
+    time_length = 604800 # Last 7 days
+    tooltip_date_format = "LLLL"
+    aggregate_type = max
+    aggregate_interval = 3600 # 1 hour
+    gapsize = 3600 # 1 hour in seconds
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Temperature
+        [[[windchill]]]
+        [[[heatindex]]]
+            color = "#f7a35c"
+        [[[dewpoint]]]
+            color = purple
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yAxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yAxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        aggregate_type = avg
+        [[[barometer]]]
+            color = "#BECC00"
+
+        
+[month]
+    # Chart Timespan Defaults
+    title = "This Month"
+    show_button = true
+    button_text = "Month"
+    type = spline
+    time_length = 2592000 # Last 30 days
+    tooltip_date_format = "dddd LL"
+    aggregate_type = max
+    aggregate_interval = 86400 # 1 day
+    gapsize = 86400 # 1 day in seconds
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Max Temperature
+            color = red
+        [[[outTemp_min]]]
+            name = Min Temperature
+            observation_type = outTemp
+            aggregate_type = min
+            color = "#7cb5ec"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yAxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yAxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        type = line
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        aggregate_type = avg
+        [[[barometer]]]
+            color = "#BECC00"
+        
+[year]
+    # Chart Timespan Defaults
+    title = "This Year"
+    show_button = true
+    button_text = "Year"
+    type = spline
+    time_length = year
+    tooltip_date_format = "dddd LL"
+    aggregate_type = max
+    aggregate_interval = 86400 # 1 day
+    gapsize = 86400 # 1 day in seconds
+
+    [[chart1]]
+        title = Temperature
+        [[[outTemp]]]
+            zIndex = 1
+            name = Max Temperature
+            color = red
+        [[[outTemp_min]]]
+            name = Min Temperature
+            observation_type = outTemp
+            aggregate_type = min
+            color = "#7cb5ec"
+    
+    [[chart2]]
+        # The combined Wind Chart works best in this configuration
+        title = Wind Speed and Direction
+        yAxis_min = 0
+        [[[windDir]]]
+            zIndex = 1
+            yAxis = 1
+            yAxis_max = 360
+            lineWidth = 0
+            # Here we can override the timespan default aggregate type with our own specific to this chart
+            aggregate_type = avg
+            [[[[marker]]]]
+                enabled = true
+            [[[[states]]]]
+                [[[[[hover]]]]]
+                        lineWidthPlus = 0
+        [[[windGust]]]
+        [[[windSpeed]]]
+            zIndex = 2
+    
+    [[chart3]]
+        title = Rain
+        type = line
+        [[[rainRate]]]
+            yAxis = 1
+        [[[rainTotal]]]
+            name = Rain Total
+    
+    [[chart4]]
+        title = Barometer
+        aggregate_type = avg
+        [[[barometer]]]
+            color = "#BECC00"
+        

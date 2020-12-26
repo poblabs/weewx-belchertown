@@ -1,0 +1,107 @@
+#errorCatcher Echo
+#encoding UTF-8
+#set global $page = "graphs"
+
+    #include "header.html.tmpl"
+
+    <div class="site-inner">
+        <main class="content">	
+            <article class="weewx graphs" itemscope itemtype="https://schema.org/CreativeWork">
+
+                <script type="text/javascript">
+                    var graph = getURLvar("graph");
+                    if ( graph === undefined ) {
+                        // If no URL VAR, default to the graph group defined in Extras
+                        graph = "$Extras.graph_page_default_graphgroup";
+                    }
+                    var thisPageGraphs = graphgroups_raw[graph];
+                    
+                    jQuery(document).ready(function() {
+                        if (graph == "all") { 
+                            // Build all graphs
+                            var i = 0;
+                            for (var graphgroup in graphgroups_raw) {
+                                // Rename the graph-outer div to remove CSS
+                                jQuery(".graph-outer").attr("class", "graph-outer-all");
+                                
+                                var page_content = "";
+                                if ( graphpage_content[graphgroup] ) {
+                                    page_content = graphpage_content[graphgroup];
+                                }
+                                
+                                // Loop through every graph group defined and add a title section
+                                jQuery(".graph-outer-all").append('\
+                                    <div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">\
+                                        <div class="graphpage-title wx-buttons-description">\
+                                            <a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a>\
+                                        </div>\
+                                        <div class="graphpage-content col-sm-12">'+page_content+'</div>\
+                                        <div class="' + graphgroup + '"></div>\
+                                    </div>\
+                                ');
+                                
+                                if ( i > 0 ) {
+                                    jQuery("." + graphgroup + "_outer").css("border-top", "1px solid #ccc");
+                                }
+                                
+                                // Within each title section add the chart divs with the graph group prepending to avoid conflicts
+                                graphgroups_raw[graphgroup].forEach( graphID => {
+                                    jQuery("."+graphgroup).append('<div class="col-sm-6"><div id="' + graphgroup + "_" + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                                });
+                                
+                                // Render the charts with the prepend_renderTo set to true
+                                showChart(graphgroup, true);
+                                
+                                i++;
+                            };
+                        } else {
+                            // Loop through the graph group for this page and add the graph divs to the page
+                            try {
+                                thisPageGraphs.forEach( graphID => {
+                                    jQuery(".graph-outer").append('<div class="col-sm-12"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                                });
+                                
+                                // Set page title
+                                jQuery(".graphpage-title").html(graphgroups_titles[graph]);
+                                
+                                // Set page content
+                                jQuery(".graphpage-content").html(graphpage_content[graph]);
+                                
+                                // Render the charts
+                                showChart(graph);
+                            } catch(err) {
+                                console.log("ERROR: Cannot add graphs from [" + graph + "] graph group: " + err.message);
+                            }
+                        }
+                    });
+                </script>
+                
+                #include "page-header.inc"
+
+                <!-- Begin row -->
+                <div class="row">
+                    <div class="col-sm-12 wx-buttons">
+                        #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
+                        <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
+                        #end if
+                        $graph_page_buttons
+                    </div>
+                    <div class="col-sm-12 wx-buttons-description">
+                        <span class='graphpage-title'></span>
+                    </div>
+                </div>
+                <!-- End row -->
+                
+                <div class="graphpage-content col-sm-12"></div><!-- JS populated -->
+                
+                <div class="graph-outer"></div><!-- JS populated -->
+                
+                <div class="clear"></div>
+                
+            </article>
+        </main>
+    </div>
+
+
+    #include "footer.html.tmpl"
+

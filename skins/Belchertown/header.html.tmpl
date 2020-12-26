@@ -1,0 +1,203 @@
+#encoding UTF-8
+## Determine initial skin theme CSS class from config
+## Auto theme setting determines which CSS class to use based on the hour
+#set $bodyTheme = ""
+#set $themeSwitchChecked = ""
+#if $Extras.theme == "dark" or $Extras.pi_theme == "dark"
+    #set $bodyTheme = "dark"
+    #set $themeSwitchChecked = "checked"
+#elif $Extras.theme == "light" or $Extras.pi_theme == "light"
+    #set $bodyTheme = "light"
+    #set $themeSwitchChecked = ""
+#elif $Extras.theme == "auto" or $Extras.pi_theme == "auto"
+    #import datetime
+    #set $now = datetime.datetime.now()
+    #set $nowHour = $now.hour
+    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
+    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
+        ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
+        #if int($sunrise_hour) <= int($nowHour) and int($nowHour) < int($sunset_hour)
+            #set $bodyTheme = "light"
+            #set $themeSwitchChecked = ""
+        #else
+            ## Night time, use dark mode
+            #set $bodyTheme = "dark"
+            #set $themeSwitchChecked = "checked"
+        #end if
+#end if
+
+## Setup the header labels, setting a default if not defined
+#if $obs.label.html_title == "" 
+#set $head_title = $station.location + " Weather Conditions"
+#else
+#set $head_title = $obs.label.html_title
+#end if
+
+#if $obs.label.html_description == "" 
+#set $head_desc = "Weather conditions for " + $station.location + " as observed by a personal weather station and the weewx weather software"
+#else
+#set $head_desc = $obs.label.html_description
+#end if
+
+## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
+#if $page == "home"
+#set global $relative_url = "."
+#else
+#set global $relative_url = ".."
+#end if
+
+
+<!DOCTYPE html>
+<html lang="$system_locale_js" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+    <head >
+        <meta charset="UTF-8" />
+        <title>$head_title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <meta name="description" content="$head_desc"/>
+        <meta name="robots" content="noodp"/>
+        #if $station.station_url
+        <link rel="canonical" href="$station.station_url" />
+        #end if
+        <meta property="og:locale" content="$system_locale" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="$head_title" />
+        <meta property="og:description" content="$head_desc" />
+        #if $station.station_url
+        <meta property="og:url" content="$station.station_url" />
+        #end if
+        <meta property="og:site_name" content="$head_title" />
+
+        <link rel='dns-prefetch' href='//code.highcharts.com' />
+        <link rel='dns-prefetch' href='//fonts.googleapis.com' />
+        <link rel='dns-prefetch' href='//stackpath.bootstrapcdn.com' />
+        <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Roboto%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
+        <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+        <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='$relative_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        <link rel='stylesheet' href='$relative_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        #if $custom_css_exists
+        <link rel='stylesheet' href='$relative_url/custom.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownCustomStyle" />
+        #end if
+        
+        <link rel="manifest" href="$relative_url/manifest.json" crossorigin="use-credentials">
+        <link rel="apple-touch-icon" href="$relative_url/images/station.png">
+        <link rel="apple-touch-icon" sizes="48x48" href="$relative_url/images/station48.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="$relative_url/images/station72.png">
+        <link rel="apple-touch-icon" sizes="96x96" href="$relative_url/images/station96.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="$relative_url/images/station144.png">
+        <link rel="apple-touch-icon" sizes="168x168" href="$relative_url/images/station168.png">
+        <link rel="apple-touch-icon" sizes="192x192" href="$relative_url/images/station192.png">
+        
+        <!--[if lt IE 9]>
+        <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
+        <![endif]-->
+        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+        #if $page == "pi" or $page == "home" and $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
+        #end if
+        <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/modules/exporting.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/modules/solid-gauge.js'></script>
+        <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
+        #if $page == "pi"
+        <script>
+            // Set the session variables for the theme
+            if ( sessionStorage.getItem('pi_theme') === null ) {
+                sessionStorage.setItem('pi_theme', '$Extras.theme');
+            }
+            if ( sessionStorage.getItem('pi_currentTheme') === null ) {
+                sessionStorage.setItem('pi_currentTheme', '$bodyTheme');
+            }
+        </script>
+        #else
+        <script>
+            // Set the session variables for the theme
+            if ( sessionStorage.getItem('theme') === null ) {
+                sessionStorage.setItem('theme', '$Extras.theme');
+            }
+            if ( sessionStorage.getItem('currentTheme') === null ) {
+                sessionStorage.setItem('currentTheme', '$bodyTheme');
+            }
+        </script>
+        #end if
+        
+        #if $station.station_url
+        <link rel='shortlink' href="$station.station_url" />
+        #end if
+                
+        <link rel="icon" href="$relative_url/favicon.ico" />
+        
+        #if $Extras.has_key('googleAnalyticsId')
+        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '$Extras.googleAnalyticsId');
+        </script>
+        #end if
+
+        #if os.path.exists("header.inc")
+        #include "header.inc"
+        #end if
+
+    </head>
+    
+    #if $page == "pi"
+    <body class="pi page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
+        <div class="site-container">
+    #else
+    <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
+        <div class="site-container">
+            <header class="site-header">
+                <div class="wrap">
+                    <div class="title-area">
+                        <p class="site-title" itemprop="headline">
+                            <a href="$relative_url/">
+                                #if $Extras.has_key("logo_image_dark") and $Extras.logo_image_dark != '' and $bodyTheme == "dark"
+                                <img src="$Extras.logo_image_dark" id="logo_image" title="$head_title" alt="$head_title">
+                                #elif $Extras.has_key("logo_image") and $Extras.logo_image != ''
+                                <img src="$Extras.logo_image" id="logo_image" title="$head_title" alt="$head_title">
+                                #else if $Extras.has_key("site_title") and $Extras.site_title != ''
+                                $Extras.site_title
+                                #end if
+                            </a>
+                        </p>
+                    </div>
+                    <div class="widget-area header-widget-area">
+                        <section id="nav_menu">
+                            <div class="widget-wrap">
+                                <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
+                                    <ul id="menu-menu" class="menu genesis-nav-menu">
+                                        <!-- class = current-menu-item -->
+                                        <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
+                                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                                        <li class="menu-item menu-item-1"><a href="$relative_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
+                                        #end if
+                                        <li class="menu-item menu-item-2"><a href="$relative_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$relative_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$relative_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
+                                        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                                        <label class="themeSwitchLabel">
+                                            <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
+                                            <span class="slider round"></span>
+                                        </label>
+                                        #end if
+                                    </ul>
+                                </nav>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </header>
+    #end if

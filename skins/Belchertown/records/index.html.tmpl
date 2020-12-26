@@ -1,0 +1,378 @@
+#errorCatcher Echo
+#encoding UTF-8
+#set global $page = "records"
+
+#import datetime
+#from datetime import timedelta
+
+    #include "header.html.tmpl"
+
+    <script type="text/javascript">
+        var moment_locale = "$system_locale_js";
+        moment.locale(moment_locale);
+        
+        jQuery(document).ready(function() {
+            jQuery("#year-outtemp-max-ts").text( moment.unix($year.outTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outtemp-max-ts").text( moment.unix($alltime.outTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-outtemp-min-ts").text( moment.unix($year.outTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outtemp-min-ts").text( moment.unix($alltime.outTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            #if $year.appTemp.has_data
+            jQuery("#year-apptemp-max-ts").text( moment.unix($year.appTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#year-apptemp-min-ts").text( moment.unix($year.appTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            #end if
+            #if $alltime.appTemp.has_data
+            jQuery("#at-apptemp-max-ts").text( moment.unix($alltime.appTemp.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-apptemp-min-ts").text( moment.unix($alltime.appTemp.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            #end if
+            
+            jQuery("#year-heatindex-max-ts").text( moment.unix($year.heatindex.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-heatindex-max-ts").text( moment.unix($alltime.heatindex.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-windchill-min-ts").text( moment.unix($year.windchill.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-windchill-min-ts").text( moment.unix($alltime.windchill.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-outtemp-range-max-ts").text( moment.unix($year_outTemp_range_max[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-outtemp-range-max-ts").text( moment.unix($at_outTemp_range_max[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            
+            jQuery("#year-outtemp-range-min-ts").text( moment.unix($year_outTemp_range_min[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-outtemp-range-min-ts").text( moment.unix($at_outTemp_range_min[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            
+            jQuery("#year-windGust-max-ts").text( moment.unix($year.windGust.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-windGust-max-ts").text( moment.unix($alltime.windGust.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            #if $year.windrun.has_data
+            jQuery("#year-windrun-max-ts").text( moment.unix($year.windrun.maxsumtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            #end if
+            #if $alltime.windrun.has_data
+            jQuery("#at-windrun-max-ts").text( moment.unix($alltime.windrun.maxsumtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            #end if
+            
+            jQuery("#year-rainiest-day-ts").text( moment.unix($rainiest_day[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            jQuery("#at-rainiest-day-ts").text( moment.unix($at_rainiest_day[0]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            
+            jQuery("#year-rainRate-max-ts").text( moment.unix($year.rainRate.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-rainRate-max-ts").text( moment.unix($alltime.rainRate.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-outHumidity-max-ts").text( moment.unix($year.outHumidity.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outHumidity-max-ts").text( moment.unix($alltime.outHumidity.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-outHumidity-min-ts").text( moment.unix($year.outHumidity.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-outHumidity-min-ts").text( moment.unix($alltime.outHumidity.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-dewpoint-max-ts").text( moment.unix($year.dewpoint.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-dewpoint-max-ts").text( moment.unix($alltime.dewpoint.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-dewpoint-min-ts").text( moment.unix($year.dewpoint.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-dewpoint-min-ts").text( moment.unix($alltime.dewpoint.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-barometer-max-ts").text( moment.unix($year.barometer.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-barometer-max-ts").text( moment.unix($alltime.barometer.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            jQuery("#year-barometer-min-ts").text( moment.unix($year.barometer.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-barometer-min-ts").text( moment.unix($alltime.barometer.mintime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            
+            #if $year.radiation.has_data
+            jQuery("#year-radiation-max-ts").text( moment.unix($year.radiation.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-radiation-max-ts").text( moment.unix($alltime.radiation.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            #end if
+            
+            #if $year.UV.has_data
+            jQuery("#year-uv-max-ts").text( moment.unix($year.UV.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            jQuery("#at-uv-max-ts").text( moment.unix($alltime.UV.maxtime.raw).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_full_date" ) );
+            #end if
+            
+            jQuery("#year-days-with-rainfall-ts").text( moment.unix($year_days_with_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
+            if ($at_days_with_rain[1] > 0) {
+                var start_day_epoch = $at_days_with_rain[1] - ($at_days_with_rain[0] * 86400);
+                //jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
+                jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
+            } else {
+                jQuery("#at-days-with-rainfall-range-ts").text("---");
+            }
+
+            jQuery("#year-days-without-rainfall-ts").text( moment.unix($year_days_without_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
+            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
+            if ($at_days_without_rain[1] > 0) {
+                var start_day_epoch = $at_days_without_rain[1] - ($at_days_without_rain[0] * 86400);
+                //jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
+                jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
+            } else {
+                jQuery("#at-days-without-rainfall-range-ts").text("---");
+            }
+            
+
+        });
+    </script>
+
+    <div class="site-inner">
+        <main class="content">
+            <article class="weewx records" itemscope itemtype="https://schema.org/CreativeWork">
+
+                #include "page-header.inc"
+
+                <!-- Begin row -->
+                <div class="row">
+                    <div class="col-sm-12 wx-records-description">
+                        #if os.path.exists("records.inc")
+                        #include "records.inc"
+                        #end if
+                    </div>
+                </div>
+                <!-- End row -->
+
+                <!-- Records table row -->
+                <div class="row records-table">
+                    <table class="table-striped">
+                        <tbody>
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_temperature_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_high_temp</td>
+                                <td class="leftborder">$year.outTemp.max</td>
+                                <td><span id="year-outtemp-max-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-max-ts"></span></td><!-- moment.js -->
+                                <td>$alltime.outTemp.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_low_temp</td>
+                                <td class="leftborder">$year.outTemp.min</td>
+                                <td id="year-outtemp-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outtemp-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.outTemp.min</td>
+                            </tr>
+                            #if $year.appTemp.has_data and $alltime.appTemp.has_data
+                            <tr>
+                                <td>$obs.label.records_high_apptemp</td>
+                                <td class="leftborder">$year.appTemp.max</td>
+                                <td id="year-apptemp-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-apptemp-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.appTemp.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_low_apptemp</td>
+                                <td class="leftborder">$year.appTemp.min</td>
+                                <td id="year-apptemp-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-apptemp-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.appTemp.min</td>
+                            </tr>
+                            #end if
+                            <tr>
+                                <td>$obs.label.records_high_heatindex</td>
+                                <td class="leftborder">$year.heatindex.max</td>
+                                <td id="year-heatindex-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-heatindex-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.heatindex.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_low_windchill</td>
+                                <td class="leftborder">$year.windchill.min</td>
+                                <td id="year-windchill-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windchill-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.windchill.min</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_largest_temp_range</td>
+                                <td class="leftborder">$year_outTemp_range_max[1] $unit.label.outTemp</td>
+                                <td><span id="year-outtemp-range-max-ts"></span><br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-range-max-ts"></span><br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td>$at_outTemp_range_max[1] $unit.label.outTemp</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_smallest_temp_range</td>
+                                <td class="leftborder">$year_outTemp_range_min[1] $unit.label.outTemp</td>
+                                <td><span id="year-outtemp-range-min-ts"></span><br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td class="leftborder"><span id="at-outtemp-range-min-ts"></span><br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
+                                <td>$at_outTemp_range_min[1] $unit.label.outTemp</td>
+                            </tr>
+
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_wind_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_strongest_wind</td>
+                                <td class="leftborder">$year.windGust.max</td>
+                                <td id="year-windGust-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windGust-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.windGust.max</td>
+                            </tr>
+                            #if $year.windrun.has_data and $alltime.windrun.has_data
+                            <tr>
+                                <td>$obs.label.records_daily_windrun</td>
+                                <td class="leftborder">$year.windrun.maxsum</td>
+                                <td id="year-windrun-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-windrun-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.windrun.maxsum</td>
+                            </tr>
+                            #end if
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_rain_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_highest_daily_rainfall</td>
+                                <td class="leftborder">$rainiest_day[1] $unit.label.rain</td>
+                                <td id="year-rainiest-day-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-rainiest-day-ts"></td><!-- moment.js -->
+                                <td>$at_rainiest_day[1] $unit.label.rain</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_highest_daily_rainrate</td>
+                                <td class="leftborder">$year.rainRate.max</td>
+                                <td id="year-rainRate-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-rainRate-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.rainRate.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_month_high_rainfall</td>
+                                <td class="leftborder">$year_rainiest_month[1] $unit.label.rain</td>
+                                <td>$year_rainiest_month[0]</td>
+                                <td class="leftborder">$at_rainiest_month[0]</td>
+                                <td>$at_rainiest_month[1] $unit.label.rain</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_total_rainfall</td>
+                                <td class="leftborder">$current.dateTime.format("%Y")</td>
+                                <td>$year.rain.sum</td>
+                                <td class="leftborder">$at_rain_highest_year[0]</td>
+                                <td>$at_rain_highest_year[1] $unit.label.rain</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_consec_days_with_rain</td>
+                                <td class="leftborder">$year_days_with_rain[0] $obs.label.records_days_text</td>
+                                <td>$obs.label.records_ending <span id="year-days-with-rainfall-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder">$at_days_with_rain[0] $obs.label.records_days_text</td>
+                                <td id="at-days-with-rainfall-range-ts"></td><!-- moment.js -->
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_consec_days_without_rain</td>
+                                <td class="leftborder">$year_days_without_rain[0] $obs.label.records_days_text</td>
+                                <td>$obs.label.records_ending <span id="year-days-without-rainfall-ts"></span></td><!-- moment.js -->
+                                <td class="leftborder">$at_days_without_rain[0] $obs.label.records_days_text</td>
+                                <td id="at-days-without-rainfall-range-ts"></td><!-- moment.js -->
+                            </tr>
+
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_humidity_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_high_humidity</td>
+                                <td class="leftborder">$year.outHumidity.max</td>
+                                <td id="year-outHumidity-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outHumidity-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.outHumidity.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_lowest_humidity</td>
+                                <td class="leftborder">$year.outHumidity.min</td>
+                                <td id="year-outHumidity-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-outHumidity-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.outHumidity.min</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_highest_dewpoint</td>
+                                <td class="leftborder">$year.dewpoint.max</td>
+                                <td id="year-dewpoint-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-dewpoint-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.dewpoint.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_lowest_dewpoint</td>
+                                <td class="leftborder">$year.dewpoint.min</td>
+                                <td id="year-dewpoint-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-dewpoint-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.dewpoint.min</td>
+                            </tr>
+
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_barometer_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_high_barometer</td>
+                                <td class="leftborder">$year.barometer.max</td>
+                                <td id="year-barometer-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-barometer-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.barometer.max</td>
+                            </tr>
+                            <tr>
+                                <td>$obs.label.records_low_barometer</td>
+                                <td class="leftborder">$year.barometer.min</td>
+                                <td id="year-barometer-min-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-barometer-min-ts"></td><!-- moment.js -->
+                                <td>$alltime.barometer.min</td>
+                            </tr>
+
+                            #if $year.radiation.has_data or $year.UV.has_data
+                            <tr>
+                                <td class="records-header" colspan=5>$obs.label.records_sun_records</td>
+                            </tr>
+                            <tr>
+                                <td colspan=1> </td>
+                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
+                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
+                            </tr>
+                            #if $year.radiation.has_data
+                            <tr>
+                                <td>$obs.label.records_high_solar_rad</td>
+                                <td class="leftborder">$year.radiation.max</td>
+                                <td id="year-radiation-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-radiation-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.radiation.max</td>
+                            </tr>
+                            #end if
+                            #if $year.UV.has_data
+                            <tr>
+                                <td>$obs.label.records_high_uv</td>
+                                <td class="leftborder">$year.UV.max</td>
+                                <td id="year-uv-max-ts"></td><!-- moment.js -->
+                                <td class="leftborder" id="at-uv-max-ts"></td><!-- moment.js -->
+                                <td>$alltime.UV.max</td>
+                            </tr>
+                            #end if
+                            #end if
+                                          
+                            <!-- Add new table entries -->
+                            #if os.path.exists("records-table.inc")
+                            #include "records-table.inc"
+                            #end if
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <!-- End records table row -->
+
+            </article>
+        </div>
+    </div>
+
+
+    #include "footer.html.tmpl"
