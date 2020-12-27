@@ -90,6 +90,7 @@ loginf("version %s" % VERSION)
 aqi = 0
 aqi_category = ""
 aqi_time = 0
+aqi_location = ""
 
 class getData(SearchList):
     def __init__(self, generator):
@@ -208,6 +209,7 @@ class getData(SearchList):
         global aqi
         global aqi_category
         global aqi_time
+        global aqi_location
 
         
         # Look for the debug flag which can be used to show more logging
@@ -900,7 +902,7 @@ class getData(SearchList):
                 else:
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=25mi&limit=10&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
@@ -1030,9 +1032,13 @@ class getData(SearchList):
                 data = json.load( read_file )
                 
             if forecast_provider == "aeris":
-                aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
-                aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
-                aqi_time = data['aqi'][0]['response'][0]['periods'][0]['timestamp']
+                try:
+                    aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
+                    aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
+                    aqi_time = data['aqi'][0]['response'][0]['periods'][0]['timestamp']
+                    aqi_location = data['aqi'][0]['response'][0]['place']['name'].title()
+                except Exception as error:
+                    logerr( "Error getting AQI from Aeris weather. The error was:\n%s\nThe response from the Aeris AQI server was:\n%s\nThe URL being used is:\n%s" % (error, data['aqi'], aqi_url))
 
                 # Substitute label names if defined in config files, to allow users to supply their own translations
                 # see https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
@@ -1474,7 +1480,8 @@ class getData(SearchList):
                                   'social_html': social_html,
                                   'custom_css_exists': custom_css_exists,
                                   'aqi': aqi,
-                                  'aqi_category': aqi_category }
+                                  'aqi_category': aqi_category,
+                                  'aqi_location': aqi_location }
 
         # Finally, return our extension as a list:
         return [search_list_extension]

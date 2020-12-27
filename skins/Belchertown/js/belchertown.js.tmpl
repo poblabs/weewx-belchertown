@@ -224,37 +224,37 @@ function get_aqi_color( aqi, returnColor=false ) {
 
 function get_gauge_color( value, options ) {
     if (options.color1) {
-        if (value > options.color1_position) {
+        if (value >= options.color1_position) {
             var color = options.color1
         }
     }
     if (options.color2) {
-        if (value > options.color2_position) {
+        if (value >= options.color2_position) {
             var color = options.color2
         }
     }
     if (options.color3) {
-        if (value > options.color3_position) {
+        if (value >= options.color3_position) {
             var color = options.color3
         }
     }
     if (options.color4) {
-        if (value > options.color4_position) {
+        if (value >= options.color4_position) {
             var color = options.color4
         }
     }
     if (options.color5) {
-        if (value > options.color5_position) {
+        if (value >= options.color5_position) {
             var color = options.color5
         }
     }
     if (options.color6) {
-        if (value > options.color6_position) {
+        if (value >= options.color6_position) {
             var color = options.color6
         }
     }
     if (options.color7) {
-        if (value > options.color7_position){
+        if (value >= options.color7_position){
             var color = options.color7
         }
     }
