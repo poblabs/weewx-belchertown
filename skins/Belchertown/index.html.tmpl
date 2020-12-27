@@ -195,6 +195,9 @@
                                         #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
                                         <div class="aqi_outer">
                                             AQI:  $aqi ($aqi_category)
+                                            #if $Extras.has_key("aqi_location_enabled") and $Extras.aqi_location_enabled == '1'
+                                            <span class="aqi_location_outer"><br>$aqi_location</span>
+                                            #end if
                                         </div>
                                         #end if
                                     </div>
