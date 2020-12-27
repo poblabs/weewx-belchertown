@@ -2439,7 +2439,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 usage_round = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[1], "1f")[-2])
                 obs_round_vt = [round(x,usage_round) if x is not None else None for x in obs_vt[0]]
             else:
-                usage_round = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[2], "2f")[-2])
+                usage_round = int(self.skin_dict['Units']['StringFormats'].get(obs_vt[1], "2f")[-2])
                 obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
             
         # "Today" charts, "timespan_specific" charts and floating timespan charts have the point timestamp on the stop time so we don't see the 
