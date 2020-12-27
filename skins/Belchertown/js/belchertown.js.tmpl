@@ -197,7 +197,8 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
     }
 }
 
-// Change the color of the aqi variable
+// Change the color of the aqi variable according to US-EPA standards
+// (adjusted to match skin colors better)
 function get_aqi_color( aqi, returnColor=false ) {
     if ( aqi <= 50 ) {
         var aqi_color = "#71bc3c";
@@ -219,6 +220,45 @@ function get_aqi_color( aqi, returnColor=false ) {
     } else {
         jQuery(".aqi_outer").css( "color", aqi_color );
     }
+}
+
+function get_gauge_color( value, options ) {
+    if (options.color1) {
+        if (value > options.color1_position) {
+            var color = options.color1
+        }
+    }
+    if (options.color2) {
+        if (value > options.color2_position) {
+            var color = options.color2
+        }
+    }
+    if (options.color3) {
+        if (value > options.color3_position) {
+            var color = options.color3
+        }
+    }
+    if (options.color4) {
+        if (value > options.color4_position) {
+            var color = options.color4
+        }
+    }
+    if (options.color5) {
+        if (value > options.color5_position) {
+            var color = options.color5
+        }
+    }
+    if (options.color6) {
+        if (value > options.color6_position) {
+            var color = options.color6
+        }
+    }
+    if (options.color7) {
+        if (value > options.color7_position){
+            var color = options.color7
+        }
+    }
+    return color
 }
 
 function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn=false, rounding, mirrored=false, numberFormat) {
@@ -2148,8 +2188,99 @@ function showChart(json_file, prepend_renderTo=false) {
                 });
             }
 
-            // // If AQI chart is present, configure a special chart
+            // Configure gauge chart formatting
+            if (options.chart.type == "gauge") {
+                // Highcharts does not allow the guage background to have rounded ends. To get around
+                // this, define a "dummy" series that fills the gauge with the appropriate color.
+                // This way, the ends are rounded if the user specifies.
+                //
+                // Gauge chart works best with only one data point, so the most recent (last) data point
+                // is used
+                options.series[0].data = [{
+                    y: 9999999,
+                    color: '#e6e6e6',
+                    className: 'highcharts-pane',
+                    zIndex: 0,
+                    dataLabels: {enabled: false}
+                }, {
+                    y: options.series[0].data.pop()[1], 
+                    color: options.series[0].color,
+                }]
+                options.chart.type = "solidgauge"
+                options.pane = { 
+                    startAngle: -140,
+                    endAngle: 140,
+                    background: [{
+                        outerRadius: 0,
+                        innerRadius: 0,
+                    }] 
+                }
+                // If user has set colors_enabled, change the color according to the value
+                if (options.series[0].colors_enabled) {
+                    options.series[0].data[1].color = get_gauge_color(options.series[0].data[1]["y"], options.series[0])
+                }
+                options.plotOptions = {
+                    solidgauge: {
+                        dataLabels: {
+                            useHTML: true,
+                            enabled: true, 
+                            y: -20,
+                            borderWidth: 0,
+                            format: "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + unit_label_array[observation_type] + '</span>',
+                            style: {
+                                fontWeight: 'bold',
+                                lineHeight: '0.5em',
+                                textAlign: 'center',
+                                fontSize: '50px',
+                                // Match color if set by user
+                                color: options.series[0].data[1].color,
+                                textOutline: 'none'
+                            }
+                        },
+                    }
+                }
+                options.yAxis = {
+                    min: 0,
+                    max: 100,
+                    lineColor: null,
+                    tickPositions: []
+                }
+                // Override default max and min if user has specified
+                if (options.series[0].yAxis_max) {
+                    options.yAxis.max = options.series[0].yAxis_max;
+                }
+                if (options.series[0].yAxis_min) {
+                    options.yAxis.min = options.series[0].yAxis_min;
+                }
+                options.tooltip.enabled = false
+                options.xAxis.crosshair = false
+            }
+
+            // If AQI chart is present, configure a special chart
             if (observation_type == "aqiChart") {
+                // Highcharts does not allow the guage background to have rounded ends. To get around
+                // this, define a "dummy" series that fills the gauge with the appropriate color.
+                // This way, the ends are rounded if the user specifies.
+                options.series[0].data = [{
+                    y: 500,
+                    color: '#e6e6e6',
+                    className: 'highcharts-pane',
+                    zIndex: 0,
+                    dataLabels: {enabled: false}
+                }, {
+                    y: options.series[0].data[0]['y'],
+                    color: get_aqi_color(options.series[0].data[0]['y'], true),
+                    category: options.series[0].data[0]['category']
+                }]
+                options.chart.type = "solidgauge"
+                options.pane = {
+                    startAngle: -140,
+                    endAngle: 140,
+                    background: [{
+                        outerRadius: 0,
+                        innerRadius: 0,
+                    }] 
+                }
                 options.plotOptions = {
                     solidgauge: {
                         dataLabels: {
@@ -2157,13 +2288,13 @@ function showChart(json_file, prepend_renderTo=false) {
                             enabled: true, 
                             y: -30,
                             borderWidth: 0,
-                            format: '<span style="text-align:center">{y}</span><br><span style="font-size:12px;text-align:center">' + options.series[0].data[0]['category'] + '</span>',
+                            format: '<span style="text-align:center">{y}</span><br><span style="font-size:12px;text-align:center">' + options.series[0].data[1]['category'] + '</span>',
                             style: {
                                 fontWeight: 'bold',
                                 lineHeight: '0.5em',
                                 textAlign: 'center',
                                 fontSize: '50px',
-                                color: get_aqi_color(options.series[0].data[0]['y'], true),
+                                color: options.series[0].data[1].color,
                                 textOutline: 'none'
                             }
                         },
@@ -2171,16 +2302,6 @@ function showChart(json_file, prepend_renderTo=false) {
                         rounded: true
                     }
                 }
-                options.series[0].data[0].color = get_aqi_color(options.series[0].data[0]['y'], true)
-                options.chart.type = "solidgauge"
-                options.pane = { background: [{
-                        outerRadius: '100%',
-                        innerRadius: '60%',
-                        backgroundColor: '#e6e6e6',
-                        borderWidth: 0
-                    }] 
-                }
-
                 options.yAxis = {
                     min: 0,
                     max: 500,
@@ -2203,20 +2324,16 @@ function showChart(json_file, prepend_renderTo=false) {
                         }
                     }
                 };
-
                 // Find min and max of the series data for the yAxis min and max
                 var maximum_flattened = [];
                 options.series[0].data.forEach( seriesData => {
                     maximum_flattened.push(seriesData[2]);
                 });
                 var range_max = Math.max(...maximum_flattened);
-                
                 if (options.series[0].yAxis_softMax) {
                     var range_max = options.series[0].yAxis_softMax;
                 }
-                
                 options.legend = { "enabled": false }
-
                 options.yAxis = {
                     showFirstLabel: false,
                     tickInterval: 2,
@@ -2232,7 +2349,6 @@ function showChart(json_file, prepend_renderTo=false) {
                         y: 0
                     },
                 }
-
                 options.tooltip = {
                     split: false,
                     shared: true,
@@ -2247,7 +2363,6 @@ function showChart(json_file, prepend_renderTo=false) {
                         });
                     }
                 }
-
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
                 var range_unit = options.series[0].range_unit;
