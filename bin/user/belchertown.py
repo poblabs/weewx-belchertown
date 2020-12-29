@@ -2083,6 +2083,29 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         elif windData[1] >= 22:
                             group_6_windDir.append( windData[0] )
                             group_6_windSpeed.append( windData[1] )
+                    elif windSpeed_unit == "beaufort":
+                        if windData[1] <= 1:
+                            group_0_windDir.append( windData[0] )
+                            group_0_windSpeed.append( windData[1] )
+                        elif windData[1] == 2:
+                            group_1_windDir.append( windData[0] )
+                            group_1_windSpeed.append( windData[1] )
+                        elif windData[1] == 3:
+                            group_2_windDir.append( windData[0] )
+                            group_2_windSpeed.append( windData[1] )
+                        elif windData[1] == 4:
+                            group_3_windDir.append( windData[0] )
+                            group_3_windSpeed.append( windData[1] )
+                        elif windData[1] == 5:
+                            group_4_windDir.append( windData[0] )
+                            group_4_windSpeed.append( windData[1] )
+                        elif windData[1] == 6:
+                            group_5_windDir.append( windData[0] )
+                            group_5_windSpeed.append( windData[1] )
+                        elif windData[1] >= 7:
+                            group_6_windDir.append( windData[0] )
+                            group_6_windSpeed.append( windData[1] )
+
 
             # Get the windRose data
             group_0_series_data = self.create_windrose_data( group_0_windDir, group_0_windSpeed )
@@ -2158,7 +2181,15 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 group_4_speedRange = "11-16"
                 group_5_speedRange = "17-21"
                 group_6_speedRange = "22+"
-            
+            elif windSpeed_unit == "beaufort":
+                group_0_speedRange = "0"
+                group_1_speedRange = "1"
+                group_2_speedRange = "2"
+                group_3_speedRange = "3"
+                group_4_speedRange = "4"
+                group_5_speedRange = "5"
+                group_6_speedRange = "6+"
+
             group_0_name = "%s %s" % (group_0_speedRange, windSpeed_unit_label)
             group_1_name = "%s %s" % (group_1_speedRange, windSpeed_unit_label)
             group_2_name = "%s %s" % (group_2_speedRange, windSpeed_unit_label)
