@@ -401,11 +401,14 @@ class getData(SearchList):
         at_outTemp_max_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;' )
         at_outTemp_min_range_query = wx_manager.getSql( 'SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;' )
         
-        # Find the group_name for outTemp
+        # Find the group_name for outTemp in database
         outTemp_unit = converter.group_unit_dict["group_temperature"]
-        
-        # Find the number of decimals to round to
-        outTemp_round = self.generator.skin_dict['Units']['StringFormats'].get(outTemp_unit, "%.1f")
+       
+        # Find the group_name for outTemp from the skin.conf
+        skin_outTemp_unit = self.generator.converter.group_unit_dict["group_temperature"]
+            
+        # Find the number of decimals to round to based on the skin.conf
+        outTemp_round = self.generator.skin_dict['Units']['StringFormats'].get(skin_outTemp_unit, "%.1f")
 
         # Largest Daily Temperature Range Conversions
         # Max temperature for this day
@@ -463,12 +466,15 @@ class getData(SearchList):
         
         
         # Rain lookups
-        # Find the group_name for rain
+        # Find the group_name for rain in database
         rain_unit = converter.group_unit_dict["group_rain"]
         
-        # Find the number of decimals to round to
-        rain_round = self.generator.skin_dict['Units']['StringFormats'].get(rain_unit, "%.2f")
-        
+        # Find the group_name for rain in the skin.conf
+        skin_rain_unit = self.generator.converter.group_unit_dict["group_rain"]
+
+        # Find the number of decimals to round the result based on the skin.conf
+        rain_round = self.generator.skin_dict['Units']['StringFormats'].get(skin_rain_unit, "%.2f")
+       
         # Rainiest Day
         rainiest_day_query = wx_manager.getSql( 'SELECT dateTime, sum FROM archive_day_rain WHERE dateTime >= %s ORDER BY sum DESC LIMIT 1;' % year_start_epoch )
         if rainiest_day_query is not None:
