@@ -1069,6 +1069,59 @@ class getData(SearchList):
                 else:
                     aqi_category = "unknown"
 
+                if label_dict["beaufort0"] != "beaufort0":
+                    beaufort0 = label_dict["beaufort0"]
+                else:
+                    beaufort0 = "calm"
+                if label_dict["beaufort1"] != "beaufort1":
+                    beaufort1 = label_dict["beaufort1"]
+                else:
+                    beaufort1 = "light air"
+                if label_dict["beaufort2"] != "beaufort2":
+                    beaufort2 = label_dict["beaufort2"]
+                else:
+                    beaufort2 = "light breeze"
+                if label_dict["beaufort3"] != "beaufort3":
+                    beaufort3 = label_dict["beaufort3"]
+                else:
+                    beaufort3 = "gentle breeze"
+                if label_dict["beaufort4"] != "beaufort4":
+                    beaufort4 = label_dict["beaufort4"]
+                else:
+                    beaufort4 = "moderate breeze"
+                if label_dict["beaufort5"] != "beaufort5":
+                    beaufort5 = label_dict["beaufort5"]
+                else:
+                    beaufort5 = "fresh breeze"
+                if label_dict["beaufort6"] != "beaufort6":
+                    beaufort6 = label_dict["beaufort6"]
+                else:
+                    beaufort6 = "strong breeze"
+                if label_dict["beaufort7"] != "beaufort7":
+                    beaufort7 = label_dict["beaufort7"]
+                else:
+                    beaufort7 = "near gale"
+                if label_dict["beaufort8"] != "beaufort8":
+                    beaufort8 = label_dict["beaufort8"]
+                else:
+                    beaufort8 = "gale"
+                if label_dict["beaufort9"] != "beaufort9":
+                    beaufort9 = label_dict["beaufort9"]
+                else:
+                    beaufort9 = "strong gale"
+                if label_dict["beaufort10"] != "beaufort10":
+                    beaufort10 = label_dict["beaufort10"]
+                else:
+                    beaufort10 = "storm"
+                if label_dict["beaufort11"] != "beaufort11":
+                    beaufort11 = label_dict["beaufort11"]
+                else:
+                    beaufort11 = "violent storm"
+                if label_dict["beaufort12"] != "beaufort12":
+                    beaufort12 = label_dict["beaufort12"]
+                else:
+                    beaufort12 = "hurricane force"
+
                 if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
                     # Non-metar responses do not contain these values. Set them to empty.
                     current_obs_summary = ""
@@ -1481,7 +1534,20 @@ class getData(SearchList):
                                   'custom_css_exists': custom_css_exists,
                                   'aqi': aqi,
                                   'aqi_category': aqi_category,
-                                  'aqi_location': aqi_location }
+                                  'aqi_location': aqi_location,
+                                  'beaufort0': beaufort0,
+                                  'beaufort1': beaufort1,
+                                  'beaufort2': beaufort2,
+                                  'beaufort3': beaufort3,
+                                  'beaufort4': beaufort4,
+                                  'beaufort5': beaufort5,
+                                  'beaufort6': beaufort6,
+                                  'beaufort7': beaufort7,
+                                  'beaufort8': beaufort8,
+                                  'beaufort9': beaufort9,
+                                  'beaufort10': beaufort10,
+                                  'beaufort11': beaufort11,
+                                  'beaufort12': beaufort12}
 
         # Finally, return our extension as a list:
         return [search_list_extension]

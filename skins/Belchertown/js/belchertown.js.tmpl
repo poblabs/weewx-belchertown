@@ -261,7 +261,7 @@ function get_gauge_color( value, options ) {
     return color
 }
 
-function beaufort(windspeed) {
+function kts_to_beaufort(windspeed) {
     // Given windspeed in knots, converts to Beaufort scale
     if (windspeed <= 1) {
         return 0
@@ -289,6 +289,38 @@ function beaufort(windspeed) {
         return 11
     } else if (windspeed > 63) {
         return 12
+    }
+}
+
+function beaufort_cat(beaufort) {
+    // Given Beaufort number, returns category description
+    switch (beaufort) {
+        case 0:
+            return "$beaufort0"
+        case 1:
+            return "$beaufort1"
+        case 2:
+            return "$beaufort2"
+        case 3:
+            return "$beaufort3"
+        case 4:
+            return "$beaufort4"
+        case 5:
+            return "$beaufort5"
+        case 6:
+            return "$beaufort6"
+        case 7:
+            return "$beaufort7"
+        case 8:
+            return "$beaufort8"
+        case 9:
+            return "$beaufort9"
+        case 10:
+            return "$beaufort10"
+        case 11:
+            return "$beaufort11"
+        case 12:
+            return "$beaufort12"
     }
 }
 
@@ -1096,11 +1128,6 @@ function update_forecast_data( data ) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
-    #if $Extras.has_key('forecast_wind_units')
-        forecast_wind_units = "$Extras.forecast_wind_units"
-    #else
-        forecast_wind_units = ""
-    #end if
     
     forecast_row = [];
     
@@ -1201,33 +1228,33 @@ function update_forecast_data( data ) {
 
             if ( data["flags"]["units"].toLowerCase() == "us" || data["flags"]["units"].toLowerCase() == "us" ) {
                 // Wind speed is given in mph
-                if ( forecast_wind_units == "beaufort" ) {
+                if ( "$unit.unit_type.windSpeed" == "beaufort" ) {
                     // User wants Beaufort wind scale, so convert mph to knots and then to Beaufort
-                    data["daily"]["data"][i]["windSpeed"] = beaufort(data["daily"]["data"][i]["windSpeed"]*0.8689758)
-                    data["daily"]["data"][i]["windGust"] = beaufort(data["daily"]["data"][i]["windGust"]*0.8689758)
-                } else if ( forecast_wind_units == "knots" ) {
+                    data["daily"]["data"][i]["windSpeed"] = kts_to_beaufort(data["daily"]["data"][i]["windSpeed"]*0.8689758)
+                    data["daily"]["data"][i]["windGust"] = kts_to_beaufort(data["daily"]["data"][i]["windGust"]*0.8689758)
+                } else if ( "$unit.unit_type.windSpeed" == "knot" ) {
                     // User wants knots, so convert mph to knots
                     data["daily"]["data"][i]["windSpeed"] = data["daily"]["data"][i]["windSpeed"]*0.8689758
                     data["daily"]["data"][i]["windGust"] = data["daily"]["data"][i]["windGust"]*0.8689758
                 }
             } else if ( data["flags"]["units"].toLowerCase() == "ca" ) {
                 // Wind speed is given in kph
-                if ( forecast_wind_units == "beaufort" ) {
+                if ( "$unit.unit_type.windSpeed" == "beaufort" ) {
                     // User wants Beaufort wind scale, so convert kph to knots and then to Beaufort
-                    data["daily"]["data"][i]["windSpeed"] = beaufort(data["daily"]["data"][i]["windSpeed"]*0.5399565)
-                    data["daily"]["data"][i]["windGust"] = beaufort(data["daily"]["data"][i]["windGust"]*0.5399565)
-                } else if ( forecast_wind_units == "knots" ) {
+                    data["daily"]["data"][i]["windSpeed"] = kts_to_beaufort(data["daily"]["data"][i]["windSpeed"]*0.5399565)
+                    data["daily"]["data"][i]["windGust"] = kts_to_beaufort(data["daily"]["data"][i]["windGust"]*0.5399565)
+                } else if ( "$unit.unit_type.windSpeed" == "knots" ) {
                     // User wants knots, so convert kph to knots
                     data["daily"]["data"][i]["windSpeed"] = data["daily"]["data"][i]["windSpeed"]*0.5399565
                     data["daily"]["data"][i]["windGust"] = data["daily"]["data"][i]["windGust"]*0.5399565
                 }
             } else if ( data["flags"]["units"].toLowerCase() == "si" ) {
                 // Wind speed is given in m/s
-                if ( forecast_wind_units == "beaufort" ) {
+                if ( "$unit.unit_type.windSpeed" == "beaufort" ) {
                     // User wants Beaufort wind scale, so convert m/s to knots and then to Beaufort
-                    data["daily"]["data"][i]["windSpeed"] = beaufort(data["daily"]["data"][i]["windSpeed"]*1.943844)
-                    data["daily"]["data"][i]["windGust"] = beaufort(data["daily"]["data"][i]["windGust"]*1.943844)
-                } else if ( forecast_wind_units == "knots" ) {
+                    data["daily"]["data"][i]["windSpeed"] = kts_to_beaufort(data["daily"]["data"][i]["windSpeed"]*1.943844)
+                    data["daily"]["data"][i]["windGust"] = kts_to_beaufort(data["daily"]["data"][i]["windGust"]*1.943844)
+                } else if ( "$unit.unit_type.windSpeed" == "knots" ) {
                     // User wants knots, so convert m/s to knots
                     data["daily"]["data"][i]["windSpeed"] = data["daily"]["data"][i]["windSpeed"]*1.943844
                     data["daily"]["data"][i]["windGust"] = data["daily"]["data"][i]["windGust"]*1.943844
@@ -1313,12 +1340,12 @@ function update_forecast_data( data ) {
                 // si = meters per second. MPS is KPH / 3.6
                 windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
                 windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
-            } else if ( forecast_wind_units == "knot" ) {
+            } else if ( "$unit.unit_type.windSpeed" == "knot" ) {
                 windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedKTS"];
                 windGust = data["forecast"][0]["response"][0]["periods"][i]["windGustKTS"];
-            } else if ( forecast_wind_units == "beaufort" ) {
-                windSpeed = beaufort(data["forecast"][0]["response"][0]["periods"][i]["windSpeedKTS"]);
-                windGust = beaufort(data["forecast"][0]["response"][0]["periods"][i]["windGustKTS"]);
+            } else if ( "$unit.unit_type.windSpeed" == "beaufort" ) {
+                windSpeed = kts_to_beaufort(data["forecast"][0]["response"][0]["periods"][i]["windSpeedKTS"]);
+                windGust = kts_to_beaufort(data["forecast"][0]["response"][0]["periods"][i]["windGustKTS"]);
             } else {
                 // us and uk2 and default = mph
                 windSpeed = data["forecast"][0]["response"][0]["periods"][i]["windSpeedMPH"];
@@ -1715,6 +1742,8 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("windSpeed_knot") ) {
         jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
+    
+    jQuery(".beaufort").html( beaufort_cat( parseFloat(data["beaufort_count"])) );
     
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
