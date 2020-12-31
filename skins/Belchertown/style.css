@@ -1502,7 +1502,7 @@ p.entry-meta {
     padding-right: 15px;
     /* margin: 0 -15px 0 -15px; */
     margin: 0 0 0 0;
-    width: 385px;
+    min-width: 275px;
 }
 
 .curwind {
