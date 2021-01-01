@@ -1442,6 +1442,16 @@ p.entry-meta {
 	font-size:20px;
 }
 
+.aqi_outer {
+    text-align:center;
+    font-size:20px;
+}
+
+.aqi_location_outer {
+    text-align:center;
+    font-size:14px;
+}
+
 #wxicon {
     display: block;
     margin: 0 auto;
