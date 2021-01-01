@@ -990,7 +990,7 @@ class getData(SearchList):
                                                                         [json.loads(current_page)],
                                                                         "forecast_24hr":
                                                                         [json.loads(forecast_24hr_page)],
-                                                                        "forecast"_3hr:
+                                                                        "forecast_3hr":
                                                                         [json.loads(forecast_3hr_page)],
                                                                         "forecast_1hr":
                                                                         [json.loads(forecast_1hr_page)],
@@ -1021,7 +1021,7 @@ class getData(SearchList):
                                                                         [json.loads(current_page)],
                                                                         "forecast_24hr":
                                                                         [json.loads(forecast_24hr_page)],
-                                                                        "forecast"_3hr:
+                                                                        "forecast_3hr":
                                                                         [json.loads(forecast_3hr_page)],
                                                                         "forecast_1hr":
                                                                         [json.loads(forecast_1hr_page)],
