@@ -269,7 +269,8 @@ To override a default setting add the setting name and value to the Extras secti
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
-            forecast_api_key = "your_key"
+            forecast_api_id = "your_id"
+            forecast_api_secret = "your_secret_key"
             earthquake_enabled = 1
             earthquake_server = USGS
             twitter_enabled = 1
