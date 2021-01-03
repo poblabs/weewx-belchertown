@@ -269,7 +269,8 @@ To override a default setting add the setting name and value to the Extras secti
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
-            forecast_api_key = "your_key"
+            forecast_api_id = "your_id"
+            forecast_api_secret = "your_secret_key"
             earthquake_enabled = 1
             earthquake_server = USGS
             twitter_enabled = 1
@@ -373,6 +374,7 @@ For ease of readability I have broken them out into separate tables. However you
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
 | earthquake_server | USGS | USGS for USGS website (best for North American Users) or GeoNet for NZ GeoNet website (best for NZ users)
+| geonet_mmi | 4 | Sets the filter for earthquake intensity (GeoNet only). For example, 4 will show all quakes with MMI 4 or greater (light+). Valid values are -1-8.
 
 
 ### Social Options

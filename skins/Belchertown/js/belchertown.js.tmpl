@@ -200,17 +200,17 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
 // Change the color of the aqi variable according to US-EPA standards
 // (adjusted to match skin colors better)
 function get_aqi_color( aqi, returnColor=false ) {
-    if ( aqi <= 50 ) {
+    if ( aqi < 51 ) {
         var aqi_color = "#71bc3c";
-    } else if ( aqi <= 100 ) {
+    } else if ( aqi >= 51 ) {
         var aqi_color = "rgba(255,174,0,0.9)";
-    } else if ( aqi <= 150 ) {
+    } else if ( aqi >= 101 ) {
         var aqi_color = "rgba(255,127,0,1)";
-    } else if ( aqi <= 200 ) {
+    } else if ( aqi >= 151 ) {
         var aqi_color = "rgba(255,69,69,1)";
-    } else if ( aqi <= 300 ) {
+    } else if ( aqi >= 201 ) {
         var aqi_color = "#b16286";
-    } else if ( aqi > 300 ) {
+    } else if ( aqi >= 301 ) {
         var aqi_color = "#cc241d";
     }
 
@@ -224,9 +224,9 @@ function get_aqi_color( aqi, returnColor=false ) {
 
 function get_gauge_color( value, options ) {
     if (options.color1) {
-        if (value >= options.color1_position) {
-            var color = options.color1
-        }
+        // Failsafe in case value drops below the lowest color position user has set.
+        // Otherwise color is undefined when the value is below color1_position
+        var color = options.color1
     }
     if (options.color2) {
         if (value >= options.color2_position) {
@@ -259,6 +259,63 @@ function get_gauge_color( value, options ) {
         }
     }
     return color
+}
+
+function get_gauge_label( value, options ) {
+    if (options.color1) {
+        if (options.color1_label) {
+            var label = options.color1_label
+        }
+    }
+    if (options.color2) {
+        if (value >= options.color2_position) {
+            var label = null
+            if (options.color2_label) {
+                var label = options.color2_label
+            }
+        }
+    }
+    if (options.color3) {
+        if (value >= options.color3_position) {
+            var label = null
+            if (options.color3_label) {
+                var label = options.color3_label
+            }
+        }
+    }
+    if (options.color4) {
+        if (value >= options.color4_position) {
+            var label = null
+            if (options.color4_label) {
+                var label = options.color4_label
+            }
+        }
+    }
+    if (options.color5) {
+        if (value >= options.color5_position) {
+            var label = null
+            if (options.color5_label) {
+                var label = options.color5_label
+            }
+        }
+    }
+    if (options.color6) {
+        if (value >= options.color6_position) {
+            var label = null
+            if (options.color6_label) {
+                var label = options.color6_label
+            }
+        }
+    }
+    if (options.color7) {
+        if (value >= options.color7_position){
+            var label = null
+            if (options.color7_label) {
+                var label = options.color7_label
+            }
+        }
+    }
+    return label
 }
 
 function beaufort(windspeed) {
@@ -2302,9 +2359,7 @@ function showChart(json_file, prepend_renderTo=false) {
                         dataLabels: {
                             useHTML: true,
                             enabled: true, 
-                            y: -20,
                             borderWidth: 0,
-                            format: "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + unit_label_array[observation_type] + '</span>',
                             style: {
                                 fontWeight: 'bold',
                                 lineHeight: '0.5em',
@@ -2316,6 +2371,15 @@ function showChart(json_file, prepend_renderTo=false) {
                             }
                         },
                     }
+                }
+                if ( get_gauge_label( options.series[0].data[1]["y"], options.series[0] ) ) {
+                    options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label( options.series[0].data[1]["y"], options.series[0] ) + '</span>'
+                    options.plotOptions.solidgauge.dataLabels.y = -25
+                } else if ( unit_label_array[observation_type] == null ) {
+                    options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
+                } else {
+                    options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + unit_label_array[observation_type] + '</span>'
+                    options.plotOptions.solidgauge.dataLabels.y = -25
                 }
                 options.yAxis = {
                     min: 0,
@@ -2366,7 +2430,7 @@ function showChart(json_file, prepend_renderTo=false) {
                             enabled: true, 
                             y: -30,
                             borderWidth: 0,
-                            format: '<span style="text-align:center">{y}</span><br><span style="font-size:12px;text-align:center">' + options.series[0].data[1]['category'] + '</span>',
+                            format: '<span style="text-align:center">{y}</span><br><span style="font-size:14px;text-align:center">' + options.series[0].data[1]['category'] + '</span>',
                             style: {
                                 fontWeight: 'bold',
                                 lineHeight: '0.5em',

@@ -1155,7 +1155,8 @@ class getData(SearchList):
             if self.generator.skin_dict['Extras']['earthquake_server'] == "USGS":
                 earthquake_url = "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2" % ( latitude, longitude, earthquake_maxradiuskm )
             elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
-                earthquake_url = "https://api.geonet.org.nz/quake?MMI=4"
+                earthquake_url = ("https://api.geonet.org.nz/quake?MMI=%s" 
+                                 % self.generator.skin_dict['Extras']['geonet_mmi'])
             earthquake_is_stale = False
             
             # Determine if the file exists and get it's modified time
