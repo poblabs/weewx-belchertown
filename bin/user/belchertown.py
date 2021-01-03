@@ -907,7 +907,9 @@ class getData(SearchList):
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 else:
                     forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                forecast_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_24hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_3hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+                forecast_1hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
                 if self.generator.skin_dict['Extras']['forecast_alert_limit']:
                     forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
@@ -915,13 +917,14 @@ class getData(SearchList):
                 else:
                     # Default to 1 alerts to show if the option is missing. Can go up to 10
                     forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_lang, forecast_api_id, forecast_api_secret )
-            elif forecast_provider == "darksky":
-                forecast_url = "https://api.darksky.net/forecast/%s/%s,%s?units=%s&lang=%s" % ( forecast_api_secret, latitude, longitude, forecast_units, forecast_lang )
                 
-            # Determine if the file exists and get it's modified time
+            # Determine if the file exists and get it's modified time, enhanced for 1 hr forecast to load close to the hour
             if os.path.isfile( forecast_file ):
                 if ( int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( forecast_stale_timer ):
                     forecast_is_stale = True
+                else:
+                    if ( time.strftime("%M") < "05" and int( time.time() ) - int( os.path.getmtime( forecast_file ) ) ) > int( 300 ) :    # catches repeated calls to this function every archive interval (300secs)
+                        forecast_is_stale = True   
             else:
                 # File doesn't exist, download a new copy
                 forecast_is_stale = True
@@ -951,10 +954,20 @@ class getData(SearchList):
                             response = urlopen( req )
                             current_page = response.read()
                             response.close()
-                            # Forecast
-                            req = Request( forecast_url, None, headers )
+                            # 24hr forecast (was Forecast)
+                            req = Request( forecast_24hr_url, None, headers )
                             response = urlopen( req )
-                            forecast_page = response.read()
+                            forecast_24hr_page = response.read()
+                            response.close()
+                            # 3hr forecast
+                            req = Request( forecast_3hr_url, None, headers )
+                            response = urlopen( req )
+                            forecast_3hr_page = response.read()
+                            response.close()
+                            # 1hr forecast
+                            req = Request( forecast_1hr_url, None, headers )
+                            response = urlopen( req )
+                            forecast_1hr_page = response.read()
                             response.close()
                             # AQI
                             req = Request( aqi_url, None, headers )
@@ -975,8 +988,12 @@ class getData(SearchList):
                                                                         int(time.time()),
                                                                         "current":
                                                                         [json.loads(current_page)],
-                                                                        "forecast":
-                                                                        [json.loads(forecast_page)],
+                                                                        "forecast_24hr":
+                                                                        [json.loads(forecast_24hr_page)],
+                                                                        "forecast_3hr":
+                                                                        [json.loads(forecast_3hr_page)],
+                                                                        "forecast_1hr":
+                                                                        [json.loads(forecast_1hr_page)],
                                                                         "alerts":
                                                                         [json.loads(alerts_page)],
                                                                         "aqi":
@@ -986,8 +1003,12 @@ class getData(SearchList):
                                                                         int(time.time()),
                                                                         "current":
                                                                         [json.loads(current_page.decode('utf-8'))],
-                                                                        "forecast":
-                                                                        [json.loads(forecast_page.decode('utf-8'))],
+                                                                        "forecast_24hr":
+                                                                        [json.loads(forecast_24hr_page.decode('utf-8'))],
+                                                                        "forecast_3hr":
+                                                                        [json.loads(forecast_3hr_page.decode('utf-8'))],
+                                                                        "forecast_1hr":
+                                                                        [json.loads(forecast_1hr_page.decode('utf-8'))],
                                                                         "alerts":
                                                                         [json.loads(alerts_page.decode('utf-8'))],
                                                                         "aqi":
@@ -998,8 +1019,12 @@ class getData(SearchList):
                                                                         int(time.time()),
                                                                         "current":
                                                                         [json.loads(current_page)],
-                                                                        "forecast":
-                                                                        [json.loads(forecast_page)],
+                                                                        "forecast_24hr":
+                                                                        [json.loads(forecast_24hr_page)],
+                                                                        "forecast_3hr":
+                                                                        [json.loads(forecast_3hr_page)],
+                                                                        "forecast_1hr":
+                                                                        [json.loads(forecast_1hr_page)],
                                                                         "aqi":
                                                                         [json.loads(aqi_page)]} )
                                 except:
@@ -1007,19 +1032,16 @@ class getData(SearchList):
                                                                         int(time.time()),
                                                                         "current":
                                                                         [json.loads(current_page.decode('utf-8'))],
-                                                                        "forecast":
-                                                                        [json.loads(forecast_page.decode('utf-8'))],
+                                                                        "forecast_24hr":
+                                                                        [json.loads(forecast_24hr_page.decode('utf-8'))],
+                                                                        "forecast_3hr":
+                                                                        [json.loads(forecast_3hr_page.decode('utf-8'))],
+                                                                        "forecast_1hr":
+                                                                        [json.loads(forecast_1hr_page.decode('utf-8'))],
                                                                         "aqi":
                                                                         [json.loads(aqi_page.decode('utf-8'))]} )
-                        elif forecast_provider == "darksky":
-                            req = Request( forecast_url, None, headers )
-                            response = urlopen( req )
-                            forecast_file_result = response.read()
-                            response.close()
-                            
-                            
                 except Exception as error:
-                    raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_url, error ) )
+                    raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_24hr_url, error ) )
                     
                 # Save forecast data to file. w+ creates the file if it doesn't exist, and truncates the file and re-writes it everytime
                 try:
@@ -1108,25 +1130,6 @@ class getData(SearchList):
                     current_obs_summary = ""
                     current_obs_icon = ""
                     visibility = "N/A"
-                    visibility_unit = ""
-                    
-            elif forecast_provider == "darksky":
-                current_obs_summary = label_dict[ data["currently"]["summary"].lower() ]
-                visibility = locale.format("%g", float( data["currently"]["visibility"] ) )
-                
-                if data["currently"]["icon"] == "partly-cloudy-night":
-                    current_obs_icon = 'partly-cloudy-night.png'
-                else:
-                    current_obs_icon = data["currently"]["icon"]+'.png'
-
-                # Even though we specify the DarkSky unit as darksky_units, if the user selects "auto" as their unit
-                # then we don't know what DarkSky will return for visibility. So always use the DarkSky output to 
-                # tell us what unit they are using. This fixes the guessing game for what label to use for the DarkSky "auto" unit
-                if ( data["flags"]["units"].lower() == "us" ) or ( data["flags"]["units"].lower() == "uk2" ):
-                    visibility_unit = "miles"
-                elif ( data["flags"]["units"].lower() == "si" ) or ( data["flags"]["units"].lower() == "ca" ):
-                    visibility_unit = "km"
-                else:
                     visibility_unit = ""
         else:
             current_obs_icon = ""
