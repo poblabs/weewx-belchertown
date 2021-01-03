@@ -318,7 +318,7 @@ function get_gauge_label( value, options ) {
     return label
 }
 
-function beaufort(windspeed) {
+function kts_to_beaufort(windspeed) {
     // Given windspeed in knots, converts to Beaufort scale
     if (windspeed <= 1) {
         return 0
@@ -346,6 +346,38 @@ function beaufort(windspeed) {
         return 11
     } else if (windspeed > 63) {
         return 12
+    }
+}
+
+function beaufort_cat(beaufort) {
+    // Given Beaufort number, returns category description
+    switch (beaufort) {
+        case 0:
+            return "$beaufort0"
+        case 1:
+            return "$beaufort1"
+        case 2:
+            return "$beaufort2"
+        case 3:
+            return "$beaufort3"
+        case 4:
+            return "$beaufort4"
+        case 5:
+            return "$beaufort5"
+        case 6:
+            return "$beaufort6"
+        case 7:
+            return "$beaufort7"
+        case 8:
+            return "$beaufort8"
+        case 9:
+            return "$beaufort9"
+        case 10:
+            return "$beaufort10"
+        case 11:
+            return "$beaufort11"
+        case 12:
+            return "$beaufort12"
     }
 }
 
@@ -1153,7 +1185,7 @@ function update_forecast_data( data ) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
-	  belchertown_debug(data);    
+    belchertown_debug(data);    
     
     if ( forecast_provider == "N/A" ) {
         jQuery(".forecastrow").hide();
@@ -1228,7 +1260,13 @@ function update_forecast_data( data ) {
                 }
            
                 // Determine wind units
-                if ( "$Extras.forecast_units" == "ca" ) {
+                if ( "$unit.unit_type.windSpeed" == "knot" ) {
+                    windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKTS"];
+                    windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKTS"];
+                } else if ( "$unit.unit_type.windSpeed" == "beaufort" ) {
+                    windSpeed = kts_to_beaufort(data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKTS"]);
+                    windGust = kts_to_beaufort(data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKTS"]);
+                } else if ( "$Extras.forecast_units" == "ca" ) {
                     // ca = kph
                     windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"];
                     windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"];
@@ -1756,6 +1794,8 @@ function update_current_wx(data) {
     if ( data.hasOwnProperty("windSpeed_knot") ) {
         jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
     }
+    
+    jQuery(".beaufort").html( beaufort_cat( parseFloat(data["beaufort_count"])) );
     
     // Wind Gust US
     // May not be provided in mqtt, but just in case.

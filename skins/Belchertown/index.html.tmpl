@@ -37,6 +37,7 @@
         
         jQuery(document).ready(function() {
             get_aqi_color( "$aqi" );
+            jQuery(".beaufort").html( beaufort_cat( $current.windSpeed.beaufort.toString(addLabel=False) ) );
 
             get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
@@ -287,6 +288,11 @@
                                                 <tr>
                                                     <td class="mph" colspan="3">$unit.label.windSpeed</td>
                                                 </tr>
+                                                #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
+                                                <tr>
+                                                    <td class="beaufort" colspan="4"></td>
+                                                </tr>
+                                                #end if
                                             </tbody>
                                         </table>
                                     </div>
