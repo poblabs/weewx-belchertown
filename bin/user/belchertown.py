@@ -868,6 +868,7 @@ class getData(SearchList):
                     "showers": "rain",
                     "showersn": "rain",
                     "showersw": "rain",
+                    "showerswn": "rain",
                     "sleet": "sleet",
                     "sleetn": "sleet",
                     "sleetsnow": "sleet",
