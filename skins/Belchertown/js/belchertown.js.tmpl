@@ -1251,7 +1251,8 @@ function update_forecast_data( data ) {
                         var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
                         var snow_unit = "in";
                     }
-                } else if ( data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] > 0 ) {
+                    precip = 0;
+               } else if ( data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] > 0 ) {
                     // Rain percent of precip
                     precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"];
                 } else {
@@ -1318,8 +1319,8 @@ function update_forecast_data( data ) {
                     output_html += '<div class="forecast-precip">';
                     if ( forecast_row[i]["snow_depth"] > 0 ) {
                         output_html += '<div class="snow-precip">';
-                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
-                        //  output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
+                        // output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
+                        output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>'+ parseFloat( forecast_row[i]["snow_depth"] ).toFixed(0) +'<span> ' + forecast_row[i]["snow_unit"];
                         output_html += '</div>';
                     } else if ( forecast_row[i]["precip"] > 0 ) {
                         output_html += '<i class="wi wi-raindrop wi-rotate-45 rain-precip"></i> <span>'+ parseFloat( forecast_row[i]["precip"] ).toFixed(0) +'%</span>';
