@@ -37,7 +37,9 @@
         
         jQuery(document).ready(function() {
             get_aqi_color( "$aqi" );
-            jQuery(".beaufort").html( beaufort_cat( $current.windSpeed.beaufort.toString(addLabel=False) ) );
+            // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
+            // knots and then use Javascript function to convert to Beaufort
+            jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( $current.windSpeed.knot.toString(addLabel=False) ) ) );
 
             get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
