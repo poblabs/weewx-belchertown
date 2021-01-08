@@ -434,7 +434,7 @@
                         <div class="col-lg-12 row 3hr_forecasts row-no-padding"></div><!-- JS -->
                     </div>        
                 
-                    #if $Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours == '24'
+                    #if ($Extras.has_key("forecast_interval_hours") and $Extras.forecast_interval_hours == '24') or not ($Extras.has_key("forecast_interval_hours"))
                     <script>forecast_default(24);</script>
                     #end if
                     <div id="24hour-selected-forecast" style="display: none;">
