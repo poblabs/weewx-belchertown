@@ -1698,9 +1698,9 @@ function update_current_wx(data) {
             setTimeout( ajaxforecast, 10000 ); // Update forecast data
             #end if
             setTimeout( ajaximages, 10000 ); // Update radar and home page hook "img src" if present
-		}).catch(function(e) {
-			console.log(e);
-		});
+	}).catch(function(e) {
+	    console.log(e);
+        });
     } else {
         // Only show the updated time on non-archive packets
         epoch = parseFloat( data["dateTime"] ).toFixed(0);
