@@ -2259,10 +2259,6 @@ function showChart(json_file, prepend_renderTo=false) {
                 
                 // Barometer chart plots get a higher precision yAxis tick
                 if (s.obsType == "barometer") {
-                    if ( typeof s.yAxis_tickInterval === "undefined" ) { 
-                        // If no tick interval override, set 0.01 as default tick interval to satisfy an old request for this level of precision. 
-                        options.yAxis[this_yAxis].tickInterval = 0.01;
-                    }
                     // Define yAxis label float format if rounding is defined. Default to 2 decimals if nothing defined
                     if ( typeof s.rounding !== "undefined" ) {
                         options.yAxis[this_yAxis].labels = { format: '{value:.'+s.rounding+'f}' }
