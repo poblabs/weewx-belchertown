@@ -269,7 +269,8 @@ To override a default setting add the setting name and value to the Extras secti
             logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
             footer_copyright_text = "BelchertownWeather.com"
             forecast_enabled = 1
-            forecast_api_key = "your_key"
+            forecast_api_id = "your_id"
+            forecast_api_secret = "your_secret_key"
             earthquake_enabled = 1
             earthquake_server = USGS
             twitter_enabled = 1
@@ -293,6 +294,7 @@ For ease of readability I have broken them out into separate tables. However you
 | logo_image_dark | "" | The **full** URL to your logo image to be used when the dark theme is active. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
  |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `visibility` and `rainWithRainRate` which are custom options. `visibility` gets the visibility data from Aeris Weather (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
+| beaufort_category | 0 | If enabled, displays the current Beaufort category underneath wind speed (for example, "calm," "strong breeze," "gale," etc.). If live weather station data are available, the Beaufort category updates along with current wind speed. If different labels are desired, you can set them in weewx.conf by adding the values under `[StdReport][[Belchertown]][[[Labels]]][[[[Generic]]]]` like so: `beaufort0 = calme, beaufort1 = très légère brise`, and so on up to the maximum of `beaufort12`. **IMPORTANT:** to make this work correctly, make sure `beaufort = prefer_hardware` appears under `[StdWXCalculate][[Calculations]]` in your weewx.conf file--this makes weewx report a Beaufort scale calculation with every MQTT packet.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
@@ -357,11 +359,13 @@ For ease of readability I have broken them out into separate tables. However you
 | forecast_lang | "en" | **Only applies to DarkSky Weather** Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
 | forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by Aeris Weather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
 | forecast_aeris_use_metar | 1 | **Aeris Weather Only** The metar option gets observations located at airports or permanent weather stations. If you select this to 0 to disable METAR, then Aeris will get your weather conditions data from local personal weather stations instead.
+| forecast_interval_hours | 24 | **Aeris Weather Only** Determines which forecast is displayed when a new browser session is opened.  It can take one of four values: 0,1,3,24.  If 0 it has the effect of hiding all forecasts.  1, 3 or 24 specify the interval between forecasts.  If forecast_interval_hours is not included in skin.conf and forecast_enabled = 1, a 24 hour interval forecast is displayed with no user options.
 | forecast_alert_enabled | 0 | **Aeris Weather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the Aeris Weather or DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
 | forecast_alert_limit | 1 | **Only applies to Aeris Weather Alerts**. The number of alerts to show for your location. Max of 10.
 | forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
 | forecast_daily_forecast_link | "" | **Only applies to Aeris Weather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
-| aqi_enabled | 0 | Enables display of Air Quality Index from Aeris weather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 25 miles. If no stations are available within 25 miles, no value will display.
+| aqi_enabled | 0 | Enables display of Air Quality Index from Aeris weather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 50 miles. If no stations are available within 50 miles, no value will be available.
+| aqi_location_enabled | 0 | Enables display of the AQI reporting station underneath AQI. Use this option to display where the AQI is being read from--it may be very far away, depending on your location.
 
 
 ### Earthquake Options
@@ -372,6 +376,7 @@ For ease of readability I have broken them out into separate tables. However you
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
 | earthquake_server | USGS | USGS for USGS website (best for North American Users) or GeoNet for NZ GeoNet website (best for NZ users)
+| geonet_mmi | 4 | Sets the filter for earthquake intensity (GeoNet only). For example, 4 will show all quakes with MMI 4 or greater (light+). Valid values are -1-8.
 
 
 ### Social Options
