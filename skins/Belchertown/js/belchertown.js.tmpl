@@ -558,6 +558,9 @@ function changeTheme(themeName, toggleOverride=false) {
     }
     if ( themeName == "dark" ) {
         // Apply dark theme
+        #if $radar_html_dark != "None"
+        jQuery('.radar_image').html( '$radar_html_dark' );
+        #end if
         jQuery('body').addClass("dark");
         jQuery('body').removeClass("light");
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
@@ -570,6 +573,9 @@ function changeTheme(themeName, toggleOverride=false) {
         sessionStorage.setItem('currentTheme', 'dark');
     } else if ( themeName == "light" ) {
         // Apply light theme
+        #if $radar_html_dark != "None"
+        jQuery('.radar_image').html( '$radar_html' );
+        #end if
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'

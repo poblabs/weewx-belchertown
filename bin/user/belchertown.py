@@ -355,20 +355,33 @@ class getData(SearchList):
             graph_page_buttons += " " # Spacer between the button
 
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
-        if self.generator.skin_dict['Extras']['radar_html'] == "":
-            lat = self.generator.config_dict['Station']['latitude']
-            lon = self.generator.config_dict['Station']['longitude']
-            if 'radar_zoom' in self.generator.skin_dict['Extras']:
-                zoom = self.generator.skin_dict['Extras']['radar_zoom']
+        lat = self.generator.config_dict['Station']['latitude']
+        lon = self.generator.config_dict['Station']['longitude']
+        if 'radar_zoom' in self.generator.skin_dict['Extras']:
+            zoom = self.generator.skin_dict['Extras']['radar_zoom']
+        else:
+            zoom = "8"
+        if 'radar_marker' in self.generator.skin_dict['Extras'] and self.generator.skin_dict['Extras']['radar_marker'] == "1":
+            marker = "true"
+        else:
+            marker = ""
+
+        # Set default radar html code, and override with user-specified value if applicable
+        if self.generator.skin_dict['Extras'].get('radar_html') == "":
+            if self.generator.skin_dict['Extras'].get('aeris_map') == "1":
+                radar_html = '<img style="object-fit:cover;width:650px;height:360px" src="https://maps.aerisapi.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/650x360/{},{},{}/current.png"></img>'.format( self.generator.skin_dict['Extras']['forecast_api_id'], self.generator.skin_dict['Extras']['forecast_api_secret'], lat, lon, zoom )
             else:
-                zoom = "8"
-            if 'radar_marker' in self.generator.skin_dict['Extras'] and self.generator.skin_dict['Extras']['radar_marker'] == "1":
-                marker = "true"
-            else:
-                marker = ""
-            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
+                radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
+
+        if self.generator.skin_dict['Extras'].get('radar_html_dark') == None:
+            if self.generator.skin_dict['Extras'].get('aeris_map') == "1":
+                radar_html_dark = '<img style="object-fit:cover;height:360px;width:650px" src="https://maps.aerisapi.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/650x360/{},{},{}/current.png"></img>'.format( self.generator.skin_dict['Extras']['forecast_api_id'], self.generator.skin_dict['Extras']['forecast_api_secret'], lat, lon, zoom )
+            else:
+                radar_html_dark = "None"
+        else:
+            radar_html_dark = self.generator.skin_dict['Extras']['radar_html_dark']
         
         """
         Build the all time stats.
@@ -1499,6 +1512,7 @@ class getData(SearchList):
                                   'highcharts_decimal': highcharts_decimal,
                                   'highcharts_thousands': highcharts_thousands,
                                   'radar_html': radar_html,
+                                  'radar_html_dark': radar_html_dark,
                                   'archive_interval_ms': archive_interval_ms,
                                   'ordinate_names': ordinate_names,
                                   'charts': json.dumps(charts),
