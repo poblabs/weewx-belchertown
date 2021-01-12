@@ -1084,82 +1084,88 @@ class getData(SearchList):
 
                 # Substitute label names if defined in config files, to allow users to supply their own translations
                 # see https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
-                if aqi_category == "good" and label_dict["aqi_good"] != "aqi_good":
-                    aqi_category = label_dict["aqi_good"]
-                elif aqi_category == "good" and label_dict["aqi_good"] == "aqi_good":
-                    aqi_category = "good"
-                elif aqi_category == "moderate" and label_dict["aqi_moderate"] != "aqi_moderate":
-                    aqi_category = label_dict["aqi_moderate"]
-                elif aqi_category == "moderate" and label_dict["aqi_moderate"] == "aqi_moderate":
-                    aqi_category = "moderate"
-                elif aqi_category == "usg" and label_dict["aqi_usg"] != "aqi_usg":
-                    aqi_category = label_dict["aqi_usg"]
-                elif aqi_category == "usg" and label_dict["aqi_usg"] == "aqi_usg":
-                    aqi_category = "unhealthy for some"
-                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] != "aqi_unhealthy":
-                    aqi_category = label_dict["aqi_unhealthy"]
-                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] == "aqi_unhealthy":
-                    aqi_category = "unhealthy"
-                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] != "aqi_very_unhealthy":
-                    aqi_category = label_dict["aqi_very_unhealthy"]
-                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] == "aqi_very_unhealthy":
-                    aqi_category = "very unhealthy"
-                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] != "aqi_hazardous":
-                    aqi_category = label_dict["aqi_hazardous"]
-                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] == "aqi_hazardous":
-                    aqi_category = "hazardous"
+                if aqi_category == "good":
+                    if label_dict["aqi_good"] not in ("aqi_good", ""):
+                        aqi_category = label_dict["aqi_good"]
+                    else:
+                        aqi_category = "good"
+                elif aqi_category == "moderate":
+                    if label_dict["aqi_moderate"] not in ("aqi_moderate", ""):
+                        aqi_category = label_dict["aqi_moderate"]
+                    else:
+                        aqi_category = "moderate"
+                elif aqi_category == "usg":
+                    if label_dict["aqi_usg"] not in ("aqi_usg", ""):
+                        aqi_category = label_dict["aqi_usg"]
+                    else:
+                        aqi_category = "unhealthy for some"
+                elif aqi_category == "unhealthy":
+                    if label_dict["aqi_unhealthy"] not in ("aqi_unhealthy", ""):
+                        aqi_category = label_dict["aqi_unhealthy"]
+                    else:
+                        aqi_category = "unhealthy"
+                elif aqi_category == "very unhealthy":
+                    if label_dict["aqi_very_unhealthy"] not in ("aqi_very_unhealthy", ""):
+                        aqi_category = label_dict["aqi_very_unhealthy"]
+                    else:
+                        aqi_category = "very unhealthy"
+                elif aqi_category == "hazardous":
+                    if label_dict["aqi_hazardous"] not in ("aqi_hazardous", ""):
+                        aqi_category = label_dict["aqi_hazardous"]
+                    else:
+                        aqi_category = "hazardous"
                 else:
                     aqi_category = "unknown"
 
-                if label_dict["beaufort0"] != "beaufort0":
+                if label_dict["beaufort0"] not in ("beaufort0", ""):
                     beaufort0 = label_dict["beaufort0"]
                 else:
                     beaufort0 = "calm"
-                if label_dict["beaufort1"] != "beaufort1":
+                if label_dict["beaufort1"] not in ("beaufort1", ""):
                     beaufort1 = label_dict["beaufort1"]
                 else:
                     beaufort1 = "light air"
-                if label_dict["beaufort2"] != "beaufort2":
+                if label_dict["beaufort2"] not in ("beaufort2", ""):
                     beaufort2 = label_dict["beaufort2"]
                 else:
                     beaufort2 = "light breeze"
-                if label_dict["beaufort3"] != "beaufort3":
+                if label_dict["beaufort3"] not in ("beaufort3", ""):
                     beaufort3 = label_dict["beaufort3"]
                 else:
                     beaufort3 = "gentle breeze"
-                if label_dict["beaufort4"] != "beaufort4":
+                if label_dict["beaufort4"] not in ("beaufort4", ""):
                     beaufort4 = label_dict["beaufort4"]
                 else:
                     beaufort4 = "moderate breeze"
-                if label_dict["beaufort5"] != "beaufort5":
+                if label_dict["beaufort5"] not in ("beaufort5", ""):
                     beaufort5 = label_dict["beaufort5"]
                 else:
                     beaufort5 = "fresh breeze"
-                if label_dict["beaufort6"] != "beaufort6":
+                if label_dict["beaufort6"] not in ("beaufort6", ""):
                     beaufort6 = label_dict["beaufort6"]
                 else:
                     beaufort6 = "strong breeze"
-                if label_dict["beaufort7"] != "beaufort7":
+                if label_dict["beaufort7"] not in ("beaufort7", ""):
                     beaufort7 = label_dict["beaufort7"]
                 else:
                     beaufort7 = "near gale"
-                if label_dict["beaufort8"] != "beaufort8":
+                if label_dict["beaufort8"] not in ("beaufort8", ""):
                     beaufort8 = label_dict["beaufort8"]
                 else:
                     beaufort8 = "gale"
-                if label_dict["beaufort9"] != "beaufort9":
+                if label_dict["beaufort9"] not in ("beaufort9", ""):
                     beaufort9 = label_dict["beaufort9"]
                 else:
                     beaufort9 = "strong gale"
-                if label_dict["beaufort10"] != "beaufort10":
+                if label_dict["beaufort10"] not in ("beaufort10", ""):
                     beaufort10 = label_dict["beaufort10"]
                 else:
                     beaufort10 = "storm"
-                if label_dict["beaufort11"] != "beaufort11":
+                if label_dict["beaufort11"] not in ("beaufort11", ""):
                     beaufort11 = label_dict["beaufort11"]
                 else:
                     beaufort11 = "violent storm"
-                if label_dict["beaufort12"] != "beaufort12":
+                if label_dict["beaufort12"] not in ("beaufort12", ""):
                     beaufort12 = label_dict["beaufort12"]
                 else:
                     beaufort12 = "hurricane force"
@@ -1559,20 +1565,26 @@ class getData(SearchList):
                                   'custom_css_exists': custom_css_exists,
                                   'aqi': aqi,
                                   'aqi_category': aqi_category,
-                                  'aqi_location': aqi_location,
-                                  'beaufort0': beaufort0,
-                                  'beaufort1': beaufort1,
-                                  'beaufort2': beaufort2,
-                                  'beaufort3': beaufort3,
-                                  'beaufort4': beaufort4,
-                                  'beaufort5': beaufort5,
-                                  'beaufort6': beaufort6,
-                                  'beaufort7': beaufort7,
-                                  'beaufort8': beaufort8,
-                                  'beaufort9': beaufort9,
-                                  'beaufort10': beaufort10,
-                                  'beaufort11': beaufort11,
-                                  'beaufort12': beaufort12}
+                                  'aqi_location': aqi_location}
+
+        try:
+            search_list_extension.update({
+                'beaufort0': beaufort0,
+                'beaufort1': beaufort1,
+                'beaufort2': beaufort2,
+                'beaufort3': beaufort3,
+                'beaufort4': beaufort4,
+                'beaufort5': beaufort5,
+                'beaufort6': beaufort6,
+                'beaufort7': beaufort7,
+                'beaufort8': beaufort8,
+                'beaufort9': beaufort9,
+                'beaufort10': beaufort10,
+                'beaufort11': beaufort11,
+                'beaufort12': beaufort12
+            })
+        except Exception:
+            pass
 
         # Finally, return our extension as a list:
         return [search_list_extension]
