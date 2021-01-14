@@ -200,18 +200,18 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
 // Change the color of the aqi variable according to US-EPA standards
 // (adjusted to match skin colors better)
 function get_aqi_color( aqi, returnColor=false ) {
-    if ( aqi < 51 ) {
-        var aqi_color = "#71bc3c";
-    } else if ( aqi >= 51 ) {
-        var aqi_color = "rgba(255,174,0,0.9)";
-    } else if ( aqi >= 101 ) {
-        var aqi_color = "rgba(255,127,0,1)";
-    } else if ( aqi >= 151 ) {
-        var aqi_color = "rgba(255,69,69,1)";
+    if ( aqi >= 301 ) {
+        var aqi_color = "#cc241d";
     } else if ( aqi >= 201 ) {
         var aqi_color = "#b16286";
-    } else if ( aqi >= 301 ) {
-        var aqi_color = "#cc241d";
+    } else if ( aqi >= 151 ) {
+        var aqi_color = "rgba(255,69,69,1)";
+    } else if ( aqi >= 101 ) {
+        var aqi_color = "rgba(255,127,0,1)";
+    } else if ( aqi >= 51 ) {
+        var aqi_color = "rgba(255,174,0,0.9)";
+    } else if ( aqi < 51 ) {
+        var aqi_color = "#71bc3c";
     }
 
     // Return the color value if requested, otherwise just set the div color
@@ -516,31 +516,23 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
     belchertown_debug("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
     
-    if ( dayTime ) {
+    if ( dayTime == true ) {
         // Day time, set light if needed
-        if ( document.body.classList.contains("dark") ) {
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
-            } else {
-                belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
-            }
-            // Only change theme if user has not overridden the auto option with the toggle
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                changeTheme("light");
-            }
+        // Only change theme if user has not overridden the auto option with the toggle
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
+            changeTheme("light");
+        } else {
+            belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
         }
     } else {
         // Night time, set dark if needed
-        if ( document.body.classList.contains("light") ) {
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
-            } else {
-                belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
-            }
-            // Only change theme if user has not overridden the auto option with the toggle
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                changeTheme("dark");
-            }
+        // Only change theme if user has not overridden the auto option with the toggle
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
+            changeTheme("dark");
+        } else {
+            belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
         }
     }
 }
@@ -558,6 +550,9 @@ function changeTheme(themeName, toggleOverride=false) {
     }
     if ( themeName == "dark" ) {
         // Apply dark theme
+        #if $radar_html_dark != "None"
+        jQuery('.radar_image').html( '$radar_html_dark' );
+        #end if
         jQuery('body').addClass("dark");
         jQuery('body').removeClass("light");
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
@@ -570,6 +565,9 @@ function changeTheme(themeName, toggleOverride=false) {
         sessionStorage.setItem('currentTheme', 'dark');
     } else if ( themeName == "light" ) {
         // Apply light theme
+        #if $radar_html_dark != "None"
+        jQuery('.radar_image').html( '$radar_html' );
+        #end if
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'

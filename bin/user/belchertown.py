@@ -355,20 +355,33 @@ class getData(SearchList):
             graph_page_buttons += " " # Spacer between the button
 
         # Set a default radar URL using station's lat/lon. Moved from skin.conf so we can get station lat/lon from weewx.conf. A lot of stations out there with Belchertown 0.1 through 0.7 are showing the visitor's location and not the proper station location because nobody edited the radar_html which did not have lat/lon set previously.
-        if self.generator.skin_dict['Extras']['radar_html'] == "":
-            lat = self.generator.config_dict['Station']['latitude']
-            lon = self.generator.config_dict['Station']['longitude']
-            if 'radar_zoom' in self.generator.skin_dict['Extras']:
-                zoom = self.generator.skin_dict['Extras']['radar_zoom']
+        lat = self.generator.config_dict['Station']['latitude']
+        lon = self.generator.config_dict['Station']['longitude']
+        if 'radar_zoom' in self.generator.skin_dict['Extras']:
+            zoom = self.generator.skin_dict['Extras']['radar_zoom']
+        else:
+            zoom = "8"
+        if 'radar_marker' in self.generator.skin_dict['Extras'] and self.generator.skin_dict['Extras']['radar_marker'] == "1":
+            marker = "true"
+        else:
+            marker = ""
+
+        # Set default radar html code, and override with user-specified value if applicable
+        if self.generator.skin_dict['Extras'].get('radar_html') == "":
+            if self.generator.skin_dict['Extras'].get('aeris_map') == "1":
+                radar_html = '<img style="object-fit:cover;width:650px;height:360px" src="https://maps.aerisapi.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/650x360/{},{},{}/current.png"></img>'.format( self.generator.skin_dict['Extras']['forecast_api_id'], self.generator.skin_dict['Extras']['forecast_api_secret'], lat, lon, zoom )
             else:
-                zoom = "8"
-            if 'radar_marker' in self.generator.skin_dict['Extras'] and self.generator.skin_dict['Extras']['radar_marker'] == "1":
-                marker = "true"
-            else:
-                marker = ""
-            radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
+                radar_html = '<iframe width="650" height="360" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format( lat, lon, zoom, marker, lat, lon )
         else:
             radar_html = self.generator.skin_dict['Extras']['radar_html']
+
+        if self.generator.skin_dict['Extras'].get('radar_html_dark') == None:
+            if self.generator.skin_dict['Extras'].get('aeris_map') == "1":
+                radar_html_dark = '<img style="object-fit:cover;height:360px;width:650px" src="https://maps.aerisapi.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/650x360/{},{},{}/current.png"></img>'.format( self.generator.skin_dict['Extras']['forecast_api_id'], self.generator.skin_dict['Extras']['forecast_api_secret'], lat, lon, zoom )
+            else:
+                radar_html_dark = "None"
+        else:
+            radar_html_dark = self.generator.skin_dict['Extras']['radar_html_dark']
         
         """
         Build the all time stats.
@@ -683,7 +696,6 @@ class getData(SearchList):
         """
         if self.generator.skin_dict['Extras']['forecast_enabled'] == "1" and self.generator.skin_dict['Extras']['forecast_api_id'] != "" or 'forecast_dev_file' in self.generator.skin_dict['Extras']:
         
-            forecast_provider = self.generator.skin_dict['Extras']['forecast_provider']
             forecast_file = html_root + "/json/forecast.json"
             forecast_api_id = self.generator.skin_dict['Extras']['forecast_api_id']
             forecast_api_secret = self.generator.skin_dict['Extras']['forecast_api_secret']
@@ -903,21 +915,20 @@ class getData(SearchList):
                         
                         
             forecast_lang = self.generator.skin_dict['Extras']['forecast_lang'].lower()
-            if forecast_provider == "aeris":
-                if self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "1":
-                    forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                else:
-                    forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                forecast_24hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                forecast_3hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                forecast_1hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
-                if self.generator.skin_dict['Extras']['forecast_alert_limit']:
-                    forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
-                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
-                else:
-                    # Default to 1 alerts to show if the option is missing. Can go up to 10
-                    forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_lang, forecast_api_id, forecast_api_secret )
+            if self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "1":
+                forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            else:
+                forecast_current_url = "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            forecast_24hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            forecast_3hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            forecast_1hr_url = "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            aqi_url = "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_api_id, forecast_api_secret )
+            if self.generator.skin_dict['Extras']['forecast_alert_limit']:
+                forecast_alert_limit = self.generator.skin_dict['Extras']['forecast_alert_limit']
+                forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_alert_limit, forecast_lang, forecast_api_id, forecast_api_secret )
+            else:
+                # Default to 1 alerts to show if the option is missing. Can go up to 10
+                forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % ( latitude, longitude, forecast_lang, forecast_api_id, forecast_api_secret )
                 
             # Determine if the file exists and get it's modified time, enhanced for 1 hr forecast to load close to the hour
             if os.path.isfile( forecast_file ):
@@ -949,98 +960,97 @@ class getData(SearchList):
                         forecast_file_result = response.read()
                         response.close()
                     else:
-                        if forecast_provider == "aeris":
-                            # Current conditions
-                            req = Request( forecast_current_url, None, headers )
+                        # Current conditions
+                        req = Request( forecast_current_url, None, headers )
+                        response = urlopen( req )
+                        current_page = response.read()
+                        response.close()
+                        # 24hr forecast (was Forecast)
+                        req = Request( forecast_24hr_url, None, headers )
+                        response = urlopen( req )
+                        forecast_24hr_page = response.read()
+                        response.close()
+                        # 3hr forecast
+                        req = Request( forecast_3hr_url, None, headers )
+                        response = urlopen( req )
+                        forecast_3hr_page = response.read()
+                        response.close()
+                        # 1hr forecast
+                        req = Request( forecast_1hr_url, None, headers )
+                        response = urlopen( req )
+                        forecast_1hr_page = response.read()
+                        response.close()
+                        # AQI
+                        req = Request( aqi_url, None, headers )
+                        response = urlopen( req )
+                        aqi_page = response.read()
+                        response.close()
+                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                            # Alerts
+                            req = Request( forecast_alerts_url, None, headers )
                             response = urlopen( req )
-                            current_page = response.read()
+                            alerts_page = response.read()
                             response.close()
-                            # 24hr forecast (was Forecast)
-                            req = Request( forecast_24hr_url, None, headers )
-                            response = urlopen( req )
-                            forecast_24hr_page = response.read()
-                            response.close()
-                            # 3hr forecast
-                            req = Request( forecast_3hr_url, None, headers )
-                            response = urlopen( req )
-                            forecast_3hr_page = response.read()
-                            response.close()
-                            # 1hr forecast
-                            req = Request( forecast_1hr_url, None, headers )
-                            response = urlopen( req )
-                            forecast_1hr_page = response.read()
-                            response.close()
-                            # AQI
-                            req = Request( aqi_url, None, headers )
-                            response = urlopen( req )
-                            aqi_page = response.read()
-                            response.close()
-                            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                                # Alerts
-                                req = Request( forecast_alerts_url, None, headers )
-                                response = urlopen( req )
-                                alerts_page = response.read()
-                                response.close()
-                            
-                            # Combine all into 1 file
-                            if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
-                                try:
-                                    forecast_file_result = json.dumps( {"timestamp":
-                                                                        int(time.time()),
-                                                                        "current":
-                                                                        [json.loads(current_page)],
-                                                                        "forecast_24hr":
-                                                                        [json.loads(forecast_24hr_page)],
-                                                                        "forecast_3hr":
-                                                                        [json.loads(forecast_3hr_page)],
-                                                                        "forecast_1hr":
-                                                                        [json.loads(forecast_1hr_page)],
-                                                                        "alerts":
-                                                                        [json.loads(alerts_page)],
-                                                                        "aqi":
-                                                                        [json.loads(aqi_page)]} )
-                                except:
-                                    forecast_file_result = json.dumps( {"timestamp":
-                                                                        int(time.time()),
-                                                                        "current":
-                                                                        [json.loads(current_page.decode('utf-8'))],
-                                                                        "forecast_24hr":
-                                                                        [json.loads(forecast_24hr_page.decode('utf-8'))],
-                                                                        "forecast_3hr":
-                                                                        [json.loads(forecast_3hr_page.decode('utf-8'))],
-                                                                        "forecast_1hr":
-                                                                        [json.loads(forecast_1hr_page.decode('utf-8'))],
-                                                                        "alerts":
-                                                                        [json.loads(alerts_page.decode('utf-8'))],
-                                                                        "aqi":
-                                                                        [json.loads(aqi_page.decode('utf-8'))]} )
-                            else:
-                                try:
-                                    forecast_file_result = json.dumps( {"timestamp":
-                                                                        int(time.time()),
-                                                                        "current":
-                                                                        [json.loads(current_page)],
-                                                                        "forecast_24hr":
-                                                                        [json.loads(forecast_24hr_page)],
-                                                                        "forecast_3hr":
-                                                                        [json.loads(forecast_3hr_page)],
-                                                                        "forecast_1hr":
-                                                                        [json.loads(forecast_1hr_page)],
-                                                                        "aqi":
-                                                                        [json.loads(aqi_page)]} )
-                                except:
-                                    forecast_file_result = json.dumps( {"timestamp":
-                                                                        int(time.time()),
-                                                                        "current":
-                                                                        [json.loads(current_page.decode('utf-8'))],
-                                                                        "forecast_24hr":
-                                                                        [json.loads(forecast_24hr_page.decode('utf-8'))],
-                                                                        "forecast_3hr":
-                                                                        [json.loads(forecast_3hr_page.decode('utf-8'))],
-                                                                        "forecast_1hr":
-                                                                        [json.loads(forecast_1hr_page.decode('utf-8'))],
-                                                                        "aqi":
-                                                                        [json.loads(aqi_page.decode('utf-8'))]} )
+                        
+                        # Combine all into 1 file
+                        if self.generator.skin_dict['Extras']['forecast_alert_enabled'] == "1":
+                            try:
+                                forecast_file_result = json.dumps( {"timestamp":
+                                                                    int(time.time()),
+                                                                    "current":
+                                                                    [json.loads(current_page)],
+                                                                    "forecast_24hr":
+                                                                    [json.loads(forecast_24hr_page)],
+                                                                    "forecast_3hr":
+                                                                    [json.loads(forecast_3hr_page)],
+                                                                    "forecast_1hr":
+                                                                    [json.loads(forecast_1hr_page)],
+                                                                    "alerts":
+                                                                    [json.loads(alerts_page)],
+                                                                    "aqi":
+                                                                    [json.loads(aqi_page)]} )
+                            except:
+                                forecast_file_result = json.dumps( {"timestamp":
+                                                                    int(time.time()),
+                                                                    "current":
+                                                                    [json.loads(current_page.decode('utf-8'))],
+                                                                    "forecast_24hr":
+                                                                    [json.loads(forecast_24hr_page.decode('utf-8'))],
+                                                                    "forecast_3hr":
+                                                                    [json.loads(forecast_3hr_page.decode('utf-8'))],
+                                                                    "forecast_1hr":
+                                                                    [json.loads(forecast_1hr_page.decode('utf-8'))],
+                                                                    "alerts":
+                                                                    [json.loads(alerts_page.decode('utf-8'))],
+                                                                    "aqi":
+                                                                    [json.loads(aqi_page.decode('utf-8'))]} )
+                        else:
+                            try:
+                                forecast_file_result = json.dumps( {"timestamp":
+                                                                    int(time.time()),
+                                                                    "current":
+                                                                    [json.loads(current_page)],
+                                                                    "forecast_24hr":
+                                                                    [json.loads(forecast_24hr_page)],
+                                                                    "forecast_3hr":
+                                                                    [json.loads(forecast_3hr_page)],
+                                                                    "forecast_1hr":
+                                                                    [json.loads(forecast_1hr_page)],
+                                                                    "aqi":
+                                                                    [json.loads(aqi_page)]} )
+                            except:
+                                forecast_file_result = json.dumps( {"timestamp":
+                                                                    int(time.time()),
+                                                                    "current":
+                                                                    [json.loads(current_page.decode('utf-8'))],
+                                                                    "forecast_24hr":
+                                                                    [json.loads(forecast_24hr_page.decode('utf-8'))],
+                                                                    "forecast_3hr":
+                                                                    [json.loads(forecast_3hr_page.decode('utf-8'))],
+                                                                    "forecast_1hr":
+                                                                    [json.loads(forecast_1hr_page.decode('utf-8'))],
+                                                                    "aqi":
+                                                                    [json.loads(aqi_page.decode('utf-8'))]} )
                 except Exception as error:
                     raise Warning( "Error downloading forecast data. Check the URL in your configuration and try again. You are trying to use URL: %s, and the error is: %s" % ( forecast_24hr_url, error ) )
                     
@@ -1060,136 +1070,154 @@ class getData(SearchList):
             with open( forecast_file, "r" ) as read_file:
                 data = json.load( read_file )
                 
-            if forecast_provider == "aeris":
-                try:
-                    aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
-                    aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
-                    aqi_time = data['aqi'][0]['response'][0]['periods'][0]['timestamp']
-                    aqi_location = data['aqi'][0]['response'][0]['place']['name'].title()
-                except Exception as error:
-                    logerr( "Error getting AQI from Aeris weather. The error was:\n%s\nThe response from the Aeris AQI server was:\n%s\nThe URL being used is:\n%s" % (error, data['aqi'], aqi_url))
+            try:
+                aqi = data['aqi'][0]['response'][0]['periods'][0]['aqi']
+                aqi_category = data['aqi'][0]['response'][0]['periods'][0]['category']
+                aqi_time = data['aqi'][0]['response'][0]['periods'][0]['timestamp']
+                aqi_location = data['aqi'][0]['response'][0]['place']['name'].title()
+            except Exception as error:
+                logerr( "Error getting AQI from Aeris weather. The error was:\n%s\nThe response from the Aeris AQI server was:\n%s\nThe URL being used is:\n%s" % (error, data['aqi'], aqi_url))
 
-                # Substitute label names if defined in config files, to allow users to supply their own translations
-                # see https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
-                if aqi_category == "good" and label_dict["aqi_good"] != "aqi_good":
+            # Substitute label names if defined in config files, to allow users to supply their own translations
+            # see https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
+            if aqi_category == "good":
+                if label_dict["aqi_good"] not in ("aqi_good", ""):
                     aqi_category = label_dict["aqi_good"]
-                elif aqi_category == "good" and label_dict["aqi_good"] == "aqi_good":
+                else:
                     aqi_category = "good"
-                elif aqi_category == "moderate" and label_dict["aqi_moderate"] != "aqi_moderate":
+            elif aqi_category == "moderate":
+                if label_dict["aqi_moderate"] not in ("aqi_moderate", ""):
                     aqi_category = label_dict["aqi_moderate"]
-                elif aqi_category == "moderate" and label_dict["aqi_moderate"] == "aqi_moderate":
+                else:
                     aqi_category = "moderate"
-                elif aqi_category == "usg" and label_dict["aqi_usg"] != "aqi_usg":
+            elif aqi_category == "usg":
+                if label_dict["aqi_usg"] not in ("aqi_usg", ""):
                     aqi_category = label_dict["aqi_usg"]
-                elif aqi_category == "usg" and label_dict["aqi_usg"] == "aqi_usg":
+                else:
                     aqi_category = "unhealthy for some"
-                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] != "aqi_unhealthy":
+            elif aqi_category == "unhealthy":
+                if label_dict["aqi_unhealthy"] not in ("aqi_unhealthy", ""):
                     aqi_category = label_dict["aqi_unhealthy"]
-                elif aqi_category == "unhealthy" and label_dict["aqi_unhealthy"] == "aqi_unhealthy":
+                else:
                     aqi_category = "unhealthy"
-                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] != "aqi_very_unhealthy":
+            elif aqi_category == "very unhealthy":
+                if label_dict["aqi_very_unhealthy"] not in ("aqi_very_unhealthy", ""):
                     aqi_category = label_dict["aqi_very_unhealthy"]
-                elif aqi_category == "very unhealthy" and label_dict["aqi_very_unhealthy"] == "aqi_very_unhealthy":
+                else:
                     aqi_category = "very unhealthy"
-                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] != "aqi_hazardous":
+            elif aqi_category == "hazardous":
+                if label_dict["aqi_hazardous"] not in ("aqi_hazardous", ""):
                     aqi_category = label_dict["aqi_hazardous"]
-                elif aqi_category == "hazardous" and label_dict["aqi_hazardous"] == "aqi_hazardous":
+                else:
                     aqi_category = "hazardous"
-                else:
-                    aqi_category = "unknown"
+            else:
+                aqi_category = "unknown"
 
-                if label_dict["beaufort0"] != "beaufort0":
-                    beaufort0 = label_dict["beaufort0"]
-                else:
-                    beaufort0 = "calm"
-                if label_dict["beaufort1"] != "beaufort1":
-                    beaufort1 = label_dict["beaufort1"]
-                else:
-                    beaufort1 = "light air"
-                if label_dict["beaufort2"] != "beaufort2":
-                    beaufort2 = label_dict["beaufort2"]
-                else:
-                    beaufort2 = "light breeze"
-                if label_dict["beaufort3"] != "beaufort3":
-                    beaufort3 = label_dict["beaufort3"]
-                else:
-                    beaufort3 = "gentle breeze"
-                if label_dict["beaufort4"] != "beaufort4":
-                    beaufort4 = label_dict["beaufort4"]
-                else:
-                    beaufort4 = "moderate breeze"
-                if label_dict["beaufort5"] != "beaufort5":
-                    beaufort5 = label_dict["beaufort5"]
-                else:
-                    beaufort5 = "fresh breeze"
-                if label_dict["beaufort6"] != "beaufort6":
-                    beaufort6 = label_dict["beaufort6"]
-                else:
-                    beaufort6 = "strong breeze"
-                if label_dict["beaufort7"] != "beaufort7":
-                    beaufort7 = label_dict["beaufort7"]
-                else:
-                    beaufort7 = "near gale"
-                if label_dict["beaufort8"] != "beaufort8":
-                    beaufort8 = label_dict["beaufort8"]
-                else:
-                    beaufort8 = "gale"
-                if label_dict["beaufort9"] != "beaufort9":
-                    beaufort9 = label_dict["beaufort9"]
-                else:
-                    beaufort9 = "strong gale"
-                if label_dict["beaufort10"] != "beaufort10":
-                    beaufort10 = label_dict["beaufort10"]
-                else:
-                    beaufort10 = "storm"
-                if label_dict["beaufort11"] != "beaufort11":
-                    beaufort11 = label_dict["beaufort11"]
-                else:
-                    beaufort11 = "violent storm"
-                if label_dict["beaufort12"] != "beaufort12":
-                    beaufort12 = label_dict["beaufort12"]
-                else:
-                    beaufort12 = "hurricane force"
+            if label_dict["beaufort0"] != "beaufort0":
+                beaufort0 = label_dict["beaufort0"]
+            else:
+                beaufort0 = "calm"
+            if label_dict["beaufort1"] != "beaufort1":
+                beaufort1 = label_dict["beaufort1"]
+            else:
+                beaufort1 = "light air"
+            if label_dict["beaufort2"] != "beaufort2":
+                beaufort2 = label_dict["beaufort2"]
+            else:
+                beaufort2 = "light breeze"
+            if label_dict["beaufort3"] != "beaufort3":
+                beaufort3 = label_dict["beaufort3"]
+            else:
+                beaufort3 = "gentle breeze"
+            if label_dict["beaufort4"] != "beaufort4":
+                beaufort4 = label_dict["beaufort4"]
+            else:
+                beaufort4 = "moderate breeze"
+            if label_dict["beaufort5"] != "beaufort5":
+                beaufort5 = label_dict["beaufort5"]
+            else:
+                beaufort5 = "fresh breeze"
+            if label_dict["beaufort6"] != "beaufort6":
+                beaufort6 = label_dict["beaufort6"]
+            else:
+                beaufort6 = "strong breeze"
+            if label_dict["beaufort7"] != "beaufort7":
+                beaufort7 = label_dict["beaufort7"]
+            else:
+                beaufort7 = "near gale"
+            if label_dict["beaufort8"] != "beaufort8":
+                beaufort8 = label_dict["beaufort8"]
+            else:
+                beaufort8 = "gale"
+            if label_dict["beaufort9"] != "beaufort9":
+                beaufort9 = label_dict["beaufort9"]
+            else:
+                beaufort9 = "strong gale"
+            if label_dict["beaufort10"] != "beaufort10":
+                beaufort10 = label_dict["beaufort10"]
+            else:
+                beaufort10 = "storm"
+            if label_dict["beaufort11"] != "beaufort11":
+                beaufort11 = label_dict["beaufort11"]
+            else:
+                beaufort11 = "violent storm"
+            if label_dict["beaufort12"] != "beaufort12":
+                beaufort12 = label_dict["beaufort12"]
+            else:
+                beaufort12 = "hurricane force"
 
-                if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
-                    # Non-metar responses do not contain these values. Set them to empty.
-                    current_obs_summary = ""
-                    current_obs_icon = ""
-                    visibility = "N/A"
-                    visibility_unit = ""
-                elif len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "1":
-                    current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
-                    current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
-                    
-                    if forecast_units == "si" or forecast_units == "ca":
-                        if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
-                            visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
-                            visibility_unit = "km"
-                        else:
-                            visibility = "N/A"
-                            visibility_unit = ""
+            if len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "0":
+                # Non-metar responses do not contain these values. Set them to empty.
+                current_obs_summary = ""
+                current_obs_icon = ""
+                visibility = "N/A"
+                visibility_unit = ""
+            elif len(data["current"][0]["response"]) > 0 and self.generator.skin_dict['Extras']['forecast_aeris_use_metar'] == "1":
+                current_obs_summary = aeris_coded_weather( data["current"][0]["response"]["ob"]["weatherPrimaryCoded"] )
+                current_obs_icon = aeris_icon( data["current"][0]["response"]["ob"]["icon"] ) + ".png"
+                
+                if forecast_units == "si" or forecast_units == "ca":
+                    if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
+                        visibility = locale.format("%g", data["current"][0]["response"]["ob"]["visibilityKM"] )
+                        visibility_unit = "km"
                     else:
-                        # us, uk2 and default to miles per hour
-                        if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
-                            visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
-                            visibility_unit = "miles"
-                        else:
-                            visibility = "N/A"
-                            visibility_unit = ""
+                        visibility = "N/A"
+                        visibility_unit = ""
                 else:
-                    # If the user selected to not use METAR, then these observations are null.
-                    # If there's no data in the ob array then it's probably because of an error. Example:
-                    # "code": "warn_no_data",
-                    # "description": "Valid request. No results available based on your query parameters."
-                    current_obs_summary = ""
-                    current_obs_icon = ""
-                    visibility = "N/A"
-                    visibility_unit = ""
+                    # us, uk2 and default to miles per hour
+                    if  data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
+                        visibility = locale.format("%g", float( data["current"][0]["response"]["ob"]["visibilityMI"] ) )
+                        visibility_unit = "miles"
+                    else:
+                        visibility = "N/A"
+                        visibility_unit = ""
+            else:
+                # If the user selected to not use METAR, then these observations are null.
+                # If there's no data in the ob array then it's probably because of an error. Example:
+                # "code": "warn_no_data",
+                # "description": "Valid request. No results available based on your query parameters."
+                current_obs_summary = ""
+                current_obs_icon = ""
+                visibility = "N/A"
+                visibility_unit = ""
         else:
             current_obs_icon = ""
             current_obs_summary = ""
             visibility = "N/A"
             visibility_unit = ""
+            beaufort0 = ""
+            beaufort1 = ""
+            beaufort2 = ""
+            beaufort3 = ""
+            beaufort4 = ""
+            beaufort5 = ""
+            beaufort6 = ""
+            beaufort7 = ""
+            beaufort8 = ""
+            beaufort9 = ""
+            beaufort10 = ""
+            beaufort11 = ""
+            beaufort12 = ""
         
         
         """
@@ -1489,76 +1517,79 @@ class getData(SearchList):
             custom_css_exists = False
             
         # Build the search list with the new values
-        search_list_extension = { 'belchertown_version': VERSION,
-                                  'belchertown_debug': belchertown_debug,
-                                  'moment_js_utc_offset': moment_js_utc_offset,
-                                  'highcharts_timezoneoffset': highcharts_timezoneoffset,
-                                  'system_locale': system_locale,
-                                  'system_locale_js': system_locale_js,
-                                  'locale_encoding': locale_encoding,
-                                  'highcharts_decimal': highcharts_decimal,
-                                  'highcharts_thousands': highcharts_thousands,
-                                  'radar_html': radar_html,
-                                  'archive_interval_ms': archive_interval_ms,
-                                  'ordinate_names': ordinate_names,
-                                  'charts': json.dumps(charts),
-                                  'graphpage_titles': json.dumps(graphpage_titles),
-                                  'graphpage_titles_dict': graphpage_titles,
-                                  'graphpage_content': json.dumps(graphpage_content),
-                                  'graph_page_buttons': graph_page_buttons,
-                                  'alltime' : all_stats,
-                                  'year_outTemp_range_max': year_outTemp_range_max,
-                                  'year_outTemp_range_min': year_outTemp_range_min,
-                                  'at_outTemp_range_max' : at_outTemp_range_max,
-                                  'at_outTemp_range_min': at_outTemp_range_min,
-                                  'rainiest_day': rainiest_day,
-                                  'at_rainiest_day': at_rainiest_day,
-                                  'year_rainiest_month': year_rainiest_month,
-                                  'at_rainiest_month': at_rainiest_month,
-                                  'at_rain_highest_year': at_rain_highest_year,
-                                  'year_days_with_rain': year_days_with_rain,
-                                  'year_days_without_rain': year_days_without_rain,
-                                  'at_days_with_rain': at_days_with_rain,
-                                  'at_days_without_rain': at_days_without_rain,
-                                  'windSpeedUnitLabel': windSpeed_unit_label,
-                                  'noaa_header_html': noaa_header_html,
-                                  'default_noaa_file': default_noaa_file,
-                                  'current_obs_icon': current_obs_icon,
-                                  'current_obs_summary': current_obs_summary,
-                                  'visibility': visibility,
-                                  'visibility_unit': visibility_unit,
-                                  'station_obs_json': json.dumps(station_obs_json),
-                                  'station_obs_html': station_obs_html,
-                                  'all_obs_rounding_json': json.dumps(all_obs_rounding_json),
-                                  'all_obs_unit_labels_json': json.dumps(all_obs_unit_labels_json),
-                                  'earthquake_time': eqtime,
-                                  'earthquake_url': equrl,
-                                  'earthquake_place': eqplace,
-                                  'earthquake_magnitude': eqmag,
-                                  'earthquake_lat': eqlat,
-                                  'earthquake_lon': eqlon,
-                                  'earthquake_distance_away': eqdistance,
-                                  'earthquake_distance_label': eq_distance_label,
-                                  'earthquake_bearing': eqbearing,
-                                  'earthquake_bearing_raw': eqbearing_raw,
-                                  'social_html': social_html,
-                                  'custom_css_exists': custom_css_exists,
-                                  'aqi': aqi,
-                                  'aqi_category': aqi_category,
-                                  'aqi_location': aqi_location,
-                                  'beaufort0': beaufort0,
-                                  'beaufort1': beaufort1,
-                                  'beaufort2': beaufort2,
-                                  'beaufort3': beaufort3,
-                                  'beaufort4': beaufort4,
-                                  'beaufort5': beaufort5,
-                                  'beaufort6': beaufort6,
-                                  'beaufort7': beaufort7,
-                                  'beaufort8': beaufort8,
-                                  'beaufort9': beaufort9,
-                                  'beaufort10': beaufort10,
-                                  'beaufort11': beaufort11,
-                                  'beaufort12': beaufort12}
+        search_list_extension = {
+            'belchertown_version': VERSION,
+            'belchertown_debug': belchertown_debug,
+            'moment_js_utc_offset': moment_js_utc_offset,
+            'highcharts_timezoneoffset': highcharts_timezoneoffset,
+            'system_locale': system_locale,
+            'system_locale_js': system_locale_js,
+            'locale_encoding': locale_encoding,
+            'highcharts_decimal': highcharts_decimal,
+            'highcharts_thousands': highcharts_thousands,
+            'radar_html': radar_html,
+            'radar_html_dark': radar_html_dark,
+            'archive_interval_ms': archive_interval_ms,
+            'ordinate_names': ordinate_names,
+            'charts': json.dumps(charts),
+            'graphpage_titles': json.dumps(graphpage_titles),
+            'graphpage_titles_dict': graphpage_titles,
+            'graphpage_content': json.dumps(graphpage_content),
+            'graph_page_buttons': graph_page_buttons,
+            'alltime' : all_stats,
+            'year_outTemp_range_max': year_outTemp_range_max,
+            'year_outTemp_range_min': year_outTemp_range_min,
+            'at_outTemp_range_max' : at_outTemp_range_max,
+            'at_outTemp_range_min': at_outTemp_range_min,
+            'rainiest_day': rainiest_day,
+            'at_rainiest_day': at_rainiest_day,
+            'year_rainiest_month': year_rainiest_month,
+            'at_rainiest_month': at_rainiest_month,
+            'at_rain_highest_year': at_rain_highest_year,
+            'year_days_with_rain': year_days_with_rain,
+            'year_days_without_rain': year_days_without_rain,
+            'at_days_with_rain': at_days_with_rain,
+            'at_days_without_rain': at_days_without_rain,
+            'windSpeedUnitLabel': windSpeed_unit_label,
+            'noaa_header_html': noaa_header_html,
+            'default_noaa_file': default_noaa_file,
+            'current_obs_icon': current_obs_icon,
+            'current_obs_summary': current_obs_summary,
+            'visibility': visibility,
+            'visibility_unit': visibility_unit,
+            'station_obs_json': json.dumps(station_obs_json),
+            'station_obs_html': station_obs_html,
+            'all_obs_rounding_json': json.dumps(all_obs_rounding_json),
+            'all_obs_unit_labels_json': json.dumps(all_obs_unit_labels_json),
+            'earthquake_time': eqtime,
+            'earthquake_url': equrl,
+            'earthquake_place': eqplace,
+            'earthquake_magnitude': eqmag,
+            'earthquake_lat': eqlat,
+            'earthquake_lon': eqlon,
+            'earthquake_distance_away': eqdistance,
+            'earthquake_distance_label': eq_distance_label,
+            'earthquake_bearing': eqbearing,
+            'earthquake_bearing_raw': eqbearing_raw,
+            'social_html': social_html,
+            'custom_css_exists': custom_css_exists,
+            'aqi': aqi,
+            'aqi_category': aqi_category,
+            'aqi_location': aqi_location,
+            'beaufort0': beaufort0,
+            'beaufort1': beaufort1,
+            'beaufort2': beaufort2,
+            'beaufort3': beaufort3,
+            'beaufort4': beaufort4,
+            'beaufort5': beaufort5,
+            'beaufort6': beaufort6,
+            'beaufort7': beaufort7,
+            'beaufort8': beaufort8,
+            'beaufort9': beaufort9,
+            'beaufort10': beaufort10,
+            'beaufort11': beaufort11,
+            'beaufort12': beaufort12
+        }
 
         # Finally, return our extension as a list:
         return [search_list_extension]
