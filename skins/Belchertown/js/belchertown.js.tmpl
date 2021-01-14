@@ -200,18 +200,18 @@ function get_outTemp_color( unit, outTemp, returnColor=false ) {
 // Change the color of the aqi variable according to US-EPA standards
 // (adjusted to match skin colors better)
 function get_aqi_color( aqi, returnColor=false ) {
-    if ( aqi < 51 ) {
-        var aqi_color = "#71bc3c";
-    } else if ( aqi >= 51 ) {
-        var aqi_color = "rgba(255,174,0,0.9)";
-    } else if ( aqi >= 101 ) {
-        var aqi_color = "rgba(255,127,0,1)";
-    } else if ( aqi >= 151 ) {
-        var aqi_color = "rgba(255,69,69,1)";
+    if ( aqi >= 301 ) {
+        var aqi_color = "#cc241d";
     } else if ( aqi >= 201 ) {
         var aqi_color = "#b16286";
-    } else if ( aqi >= 301 ) {
-        var aqi_color = "#cc241d";
+    } else if ( aqi >= 151 ) {
+        var aqi_color = "rgba(255,69,69,1)";
+    } else if ( aqi >= 101 ) {
+        var aqi_color = "rgba(255,127,0,1)";
+    } else if ( aqi >= 51 ) {
+        var aqi_color = "rgba(255,174,0,0.9)";
+    } else if ( aqi < 51 ) {
+        var aqi_color = "#71bc3c";
     }
 
     // Return the color value if requested, otherwise just set the div color
