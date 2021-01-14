@@ -516,31 +516,23 @@ function autoTheme(sunset_hour, sunset_min, sunrise_hour, sunrise_min) {
     belchertown_debug("Auto theme: are we in daylight hours: " + dayTime);
     belchertown_debug("Auto theme: sessionStorage.getItem('theme') = " + sessionStorage.getItem('theme'));
     
-    if ( dayTime ) {
+    if ( dayTime == true ) {
         // Day time, set light if needed
-        if ( document.body.classList.contains("dark") ) {
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
-            } else {
-                belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
-            }
-            // Only change theme if user has not overridden the auto option with the toggle
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                changeTheme("light");
-            }
+        // Only change theme if user has not overridden the auto option with the toggle
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            belchertown_debug("Auto theme: setting light theme since dayTime variable is true (day)");
+            changeTheme("light");
+        } else {
+            belchertown_debug("Auto theme: cannot set light theme since visitor used toggle to override theme. Refresh to reset the override.");
         }
     } else {
         // Night time, set dark if needed
-        if ( document.body.classList.contains("light") ) {
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
-            } else {
-                belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
-            }
-            // Only change theme if user has not overridden the auto option with the toggle
-            if ( sessionStorage.getItem('theme') == "auto" ) {
-                changeTheme("dark");
-            }
+        // Only change theme if user has not overridden the auto option with the toggle
+        if ( sessionStorage.getItem('theme') == "auto" ) {
+            belchertown_debug("Auto theme: setting dark theme since dayTime variable is false (night)");
+            changeTheme("dark");
+        } else {
+            belchertown_debug("Auto theme: cannot set dark theme since visitor used toggle to override theme. Refresh to reset the override.");
         }
     }
 }
