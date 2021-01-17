@@ -20,137 +20,147 @@
         
         var homepage_graphgroup = "$Extras.highcharts_homepage_graphgroup";
         
-        ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
-        
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-        // Load forecast
-        ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
-        #end if
-        
-        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
-        // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
-        function autoRefreshPage() {
-            window.location = window.location.href;
-        }
-        setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
-        #end if
-        
-        jQuery(document).ready(function() {
-            get_aqi_color( "$aqi" );
-            // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
-            // knots and then use Javascript function to convert to Beaufort
-            jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( $current.windSpeed.knot.toString(addLabel=False) ) ) );
-
-            get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
-            
-            rotateThis( "$current.windDir.formatted" );
-
-            // Update the Last Updated timestamp with moment.js,
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
-            updated_text = "$obs.label.header_last_updated " + updated;
-            jQuery(".updated").html( updated_text );
-            
-            #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
-            if ( moment.unix( "$earthquake_time" ).isValid() ) {
-                // Check that the time is the time (number) and not the "no earthquake available" wording
-                jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_earthquake" ) );
-            } else {
-                jQuery(".earthquake-time").html( "$earthquake_time" );
-            }
+        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+            update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+            belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+            // Load forecast
+            ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
             #end if
-            
-            #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-            var graphgroups_raw = $charts; // All charts and IDs
-            var thisPageGraphs = graphgroups_raw[homepage_graphgroup]; // Filter all charts down to the ones we want for this page
-            // Loop through the graph groups for this page and add the graph divs to the page
-            try {
-                thisPageGraphs.forEach( graphID => {
-                    jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
-                });
-                showChart(homepage_graphgroup);
-            } catch(err) {
-                console.log("ERROR: Cannot add graphs from [" + homepage_graphgroup + "] graph group: " + err.message);
+        
+            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+            // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+            function autoRefreshPage() {
+                window.location = window.location.href;
             }
+            setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
             #end if
+        
+            jQuery(document).ready(function() {
+                get_aqi_color( "$aqi" );
+                // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
+                // knots and then use Javascript function to convert to Beaufort
+                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( $current.windSpeed.knot.toString(addLabel=False) ) ) );
+
+                get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
-            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
-            if ( getURLvar("offline") && ( getURLvar("offline") == "true" || getURLvar("offline") == "1" ) ) {
-                belchertown_debug("MQTT: offline url var detected. Skipping MQTT connect.");
-            } else {
-                connect(); // Begin mqtt after weewx initial load
-                // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
-                jQuery(document).on('click', '.restart-interval', function() { 
-                    ajaxweewx(); // Update weewx data
-                    #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                    ajaxforecast(); // Update forecast data
-                    #end if
-                    ajaximages(); // Update radar and home page hook "img src" if present
-                    connect(); // Restart mqtt after weewx data's re-loaded
-                    #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                rotateThis( "$current.windDir.formatted" );
+
+                // Update the Last Updated timestamp with moment.js,
+                updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+                updated_text = "$obs.label.header_last_updated " + updated;
+                jQuery(".updated").html( updated_text );
+            
+                #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
+                if ( moment.unix( "$earthquake_time" ).isValid() ) {
+                    // Check that the time is the time (number) and not the "no earthquake available" wording
+                    jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_earthquake" ) );
+                } else {
+                    jQuery(".earthquake-time").html( "$earthquake_time" );
+                }
+                #end if
+            
+                #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                var graphgroups_raw = $charts; // All charts and IDs
+                var thisPageGraphs = graphgroups_raw[homepage_graphgroup]; // Filter all charts down to the ones we want for this page
+                // Loop through the graph groups for this page and add the graph divs to the page
+                try {
+                    thisPageGraphs.forEach( graphID => {
+                        jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                    });
                     showChart(homepage_graphgroup);
-                    #end if
-                });
-            }
+                } catch(err) {
+                    console.log("ERROR: Cannot add graphs from [" + homepage_graphgroup + "] graph group: " + err.message);
+                }
+                #end if
             
-            #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
-            // Update any images in the radar section or hooks
+                #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+                if ( getURLvar("offline") && ( getURLvar("offline") == "true" || getURLvar("offline") == "1" ) ) {
+                    belchertown_debug("MQTT: offline url var detected. Skipping MQTT connect.");
+                } else {
+                    connect(); // Begin mqtt after weewx initial load
+                    // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
+                    jQuery(document).on('click', '.restart-interval', function() { 
+                        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+                            update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+                            belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+
+                            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                            ajaxforecast(); // Update forecast data
+                            #end if
+                            ajaximages(); // Update radar and home page hook "img src" if present
+                            connect(); // Restart mqtt after weewx data's re-loaded
+                            #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                            showChart(homepage_graphgroup);
+                            #end if
+			 }).catch(function(e){
+			     console.log(e);
+			 });
+                    });
+                }
+            
+                #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
+                // Update any images in the radar section or hooks
         
-            #if $Extras.has_key("reload_images_radar") and $Extras.reload_images_radar != '-1'
-                var reload_radar_timer = $Extras.reload_images_radar * 1000; // convert to millis
-                setTimeout(function() { ajaximages("radar", $Extras.reload_images_radar); }, reload_radar_timer);
-            #end if
+                #if $Extras.has_key("reload_images_radar") and $Extras.reload_images_radar != '-1'
+                    var reload_radar_timer = $Extras.reload_images_radar * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("radar", $Extras.reload_images_radar); }, reload_radar_timer);
+                #end if
             
-            #if $Extras.has_key("reload_images_hook_asi") and $Extras.reload_images_hook_asi != '-1'
-                var reload_asi_timer = $Extras.reload_images_hook_asi * 1000; // convert to millis
-                setTimeout(function() { ajaximages("index-hook-after-station-info", $Extras.reload_images_hook_asi); }, reload_asi_timer);
-            #end if
+                #if $Extras.has_key("reload_images_hook_asi") and $Extras.reload_images_hook_asi != '-1'
+                    var reload_asi_timer = $Extras.reload_images_hook_asi * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-station-info", $Extras.reload_images_hook_asi); }, reload_asi_timer);
+                #end if
 
-            #if $Extras.has_key("reload_images_hook_af") and $Extras.reload_images_hook_af != '-1'
-                var reload_af_timer = $Extras.reload_images_hook_af * 1000; // convert to millis
-                setTimeout(function() { ajaximages("index-hook-after-forecast", $Extras.reload_images_hook_af); }, reload_af_timer);
-            #end if
+                #if $Extras.has_key("reload_images_hook_af") and $Extras.reload_images_hook_af != '-1'
+                    var reload_af_timer = $Extras.reload_images_hook_af * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-forecast", $Extras.reload_images_hook_af); }, reload_af_timer);
+                #end if
 
-            #if $Extras.has_key("reload_images_hook_as") and $Extras.reload_images_hook_as != '-1'
-                var reload_as_timer = $Extras.reload_images_hook_as * 1000; // convert to millis
-                setTimeout(function() { ajaximages("index-hook-after-snapshot", $Extras.reload_images_hook_as); }, reload_as_timer);
-            #end if
+                #if $Extras.has_key("reload_images_hook_as") and $Extras.reload_images_hook_as != '-1'
+                    var reload_as_timer = $Extras.reload_images_hook_as * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-snapshot", $Extras.reload_images_hook_as); }, reload_as_timer);
+                #end if
 
-            #if $Extras.has_key("reload_images_hook_ac") and $Extras.reload_images_hook_ac != '-1'
-                var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
-                setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
-            #end if
+                #if $Extras.has_key("reload_images_hook_ac") and $Extras.reload_images_hook_ac != '-1'
+                    var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
+                #end if
             
-            #end if
+                #end if
             
-            #else
-            // MQTT Websockets not enabled
+                #else
+                // MQTT Websockets not enabled
 
-            #if $Extras.has_key("show_last_updated_alert") and $Extras.show_last_updated_alert == '1'
-            // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
-            if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
-                belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
-                last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
-                jQuery(".last-updated-alert").html( last_updated_alert_text );
-                jQuery(".last-updated-alert").show();
-            }
-            #end if
+                #if $Extras.has_key("show_last_updated_alert") and $Extras.show_last_updated_alert == '1'
+                // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
+                if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
+                    belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
+                    last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
+                    jQuery(".last-updated-alert").html( last_updated_alert_text );
+                    jQuery(".last-updated-alert").show();
+                }
+                #end if
                         
-            // Update the Last Updated timestamp with moment.js,
-            updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
-            updated_text = "$obs.label.header_last_updated " + updated;
-            jQuery(".updated").html( updated_text );
+                // Update the Last Updated timestamp with moment.js,
+                updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+                updated_text = "$obs.label.header_last_updated " + updated;
+                jQuery(".updated").html( updated_text );
             
-            #end if
+                #end if
             
-            //  display the relevant forecast; a new session will display the default forecast, a reloaded session the currently displayed forecast
-            if ( sessionStorage.getItem ("forecastInterval")  ) {
-                interval = sessionStorage.getItem("forecastInterval");
-                sessionStorage.setItem ( "forecastInterval" , null );
-                forecast_select( interval );
-            } else {
-                sessionStorage.setItem ( "forecastInterval" , null );
-                forecast_select( sessionStorage.getItem( "defaultInterval") );
-            }
+                //  display the relevant forecast; a new session will display the default forecast, a reloaded session the currently displayed forecast
+                if ( sessionStorage.getItem ("forecastInterval")  ) {
+                    interval = sessionStorage.getItem("forecastInterval");
+                    sessionStorage.setItem ( "forecastInterval" , null );
+                    forecast_select( interval );
+                } else {
+                    sessionStorage.setItem ( "forecastInterval" , null );
+                    forecast_select( sessionStorage.getItem( "defaultInterval") );
+                }
+            });
+        }).catch(function(e) {
+            console.log(e);
         });
         
     </script>
