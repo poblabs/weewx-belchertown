@@ -15,6 +15,7 @@ import os.path
 import syslog
 import sys
 import locale
+import re
 
 import weewx
 import weecfg
@@ -1305,7 +1306,16 @@ class getData(SearchList):
                 if self.generator.skin_dict['Extras']['earthquake_server'] == "USGS":
                     eqtime = eqdata["features"][0]["properties"]["time"] / 1000
                     equrl = eqdata["features"][0]["properties"]["url"]
-                    eqplace = eqdata["features"][0]["properties"]["place"]
+                    if distance_unit == "km":                   
+                        eqplace = eqdata["features"][0]["properties"]["place"]
+                    else:       # assume miles
+                        try:
+                            eqmatched=re.match('(?P<distance>[0-9]*\.?[0-9]+) km(?P<rest>.*)$',eqdata["features"][0]["properties"]["place"])
+                            eqdist_km = eqmatched.group('distance')
+                            eqdist_miles = round(float(eqdist_km) / 1.609,1)
+                            eqplace = str(eqdist_miles) + " miles" + eqmatched.group('rest')
+                        except:
+                            eqplace = eqdata["features"][0]["properties"]["place"]
                     eqmag = locale.format("%g", float(eqdata["features"][0]["properties"]["mag"]) )
                 elif self.generator.skin_dict['Extras']['earthquake_server'] == "GeoNet":
                     eqtime = eqdata["features"][0]["properties"]["time"]
