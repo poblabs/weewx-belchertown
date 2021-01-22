@@ -191,9 +191,6 @@ class getData(SearchList):
             ordinate_names = weeutil.weeutil.option_as_list(
                 self.generator.skin_dict["Units"]["Ordinates"]["directions"]
             )
-            if sys.version_info[0] < 3:
-                # Python2, convert to unicode
-                ordinate_names = [unicode(x, "utf-8") for x in ordinate_names]
         except KeyError:
             ordinate_names = default_ordinate_names
 
@@ -786,15 +783,9 @@ class getData(SearchList):
                 rain_round
                 % self.generator.converter.convert(year_rainiest_month_tuple)[0]
             )
-            # Python 2/3
-            if sys.version_info[0] < 3:
-                year_rainiest_month_name = calendar.month_name[
-                    int(year_rainiest_month_query[0])
-                ].decode("utf-8")
-            else:
-                year_rainiest_month_name = calendar.month_name[
-                    int(year_rainiest_month_query[0])
-                ]
+            year_rainiest_month_name = calendar.month_name[
+                int(year_rainiest_month_query[0])
+            ]
             year_rainiest_month = [
                 year_rainiest_month_name,
                 locale.format("%g", float(year_rainiest_month_converted)),
@@ -808,15 +799,7 @@ class getData(SearchList):
         at_rainiest_month_converted = (
             rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
         )
-        # Python 2/3
-        if sys.version_info[0] < 3:
-            at_rainiest_month_name = calendar.month_name[
-                int(at_rainiest_month_query[0])
-            ].decode("utf-8")
-        else:
-            at_rainiest_month_name = calendar.month_name[
-                int(at_rainiest_month_query[0])
-            ]
+        at_rainiest_month_name = calendar.month_name[int(at_rainiest_month_query[0])]
         at_rainiest_month = [
             "%s, %s" % (at_rainiest_month_name, at_rainiest_month_query[1]),
             locale.format("%g", float(at_rainiest_month_converted)),
@@ -1460,7 +1443,7 @@ class getData(SearchList):
                                     }
                                 )
                 except Exception as error:
-                    raise Warning (
+                    raise Warning(
                         "Error downloading forecast data. "
                         "Check the URL in your configuration and try again. "
                         "You are trying to use URL: %s, and the error is: %s"
@@ -1471,8 +1454,12 @@ class getData(SearchList):
                 # exist, and truncates the file and re-writes it everytime
                 try:
                     with open(forecast_file, "wb+") as file:
-                        # Python 2/3
-                        file.write(forecast_file_result.encode("utf-8"))
+                        try:
+                            # Python 2/3
+                            file.write(forecast_file_result.encode("utf-8"))
+                        except:
+                            # Catch errors caused by ASCII characters in Python2
+                            file.write(forecast_file_result)
                         loginf("New forecast file downloaded to %s" % forecast_file)
                 except IOError as e:
                     raise Warning(
@@ -1728,8 +1715,7 @@ class getData(SearchList):
                     if weewx.debug:
                         logdbg(
                             "Error downloading earthquake data with urllib2, reverting to curl and subprocess. "
-                            "Full error: %s"
-                            % forecast_error
+                            "Full error: %s" % forecast_error
                         )
                     # Nested try - only execute if the urllib2 method fails
                     try:
@@ -1760,10 +1746,11 @@ class getData(SearchList):
                 # everytime
                 try:
                     with open(earthquake_file, "wb+") as file:
-                        # Python 2/3
-                        if sys.version_info[0] < 3:
+                        try:
+                            # Python 2/3
                             file.write(page.encode("utf-8"))
-                        else:
+                        except:
+                            # Catch errors caused by ASCII characters in Python2
                             file.write(page)
                         if weewx.debug:
                             logdbg("Earthquake data saved to %s" % earthquake_file)
@@ -2652,26 +2639,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Set a default yAxis label if graphs.conf yAxis_label is
                     # none and there's a unit_label - e.g. Temperature (F)
                     if yAxisLabel_config is None and unit_label:
-                        # Python 2/3
-                        if sys.version_info[0] < 3:
-                            yAxis_label = (
-                                name + " (" + unit_label.strip().decode("utf-8") + ")"
-                            )
-                        else:
-                            yAxis_label = name + " (" + unit_label.strip() + ")"
+                        yAxis_label = name + " (" + unit_label.strip() + ")"
                     elif yAxisLabel_config and unit_label:
-                        # Python 2/3
-                        if sys.version_info[0] < 3:
-                            yAxis_label = (
-                                yAxisLabel_config
-                                + " ("
-                                + unit_label.strip().decode("utf-8")
-                                + ")"
-                            )
-                        else:
-                            yAxis_label = (
-                                yAxisLabel_config + " (" + unit_label.strip() + ")"
-                            )
+                        yAxis_label = (
+                            yAxisLabel_config + " (" + unit_label.strip() + ")"
+                        )
                     elif yAxisLabel_config:
                         yAxis_label = yAxisLabel_config
                     else:
@@ -3320,8 +3292,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception as e:
                 raise Warning(
                     "Error trying to use database binding %s to graph observation %s. "
-                    "Error was: %s."
-                    % (binding, obs_lookup, e)
+                    "Error was: %s." % (binding, obs_lookup, e)
                 )
 
             avg_obs_vt = self.converter.convert(obs_vt)
@@ -3375,8 +3346,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception as e:
                 raise Warning(
                     "Error trying to use database binding %s to graph observation %s. "
-                    "Error was: %s."
-                    % (binding, obs_lookup, e)
+                    "Error was: %s." % (binding, obs_lookup, e)
                 )
 
             min_obs_vt = self.converter.convert(obs_vt)
@@ -3393,8 +3363,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             except Exception as e:
                 raise Warning(
                     "Error trying to use database binding %s to graph observation %s. "
-                    "Error was: %s."
-                    % (binding, obs_lookup, e)
+                    "Error was: %s." % (binding, obs_lookup, e)
                 )
 
             max_obs_vt = self.converter.convert(obs_vt)
