@@ -2655,7 +2655,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         # Python 2/3
                         if sys.version_info[0] < 3:
                             yAxis_label = (
-                                name + " (" + unit_label.strip().encode("utf-8") + ")"
+                                name + " (" + unit_label.strip().decode("utf-8") + ")"
                             )
                         else:
                             yAxis_label = name + " (" + unit_label.strip() + ")"
@@ -2665,7 +2665,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             yAxis_label = (
                                 yAxisLabel_config
                                 + " ("
-                                + unit_label.strip().encode("utf-8")
+                                + unit_label.strip().decode("utf-8")
                                 + ")"
                             )
                         else:
