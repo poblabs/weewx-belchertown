@@ -1485,6 +1485,12 @@ class getData(SearchList):
                 data = json.load(read_file)
 
             try:
+                cloud_cover = "{}%".format(data["current"][0]["response"]["ob"]["sky"])
+            except Exception:
+                loginf("No cloud cover data from Aeris weather")
+                cloud_cover = ""
+
+            try:
                 aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
                 aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
                 aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
@@ -1923,6 +1929,10 @@ class getData(SearchList):
 
                 # Empty field for the JSON "current" output
                 obs_output = ""
+            elif obs == "cloud_cover":
+                obs_output = cloud_cover
+                if label_dict["cloud_cover"] == "cloud_cover":
+                    label_dict["cloud_cover"] = "Cloud Cover"
             else:
                 obs_output = getattr(current, obs)
                 if "?" in str(obs_output):
@@ -2124,6 +2134,7 @@ class getData(SearchList):
             "current_obs_summary": current_obs_summary,
             "visibility": visibility,
             "visibility_unit": visibility_unit,
+            "cloud_cover": cloud_cover,
             "station_obs_json": json.dumps(station_obs_json),
             "station_obs_html": station_obs_html,
             "all_obs_rounding_json": json.dumps(all_obs_rounding_json),
