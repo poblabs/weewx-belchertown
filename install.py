@@ -143,15 +143,14 @@ extension_config = """
 
            #-------------------------------------------------------------
            #---
-           #--- wee_extension in 4.3.0 needs at least one uncommented
-           #--- variable in the extension's install.py in order to
-           #--- write out an initially commented-out stanza for the
-           #--- newly installed skin
-           #---
+           #--- python's ConfigObj has a limitation in how it processes
+           #--- comments, so we need to define an 'unused' variable below
+           #--- to ensure that this whole stanza makes it into weewx.conf
+           #--- 
            #--- please ignore the following 'unused' variable
            #---
            #-------------------------------------------------------------
-           work_around_wee_extension_bugs = true
+           work_around_ConfigObj_limitations = true
 
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
