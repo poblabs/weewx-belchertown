@@ -19,6 +19,10 @@
         moment.locale(moment_locale);
         
         var homepage_graphgroup = "$Extras.highcharts_homepage_graphgroup";
+
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
         
         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
             update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
@@ -30,9 +34,6 @@
         
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
             // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
-            function autoRefreshPage() {
-                window.location = window.location.href;
-            }
             setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
             #end if
         
@@ -93,9 +94,9 @@
                             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                             showChart(homepage_graphgroup);
                             #end if
-			 }).catch(function(e){
-			     console.log(e);
-			 });
+                        }).catch(function(e){
+                            console.log(e);
+                        });
                     });
                 }
             
