@@ -1637,6 +1637,7 @@ class getData(SearchList):
             current_obs_summary = ""
             visibility = "N/A"
             visibility_unit = ""
+            cloud_cover = ""
             beaufort0 = ""
             beaufort1 = ""
             beaufort2 = ""
