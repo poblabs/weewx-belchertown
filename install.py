@@ -46,7 +46,7 @@ extension_config = """
     [[Belchertown]]
         skin = Belchertown
         HTML_ROOT = belchertown
-        enable = false
+        enable = true 
 
         [[[Extras]]]
 
