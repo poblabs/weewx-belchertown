@@ -1286,24 +1286,23 @@ function update_forecast_data( data ) {
                     windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedMPH"];
                     windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustMPH"];
                 }
-                
-                if ( ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"] > 0 ) || ( data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"] > 0 ) ) {
-                    // Determine snow unit
-                    if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
-                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"];
-                        var snow_unit = "cm";
-                    } else {
-                        var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
-                        var snow_unit = "in";
-                    }
-                    precip = 0;
-               } else if ( data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] > 0 ) {
-                    // Rain percent of precip
-                    precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"];
+
+                /*
+                As per API specification, "pop" is either a number from 0 to
+                100 or null. We convert to 0 in the second case.
+                */
+                var precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] || 0;
+
+                /*
+                Determine snow unit. "snowCM" and "snowIN" are specified
+                to always return a number.
+                */
+                if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
+                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"];
+                    var snow_unit = "cm";
                 } else {
-                    precip = 0;
-                    snow_depth = 0;
-                    var snow_unit = "";
+                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
+                    var snow_unit = "in";
                 }
                 
                 //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
