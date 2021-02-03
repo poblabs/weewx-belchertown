@@ -1295,13 +1295,14 @@ function update_forecast_data( data ) {
 
                 /*
                 Determine snow unit. "snowCM" and "snowIN" are specified
-                to always return a number.
+                to always return a number. We still convert to 0 if we ever get
+                null.
                 */
                 if ( ( "$Extras.forecast_units" == "si" ) || ( "$Extras.forecast_units" == "ca" ) || ( "$Extras.forecast_units" == "uk2" ) ) {
-                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"];
+                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"] || 0;
                     var snow_unit = "cm";
                 } else {
-                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"];
+                    var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowIN"] || 0;
                     var snow_unit = "in";
                 }
                 
