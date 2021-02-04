@@ -504,6 +504,9 @@ class getData(SearchList):
         pattern = "%m/%d/%Y %H:%M:%S"
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
 
+        date_time = "%s/%s/%s 00:00:00" % now.month, now.today, now.year
+        today_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
+        
         # Setup the converter
         # Get the target unit nickname (something like 'US' or 'METRIC'):
         target_unit_nickname = self.generator.config_dict["StdConvert"]["target_unit"]
@@ -519,18 +522,20 @@ class getData(SearchList):
         # 3. We need to recalculate the min/max range because the unit may have changed.
 
         year_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
-            % year_start_epoch
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
+            % year_start_epoch, today_start_epoch
         )
         year_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
-            % year_start_epoch
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
+            % year_start_epoch, today_start_epoch
         )
         at_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
+            % today_start_epoch
         )
         at_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
+            % today_start_epoch
         )
 
         # Find the group_name for outTemp in database
