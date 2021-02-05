@@ -504,7 +504,7 @@ class getData(SearchList):
         pattern = "%m/%d/%Y %H:%M:%S"
         year_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
 
-        date_time = "%s/%s/%s 00:00:00" % now.month, now.today, now.year
+        date_time = "%s/%s/%s 00:00:00" % (now.month, now.day, now.year)
         today_start_epoch = int(time.mktime(time.strptime(date_time, pattern)))
         
         # Setup the converter
@@ -523,11 +523,11 @@ class getData(SearchList):
 
         year_outTemp_max_range_query = wx_manager.getSql(
             "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
-            % year_start_epoch, today_start_epoch
+            % (year_start_epoch, today_start_epoch)
         )
         year_outTemp_min_range_query = wx_manager.getSql(
             "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
-            % year_start_epoch, today_start_epoch
+            % (year_start_epoch, today_start_epoch)
         )
         at_outTemp_max_range_query = wx_manager.getSql(
             "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
