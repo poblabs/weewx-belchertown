@@ -1788,7 +1788,7 @@ class getData(SearchList):
                         eqplace = eqdata["features"][0]["properties"]["place"]
                     else:       # assume miles
                         try:
-                            eqmatched=re.match('(?P<distance>[0-9]*\.?[0-9]+) km(?P<rest>.*)$',
+                            eqmatched=match('(?P<distance>[0-9]*\.?[0-9]+) km(?P<rest>.*)$',
                                 eqdata["features"][0]["properties"]["place"])
                             eqdist_km = eqmatched.group('distance')
                             eqdist_miles = round(float(eqdist_km) / 1.609,1)
