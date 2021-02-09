@@ -1680,6 +1680,10 @@ class getData(SearchList):
             earthquake_maxradiuskm = self.generator.skin_dict["Extras"][
                 "earthquake_maxradiuskm"
             ]
+            if earthquake_maxradiuskm <= "1000":
+                earthquake_ReNaSSradius = 5
+            else:
+                earthquake_ReNaSSradius = 9
             # Sample URL from Belchertown Weather:
             # http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             if self.generator.skin_dict["Extras"]["earthquake_server"] == "USGS":
@@ -1691,6 +1695,11 @@ class getData(SearchList):
                 earthquake_url = (
                     "https://api.geonet.org.nz/quake?MMI=%s"
                     % self.generator.skin_dict["Extras"]["geonet_mmi"]
+                )
+            elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                earthquake_url = (
+                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%s&orderby=time&format=json&limit=1&mindepth=-1"
+                    % (latitude, longitude, earthquake_ReNaSSradius)
                 )
             earthquake_is_stale = False
 
@@ -1795,6 +1804,18 @@ class getData(SearchList):
                             eqplace = str(eqdist_miles) + " miles" + eqmatched.group('rest')
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
+                    eqmag = locale.format(
+                        "%g", float(eqdata["features"][0]["properties"]["mag"])
+                    )
+                elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                    eqtime = eqdata["features"][0]["properties"]["time"]
+                    # convert time to UNIX format
+                    eqtime = datetime.datetime.strptime(eqtime, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    eqtime = int(
+                        (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
+                    )
+                    equrl = eqdata["features"][0]["properties"]["url"]
+                    eqplace = eqdata["features"][0]["properties"]["description"]
                     eqmag = locale.format(
                         "%g", float(eqdata["features"][0]["properties"]["mag"])
                     )
