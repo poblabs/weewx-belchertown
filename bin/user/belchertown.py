@@ -1694,8 +1694,8 @@ class getData(SearchList):
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
                 earthquake_url = (
-                    # Change mindepth to -1 if you want to show carrers shots
-                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&mindepth=1"
+                    # Change mindepth to -1 if you want to show quarry blast
+                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&mindepth=2"
                     % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
                 )
             earthquake_is_stale = False
