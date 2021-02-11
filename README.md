@@ -377,7 +377,7 @@ For ease of readability I have broken them out into separate tables. However you
 | earthquake_enabled | 0 | 1 = enable, 0 = disable. Show the earthquake data on the front page
 | earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
 | earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
-| earthquake_server | USGS | USGS for USGS website (best for North American Users) or GeoNet for NZ GeoNet website (best for NZ users)
+| earthquake_server | USGS | USGS for USGS website (best for North American Users), GeoNet for NZ GeoNet website (best for NZ users) or ReNaSS for Réseau National de Surveillance Sismique website (best for European Users).
 | geonet_mmi | 4 | Sets the filter for earthquake intensity (GeoNet only). For example, 4 will show all quakes with MMI 4 or greater (light+). Valid values are -1-8.
 
 
