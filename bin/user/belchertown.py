@@ -1692,6 +1692,12 @@ class getData(SearchList):
                     "https://api.geonet.org.nz/quake?MMI=%s"
                     % self.generator.skin_dict["Extras"]["geonet_mmi"]
                 )
+            elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                earthquake_url = (
+                    # Modify minmagnitude to suit your needs and mindepth=-1 if you want to show quarry blast
+                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&minmagnitude=2&mindepth=1"
+                    % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
+                )
             earthquake_is_stale = False
 
             # Determine if the file exists and get it's modified time
@@ -1795,6 +1801,18 @@ class getData(SearchList):
                             eqplace = str(eqdist_miles) + " miles" + eqmatched.group('rest')
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
+                    eqmag = locale.format(
+                        "%g", float(eqdata["features"][0]["properties"]["mag"])
+                    )
+                elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                    eqtime = eqdata["features"][0]["properties"]["time"]
+                    # convert time to UNIX format
+                    eqtime = datetime.datetime.strptime(eqtime, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    eqtime = int(
+                        (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
+                    )
+                    equrl = eqdata["features"][0]["properties"]["url"]
+                    eqplace = eqdata["features"][0]["properties"]["description"]
                     eqmag = locale.format(
                         "%g", float(eqdata["features"][0]["properties"]["mag"])
                     )
