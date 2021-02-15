@@ -310,6 +310,14 @@
                                         </table>
                                     </div>
                                 </div>
+                                <!-- Wind Hook -->
+                                #if os.path.exists("index_hook_after_wind_table.inc")
+                                <!-- Start of index_hook_after_wind_table -->
+                                <div class="index_hook_after_wind_table">
+                                    #include "index_hook_after_wind_table.inc"
+                                </div>
+                                <!-- End of index_hook_after_wind_table -->
+                                #end if
                             </div>
                         </div>
                     </div>
