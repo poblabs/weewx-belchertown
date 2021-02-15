@@ -1490,10 +1490,9 @@ class getData(SearchList):
                 aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
             except Exception as error:
                 logerr(
-                    "Error getting AQI from Aeris weather. The error was:\n%s\n"
-                    "The response from the Aeris AQI server was:\n%s\n"
-                    "The URL being used is:\n%s" % (error, data["aqi"], aqi_url)
+                    "Error getting AQI from Aeris weather. The error was: %s" % (error)
                 )
+                pass
 
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
             if aqi_category == "good":
