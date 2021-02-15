@@ -330,6 +330,14 @@
                                     $station_obs_html
                                 </tbody>
                             </table>
+                            <!-- Station Observations Hook -->
+                            #if os.path.exists("index_hook_after_station_observations.inc")
+                            <!-- Start of index_hook_after_station_observations -->
+                            <div class="index_hook_after_station_observations">
+                                #include "index_hook_after_station_observations.inc"
+                            </div>
+                            <!-- End of index_hook_after_station_observations -->
+                            #end if
                         </div>                        
                         
                         <!-- Sun and Moon section -->
