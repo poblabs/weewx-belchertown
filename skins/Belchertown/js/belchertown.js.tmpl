@@ -2289,9 +2289,9 @@ function showChart(json_file, prepend_renderTo=false) {
                 if (s.obsType == "windDir") {
                     options.yAxis[this_yAxis].tickInterval = 90;
                     options.yAxis[this_yAxis].labels = { 
-						useHTML: true,
-						formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } 
-					}
+			useHTML: true,
+			formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } 
+		    }
                 }
                 
                 // Check if this series has a gapsize override
