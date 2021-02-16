@@ -1872,8 +1872,6 @@ class getData(SearchList):
                 obs_output = ""
             elif obs == "cloud_cover":
                 obs_output = cloud_cover
-                if label_dict["cloud_cover"] == "cloud_cover":
-                    label_dict["cloud_cover"] = "Cloud Cover"
             else:
                 obs_output = getattr(current, obs)
                 if "?" in str(obs_output):
