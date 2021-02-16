@@ -95,7 +95,7 @@ loginf("version %s" % VERSION)
 
 # Define these as global so they can be used in both the search list extension
 # and custom graphs section
-aqi = 0
+aqi = ""
 aqi_category = ""
 aqi_time = 0
 aqi_location = ""
@@ -1872,6 +1872,8 @@ class getData(SearchList):
                 obs_output = ""
             elif obs == "cloud_cover":
                 obs_output = cloud_cover
+            elif obs == "aqi":
+                obs_output = aqi
             else:
                 obs_output = getattr(current, obs)
                 if "?" in str(obs_output):
