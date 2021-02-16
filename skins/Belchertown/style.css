@@ -1654,6 +1654,11 @@ p.entry-meta {
 	font-size:18px !important;
 }
 
+.beaufort { 
+	padding-top:10px;
+	font-size:18px;
+}
+
 .wx-pressure-trend { 
 	color: #808080; 
 	font-size:20px;
