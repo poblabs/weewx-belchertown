@@ -1872,6 +1872,8 @@ class getData(SearchList):
                 obs_output = ""
             elif obs == "cloud_cover":
                 obs_output = cloud_cover
+            elif obs == "aqi":
+                obs_output = aqi
             else:
                 obs_output = getattr(current, obs)
                 if "?" in str(obs_output):
