@@ -19,6 +19,10 @@
         moment.locale(moment_locale);
         
         var homepage_graphgroup = "$Extras.highcharts_homepage_graphgroup";
+
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
         
         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
             update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
@@ -30,9 +34,6 @@
         
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
             // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
-            function autoRefreshPage() {
-                window.location = window.location.href;
-            }
             setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
             #end if
         
@@ -40,7 +41,7 @@
                 get_aqi_color( "$aqi" );
                 // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
                 // knots and then use Javascript function to convert to Beaufort
-                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( $current.windSpeed.knot.toString(addLabel=False) ) ) );
+                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
 
                 get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
@@ -93,9 +94,9 @@
                             #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
                             showChart(homepage_graphgroup);
                             #end if
-			 }).catch(function(e){
-			     console.log(e);
-			 });
+                        }).catch(function(e){
+                            console.log(e);
+                        });
                     });
                 }
             
@@ -222,7 +223,7 @@
                                         </div>
                                         #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
                                         <div class="aqi_outer">
-                                            AQI:  $aqi ($aqi_category)
+                                            $obs.label.aqi:  $aqi ($aqi_category)
                                             #if $Extras.has_key("aqi_location_enabled") and $Extras.aqi_location_enabled == '1'
                                             <span class="aqi_location_outer"><br>$aqi_location</span>
                                             #end if
@@ -309,6 +310,14 @@
                                         </table>
                                     </div>
                                 </div>
+                                <!-- Wind Hook -->
+                                #if os.path.exists("index_hook_after_wind_table.inc")
+                                <!-- Start of index_hook_after_wind_table -->
+                                <div class="index_hook_after_wind_table">
+                                    #include "index_hook_after_wind_table.inc"
+                                </div>
+                                <!-- End of index_hook_after_wind_table -->
+                                #end if
                             </div>
                         </div>
                     </div>
@@ -321,6 +330,14 @@
                                     $station_obs_html
                                 </tbody>
                             </table>
+                            <!-- Station Observations Hook -->
+                            #if os.path.exists("index_hook_after_station_observations.inc")
+                            <!-- Start of index_hook_after_station_observations -->
+                            <div class="index_hook_after_station_observations">
+                                #include "index_hook_after_station_observations.inc"
+                            </div>
+                            <!-- End of index_hook_after_station_observations -->
+                            #end if
                         </div>                        
                         
                         <!-- Sun and Moon section -->
