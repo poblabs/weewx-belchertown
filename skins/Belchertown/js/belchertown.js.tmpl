@@ -2288,7 +2288,10 @@ function showChart(json_file, prepend_renderTo=false) {
 
                 if (s.obsType == "windDir") {
                     options.yAxis[this_yAxis].tickInterval = 90;
-                    options.yAxis[this_yAxis].labels = { formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } }
+                    options.yAxis[this_yAxis].labels = { 
+						useHTML: true,
+						formatter: function() { var value = weatherdirection[this.value]; return value !== 'undefined' ? value : this.value; } 
+					}
                 }
                 
                 // Check if this series has a gapsize override
@@ -2334,7 +2337,7 @@ function showChart(json_file, prepend_renderTo=false) {
                 options.xAxis.crosshair = true;
                 options.xAxis.categories = categories;
                 options.xAxis.tickmarkPlacement = 'on';
-                //options.xAxis.labels = { useHTML: true } // Option disabled in highcharts 8
+                options.xAxis.labels = { useHTML: true }
                 //options.legend.align = "right";
                 options.legend.verticalAlign = "top";
                 options.legend.x = 210;
