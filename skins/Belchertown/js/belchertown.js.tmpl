@@ -599,8 +599,10 @@ async function ajaxweewx() {
 //var station_obs_array = "";
 var unit_rounding_array = "";
 var unit_label_array = "";
+var weewx_data = "";
 function update_weewx_data( data ) {
     belchertown_debug("Updating weewx data");
+    weewx_data = data;
     
     #if $Extras.has_key("theme") and $Extras.theme == 'auto'
     // Auto theme if enabled
@@ -1667,15 +1669,27 @@ function inactive() {
     inactive_timestamp = epoch; // Store this timestamp in case we reconnect
 }
 
+var mqtt_payload = "";
 // New message from mqtt, process it
 function onMessageArrived(message) {
     belchertown_debug( "MQTT: " + message.payloadString );
     update_current_wx( message.payloadString );
+    mqtt_payload = jQuery.parseJSON( message.payloadString );
+}
+
+function refreshHooks() {
+    // Empty function for hooks to extend/re-use
+    //belchertown_debug(mqtt_payload);
 }
 
 // Handle MQTT message
 function update_current_wx(data) {
     data = jQuery.parseJSON( data );
+
+    try {
+        refreshHooks();
+    } catch(e) {
+    }
     
     #if $Extras.has_key('googleAnalyticsId')
     // Send a pageview
@@ -1787,6 +1801,7 @@ function update_current_wx(data) {
         jQuery(".curwinddeg").html( parseFloat( data["windDir"] ).toFixed(0) + "&deg;" );
         jQuery(".curwinddir").html( highcharts_tooltip_factory( parseFloat( data["windDir"] ).toFixed(0), "windDir" ) );
     }
+
     // Windspeed US
     if ( data.hasOwnProperty("windSpeed_mph") ) {
         jQuery(".curwindspeed").html( parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}) );
