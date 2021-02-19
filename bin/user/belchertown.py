@@ -2331,10 +2331,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 # gapsize has to be in milliseconds. Take the graphs.conf value
                 # and multiply by 1000
                 gapsize = plot_options.get(
-                    "gapsize", 300000
+                    "gapsize", 300
                 )  # Default to 5 minutes in millis
                 if gapsize:
-                    output[chart_group][plotname]["options"]["gapsize"] = gapsize * 1000
+                    output[chart_group][plotname]["options"]["gapsize"] = int(gapsize) * 1000
 
                 connectNulls = plot_options.get("connectNulls", "false")
                 output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
