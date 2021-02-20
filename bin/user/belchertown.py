@@ -1493,16 +1493,24 @@ class getData(SearchList):
                 loginf("No cloud cover data from Aeris weather")
                 cloud_cover = ""
 
-            try:
-                aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
-                aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
-                aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
-                aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
-            except Exception as error:
-                logerr(
-                    "Error getting AQI from Aeris weather. The error was: %s" % (error)
-                )
-                pass
+            # Check for non-existence of error code
+            if "code" not in data["aqi"][0]["error"]:
+                try:
+                    aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
+                    aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
+                    aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
+                    aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                except Exception as error:
+                   logerr(
+                        "Error getting AQI from Aeris weather. The error was: %s" % (error)
+                    )
+                    pass
+            else:
+                aqi = ""
+                aqi_category = ""
+                aqi_time = 0
+                aqi_location = ""
+                
 
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
             if aqi_category == "good":
