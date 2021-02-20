@@ -1996,6 +1996,62 @@ function showChart(json_file, prepend_renderTo=false) {
                 },
                 
                 exporting: {
+					chartOptions: {
+						chart: {
+							events: {
+								load: function () {
+									this.title.update({style:{color: '#e5554e'}});
+
+									if ( sessionStorage.getItem('currentTheme') === 'dark' ) {
+										var darktheme_textcolor = '#fff';
+										for (var i = this.yAxis.length-1; i >= 0; i--) {
+											this.yAxis[i].update({
+												title:{style:{color: darktheme_textcolor}},												
+												labels:{style:{color: darktheme_textcolor}},
+												gridLineColor: '#707073',
+												tickColor: '#707073'
+											});
+										}
+										
+										for (var i = this.xAxis.length-1; i >= 0; i--) {
+											this.xAxis[i].update({
+												title:{style:{color: darktheme_textcolor}},
+												labels:{style:{color: darktheme_textcolor}},
+												gridLineColor: '#707073',
+												tickColor: '#707073'
+											});
+										}
+										
+										this.legend.update({itemStyle:{color: darktheme_textcolor}});
+									
+										//this.credits.update({style:{color: darktheme_textcolor}});
+
+										this.subtitle.update({style:{color: darktheme_textcolor}});
+									
+										this.chartBackground.attr({fill: jQuery( ".highcharts-background" ).css( "fill" )});
+									} else {
+										var lighttheme_textcolor = '#666666';
+										for (var i = this.yAxis.length-1; i >= 0; i--) {
+											this.yAxis[i].update({
+												title:{style:{color: lighttheme_textcolor}},
+												labels:{style:{color: lighttheme_textcolor}},
+											});
+										}
+										
+										for (var i = this.xAxis.length-1; i >= 0; i--) {
+											this.xAxis[i].update({
+												title:{style:{color: lighttheme_textcolor}},
+												labels:{style:{color: lighttheme_textcolor}},
+											});
+										}
+									}
+								}
+							}
+						}
+					},
+					// scale: 1,
+					// width: 1000,
+					// sourceWidth: 1000,
                     enabled: JSON.parse( String( exporting_enabled ) ) // Convert string to bool
                 },
 
