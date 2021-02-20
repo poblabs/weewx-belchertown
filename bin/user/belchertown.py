@@ -3430,7 +3430,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                            )
                     else:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
                                      '{2}({2}) as obs ' \
@@ -3443,9 +3443,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                            )
                 else:
-                sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
+                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
                              'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
                              'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7}};'.format(
                     strformat,
@@ -3456,7 +3456,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     end_ts,
                     xAxis_groupby,
                     order_sql
-                )
+                    )
             elif driver == "weedb.mysql":
                 # Use daily summaries where possible
                 if (aggregate_interval >= 86400 and aggregate_interval % 86400 == 0) :  # 1 or more exact days
