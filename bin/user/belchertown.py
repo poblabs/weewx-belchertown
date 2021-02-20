@@ -3430,7 +3430,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                           )
+                        )
                     else:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
                                      '{2}({2}) as obs ' \
@@ -3443,7 +3443,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                            )
+                        )
                 else:
                     sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
                              'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
@@ -3456,7 +3456,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         end_ts,
                         xAxis_groupby,
                         order_sql
-                        )
+                    )
             elif driver == "weedb.mysql":
                 # Use daily summaries where possible
                 if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
@@ -3472,7 +3472,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                            )
+                        )
                     else:
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, {2}({2}) as obs ' \
                                      'FROM archive_day_{3}  ' \
@@ -3484,7 +3484,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                            )
+                        )
                 else:
                     sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
                                  'IFNULL({2}({3}),0) as obs ' \
@@ -3497,7 +3497,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         end_ts,
                         xAxis_groupby,
                         order_sql
-                        )
+                    )
 
             # Setup values for the converter
             try:
