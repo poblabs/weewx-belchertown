@@ -3459,7 +3459,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 )
             elif driver == "weedb.mysql":
                 # Use daily summaries where possible
-                if (aggregate_interval >= 86400 AND aggregate_interval % 86400 == 0) :  # 1 or more exact days
+                if (aggregate_interval >= 86400 and aggregate_interval % 86400 == 0) :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
