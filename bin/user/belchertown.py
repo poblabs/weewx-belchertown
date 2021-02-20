@@ -60,18 +60,14 @@ if weewx.__version__ < "4":
     def logmsg(level, msg):
         syslog.syslog(level, "Belchertown Extension: %s" % msg)
 
-
     def logdbg(msg):
         logmsg(syslog.LOG_DEBUG, msg)
-
 
     def loginf(msg):
         logmsg(syslog.LOG_INFO, msg)
 
-
     def logerr(msg):
         logmsg(syslog.LOG_ERR, msg)
-
 
     from weeutil.weeutil import accumulateLeaves
     import syslog
@@ -83,17 +79,15 @@ else:
 
     log = logging.getLogger(__name__)
 
-
     def logdbg(msg):
         log.debug(msg)
-
 
     def loginf(msg):
         log.info(msg)
 
-
     def logerr(msg):
         log.error(msg)
+
 
 # Print version in syslog for easier troubleshooting
 VERSION = "1.3b1"
@@ -284,9 +278,9 @@ class getData(SearchList):
         # Setup UTC offset hours for moment.js in index.html
         moment_js_stop_struct = time.localtime(time.time())
         moment_js_utc_offset = (
-                                       calendar.timegm(moment_js_stop_struct)
-                                       - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct)))
-                               ) / 60
+            calendar.timegm(moment_js_stop_struct)
+            - calendar.timegm(time.gmtime(time.mktime(moment_js_stop_struct)))
+        ) / 60
 
         # Highcharts UTC offset is the opposite of normal. Positive values are
         # west, negative values are east of UTC.
@@ -367,7 +361,7 @@ class getData(SearchList):
         # Get the archive interval for the highcharts gapsize
         try:
             archive_interval_ms = (
-                    int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
+                int(self.generator.config_dict["StdArchive"]["archive_interval"]) * 1000
             )
         except KeyError:
             archive_interval_ms = (
@@ -430,8 +424,8 @@ class getData(SearchList):
         graph_page_graphgroup_buttons = []
         for chartgroup in chart_dict.sections:
             if (
-                    "show_button" in chart_dict[chartgroup]
-                    and chart_dict[chartgroup]["show_button"].lower() == "true"
+                "show_button" in chart_dict[chartgroup]
+                and chart_dict[chartgroup]["show_button"].lower() == "true"
             ):
                 graph_page_graphgroup_buttons.append(chartgroup)
         for gg in graph_page_graphgroup_buttons:
@@ -440,11 +434,11 @@ class getData(SearchList):
             else:
                 button_text = gg
             graph_page_buttons += (
-                    '<a href="./?graph='
-                    + gg
-                    + '"><button type="button" class="btn btn-primary">'
-                    + button_text
-                    + "</button></a>"
+                '<a href="./?graph='
+                + gg
+                + '"><button type="button" class="btn btn-primary">'
+                + button_text
+                + "</button></a>"
             )
             graph_page_buttons += " "  # Spacer between the button
 
@@ -462,8 +456,8 @@ class getData(SearchList):
         else:
             zoom = "8"
         if (
-                "radar_marker" in self.generator.skin_dict["Extras"]
-                and self.generator.skin_dict["Extras"]["radar_marker"] == "1"
+            "radar_marker" in self.generator.skin_dict["Extras"]
+            and self.generator.skin_dict["Extras"]["radar_marker"] == "1"
         ):
             marker = "true"
         else:
@@ -576,8 +570,8 @@ class getData(SearchList):
                 "group_temperature",
             )
             year_outTemp_max_range_max = (
-                    outTemp_round
-                    % self.generator.converter.convert(year_outTemp_max_range_max_tuple)[0]
+                outTemp_round
+                % self.generator.converter.convert(year_outTemp_max_range_max_tuple)[0]
             )
             # Min temperature for this day
             year_outTemp_max_range_min_tuple = (
@@ -586,12 +580,12 @@ class getData(SearchList):
                 "group_temperature",
             )
             year_outTemp_max_range_min = (
-                    outTemp_round
-                    % self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0]
+                outTemp_round
+                % self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0]
             )
             # Largest Daily Temperature Range total
             year_outTemp_max_range_total = outTemp_round % (
-                    float(year_outTemp_max_range_max) - float(year_outTemp_max_range_min)
+                float(year_outTemp_max_range_max) - float(year_outTemp_max_range_min)
             )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_max = [
@@ -617,8 +611,8 @@ class getData(SearchList):
                 "group_temperature",
             )
             year_outTemp_min_range_max = (
-                    outTemp_round
-                    % self.generator.converter.convert(year_outTemp_min_range_max_tuple)[0]
+                outTemp_round
+                % self.generator.converter.convert(year_outTemp_min_range_max_tuple)[0]
             )
             # Min temperature for this day
             year_outTemp_min_range_min_tuple = (
@@ -627,12 +621,12 @@ class getData(SearchList):
                 "group_temperature",
             )
             year_outTemp_min_range_min = (
-                    outTemp_round
-                    % self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0]
+                outTemp_round
+                % self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0]
             )
             # Smallest Daily Temperature Range total
             year_outTemp_min_range_total = outTemp_round % (
-                    float(year_outTemp_min_range_max) - float(year_outTemp_min_range_min)
+                float(year_outTemp_min_range_max) - float(year_outTemp_min_range_min)
             )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_min = [
@@ -657,8 +651,8 @@ class getData(SearchList):
             "group_temperature",
         )
         at_outTemp_max_range_max = (
-                outTemp_round
-                % self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0]
+            outTemp_round
+            % self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0]
         )
         # Min temperature for this day
         at_outTemp_max_range_min_tuple = (
@@ -667,12 +661,12 @@ class getData(SearchList):
             "group_temperature",
         )
         at_outTemp_max_range_min = (
-                outTemp_round
-                % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
+            outTemp_round
+            % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
         )
         # Largest Daily Temperature Range total
         at_outTemp_max_range_total = outTemp_round % (
-                float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min)
+            float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min)
         )
         # Replace the SQL Query output with the converted values
         at_outTemp_range_max = [
@@ -690,8 +684,8 @@ class getData(SearchList):
             "group_temperature",
         )
         at_outTemp_min_range_max = (
-                outTemp_round
-                % self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0]
+            outTemp_round
+            % self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0]
         )
         # Min temperature for this day
         at_outTemp_min_range_min_tuple = (
@@ -700,12 +694,12 @@ class getData(SearchList):
             "group_temperature",
         )
         at_outTemp_min_range_min = (
-                outTemp_round
-                % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
+            outTemp_round
+            % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
         )
         # Smallest Daily Temperature Range total
         at_outTemp_min_range_total = outTemp_round % (
-                float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min)
+            float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min)
         )
         # Replace the SQL Query output with the converted values
         at_outTemp_range_min = [
@@ -735,7 +729,7 @@ class getData(SearchList):
         if rainiest_day_query is not None:
             rainiest_day_tuple = (rainiest_day_query[1], rain_unit, "group_rain")
             rainiest_day_converted = (
-                    rain_round % self.generator.converter.convert(rainiest_day_tuple)[0]
+                rain_round % self.generator.converter.convert(rainiest_day_tuple)[0]
             )
             rainiest_day = [
                 rainiest_day_query[0],
@@ -750,7 +744,7 @@ class getData(SearchList):
         )
         at_rainiest_day_tuple = (at_rainiest_day_query[1], rain_unit, "group_rain")
         at_rainiest_day_converted = (
-                rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
+            rain_round % self.generator.converter.convert(at_rainiest_day_tuple)[0]
         )
         at_rainiest_day = [
             at_rainiest_day_query[0],
@@ -767,13 +761,13 @@ class getData(SearchList):
         driver = self.generator.config_dict["DatabaseTypes"][database_type]["driver"]
         if driver == "weedb.sqlite":
             year_rainiest_month_sql = (
-                    'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1;'
-                    % time.strftime("%Y", time.localtime(time.time()))
+                'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1;'
+                % time.strftime("%Y", time.localtime(time.time()))
             )
             at_rainiest_month_sql = 'SELECT strftime("%m", datetime(dateTime, "unixepoch")) as month, strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
             year_rain_data_sql = (
-                    'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" AND count > 0;'
-                    % time.strftime("%Y", time.localtime(time.time()))
+                'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" AND count > 0;'
+                % time.strftime("%Y", time.localtime(time.time()))
             )
             # The all stats from http://www.weewx.com/docs/customizing.htm
             # doesn't seem to calculate "Total Rainfall for" all time stat
@@ -785,8 +779,8 @@ class getData(SearchList):
             )  # Why does this one require .format() but the other's don't?
             at_rainiest_month_sql = 'SELECT FROM_UNIXTIME( dateTime, "%%m" ) AS month, FROM_UNIXTIME( dateTime, "%%Y" ) AS year, ROUND( SUM( sum ), 2 ) AS total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
             year_rain_data_sql = (
-                    'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE year( FROM_UNIXTIME( dateTime ) ) = "%s" AND count > 0;'
-                    % time.strftime("%Y", time.localtime(time.time()))
+                'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE year( FROM_UNIXTIME( dateTime ) ) = "%s" AND count > 0;'
+                % time.strftime("%Y", time.localtime(time.time()))
             )
             # The all stats from http://www.weewx.com/docs/customizing.htm
             # doesn't seem to calculate "Total Rainfall for" all time stat
@@ -802,8 +796,8 @@ class getData(SearchList):
                 "group_rain",
             )
             year_rainiest_month_converted = (
-                    rain_round
-                    % self.generator.converter.convert(year_rainiest_month_tuple)[0]
+                rain_round
+                % self.generator.converter.convert(year_rainiest_month_tuple)[0]
             )
             year_rainiest_month_name = calendar.month_name[
                 int(year_rainiest_month_query[0])
@@ -819,7 +813,7 @@ class getData(SearchList):
         at_rainiest_month_query = wx_manager.getSql(at_rainiest_month_sql)
         at_rainiest_month_tuple = (at_rainiest_month_query[2], rain_unit, "group_rain")
         at_rainiest_month_converted = (
-                rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
+            rain_round % self.generator.converter.convert(at_rainiest_month_tuple)[0]
         )
         at_rainiest_month_name = calendar.month_name[int(at_rainiest_month_query[0])]
         at_rainiest_month = [
@@ -835,7 +829,7 @@ class getData(SearchList):
             "group_rain",
         )
         at_rain_highest_year_converted = (
-                rain_round % self.generator.converter.convert(at_rain_highest_year_tuple)[0]
+            rain_round % self.generator.converter.convert(at_rain_highest_year_tuple)[0]
         )
         at_rain_highest_year = [
             at_rain_highest_year_query[0],
@@ -974,11 +968,11 @@ class getData(SearchList):
                 # Link to the year file
                 if os.path.exists(noaa_dir + "NOAA-%s.txt" % y):
                     noaa_header_html += (
-                            '<a href="?yr=%s" class="noaa_rep_nav"><b>%s</b></a>:' % (y, y)
+                        '<a href="?yr=%s" class="noaa_rep_nav"><b>%s</b></a>:' % (y, y)
                     )
                 else:
                     noaa_header_html += (
-                            '<span class="noaa_rep_nav"><b>%s</b></span>:' % y
+                        '<span class="noaa_rep_nav"><b>%s</b></span>:' % y
                     )
 
                 # Loop through all 12 months and find if the file exists.  If
@@ -992,12 +986,12 @@ class getData(SearchList):
                     month_abbr = calendar.month_abbr[i]
                     if os.path.exists(noaa_dir + "NOAA-%s-%s.txt" % (y, month_num)):
                         noaa_header_html += (
-                                ' <a href="?yr=%s&amp;mo=%s" class="noaa_rep_nav"><b>%s</b></a>'
-                                % (y, month_num, month_abbr)
+                            ' <a href="?yr=%s&amp;mo=%s" class="noaa_rep_nav"><b>%s</b></a>'
+                            % (y, month_num, month_abbr)
                         )
                     else:
                         noaa_header_html += (
-                                ' <span class="noaa_rep_nav"><b>%s</b></span>' % month_abbr
+                            ' <span class="noaa_rep_nav"><b>%s</b></span>' % month_abbr
                         )
 
                 # Row build complete, push next row to new line
@@ -1011,7 +1005,7 @@ class getData(SearchList):
             current_year = str(now.year)
             current_month = str(format(now.month, "02"))
             if os.path.exists(
-                    noaa_dir + "NOAA-%s-%s.txt" % (current_year, current_month)
+                noaa_dir + "NOAA-%s-%s.txt" % (current_year, current_month)
             ):
                 default_noaa_file = "NOAA-%s-%s.txt" % (current_year, current_month)
             else:
@@ -1026,9 +1020,9 @@ class getData(SearchList):
         # ==============================================================================
 
         if (
-                self.generator.skin_dict["Extras"]["forecast_enabled"] == "1"
-                and self.generator.skin_dict["Extras"]["forecast_api_id"] != ""
-                or "forecast_dev_file" in self.generator.skin_dict["Extras"]
+            self.generator.skin_dict["Extras"]["forecast_enabled"] == "1"
+            and self.generator.skin_dict["Extras"]["forecast_api_id"] != ""
+            or "forecast_dev_file" in self.generator.skin_dict["Extras"]
         ):
 
             forecast_file = html_root + "/json/forecast.json"
@@ -1257,29 +1251,29 @@ class getData(SearchList):
             forecast_lang = self.generator.skin_dict["Extras"]["forecast_lang"].lower()
             if self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"] == "1":
                 forecast_current_url = (
-                        "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s"
-                        % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s"
+                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
                 )
             else:
                 forecast_current_url = (
-                        "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s"
-                        % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s"
+                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
                 )
             forecast_24hr_url = (
-                    "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s"
+                % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             forecast_3hr_url = (
-                    "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s"
+                % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             forecast_1hr_url = (
-                    "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s"
+                % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             aqi_url = (
-                    "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
+                "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
+                % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             if self.generator.skin_dict["Extras"]["forecast_alert_limit"]:
                 forecast_alert_limit = self.generator.skin_dict["Extras"][
@@ -1307,14 +1301,14 @@ class getData(SearchList):
             # for 1 hr forecast to load close to the hour
             if os.path.isfile(forecast_file):
                 if (int(time.time()) - int(os.path.getmtime(forecast_file))) > int(
-                        forecast_stale_timer
+                    forecast_stale_timer
                 ):
                     forecast_is_stale = True
                 else:
                     # catches repeated calls every archive interval (300secs)
                     if (
-                            time.strftime("%M") < "05"
-                            and int(time.time()) - int(os.path.getmtime(forecast_file))
+                        time.strftime("%M") < "05"
+                        and int(time.time()) - int(os.path.getmtime(forecast_file))
                     ) > int(300):
                         forecast_is_stale = True
             else:
@@ -1369,8 +1363,8 @@ class getData(SearchList):
                         aqi_page = response.read()
                         response.close()
                         if (
-                                self.generator.skin_dict["Extras"]["forecast_alert_enabled"]
-                                == "1"
+                            self.generator.skin_dict["Extras"]["forecast_alert_enabled"]
+                            == "1"
                         ):
                             # Alerts
                             req = Request(forecast_alerts_url, None, headers)
@@ -1380,8 +1374,8 @@ class getData(SearchList):
 
                         # Combine all into 1 file
                         if (
-                                self.generator.skin_dict["Extras"]["forecast_alert_enabled"]
-                                == "1"
+                            self.generator.skin_dict["Extras"]["forecast_alert_enabled"]
+                            == "1"
                         ):
                             try:
                                 forecast_file_result = json.dumps(
@@ -1527,9 +1521,9 @@ class getData(SearchList):
                 aqi_category = "unknown"
 
             if (
-                    len(data["current"][0]["response"]) > 0
-                    and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
-                    == "0"
+                len(data["current"][0]["response"]) > 0
+                and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
+                == "0"
             ):
                 # Non-metar responses do not contain these values. Set them to empty.
                 current_obs_summary = ""
@@ -1537,15 +1531,15 @@ class getData(SearchList):
                 visibility = "N/A"
                 visibility_unit = ""
             elif (
-                    len(data["current"][0]["response"]) > 0
-                    and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
-                    == "1"
+                len(data["current"][0]["response"]) > 0
+                and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
+                == "1"
             ):
                 current_obs_summary = aeris_coded_weather(
                     data["current"][0]["response"]["ob"]["weatherPrimaryCoded"]
                 )
                 current_obs_icon = (
-                        aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png"
+                    aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png"
                 )
 
                 if forecast_units in ("si", "ca"):
@@ -1613,26 +1607,26 @@ class getData(SearchList):
             # http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=42.223&lon=-72.374&maxradiuskm=1000&format=geojson&nodata=204&minmag=2
             if self.generator.skin_dict["Extras"]["earthquake_server"] == "USGS":
                 earthquake_url = (
-                        "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2"
-                        % (latitude, longitude, earthquake_maxradiuskm)
+                    "http://earthquake.usgs.gov/fdsnws/event/1/query?limit=1&lat=%s&lon=%s&maxradiuskm=%s&format=geojson&nodata=204&minmag=2"
+                    % (latitude, longitude, earthquake_maxradiuskm)
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "GeoNet":
                 earthquake_url = (
-                        "https://api.geonet.org.nz/quake?MMI=%s"
-                        % self.generator.skin_dict["Extras"]["geonet_mmi"]
+                    "https://api.geonet.org.nz/quake?MMI=%s"
+                    % self.generator.skin_dict["Extras"]["geonet_mmi"]
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
                 earthquake_url = (
                     # Modify minmagnitude to suit your needs and mindepth=-1 if you want to show quarry blast
-                        "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&minmagnitude=2&mindepth=1"
-                        % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
+                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&minmagnitude=2&mindepth=1"
+                    % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
                 )
             earthquake_is_stale = False
 
             # Determine if the file exists and get it's modified time
             if os.path.isfile(earthquake_file):
                 if (int(time.time()) - int(os.path.getmtime(earthquake_file))) > int(
-                        earthquake_stale_timer
+                    earthquake_stale_timer
                 ):
                     earthquake_is_stale = True
             else:
@@ -1730,7 +1724,7 @@ class getData(SearchList):
                             eqdist_km = eqmatched.group("distance")
                             eqdist_miles = round(float(eqdist_km) / 1.609, 1)
                             eqplace = (
-                                    str(eqdist_miles) + " miles" + eqmatched.group("rest")
+                                str(eqdist_miles) + " miles" + eqmatched.group("rest")
                             )
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
@@ -1738,7 +1732,7 @@ class getData(SearchList):
                         "%g", float(eqdata["features"][0]["properties"]["mag"])
                     )
                 elif (
-                        self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS"
+                    self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS"
                 ):
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     # convert time to UNIX format
@@ -1752,7 +1746,7 @@ class getData(SearchList):
                         "%g", float(eqdata["features"][0]["properties"]["mag"])
                     )
                 elif (
-                        self.generator.skin_dict["Extras"]["earthquake_server"] == "GeoNet"
+                    self.generator.skin_dict["Extras"]["earthquake_server"] == "GeoNet"
                 ):
                     eqtime = eqdata["features"][0]["properties"]["time"]
                     # convert time to UNIX format
@@ -1761,8 +1755,8 @@ class getData(SearchList):
                         (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
                     )
                     equrl = (
-                            "https://www.geonet.org.nz/earthquake/"
-                            + eqdata["features"][0]["properties"]["publicID"]
+                        "https://www.geonet.org.nz/earthquake/"
+                        + eqdata["features"][0]["properties"]["publicID"]
                     )
                     eqplace = eqdata["features"][0]["properties"]["locality"]
                     eqmag = locale.format(
@@ -1834,7 +1828,7 @@ class getData(SearchList):
         )
         for obs in station_observations:
             if "data_binding" in obs:
-                station_obs_binding = obs[obs.find("(") + 1: obs.rfind(")")].split(
+                station_obs_binding = obs[obs.find("(") + 1 : obs.rfind(")")].split(
                     "="
                 )[
                     1
@@ -1880,8 +1874,8 @@ class getData(SearchList):
                 )
                 obs_rain_output += "&nbsp;<span class='border-left'>&nbsp;</span>"
                 obs_rain_output += (
-                        "<span class='rainRate'>%s</span><!-- AJAX -->"
-                        % str(getattr(current, "rainRate"))
+                    "<span class='rainRate'>%s</span><!-- AJAX -->"
+                    % str(getattr(current, "rainRate"))
                 )
 
                 # Empty field for the JSON "current" output
@@ -1904,7 +1898,7 @@ class getData(SearchList):
             # Build the HTML for the front page
             station_obs_html += "<tr>"
             station_obs_html += (
-                    "<td class='station-observations-label'>%s</td>" % label_dict[obs]
+                "<td class='station-observations-label'>%s</td>" % label_dict[obs]
             )
             station_obs_html += "<td>"
             if obs == "rainWithRainRate":
@@ -1999,7 +1993,7 @@ class getData(SearchList):
 
         if facebook_enabled == "1":
             facebook_html = (
-                    """
+                """
                 <div id="fb-root"></div>
                 <script>(function(d, s, id) {
                   var js, fjs = d.getElementsByTagName(s)[0];
@@ -2010,7 +2004,7 @@ class getData(SearchList):
                 }(document, 'script', 'facebook-jssdk'));</script>
                 <div class="fb-like" data-href="%s" data-width="500px" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
             """
-                    % social_share_html
+                % social_share_html
             )
         else:
             facebook_html = ""
@@ -2276,7 +2270,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # The file exists get timestamp to compare against what the
                     # user wants for an interval
                     if (int(time.time()) - int(os.path.getmtime(json_filename))) >= int(
-                            chart_stale_timer
+                        chart_stale_timer
                     ):
                         create_new_chart = True
 
@@ -2601,8 +2595,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     if observation_type == "rainTotal":
                         obs_label = "rain"
                     elif (
-                            observation_type == "weatherRange"
-                            and weatherRange_obs_lookup is not None
+                        observation_type == "weatherRange"
+                        and weatherRange_obs_lookup is not None
                     ):
                         obs_label = weatherRange_obs_lookup
                     else:
@@ -2623,7 +2617,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         yAxis_label = name + " (" + unit_label.strip() + ")"
                     elif yAxisLabel_config and unit_label:
                         yAxis_label = (
-                                yAxisLabel_config + " (" + unit_label.strip() + ")"
+                            yAxisLabel_config + " (" + unit_label.strip() + ")"
                         )
                     elif yAxisLabel_config:
                         yAxis_label = yAxisLabel_config
@@ -2808,20 +2802,20 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 cjf.write(json.dumps(self.chart_dict))
 
     def get_observation_data(
-            self,
-            binding,
-            archive,
-            observation,
-            start_ts,
-            end_ts,
-            aggregate_type,
-            aggregate_interval,
-            time_length,
-            xAxis_groupby,
-            xAxis_categories,
-            mirrored_value,
-            weatherRange_obs_lookup,
-            wind_rose_color,
+        self,
+        binding,
+        archive,
+        observation,
+        start_ts,
+        end_ts,
+        aggregate_type,
+        aggregate_interval,
+        time_length,
+        xAxis_groupby,
+        xAxis_categories,
+        mirrored_value,
+        weatherRange_obs_lookup,
+        wind_rose_color,
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
@@ -3423,7 +3417,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
             if driver == "weedb.sqlite":
                 # Use daily summaries where possible
-                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0:  # 1 or more exact days
+                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
@@ -3436,7 +3430,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                           )
                     else:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
                                      '{2}({2}) as obs ' \
@@ -3449,11 +3443,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                            )
                 else:
                     sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
-                                 'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
-                                 'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
+                             'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
+                             'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
                         strformat,
                         xAxis_groupby,
                         aggregate_type,
@@ -3462,10 +3456,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         end_ts,
                         xAxis_groupby,
                         order_sql
-                    )
+                        )
             elif driver == "weedb.mysql":
                 # Use daily summaries where possible
-                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0:  # 1 or more exact days
+                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
@@ -3478,7 +3472,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                            )
                     else:
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, {2}({2}) as obs ' \
                                      'FROM archive_day_{3}  ' \
@@ -3490,7 +3484,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             order_sql
-                        )
+                            )
                 else:
                     sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
                                  'IFNULL({2}({3}),0) as obs ' \
@@ -3503,7 +3497,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         end_ts,
                         xAxis_groupby,
                         order_sql
-                    )
+                        )
 
             # Setup values for the converter
             try:
@@ -3600,9 +3594,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # Everything else has it on the start time so we don't see the next day
         # in the tooltip (e.g. Jan 2 instead of Jan 1)
         if (
-                time_length == "today"
-                or time_length == "timespan_specific"
-                or isinstance(time_length, int)
+            time_length == "today"
+            or time_length == "timespan_specific"
+            or isinstance(time_length, int)
         ):
             point_timestamp = time_stop_vt
         else:
@@ -3660,7 +3654,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 # windrose list
                 windrose_list[
                     int((windDir_list[x] + 11.25) / 22.5) % 16
-                    ] += windSpeed_list[x]
+                ] += windSpeed_list[x]
             x += 1
 
         # Step through our windrose list and round all elements to 1 decimal place
