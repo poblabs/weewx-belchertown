@@ -1502,7 +1502,13 @@ class getData(SearchList):
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
                 )
+                aqi = ""
+                aqi_category = ""
+                aqi_time = 0
+                aqi_location = ""
                 pass
+
+               
 
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
             if aqi_category == "good":
@@ -2331,10 +2337,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 # gapsize has to be in milliseconds. Take the graphs.conf value
                 # and multiply by 1000
                 gapsize = plot_options.get(
-                    "gapsize", 300000
+                    "gapsize", 300
                 )  # Default to 5 minutes in millis
                 if gapsize:
-                    output[chart_group][plotname]["options"]["gapsize"] = gapsize * 1000
+                    output[chart_group][plotname]["options"]["gapsize"] = int(gapsize) * 1000
 
                 connectNulls = plot_options.get("connectNulls", "false")
                 output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
@@ -3410,19 +3416,44 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if aggregate_type is None:
                 aggregate_type = "sum"
 
+            if isinstance(time_length, int):
+                order_sql = ' ORDER BY dateTime ASC'
+            else:
+                order_sql = ''
+
             if driver == "weedb.sqlite":
-                if isinstance(time_length, int):
-                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, IFNULL({2}({3}),0) as obs, dateTime FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6} ORDER BY dateTime ASC;'.format(
-                        strformat,
-                        xAxis_groupby,
-                        aggregate_type,
-                        obs_lookup,
-                        start_ts,
-                        end_ts,
-                        xAxis_groupby,
-                    )
+                # Use daily summaries where possible
+                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                    # Avg is a special case
+                    if aggregate_type == "avg":
+                        sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
+                    else:
+                        sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     '{2}({2}) as obs ' \
+                                     'FROM archive_day_{3}  ' \
+                                     'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            aggregate_type,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
                 else:
-                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format(
+                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
+                             'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
+                             'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
                         strformat,
                         xAxis_groupby,
                         aggregate_type,
@@ -3430,20 +3461,40 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         start_ts,
                         end_ts,
                         xAxis_groupby,
+                        order_sql
                     )
             elif driver == "weedb.mysql":
-                if isinstance(time_length, int):
-                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs, dateTime FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6} ORDER BY dateTime ASC;'.format(
-                        strformat,
-                        xAxis_groupby,
-                        aggregate_type,
-                        obs_lookup,
-                        start_ts,
-                        end_ts,
-                        xAxis_groupby,
-                    )
+                # Use daily summaries where possible
+                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                    # Avg is a special case
+                    if aggregate_type == "avg":
+                        sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
+                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
+                    else:
+                        sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, {2}({2}) as obs ' \
+                                     'FROM archive_day_{3}  ' \
+                                     'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            aggregate_type,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
                 else:
-                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format(
+                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
+                                 'IFNULL({2}({3}),0) as obs ' \
+                                 'FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
                         strformat,
                         xAxis_groupby,
                         aggregate_type,
@@ -3451,6 +3502,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         start_ts,
                         end_ts,
                         xAxis_groupby,
+                        order_sql
                     )
 
             # Setup values for the converter
