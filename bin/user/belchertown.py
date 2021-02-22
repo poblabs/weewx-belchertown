@@ -1502,7 +1502,13 @@ class getData(SearchList):
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
                 )
+                aqi = ""
+                aqi_category = ""
+                aqi_time = 0
+                aqi_location = ""
                 pass
+
+               
 
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
             if aqi_category == "good":
