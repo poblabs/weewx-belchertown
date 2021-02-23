@@ -84,10 +84,10 @@
             #end if
             
             jQuery("#year-days-with-rainfall-ts").text( moment.unix($year_days_with_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
-            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Take the number of days ($at_days_with_rain[0]) - 1 and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
             // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
             if ($at_days_with_rain[1] > 0) {
-                var start_day_epoch = $at_days_with_rain[1] - ($at_days_with_rain[0] * 86400);
+                var start_day_epoch = $at_days_with_rain[1] - (($at_days_with_rain[0] - 1) * 86400);
                 //jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
                 jQuery("#at-days-with-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_with_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
             } else {
@@ -95,10 +95,10 @@
             }
 
             jQuery("#year-days-without-rainfall-ts").text( moment.unix($year_days_without_rain[1]).utcOffset($moment_js_utc_offset).format( "$obs.label.time_records_page_month_day_year" ) );
-            // Take the number of days ($at_days_with_rain[0]) and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
+            // Take the number of days ($at_days_without_rain[0]) - 1 and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
             // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
             if ($at_days_without_rain[1] > 0) {
-                var start_day_epoch = $at_days_without_rain[1] - ($at_days_without_rain[0] * 86400);
+                var start_day_epoch = $at_days_without_rain[1] - (($at_days_without_rain[0] - 1) * 86400);
                 //jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('LL') );
                 jQuery("#at-days-without-rainfall-range-ts").text( moment.unix(start_day_epoch).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + moment.unix($at_days_without_rain[1]).utcOffset($moment_js_utc_offset).format('$obs.label.time_records_page_rainfall_range_end') );
             } else {
