@@ -1,4 +1,4 @@
-#encoding UTF-8
+#encoding "UTF-8"
 #import datetime
 
 #if "-" in str($station.stn_info.latitude_f)
@@ -2652,7 +2652,12 @@ function showChart(json_file, prepend_renderTo = false) {
             // If weather range is present, configure a special chart to show that data
             // https://www.highcharts.com/blog/tutorials/209-the-art-of-the-chart-weather-radials/
             if (observation_type == "weatherRange") {
-                options.chart.type = "columnrange";
+                if (options.series[0].area_display) {
+                    options.chart.type = "arearange";
+                } else {
+                    options.chart.type = "columnrange";
+                }
+
                 // If polar is defined, use it and add a special dark mode CSS class
                 if (JSON.parse(String(options.series[0].polar.toLowerCase()))) {
                     options.chart.polar = true; // Make sure the option is a string, then convert to bool
@@ -2700,10 +2705,54 @@ function showChart(json_file, prepend_renderTo = false) {
                 options.plotOptions = {
                     series: {
                         turboThreshold: 0,
-                        stacking: "normal",
                         showInLegend: false,
                         borderWidth: 0,
+                        marker: {
+                            enabled: false,
+                        },
                     }
+                }
+
+                if (options.series[0].area_display) {
+                    if (options.series[0].range_unit == "degree_F") {
+                        options.plotOptions.series.zones = [
+                            {value: 0, color: "#1278c8"},
+                            {value: 25, color: "#30bfef"},
+                            {value: 32, color: "#1fafdd"},
+                            {value: 40, color: "rgba(0,172,223,1)"},
+                            {value: 50, color: "#71bc3c"},
+                            {value: 55, color: "rgba(90,179,41,0.8)"},
+                            {value: 65, color: "rgba(131,173,45,1)"},
+                            {value: 70, color: "rgba(206,184,98,1)"},
+                            {value: 75, color: "rgba(255,174,0,0.9)"},
+                            {value: 80, color: "rgba(255,153,0,0.9)"},
+                            {value: 85, color: "rgba(255,127,0,1)"},
+                            {value: 90, color: "rgba(255,79,0,0.9)"},
+                            {value: 95, color: "rgba(255,69,69,1)"},
+                            {value: 110, color: "rgba(255,104,104,1)"},
+                            {color: "rgba(218,113,113,1)"},
+                        ]
+                    } else {
+                        options.plotOptions.series.zones = [
+                            {value: -5, color: "#1278c8"},
+                            {value: -3.8, color: "#30bfef"},
+                            {value: 0, color: "#1fafdd"},
+                            {value: 4.4, color: "rgba(0,172,223,1)"},
+                            {value: 10, color: "#71bc3c"},
+                            {value: 12.7, color: "rgba(90,179,41,0.8)"},
+                            {value: 18.3, color: "rgba(131,173,45,1)"},
+                            {value: 21.1, color: "rgba(206,184,98,1)"},
+                            {value: 23.8, color: "rgba(255,174,0,0.9)"},
+                            {value: 26.6, color: "rgba(255,153,0,0.9)"},
+                            {value: 29.4, color: "rgba(255,127,0,1)"},
+                            {value: 32.2, color: "rgba(255,79,0,0.9)"},
+                            {value: 35, color: "rgba(255,69,69,1)"},
+                            {value: 43.3, color: "rgba(255,104,104,1)"},
+                            {color: "rgba(218,113,113,1)"},
+                        ]
+                    }
+                } else {
+                    options.plotOptions.series.stacking = "normal"
                 }
 
                 options.tooltip = {
