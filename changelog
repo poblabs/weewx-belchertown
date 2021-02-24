@@ -1,5 +1,6 @@
 1.3 ????, 2021
 ### Breaking Changes
+* New DarkSky options which will require you to delete your forecast.json file so that the skin can generate a new one.
 
 ### Added
 
