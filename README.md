@@ -8,7 +8,7 @@ Features include:
 * Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required.)
 * Extensive graphing system with full customized control on observations, historical timescale, grouping and more. Graphs also update automatically without needing to reload the website.
 * Light and Dark Mode with automatic switching based on sunset and sunrise.
-* Forecast data updated every hour without needing to reload the website. (A free Aeris Weather API key required. You qualify for a free key by submitting weather observations to pwsweather.)
+* Forecast data updated every hour without needing to reload the website. (A free AerisWeather API key required. You qualify for a free key by submitting weather observations to pwsweather.)
 * Information on your closest Earthquake updated automatically.
 * Weather records for the current year, and for all time. 
 * Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
@@ -24,7 +24,7 @@ Screenshot of light and dark modes
   * [Install weewx-belchertown](#install-weewx-belchertown)
   * [Requirements](#requirements)
     + [weewx.conf](#weewxconf)
-    + [Aeris Weather Forecast API (optional)](#aeris-weather-forecast-api-optional)
+    + [AerisWeather Forecast API (optional)](#aeris-weather-forecast-api-optional)
     + [Forecast Units](#forecast-units)
     + [Forecast Translation](#forecast-translation)
     + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
@@ -93,14 +93,14 @@ These settings need to be enabled in order for the skin to work. Within `weewx.c
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
 
-### Aeris Weather Forecast API (optional)
-Aeris Weather's Forecast API is where the current observations and forecast data comes from. The skin will work without this integration, however it is used to show current weather observations and icons as well as the forecast. 
+### AerisWeather Forecast API (optional)
+AerisWeather's Forecast API is where the current observations and forecast data comes from. The skin will work without this integration, however it is used to show current weather observations and icons as well as the forecast. 
 
 **You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. In order to get a free developer key, you have to send your weather data to pwsweather.com - which is an integration built into weewx. You just need to activate it! Once enabled, by default the skin will download and cache every hour.
 
 * If you haven't already; sign up for pwsweather at [https://www.pwsweather.com/register](https://www.pwsweather.com/register)
 * Add a new station, and configure your weewx.conf to start sending your weather data to pwsweather.
-* Then sign up for a free Aeris Weather developer account by linking your pwsweather account here [https://www.aerisweather.com/signup/pws](https://www.aerisweather.com/signup/pws/)
+* Then sign up for a free AerisWeather developer account by linking your pwsweather account here [https://www.aerisweather.com/signup/pws](https://www.aerisweather.com/signup/pws/)
 * Once you are logged in, you should make a Demo Project as part of the sign up process, then go to [https://www.aerisweather.com/account/apps](https://www.aerisweather.com/account/apps) and and save these keys as `forecast_api_id` and `forecast_api_secret`.
 * The rest of the options can be found below in the [Forecast Options](#forecast-options) table.
 
@@ -108,7 +108,7 @@ Aeris Weather's Forecast API is where the current observations and forecast data
 **DarkSky has been shut down, but if you still have an API key, you can continue using it until DarkSky shuts your API key down.**
 
 ### Forecast Units
-Aeris Weather provides all units in 1 API call which is great but the skin still needs a way to determine what units you want it to show. This is why I've decided to keep the Dark Sky unit method so you can determine which units you'd like Aeris Weather to show. **All of the unit determination is now being done within the skin, not the API.** 
+AerisWeather provides all units in 1 API call which is great but the skin still needs a way to determine what units you want it to show. This is why I've decided to keep the Dark Sky unit method so you can determine which units you'd like AerisWeather to show. **All of the unit determination is now being done within the skin, not the API.** 
 
 Here's the differences and what's available.
 
@@ -128,7 +128,7 @@ SI units are as follows:
 -   `visibility`: Kilometers.
 
 ### Forecast Translation
-Aeris Weather provides the observations in "weather codes" which allows you to translate these codes to your language. Take a look at the skin.conf and all the `forecast_` labels. As with anything in skin.conf, it's advised to copy this to weewx.conf so your changes aren't lost on upgrades. See how to do this in the [Translating the Skin](#translating-the-skin) section.
+AerisWeather provides the observations in "weather codes" which allows you to translate these codes to your language. Take a look at the skin.conf and all the `forecast_` labels. As with anything in skin.conf, it's advised to copy this to weewx.conf so your changes aren't lost on upgrades. See how to do this in the [Translating the Skin](#translating-the-skin) section.
 
 ### MQTT and MQTT Websockets (optional)
 MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
@@ -293,11 +293,11 @@ For ease of readability I have broken them out into separate tables. However you
 | logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | logo_image_dark | "" | The **full** URL to your logo image to be used when the dark theme is active. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
 | site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
- |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `aqi`, `visibility`, `cloud_cover`, and `rainWithRainRate`, which are custom options. `visibility`, `aqi`, and `cloud_cover` gets data from Aeris Weather (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
+ |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `aqi`, `visibility`, `cloud_cover`, and `rainWithRainRate`, which are custom options. `visibility`, `aqi`, and `cloud_cover` gets data from AerisWeather (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
 | beaufort_category | 0 | If enabled, displays the current Beaufort category underneath wind speed (for example, "calm," "strong breeze," "gale," etc.). If live weather station data are available, the Beaufort category updates along with current wind speed. **IMPORTANT:** to make this work correctly, make sure `beaufort = prefer_hardware` appears under `[StdWXCalculate][[Calculations]]` in your weewx.conf file--this makes weewx report a Beaufort scale calculation with every MQTT packet.
 | manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
 | manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
-| aeris_map | 0 | If set to 1, a static map from Aeris Weather is displayed that does not require sharing location. The map switches from light to dark mode automatically, unless one of the overrides below is set. Aeris API keys must be set; see the "Forecast" section.
+| aeris_map | 0 | If set to 1, a static map from AerisWeather is displayed that does not require sharing location. The map switches from light to dark mode automatically, unless one of the overrides below is set. Aeris API keys must be set; see the "Forecast" section.
 | radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink in light mode, or in both light and dark mode if no dark mode option is set. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
 | radar_html_dark | None | Full HTML allowed. Overrides the default dark mode radar image.
 | radar_zoom | 8 | Initial zoom level for radar. 11 = highest zoom, 1 = lowest zoom.
@@ -353,20 +353,20 @@ For ease of readability I have broken them out into separate tables. However you
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from Aeris Weather Forecast API.
+| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from AerisWeather Forecast API.
 | forecast_provider | "aeris" | The weather forecast provider. Options currently are "aeris" or "darksky"
-| forecast_api_id | "" | Your Aeris Weather API ID
-| forecast_api_secret | "" | Your Aeris Weather API secret
-| forecast_units | "us" | The units to use for the Aeris Weather forecast. I have chosen to keep the Dark Sky unit system going forward with the skin. Other unit options options are: `us`, `si`, `ca` and `uk2`. Check the [Forecast Units](#forecast-units) section for an explanation of the differences.
+| forecast_api_id | "" | Your AerisWeather API ID
+| forecast_api_secret | "" | Your AerisWeather API secret
+| forecast_units | "us" | The units to use for the AerisWeather forecast. I have chosen to keep the Dark Sky unit system going forward with the skin. Other unit options options are: `us`, `si`, `ca` and `uk2`. Check the [Forecast Units](#forecast-units) section for an explanation of the differences.
 | forecast_lang | "en" | **Only applies to DarkSky Weather** Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
-| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by Aeris Weather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
-| forecast_aeris_use_metar | 1 | **Aeris Weather Only** The metar option gets observations located at airports or permanent weather stations. If you select this to 0 to disable METAR, then Aeris will get your weather conditions data from local personal weather stations instead.
-| forecast_interval_hours | 24 | **Aeris Weather Only** Determines which forecast is displayed when a new browser session is opened.  It can take one of four values: 0,1,3,24.  If 0 it has the effect of hiding all forecasts.  1, 3 or 24 specify the interval between forecasts.  If forecast_interval_hours is not included in skin.conf and forecast_enabled = 1, a 24 hour interval forecast is displayed with no user options.
-| forecast_alert_enabled | 0 | **Aeris Weather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the Aeris Weather or DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
-| forecast_alert_limit | 1 | **Only applies to Aeris Weather Alerts**. The number of alerts to show for your location. Max of 10.
+| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by AerisWeather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
+| forecast_aeris_use_metar | 1 | **AerisWeather Only** The metar option gets observations located at airports or permanent weather stations. If you select this to 0 to disable METAR, then Aeris will get your weather conditions data from local personal weather stations instead.
+| forecast_interval_hours | 24 | **AerisWeather Only** Determines which forecast is displayed when a new browser session is opened.  It can take one of four values: 0,1,3,24.  If 0 it has the effect of hiding all forecasts.  1, 3 or 24 specify the interval between forecasts.  If forecast_interval_hours is not included in skin.conf and forecast_enabled = 1, a 24 hour interval forecast is displayed with no user options.
+| forecast_alert_enabled | 0 | **AerisWeather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the AerisWeather or DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
+| forecast_alert_limit | 1 | **Only applies to AerisWeather Alerts**. The number of alerts to show for your location. Max of 10.
 | forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
-| forecast_daily_forecast_link | "" | **Only applies to Aeris Weather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
-| aqi_enabled | 0 | Enables display of Air Quality Index from Aeris weather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 50 miles. If no stations are available within 50 miles, no value will be available.
+| forecast_daily_forecast_link | "" | **Only applies to AerisWeather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
+| aqi_enabled | 0 | Enables display of Air Quality Index from AerisWeather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 50 miles. If no stations are available within 50 miles, no value will be available.
 | aqi_location_enabled | 0 | Enables display of the AQI reporting station underneath AQI. Use this option to display where the AQI is being read from--it may be very far away, depending on your location.
 
 
