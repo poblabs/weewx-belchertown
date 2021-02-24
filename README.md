@@ -607,7 +607,7 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
 This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/go/donate) :)
 
 ## Credits
-* Aeris Weather API for current weather conditions and weather forecasts.
+* AerisWeather API for current weather conditions and weather forecasts.
 * Windy.com for the iFrame embedded weather radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica CSS for the Highcharts dark mode.
