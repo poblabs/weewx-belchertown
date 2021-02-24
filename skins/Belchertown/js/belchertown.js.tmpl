@@ -654,32 +654,7 @@ function update_weewx_data(data) {
     jQuery(".sunset-value").html(moment.unix(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).utcOffset($moment_js_utc_offset).format("$obs.label.time_sunset"));
 
     // Moon icon, phase and illumination percent
-    switch (data["almanac"]["moon"]["moon_index"]) {
-        case "0":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-new'></div>");
-            break;
-        case "1":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-waxing-crescent-3 $hemisphere'></div>");
-            break;
-        case "2":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-first-quarter $hemisphere'></div>");
-            break;
-        case "3":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>");
-            break;
-        case "4":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-full'></div>");
-            break;
-        case "5":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>");
-            break;
-        case "6":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-third-quarter $hemisphere'></div>");
-            break;
-        case "7":
-            jQuery(".moon-icon").html("<div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>");
-            break;
-    }
+    jQuery(".moon-icon").html(moon_icon(data["almanac"]["moon"]["moon_index"]));        
     jQuery(".moon-phase").html(titleCase(data["almanac"]["moon"]["moon_phase"])); // Javascript function above
     jQuery(".moon-visible").html("<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> $obs.label.moon_visible");
     #if $almanac.hasExtras
@@ -689,6 +664,28 @@ function update_weewx_data(data) {
     almanac_updated = "$obs.label.header_last_updated " + moment.unix(data["current"]["datetime_raw"]).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
     jQuery(".almanac_last_updated").html(almanac_updated);
     #end if
+}
+
+//  function returns html for moon-icon according to moonphase value and currentTheme setting
+function moon_icon(moonphase){
+    
+    var moon_icon_dict = {
+        "0": "<div class='wi wi-moon-new'></div>",
+        "1": "<div class='wi wi-moon-waxing-crescent-3 $hemisphere'></div>",
+        "2": "<div class='wi wi-moon-first-quarter $hemisphere'></div>",
+        "3": "<div class='wi wi-moon-waxing-gibbous-3 $hemisphere'></div>",
+        "4": "<div class='wi wi-moon-full'></div>",
+        "5": "<div class='wi wi-moon-waning-gibbous-3 $hemisphere'></div>",
+        "6": "<div class='wi wi-moon-third-quarter $hemisphere'></div>",
+        "7": "<div class='wi wi-moon-waning-crescent-4 $hemisphere'></div>",
+    }
+    
+    var output = moon_icon_dict[moonphase];
+    if (sessionStorage.getItem('currentTheme') === 'dark') {
+        return output;
+    } else {
+        return output.replace('-moon-','-moon-alt-');
+    }
 }
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
