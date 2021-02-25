@@ -19,7 +19,7 @@ import sys
 import syslog
 import time
 from collections import OrderedDict
-from math import asin, atan2, cos, degrees, radians, sin, sqrt
+from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
 from re import match
 
 import configobj
@@ -1620,10 +1620,24 @@ class getData(SearchList):
                     % self.generator.skin_dict["Extras"]["geonet_mmi"]
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                # Calculate min/max lat adn min/max long. https://stackoverflow.com/a/23118314
+                lat = float(latitude)
+                long = float(longitude)
+                radiusInKm = int(earthquake_maxradiuskm)
+
+                kmInLongitudeDegree = 111.320 * cos( lat / 180.0 * pi)
+
+                deltaLat = radiusInKm / 111.1
+                deltaLong = radiusInKm / kmInLongitudeDegree
+
+                minLat = lat - deltaLat
+                maxLat = lat + deltaLat
+                minLong = long - deltaLong
+                maxLong = long + deltaLong
+
                 earthquake_url = (
-                    # maxlatitude and maxlongitude parameters must be added to make a square zone. Add minmagnitude and adjust to your needs
-                    "https://api.franceseisme.fr/fdsnws/event/1/query?eventtype=earthquake&format=json&limit=1&minlatitude=%s&minlongitude=%s&orderby=time"
-                    % (latitude, longitude)
+                    "https://api.franceseisme.fr/fdsnws/event/1/query?eventtype=earthquake&format=json&limit=1&minlatitude=%.2f&minlongitude=%.2f&maxlatitude=%.2f&maxlongitude=%.2f&orderby=time"
+                    % (minLat, minLong, maxLat, maxLong) 
                 )
             earthquake_is_stale = False
 
