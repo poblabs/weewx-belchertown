@@ -1821,7 +1821,12 @@ function update_current_wx(data) {
         jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
-    jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort_count"])));
+    // Beaufort
+    #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
+    if (data.hasOwnProperty("beaufort")) {
+        jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort_count"])));
+    }
+    #end if
 
     // Wind Gust US
     // May not be provided in mqtt, but just in case.

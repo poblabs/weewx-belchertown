@@ -1508,8 +1508,6 @@ class getData(SearchList):
                 aqi_location = ""
                 pass
 
-               
-
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
             if aqi_category == "good":
                 aqi_category = label_dict["aqi_good"]
