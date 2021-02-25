@@ -1621,9 +1621,9 @@ class getData(SearchList):
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
                 earthquake_url = (
-                    # Modify minmagnitude to suit your needs and mindepth=-1 if you want to show quarry blast
-                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&minmagnitude=2&mindepth=1"
-                    % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
+                    # maxlatitude and maxlongitude parameters must be added to make a square zone. Add minmagnitude and adjust to your needs
+                    "https://api.franceseisme.fr/fdsnws/event/1/query?eventtype=earthquake&format=json&limit=1&minlatitude=%s&minlongitude=%s&orderby=time"
+                    % (latitude, longitude)
                 )
             earthquake_is_stale = False
 
@@ -1744,10 +1744,14 @@ class getData(SearchList):
                     eqtime = int(
                         (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
                     )
-                    equrl = eqdata["features"][0]["properties"]["url"]
-                    eqplace = eqdata["features"][0]["properties"]["description"]
-                    eqmag = locale.format(
-                        "%g", float(eqdata["features"][0]["properties"]["mag"])
+                    if system_locale == "fr_FR":
+                        equrl = eqdata["features"][0]["properties"]["url"]["fr"]
+                        eqplace = eqdata["features"][0]["properties"]["description"]["fr"]
+                    else:
+                        equrl = eqdata["features"][0]["properties"]["url"]["en"]
+                        eqplace = eqdata["features"][0]["properties"]["description"]["en"]
+                    eqmag = format(
+                         eqdata["features"][0]["properties"]["mag"], ".1f"
                     )
                 elif (
                     self.generator.skin_dict["Extras"]["earthquake_server"] == "GeoNet"
