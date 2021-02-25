@@ -1620,7 +1620,7 @@ class getData(SearchList):
                     % self.generator.skin_dict["Extras"]["geonet_mmi"]
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
-                # Calculate min/max lat adn min/max long. https://stackoverflow.com/a/23118314
+                # Calculate min/max latitude and min/max longitude from radius and station location. https://stackoverflow.com/a/23118314
                 lat = float(latitude)
                 long = float(longitude)
                 radiusInKm = int(earthquake_maxradiuskm)
@@ -1758,7 +1758,7 @@ class getData(SearchList):
                     eqtime = int(
                         (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
                     )
-                    if system_locale == "fr_FR":
+                    if match("fr_.*", system_locale):
                         equrl = eqdata["features"][0]["properties"]["url"]["fr"]
                         eqplace = eqdata["features"][0]["properties"]["description"]["fr"]
                     else:
