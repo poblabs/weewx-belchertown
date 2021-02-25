@@ -1198,14 +1198,18 @@ function update_forecast_data(data) {
         var forecast_subtitle = moment.unix(data["timestamp"]).utcOffset($moment_js_utc_offset).format('$obs.label.time_forecast_last_updated');
 
         var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
+        
         // Current observation text
         jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
+        
+        // AQI
+        jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
+        jQuery(".wx-aqi-category").html(data["aqi"][0]["response"][0]["periods"][0]["category"]);
 
         // Visibility text in station observation table
         if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
             // si and ca = kilometer
             visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
-
 
         } else {
             // us and uk2 and default = miles
