@@ -1272,7 +1272,7 @@ class getData(SearchList):
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             aqi_url = (
-                "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
+                "https://api.aerisapi.com/airquality/%s,%s?format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             if self.generator.skin_dict["Extras"]["forecast_alert_limit"]:
