@@ -1184,6 +1184,18 @@ function show_forcast_alert(data, forecast_provider) {
     }
 }
 
+function aeris_aqi_translate(data) {
+    if (data === "good") data = "$obs.label.aqi_good";
+    else if (data === "moderate") data = "$obs.label.aqi_moderate";
+    else if (data === "usg") data = "$obs.label.aqi_usg";
+    else if (data === "unhealthy") data = "$obs.label.aqi_unhealthy";
+    else if (data === "very unhealthy") data = "$obs.label.aqi_very_unhealthy";
+    else if (data === "hazardous") data = "$obs.label.aqi_hazardous";
+    else data = "unknown"
+
+    return data;
+}
+
 function update_forecast_data(data) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
@@ -1204,7 +1216,7 @@ function update_forecast_data(data) {
         
         // AQI
         jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
-        jQuery(".wx-aqi-category").html(data["aqi"][0]["response"][0]["periods"][0]["category"]);
+        jQuery(".wx-aqi-category").html(aeris_aqi_translate(data["aqi"][0]["response"][0]["periods"][0]["category"]);
 
         // Visibility text in station observation table
         if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
