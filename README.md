@@ -505,9 +505,9 @@ In both cases, you'll need to open the browsers console to find the debug inform
 
 ## How to install the development version
 
-If you want to try out the latest features the skin has to offer, you can [install the development branch](https://github.com/poblabs/weewx-belchertown/tree/development). To start download the [development zip file](https://github.com/poblabs/weewx-belchertown/archive/development.zip). Then you can 
+If you want to try out the latest features the skin has to offer, you can [install the master branch](https://github.com/poblabs/weewx-belchertown/tree/master). To start download the [master zip file](https://github.com/poblabs/weewx-belchertown/archive/master.zip). Then you can 
 
-1. upload it to your weewx system and install it using `wee_extension --install development.zip` 
+1. upload it to your weewx system and install it using `wee_extension --install master.zip` 
 
 or
 
