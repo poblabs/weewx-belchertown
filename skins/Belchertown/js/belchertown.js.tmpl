@@ -1822,9 +1822,10 @@ function update_current_wx(data) {
     }
 
     // Beaufort
-    #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
-    if (data.hasOwnProperty("beaufort")) {
-        jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort"])));
+    #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1' and $Extras.beaufort_category_gusts != '1'
+    if (data.hasOwnProperty("beaufort_count")) {
+        jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort_count"])));
+        belchertown_debug("Wind speed: " + parseFloat(data["beaufort_count"]) + " Beaufort cat: " + beaufort_cat(parseFloat(data["beaufort_count"])))
     }
     #end if
 
@@ -1832,22 +1833,37 @@ function update_current_wx(data) {
     // May not be provided in mqtt, but just in case.
     if (data.hasOwnProperty("windGust_mph")) {
         jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+        jQuery(".beaufort").html(beaufort_cat(kts_to_beaufort(parseFloat(data["windGust_mph"])*0.8689758)));
+        #end if
     }
     // Wind Gust Metric
     if (data.hasOwnProperty("windGust_kph")) {
         jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+        jQuery(".beaufort").html(beaufort_cat(kts_to_beaufort(parseFloat(data["windGust_kph"])*0.5399565)));
+        #end if
     }
     // Wind Gust METRICWX
     if (data.hasOwnProperty("windGust_mps")) {
         jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+        jQuery(".beaufort").html(beaufort_cat(kts_to_beaufort(parseFloat(data["windGust_mps"])*1.943844)));
+        #end if
     }
     // Wind Gust Beaufort
     if (data.hasOwnProperty("windGust_beaufort")) {
         jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+        jQuery(".beaufort").html(beaufort_cat(parseFloat(data["windGust_beaufort"])));
+        #end if
     }
     // Windspeed knots
     if (data.hasOwnProperty("windGust_knot")) {
         jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+        jQuery(".beaufort").html(beaufort_cat(kts_to_beaufort(parseFloat(data["windGust_knot"]))));
+        #end if
     }
 
     // Windchill US

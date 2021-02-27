@@ -43,9 +43,13 @@
                 #end if
 
                 #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
-                // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
-                // knots and then use Javascript function to convert to Beaufort
-                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
+                    // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
+                    // knots and then use Javascript function to convert to Beaufort
+                    #if $Extras.has_key("beaufort_category_gusts") and $Extras.beaufort_category_gusts == '1'
+                    jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windGust.knot.toString(addLabel=False)" ) ) );
+                    #else
+                    jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
+                    #end if
                 #end if
 
                 get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
