@@ -1218,6 +1218,7 @@ function update_forecast_data(data) {
         if (data['aqi'][0]['response'][0]) {
             jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
             jQuery(".wx-aqi-category").html(aeris_aqi_translate(data["aqi"][0]["response"][0]["periods"][0]["category"]));
+            get_aqi_color(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
         } else {
             jQuery(".wx-aqi").html('');
             jQuery(".wx-aqi-category").html(aeris_aqi_translate('unknown'));
