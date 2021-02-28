@@ -867,6 +867,7 @@ p.entry-meta {
 }
 
 /* iPad Landscape */
+/*
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
     
     .wx-stn-info { display:none; }
@@ -940,6 +941,7 @@ p.entry-meta {
         text-align: center;
     }
 }
+*/
 
 /* Phones */
 @media only screen and (max-width: 960px) {
