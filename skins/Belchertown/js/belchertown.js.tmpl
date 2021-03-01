@@ -1215,14 +1215,14 @@ function update_forecast_data(data) {
         jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
         
         // AQI
-        if (data['aqi'][0]['response'][0]) {
+        if (data["aqi"][0]["success"] && !data["aqi"][0]["error"]) {
             jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
             jQuery(".wx-aqi-category").html(aeris_aqi_translate(data["aqi"][0]["response"][0]["periods"][0]["category"]));
             get_aqi_color(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
-        } else {
-            jQuery(".wx-aqi").html('');
-            jQuery(".wx-aqi-category").html(aeris_aqi_translate('unknown'));
-        }
+        } else if (data["aqi"][0]["success"] && data["aqi"][0]["error"]["code"] === "warn_no_data") {
+            jQuery(".wx-aqi").html("No Data");
+            jQuery(".wx-aqi-category").html(aeris_aqi_translate(""));
+            jQuery(".aqi_location_outer").html("");
 
         // Visibility text in station observation table
         if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {

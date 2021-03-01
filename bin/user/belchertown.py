@@ -1494,10 +1494,20 @@ class getData(SearchList):
                 cloud_cover = ""
 
             try:
-                aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
-                aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
-                aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
-                aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                if (
+                    len(data["aqi"][0]["response"]) > 0 and data["aqi"][0]["success"] == "true"
+                ):
+                    aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
+                    aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
+                    aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
+                    aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                elif (
+                    len(data["aqi"][0]["response"]) == 0 and data["aqi"][0]["error"]["code"] == "warn_no_data"
+                ):
+                    aqi = "No Data"
+                    aqi_category = ""
+                    aqi_time = 0
+                    aqi_location = ""
             except Exception as error:
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
