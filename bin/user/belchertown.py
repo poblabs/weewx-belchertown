@@ -1495,14 +1495,14 @@ class getData(SearchList):
 
             try:
                 if (
-                    len(data["aqi"][0]["response"]) > 0 and data["aqi"][0]["success"] == "true"
+                    len(data["aqi"][0]["response"]) > 0
                 ):
                     aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
                     aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
                     aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
                     aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
                 elif (
-                    len(data["aqi"][0]["response"]) == 0 and data["aqi"][0]["error"]["code"] == "warn_no_data"
+                    data["aqi"][0]["error"]["code"] == "warn_no_data"
                 ):
                     aqi = "No Data"
                     aqi_category = ""
