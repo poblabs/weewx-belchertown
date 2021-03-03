@@ -3443,7 +3443,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
-                                     'ROUND(SUM(sum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
@@ -3485,7 +3485,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
-                                     'ROUND(SUM(sum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
