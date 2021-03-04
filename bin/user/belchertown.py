@@ -3394,6 +3394,16 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_type = "max"
         else:
             obs_lookup = observation
+            
+        #   Special maxTemp and minTemp observations to enable average max & min temperatures to be calculated
+        
+        if aggregate_type == "avg" and observation == "maxTemp" and aggregate_interval == 86400:
+            obs_lookup = "outTemp"
+            obs_label = "Temperature"
+        if aggregate_type == "avg" and observation == "minTemp" and aggregate_interval == 86400:
+            obs_lookup = "outTemp"
+            obs_label = "Temperature"
+       
 
         if xAxis_groupby or len(xAxis_categories) >= 1:
             # Setup the converter - for some reason self.converter doesn't work
@@ -3439,25 +3449,51 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
             if driver == "weedb.sqlite":
                 # Use daily summaries where possible
-                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                if aggregate_interval is not None and aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
-                        sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                        #   deal with maxTemp & minTemp separately
+                        if observation == "maxTemp":
+                            sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     'ROUND(AVG(max),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
-                            strformat,
-                            xAxis_groupby,
-                            obs_lookup,
-                            start_ts,
-                            end_ts,
-                            order_sql
-                        )
+                                strformat,
+                                xAxis_groupby,
+                                obs_lookup,
+                                start_ts,
+                                end_ts,
+                                order_sql
+                            )
+                        elif observation == "minTemp":
+                            sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     'ROUND(AVG(min),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                                strformat,
+                                xAxis_groupby,
+                                obs_lookup,
+                                start_ts,
+                                end_ts,
+                                order_sql
+                            )
+                        else:
+                            sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                                strformat,
+                                xAxis_groupby,
+                                obs_lookup,
+                                start_ts,
+                                end_ts,
+                                order_sql
+                            )
                     else:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
-                                     '{2}({2}) as obs ' \
-                                     'FROM archive_day_{3}  ' \
-                                     'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
+                                 '{2}({2}) as obs ' \
+                                 'FROM archive_day_{3}  ' \
+                                 'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
                             strformat,
                             xAxis_groupby,
                             aggregate_type,
@@ -3485,7 +3521,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
