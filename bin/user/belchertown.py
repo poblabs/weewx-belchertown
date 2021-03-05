@@ -19,7 +19,7 @@ import sys
 import syslog
 import time
 from collections import OrderedDict
-from math import asin, atan2, cos, degrees, radians, sin, sqrt
+from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
 from re import match
 
 import configobj
@@ -1502,6 +1502,10 @@ class getData(SearchList):
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
                 )
+                aqi = ""
+                aqi_category = ""
+                aqi_time = 0
+                aqi_location = ""
                 pass
 
             # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
@@ -1616,10 +1620,24 @@ class getData(SearchList):
                     % self.generator.skin_dict["Extras"]["geonet_mmi"]
                 )
             elif self.generator.skin_dict["Extras"]["earthquake_server"] == "ReNaSS":
+                # Calculate min/max latitude and min/max longitude from radius and station location. https://stackoverflow.com/a/23118314
+                lat = float(latitude)
+                long = float(longitude)
+                radiusInKm = int(earthquake_maxradiuskm)
+
+                kmInLongitudeDegree = 111.320 * cos( lat / 180.0 * pi)
+
+                deltaLat = radiusInKm / 111.1
+                deltaLong = radiusInKm / kmInLongitudeDegree
+
+                minLat = lat - deltaLat
+                maxLat = lat + deltaLat
+                minLong = long - deltaLong
+                maxLong = long + deltaLong
+
                 earthquake_url = (
-                    # Modify minmagnitude to suit your needs and mindepth=-1 if you want to show quarry blast
-                    "https://renass.unistra.fr/fdsnws/event/1/query?latitude=%s&longitude=%s&maxradius=%.2f&orderby=time&format=json&limit=1&minmagnitude=2&mindepth=1"
-                    % (latitude, longitude, int(earthquake_maxradiuskm) / 111.25)
+                    "https://api.franceseisme.fr/fdsnws/event/1/query?eventtype=earthquake&minmagnitude=2&minlatitude=%.2f&minlongitude=%.2f&maxlatitude=%.2f&maxlongitude=%.2f&format=json&limit=1&orderby=time"
+                    % (minLat, minLong, maxLat, maxLong) 
                 )
             earthquake_is_stale = False
 
@@ -1740,10 +1758,14 @@ class getData(SearchList):
                     eqtime = int(
                         (eqtime - datetime.datetime(1970, 1, 1)).total_seconds()
                     )
-                    equrl = eqdata["features"][0]["properties"]["url"]
-                    eqplace = eqdata["features"][0]["properties"]["description"]
-                    eqmag = locale.format(
-                        "%g", float(eqdata["features"][0]["properties"]["mag"])
+                    if match("fr_.*", system_locale):
+                        equrl = eqdata["features"][0]["properties"]["url"]["fr"]
+                        eqplace = eqdata["features"][0]["properties"]["description"]["fr"]
+                    else:
+                        equrl = eqdata["features"][0]["properties"]["url"]["en"]
+                        eqplace = eqdata["features"][0]["properties"]["description"]["en"]
+                    eqmag = format(
+                         eqdata["features"][0]["properties"]["mag"], ".1f"
                     )
                 elif (
                     self.generator.skin_dict["Extras"]["earthquake_server"] == "GeoNet"
@@ -3410,19 +3432,44 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if aggregate_type is None:
                 aggregate_type = "sum"
 
+            if isinstance(time_length, int):
+                order_sql = ' ORDER BY dateTime ASC'
+            else:
+                order_sql = ''
+
             if driver == "weedb.sqlite":
-                if isinstance(time_length, int):
-                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, IFNULL({2}({3}),0) as obs, dateTime FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6} ORDER BY dateTime ASC;'.format(
-                        strformat,
-                        xAxis_groupby,
-                        aggregate_type,
-                        obs_lookup,
-                        start_ts,
-                        end_ts,
-                        xAxis_groupby,
-                    )
+                # Use daily summaries where possible
+                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                    # Avg is a special case
+                    if aggregate_type == "avg":
+                        sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
+                    else:
+                        sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
+                                     '{2}({2}) as obs ' \
+                                     'FROM archive_day_{3}  ' \
+                                     'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            aggregate_type,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
                 else:
-                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format(
+                    sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
+                             'IFNULL({2}({3}),0) as obs, dateTime FROM archive ' \
+                             'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
                         strformat,
                         xAxis_groupby,
                         aggregate_type,
@@ -3430,20 +3477,40 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         start_ts,
                         end_ts,
                         xAxis_groupby,
+                        order_sql
                     )
             elif driver == "weedb.mysql":
-                if isinstance(time_length, int):
-                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs, dateTime FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6} ORDER BY dateTime ASC;'.format(
-                        strformat,
-                        xAxis_groupby,
-                        aggregate_type,
-                        obs_lookup,
-                        start_ts,
-                        end_ts,
-                        xAxis_groupby,
-                    )
+                # Use daily summaries where possible
+                if aggregate_interval is not None and aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                    # Avg is a special case
+                    if aggregate_type == "avg":
+                        sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
+                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
+                                     'GROUP BY {1}{5};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
+                    else:
+                        sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, {2}({2}) as obs ' \
+                                     'FROM archive_day_{3}  ' \
+                                     'WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {1}{6};'.format(
+                            strformat,
+                            xAxis_groupby,
+                            aggregate_type,
+                            obs_lookup,
+                            start_ts,
+                            end_ts,
+                            order_sql
+                        )
                 else:
-                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, IFNULL({2}({3}),0) as obs FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6};'.format(
+                    sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
+                                 'IFNULL({2}({3}),0) as obs ' \
+                                 'FROM archive WHERE dateTime >= {4} AND dateTime <= {5} GROUP BY {6}{7};'.format(
                         strformat,
                         xAxis_groupby,
                         aggregate_type,
@@ -3451,6 +3518,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         start_ts,
                         end_ts,
                         xAxis_groupby,
+                        order_sql
                     )
 
             # Setup values for the converter

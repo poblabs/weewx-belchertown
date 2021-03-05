@@ -38,10 +38,15 @@
             #end if
         
             jQuery(document).ready(function() {
+                #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
                 get_aqi_color( "$aqi" );
+                #end if
+
+                #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
                 // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
                 // knots and then use Javascript function to convert to Beaufort
                 jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
+                #end if
 
                 get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
             
@@ -223,7 +228,7 @@
                                         </div>
                                         #if $Extras.has_key("aqi_enabled") and $Extras.aqi_enabled == '1'
                                         <div class="aqi_outer">
-                                            $obs.label.aqi:  $aqi ($aqi_category)
+                                            $obs.label.aqi: <span class="wx-aqi">$aqi</span> (<span class="wx-aqi-category">$aqi_category</span>)
                                             #if $Extras.has_key("aqi_location_enabled") and $Extras.aqi_location_enabled == '1'
                                             <span class="aqi_location_outer"><br>$aqi_location</span>
                                             #end if
@@ -360,23 +365,7 @@
                                                 <div class="col-sm-7 moon">
                                                     <div class="moon-container">
                                                         <span class="moon-icon">
-                                                            #if $almanac.moon_index == 0
-                                                                <div class='wi wi-moon-alt-new'></div>
-                                                            #else if $almanac.moon_index == 1
-                                                                <div class='wi wi-moon-alt-waxing-crescent-1 $hemisphere'></div>
-                                                            #else if $almanac.moon_index == 2
-                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
-                                                            #else if $almanac.moon_index == 3
-                                                                <div class='wi wi-moon-alt-waxing-gibbous-3 $hemisphere'></div>
-                                                            #else if $almanac.moon_index == 4
-                                                                <div class='wi wi-moon-alt-full'></div>
-                                                            #else if $almanac.moon_index == 5
-                                                                <div class='wi wi-moon-alt-waning-gibbous-3 $hemisphere'></div>
-                                                            #else if $almanac.moon_index == 6
-                                                                <div class='wi wi-moon-alt-first-quarter $hemisphere'></div>
-                                                            #else if $almanac.moon_index == 7
-                                                                <div class='wi wi-moon-alt-waning-crescent-4 $hemisphere'></div>
-                                                            #end if
+                                                            <div class="moon-icon"></div><!-- JS -->
                                                         </span>
                                                         <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
                                                         <br>

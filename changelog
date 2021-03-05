@@ -1,5 +1,6 @@
 1.3 ????, 2021
 ### Breaking Changes
+* New AerisWeather forecast display options for Belchertown skin will require you to delete your forecast.json file so that the skin can generate a new one.
 
 ### Added
 
@@ -11,16 +12,16 @@
 1.2 September 11, 2020
 
 ### Breaking Changes
-* DarkSky has announced that they were acquired by Apple and will be removing their API. This release adds Aeris Weather as a forecast provider with the intent to remove DarkSky in a later version.
+* DarkSky has announced that they were acquired by Apple and will be removing their API. This release adds AerisWeather as a forecast provider with the intent to remove DarkSky in a later version.
 * New option `forecast_provider` is added to specify which provider you are using (DarkSky or Aeris)
-* Aeris Weather is a very close drop-in replacement and is free if you send your station data to pwsweather.com. In return they give you free access to their weather API. I was considering OpenWeatherMap, but they were lacking some key observations in my opinion. 
+* AerisWeather is a very close drop-in replacement and is free if you send your station data to pwsweather.com. In return they give you free access to their weather API. I was considering OpenWeatherMap, but they were lacking some key observations in my opinion. 
 * graphs.conf gapsize is now in seconds, not milliseconds. This is to stay consistent with other graphs.conf settings. **Make sure to update your graphs.conf. Divide by 1000 to get the seconds you need for the new gapsize setting**.
 * Forecast file darksky_forecast.json renamed to forecast.json for all providers.
 * skin.conf option darksky_units renamed to forecast_units
 * skin.conf option time_darksky_alert_expires renamed to time_forecast_alert_expires
 
 ### Added
-* An entire forecast section to the labels. This allows you to translate the Aeris Weather observations to your language.
+* An entire forecast section to the labels. This allows you to translate the AerisWeather observations to your language.
 * skin.conf option forecast_units. I incorporated the old DarkSky approach to the units. Options are si, ca, uk2 or us. See README for more info.
 * graphs.conf option for legend. This allows you to show/hide the legend per-chart. More information under legend in the graphs wiki.
 * Adds logo_image_dark option to specify an alternate logo when in dark mode. 

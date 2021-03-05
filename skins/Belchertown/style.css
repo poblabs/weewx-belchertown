@@ -1466,6 +1466,7 @@ p.entry-meta {
 .aqi_outer {
     text-align:center;
     font-size:20px;
+	padding-top: 10px;
 }
 
 .aqi_location_outer {
@@ -1654,8 +1655,8 @@ p.entry-meta {
 	font-size:18px !important;
 }
 
-.beaufort { 
-	padding-top:10px;
+.wind-table .beaufort { 
+	padding-top:8px;
 	font-size:18px;
 }
 
