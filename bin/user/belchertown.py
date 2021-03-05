@@ -1841,12 +1841,15 @@ class getData(SearchList):
         if isinstance(station_observations, list) is False:
             station_observations = station_observations.split()
         current_stamp = manager.lastGoodStamp()
+        current_record = manager.getRecord(current_stamp)
         current = weewx.tags.CurrentObj(
             db_lookup,
             station_obs_binding,
             current_stamp,
             self.generator.formatter,
             self.generator.converter,
+            None,
+            current_record
         )
         for obs in station_observations:
             if "data_binding" in obs:
@@ -1861,12 +1864,15 @@ class getData(SearchList):
                     station_obs_binding
                 )
                 current_stamp = obs_binding_manager.lastGoodStamp()
+                current_record = obs_binding_manager.getRecord(current_stamp)
                 current = weewx.tags.CurrentObj(
                     db_lookup,
                     station_obs_binding,
                     current_stamp,
                     self.generator.formatter,
                     self.generator.converter,
+                    None,
+                    current_record
                 )
 
             if obs == "visibility":
