@@ -1184,6 +1184,18 @@ function show_forcast_alert(data, forecast_provider) {
     }
 }
 
+function aeris_aqi_translate(data) {
+    if (data === "good") data = "$obs.label.aqi_good";
+    else if (data === "moderate") data = "$obs.label.aqi_moderate";
+    else if (data === "usg") data = "$obs.label.aqi_usg";
+    else if (data === "unhealthy") data = "$obs.label.aqi_unhealthy";
+    else if (data === "very unhealthy") data = "$obs.label.aqi_very_unhealthy";
+    else if (data === "hazardous") data = "$obs.label.aqi_hazardous";
+    else data = "$obs.label.aqi_unknown";
+
+    return data;
+}
+
 function update_forecast_data(data) {
     forecast_provider = "$Extras.forecast_provider";
     belchertown_debug("Forecast: Provider is " + forecast_provider);
@@ -1203,8 +1215,26 @@ function update_forecast_data(data) {
         jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
         
         // AQI
-        jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
-        jQuery(".wx-aqi-category").html(data["aqi"][0]["response"][0]["periods"][0]["category"]);
+        if (data["aqi"][0]["success"] && !data["aqi"][0]["error"]) {
+            jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
+            jQuery(".wx-aqi-category").html(aeris_aqi_translate(data["aqi"][0]["response"][0]["periods"][0]["category"]));
+            if ("$Extras.aqi_location_enabled" === "1") jQuery(".aqi_location_outer").html("<br>" + data["aqi"][0]["response"][0]["place"]["name"]).css('textTransform', 'capitalize');
+            get_aqi_color(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
+            try {
+                jQuery(".station-observations .aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
+            } catch (err) {
+                // AQI not in the station observation table, so silently exit
+            }
+        } else if (data["aqi"][0]["success"] && data["aqi"][0]["error"]["code"] === "warn_no_data") {
+            jQuery(".wx-aqi").html("No Data");
+            jQuery(".wx-aqi-category").html(aeris_aqi_translate(""));
+            if ("$Extras.aqi_location_enabled" === "1") jQuery(".aqi_location_outer").html("");
+            try {
+                jQuery(".station-observations .aqi").html("No Data");
+            } catch (err) {
+                // AQI not in the station observation table, so silently exit
+            }
+        }
 
         // Visibility text in station observation table
         if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {

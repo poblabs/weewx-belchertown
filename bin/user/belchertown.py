@@ -1494,10 +1494,20 @@ class getData(SearchList):
                 cloud_cover = ""
 
             try:
-                aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
-                aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
-                aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
-                aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                if (
+                    len(data["aqi"][0]["response"]) > 0
+                ):
+                    aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
+                    aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
+                    aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
+                    aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                elif (
+                    data["aqi"][0]["error"]["code"] == "warn_no_data"
+                ):
+                    aqi = "No Data"
+                    aqi_category = ""
+                    aqi_time = 0
+                    aqi_location = ""
             except Exception as error:
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
@@ -1522,7 +1532,7 @@ class getData(SearchList):
             elif aqi_category == "hazardous":
                 aqi_category = label_dict["aqi_hazardous"]
             else:
-                aqi_category = "unknown"
+                aqi_category = label_dict["aqi_unknown"]
 
             if (
                 len(data["current"][0]["response"]) > 0
