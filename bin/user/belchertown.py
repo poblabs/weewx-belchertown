@@ -3455,11 +3455,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
             if driver == "weedb.sqlite":
                 # Use daily summaries where possible
-                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                if aggregate_interval is not None and aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
@@ -3501,7 +3501,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
