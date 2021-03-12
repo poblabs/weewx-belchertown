@@ -1494,10 +1494,20 @@ class getData(SearchList):
                 cloud_cover = ""
 
             try:
-                aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
-                aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
-                aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
-                aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                if (
+                    len(data["aqi"][0]["response"]) > 0
+                ):
+                    aqi = data["aqi"][0]["response"][0]["periods"][0]["aqi"]
+                    aqi_category = data["aqi"][0]["response"][0]["periods"][0]["category"]
+                    aqi_time = data["aqi"][0]["response"][0]["periods"][0]["timestamp"]
+                    aqi_location = data["aqi"][0]["response"][0]["place"]["name"].title()
+                elif (
+                    data["aqi"][0]["error"]["code"] == "warn_no_data"
+                ):
+                    aqi = "No Data"
+                    aqi_category = ""
+                    aqi_time = 0
+                    aqi_location = ""
             except Exception as error:
                 logerr(
                     "Error getting AQI from Aeris weather. The error was: %s" % (error)
@@ -1522,7 +1532,7 @@ class getData(SearchList):
             elif aqi_category == "hazardous":
                 aqi_category = label_dict["aqi_hazardous"]
             else:
-                aqi_category = "unknown"
+                aqi_category = label_dict["aqi_unknown"]
 
             if (
                 len(data["current"][0]["response"]) > 0
@@ -1841,12 +1851,15 @@ class getData(SearchList):
         if isinstance(station_observations, list) is False:
             station_observations = station_observations.split()
         current_stamp = manager.lastGoodStamp()
+        current_record = manager.getRecord(current_stamp)
         current = weewx.tags.CurrentObj(
             db_lookup,
             station_obs_binding,
             current_stamp,
             self.generator.formatter,
             self.generator.converter,
+            None,
+            current_record
         )
         for obs in station_observations:
             if "data_binding" in obs:
@@ -1861,12 +1874,15 @@ class getData(SearchList):
                     station_obs_binding
                 )
                 current_stamp = obs_binding_manager.lastGoodStamp()
+                current_record = obs_binding_manager.getRecord(current_stamp)
                 current = weewx.tags.CurrentObj(
                     db_lookup,
                     station_obs_binding,
                     current_stamp,
                     self.generator.formatter,
                     self.generator.converter,
+                    None,
+                    current_record
                 )
 
             if obs == "visibility":
@@ -3439,11 +3455,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
             if driver == "weedb.sqlite":
                 # Use daily summaries where possible
-                if aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
+                if aggregate_interval is not None and aggregate_interval >= 86400 and aggregate_interval % 86400 == 0 :  # 1 or more exact days
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
@@ -3485,7 +3501,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Avg is a special case
                     if aggregate_type == "avg":
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) AS {1}, ' \
-                                     'ROUND(SUM(wsum)/ SUM(count),2) as obs ' \
+                                     'ROUND(SUM(wsum)/ SUM(sumtime),2) as obs ' \
                                      'FROM archive_day_{2}  WHERE dateTime >= {3} AND dateTime <= {4} ' \
                                      'GROUP BY {1}{5};'.format(
                             strformat,
