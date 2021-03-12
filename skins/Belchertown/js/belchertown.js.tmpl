@@ -1775,11 +1775,11 @@ function update_current_wx(data) {
             } else {
                 localeStringUseGrouping = true;
             }
-			// Create comparison key without unit info to allow for exact match with class
+            // Create comparison key without unit info to allow for exact match with class
             if ((char_pos = mqttdata.indexOf('_')) > -1) {
-			    mqttdata_without_unit = mqttdata.slice(0, char_pos);
+                mqttdata_without_unit = mqttdata.slice(0, char_pos);
             } else {
-			    mqttdata_without_unit = mqttdata;
+                mqttdata_without_unit = mqttdata;
             }						
             if (mqttdata_without_unit === thisElementClass) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
