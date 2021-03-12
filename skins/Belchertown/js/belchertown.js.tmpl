@@ -1775,8 +1775,13 @@ function update_current_wx(data) {
             } else {
                 localeStringUseGrouping = true;
             }
-            // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
-            if (mqttdata.startsWith(thisElementClass)) {
+			// Create comparison key without unit info to allow for exact match with class
+            if ((char_pos = mqttdata.indexOf('_')) > -1) {
+			    mqttdata_without_unit = mqttdata.slice(0, char_pos);
+            } else {
+			    mqttdata_without_unit = mqttdata;
+            }						
+            if (mqttdata_without_unit === thisElementClass) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
                 // Finally update the element class
