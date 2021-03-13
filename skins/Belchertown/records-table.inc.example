@@ -28,13 +28,13 @@
                 <td>$obs.label.records_high_inTemp</td>
                 <td class="leftborder">$year.inTemp.max</td>
                 <td><span id="year-inTemp-max-ts"></span></td><!-- moment.js -->
-                <td class="leftborder"><span id="at-inTemp-max-ts"></span></td><!-- moment.js -->
-                <td>$alltime.inTemp.max</td>
+                <td class="leftborder">$alltime.inTemp.max</td>
+                <td><span id="at-inTemp-max-ts"></span></td><!-- moment.js -->
             </tr>
             <tr>
                 <td>$obs.label.records_low_inTemp</td>
                 <td class="leftborder">$year.inTemp.min</td>
                 <td id="year-inTemp-min-ts"></td><!-- moment.js -->
-                <td class="leftborder" id="at-inTemp-min-ts"></td><!-- moment.js -->
-                <td>$alltime.inTemp.min</td>
+                <td class="leftborder">$alltime.inTemp.min</td>
+                <td id="at-inTemp-min-ts"></td><!-- moment.js -->
             </tr>
