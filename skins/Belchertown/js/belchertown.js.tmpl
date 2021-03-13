@@ -2862,6 +2862,7 @@ function showChart(json_file, prepend_renderTo = false) {
             var chart = new Highcharts.chart(options);
 
             // If using debug, show a copy paste debug for use with jsfiddle
+            belchertown_debug(options);
             belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
 
         });
