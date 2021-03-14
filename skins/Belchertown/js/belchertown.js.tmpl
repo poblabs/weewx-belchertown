@@ -1776,10 +1776,17 @@ function update_current_wx(data) {
                 localeStringUseGrouping = true;
             }
             // Create comparison key without unit info to allow for exact match with class
+            mqttdata_without_unit = mqttdata;
             if ((char_pos = mqttdata.indexOf('_')) > -1) {
                 mqttdata_without_unit = mqttdata.slice(0, char_pos);
-            } else {
-                mqttdata_without_unit = mqttdata;
+                // Catch observation names with underscore(s) present in WeeWX extended wview schema
+                if (mqttdata_without_unit == "lightning") {
+                    char_pos = mqttdata.lastIndexOf('_');
+                    mqttdata_without_unit = mqttdata.slice(0, char_pos);
+                } else if (mqttdata_without_unit == "pm1" || mqttdata_without_unit == "pm2" || mqttdata_without_unit == "pm10") {
+                    char_pos = mqttdata.indexOf('_', char_pos + 1);
+                    mqttdata_without_unit = mqttdata.slice(0, char_pos);
+                }
             }						
             if (mqttdata_without_unit === thisElementClass) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
