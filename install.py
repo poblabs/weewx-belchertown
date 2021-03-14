@@ -105,6 +105,8 @@ extension_config = """
            # mqtt_websockets_port = 8080
            # mqtt_websockets_ssl	= 0
            # mqtt_websockets_topic = ""
+           # mqtt_websockets_user = ""
+           # mqtt_websockets_pass = ""
            # disconnect_live_website_visitor = 1800000
 
            #--- Forecast Options ---

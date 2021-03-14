@@ -1605,6 +1605,12 @@ function connect() {
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
+        #if $Extras.has_key("mqtt_websockets_user") and $Extras.mqtt_websockets_user != ""
+        userName: "$Extras.mqtt_websockets_user",
+        #end if
+        #if $Extras.has_key("mqtt_websockets_pass") and $Extras.mqtt_websockets_pass != ""
+        password: "$Extras.mqtt_websockets_pass",
+        #end if
         #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
         useSSL: true,
         #else

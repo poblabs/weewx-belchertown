@@ -3,6 +3,7 @@
 * New AerisWeather forecast display options for Belchertown skin will require you to delete your forecast.json file so that the skin can generate a new one.
 
 ### Added
+* Support for MQTT websocket username and password
 
 ### Changed
 
