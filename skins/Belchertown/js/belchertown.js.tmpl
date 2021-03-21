@@ -1991,6 +1991,9 @@ function showChart(json_file, prepend_renderTo = false) {
                     case "rounding":
                         rounding = optionVal;
                         break;
+                    case "xAxis_labels_formatter":
+                        xAxis_labels_formatter = optionVal;
+                        break;
                     case "xAxis_categories":
                         xAxis_categories = optionVal;
                         break;
@@ -2264,6 +2267,17 @@ function showChart(json_file, prepend_renderTo = false) {
                 options.plotOptions.series = {connectNulls: connectNulls};
             }
             options.colors = colors;
+
+            // xAxis labels formatter
+            if (xAxis_labels_formatter.length >= 1) {
+                options.xAxis = {
+                    labels: {
+                        formatter: function() {
+                            return Highcharts.dateFormat(xAxis_labels_formatter, this.value);
+                        }
+                    }
+                }
+            }
 
             // If we have xAxis categories, reset xAxis and populate it from these options. Also need to reset tooltip since there's no datetime for moment.js to use.
             if (xAxis_categories.length >= 1) {

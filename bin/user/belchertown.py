@@ -2377,6 +2377,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 connectNulls = plot_options.get("connectNulls", "false")
                 output[chart_group][plotname]["options"]["connectNulls"] = connectNulls
 
+                # xAxis labels formatter
+                xAxis_labels_formatter = plot_options.get("xAxis_labels_formatter", "")
+                output[chart_group][plotname]["options"][
+                    "xAxis_labels_formatter"
+                ] = xAxis_labels_formatter
+
                 xAxis_groupby = plot_options.get("xAxis_groupby", None)
                 xAxis_categories = plot_options.get("xAxis_categories", "")
                 # Check if this is a list. If not then we have 1 item, so force
@@ -2783,6 +2789,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         time_length,
                         xAxis_groupby,
                         xAxis_categories,
+                        xAxis_labels_formatter,
                         mirrored_value,
                         weatherRange_obs_lookup,
                         wind_rose_color,
@@ -2851,6 +2858,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         time_length,
         xAxis_groupby,
         xAxis_categories,
+        xAxis_labels_formatter,
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
