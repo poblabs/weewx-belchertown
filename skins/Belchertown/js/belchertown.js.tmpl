@@ -1785,8 +1785,8 @@ function update_current_wx(data) {
                         mqttdata_obs_unit = mqttdata.slice(thisElementClass.length + 1);
                         if (thisElementClass === mqttdata_obs_name) { // Assume observation is right, check for unit
                             if (mqttdata_obs_name.startsWith("lightning")) mqttdata_observation_found = true; // Support lightning observations
-                            if (mqttdata_obs_unit === "microgram_per_meter_cubed") mqttdata_observation_found = true; // Support pm observations
-                            if (mqttdata_obs_unit === "aqi") mqttdata_observation_found = true; // Support weewx-airlink
+                            else if (mqttdata_obs_unit === "microgram_per_meter_cubed") mqttdata_observation_found = true; // Support pm observations
+                            else if (mqttdata_obs_unit === "aqi") mqttdata_observation_found = true; // Support weewx-airlink
                         }
                     }
                 }
