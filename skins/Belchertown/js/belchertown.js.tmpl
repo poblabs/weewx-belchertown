@@ -98,6 +98,17 @@ jQuery(document).ready(function() {
         }
     });
 
+    #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+    jQuery(".windrow").css({"padding-top": "10px", "padding-bottom": "10px"});
+    jQuery(".css_north").html(css_north <= 9 ? "0" + css_north : css_north);
+    jQuery(".css_south").html(css_south <= 9 ? "0" + css_south : css_south);
+    jQuery(".active_runway").html(active_runway <= 9 ? "0" + active_runway : active_runway);
+    jQuery(".compass-airfield").css({
+        "transform": "rotate(" + active_runway * 10 + "deg)",
+        "visibility": "visible"
+    });
+    #end if
+
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
@@ -385,6 +396,34 @@ function beaufort_cat(beaufort) {
             return "$beaufort12"
     }
 }
+
+#if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+const active_runway = parseFloat($Extras.airfield_crosswind_active_runway).toFixed(0);
+
+// Find Opposite Runway
+var opposite_runway = (((active_runway * 10) + 180) % 360) / 10;
+
+// Positionning Active Runway and Opposite at the right place
+var css_north = opposite_runway;
+var css_south = active_runway;
+
+function calcXwind(windDir, windspeed, runway) {
+    const runway_heading = runway * 10;
+    windDir = parseFloat(windDir).toFixed(0);
+    windspeed = parseFloat(windspeed).toFixed(0);
+    // windspeed = windspeed / 1.852; // convert km/h to knots
+    var lrxw = "";
+    // console.log('windDir: ' + windDir + ' Windspeed (knots): ' + windspeed + ' Runway Heading: ' + runway);
+    let u = Math.abs(windDir - runway_heading);
+    const headwind = Math.round(Math.abs(windspeed * Math.sin(0.017453 * u))),
+        crosswind  = Math.round(windspeed * Math.cos(0.017453 * u));
+    0 === u || 180 === u ? (lrxw = "None") : (windDir > runway_heading && windDir < runway_heading + 180) || runway_heading - 180 > windDir ? (lrxw = "Right") : (windDir < runway_heading || windDir > runway_heading + 180) && (lrxw = "Left")
+    // console.log('Headwind: ' + headwind + ' Crosswind: ' + crosswind + ' Xwind Dir: ' + lrxw);
+    jQuery(".headwind").html(headwind);
+    jQuery(".crosswind").html(crosswind);
+    jQuery(".crosswind_lrxw").html(lrxw);
+}
+#end if
 
 function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = false, rounding, mirrored = false, numberFormat) {
     // Mirrored values have the negative sign removed
@@ -1855,6 +1894,13 @@ function update_current_wx(data) {
     #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
     if (data.hasOwnProperty("beaufort")) {
         jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort"])));
+    }
+    #end if
+
+    #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+    // Airfield Crosswind
+    if (data.hasOwnProperty("windDir") && data.hasOwnProperty("windSpeed_knot")) {
+        calcXwind(data["windDir"], data["windSpeed_knot"], active_runway);
     }
     #end if
 

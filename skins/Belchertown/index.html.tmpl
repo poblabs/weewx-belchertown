@@ -263,6 +263,9 @@
                         <div class="row windrow">
                             <div class="weather-obs-bottom">
                                 <div class="col-sm-12 current_wind">
+                                    #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                    <div class="col-sm-12 text-right">Active Runway <span class="active_runway"></span></div>
+                                    #end if
                                     <div class="col-sm-6">
                                         <div class="compass">
                                             <div class="direction">
@@ -282,6 +285,16 @@
                                                 </span>
                                             </div>
                                             <div class="arrow"></div>
+                                            #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                            <div class="compass-airfield">
+                                                <div class="airfieldnumber-north">
+                                                    <span class="css_north"></span>
+                                                </div>
+                                                <div class="airfieldnumber-south">
+                                                    <span class="css_south"></span>
+                                                </div>
+                                            </div>
+                                            #end if
                                         </div>
                                     </div>
                                     <div class="col-sm-6 windspeedtable">
@@ -303,6 +316,20 @@
                                                         </span>
                                                     </td>
                                                 </tr>
+                                                #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                                <tr>
+                                                    <td class="windtext">Head</td>
+                                                    <td class="windtext"><span class="crosswind_lrxw">Xwind</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="headwind">--</span>
+                                                    </td>
+                                                    <td class="border-left gust">&nbsp;
+                                                        <span class="crosswind">--</span>
+                                                    </td>
+                                                </tr>
+                                                #end if
                                                 <tr>
                                                     <td class="mph" colspan="3">$unit.label.windSpeed</td>
                                                 </tr>
@@ -377,6 +404,9 @@
                                                 <!-- Almanac Modal -->
                                                 <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
                                                 <!-- Almanac Modal -->
+                                                #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                                <div class="clear" style="padding-bottom:45px;"></div>
+                                                #end if
                                                 <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg" role="document">
                                                         <div class="modal-content">
