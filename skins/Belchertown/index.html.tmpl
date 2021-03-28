@@ -264,7 +264,7 @@
                             <div class="weather-obs-bottom">
                                 <div class="col-sm-12 current_wind">
                                     #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                    <div class="col-sm-12 text-right">$obs.label.crosswind_active <span class="active_runway"></span></div>
+                                    <div class="col-sm-12 text-right">$obs.label.airfield_crosswind_active <span class="active-runway"></span></div>
                                     #end if
                                     <div class="col-sm-6">
                                         <div class="compass">
@@ -286,13 +286,13 @@
                                             </div>
                                             <div class="arrow"></div>
                                             #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                            <div class="arrow_crosswind"></div>
+                                            <div class="arrow-crosswind"></div>
                                             <div class="compass-airfield">
                                                 <div class="airfieldnumber-north">
-                                                    <span class="css_north"></span>
+                                                    <span class="runway-north"></span>
                                                 </div>
                                                 <div class="airfieldnumber-south">
-                                                    <span class="css_south"></span>
+                                                    <span class="runway-south"></span>
                                                 </div>
                                             </div>
                                             #end if
@@ -319,8 +319,8 @@
                                                 </tr>
                                                 #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
                                                 <tr>
-                                                    <td class="windtext">$obs.label.crosswind_headwind</td>
-                                                    <td class="windtext"><span class="crosswind_lrxw">$obs.label.crosswind_crosswind</span></td>
+                                                    <td class="windtext">$obs.label.airfield_crosswind_headwind</td>
+                                                    <td class="windtext"><span class="crosswind-lrxw">$obs.label.airfield_crosswind</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td>

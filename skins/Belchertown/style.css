@@ -1642,7 +1642,7 @@ p.entry-meta {
     z-index: 99;
 }
 
-.arrow_crosswind {
+.arrow-crosswind {
     visibility: hidden;
     width: 100%;
     height: 100%;
@@ -1651,7 +1651,7 @@ p.entry-meta {
     top: 0;
     transition: -webkit-transform 1s ease-in;
 }
-.arrow_crosswind:after {
+.arrow-crosswind:after {
     content: "";
     width: 0;
     height: 0;
