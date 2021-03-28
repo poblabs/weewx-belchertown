@@ -420,7 +420,7 @@ function calcXwind(windDir, windspeed, runway) {
     const headwind = Math.round(Math.abs(windspeed * Math.sin(0.017453 * u))),
         crosswind  = Math.round(windspeed * Math.cos(0.017453 * u));
     u > 180 && (u = Math.abs(u - 360));
-    0 === u || 180 === u ? (lrxw = "None") : (windDir > runway_heading && windDir < runway_heading + 180) || runway_heading - 180 > windDir ? (lrxw = "Right") : (windDir < runway_heading || windDir > runway_heading + 180) && (lrxw = "Left")
+    0 === u || 180 === u ? (lrxw = "$obs.label.crosswind_none") : (windDir > runway_heading && windDir < runway_heading + 180) || runway_heading - 180 > windDir ? (lrxw = "$obs.label.crosswind_right") : (windDir < runway_heading || windDir > runway_heading + 180) && (lrxw = "$obs.label.crosswind_left");
     belchertown_debug("Headwind: " + headwind + " Crosswind: " + crosswind + " Xwind Dir: " + lrxw + " Xwind angle: " + u);
     jQuery(".headwind").html(headwind);
     jQuery(".crosswind").html(crosswind);
