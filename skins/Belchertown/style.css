@@ -1600,13 +1600,18 @@ p.entry-meta {
     border-radius: 100%;
 }
 
-.direction .curwinddir {
+.direction .winddir {
     font-size: 25px;
     padding-top: 22px;
     display: block;
 }
+
 .direction .curwinddeg {
     font-size: 21px;
+}
+
+.curwindir {
+    background-color: #fff;
 }
 
 .curwinddeg {

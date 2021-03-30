@@ -269,13 +269,15 @@
                                     <div class="col-sm-6">
                                         <div class="compass">
                                             <div class="direction">
-                                                <span class="curwinddir">
-                                                #if $current.windDir.ordinal_compass == "N/A"
-                                                --
-                                                #else
-                                                $current.windDir.ordinal_compass
-                                                #end if
-                                                </span>
+                                                <div class="winddir">
+                                                    <span class="curwinddir">
+                                                    #if $current.windDir.ordinal_compass == "N/A"
+                                                    --
+                                                    #else
+                                                    $current.windDir.ordinal_compass
+                                                    #end if
+                                                    </span>
+                                                </div>
                                                 <span class="curwinddeg">
                                                 #if $current.windDir.raw is None:
                                                 -
