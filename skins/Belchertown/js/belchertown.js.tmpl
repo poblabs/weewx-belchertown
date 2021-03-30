@@ -102,7 +102,6 @@ jQuery(document).ready(function() {
     jQuery(".windrow").css({"padding-top": "10px", "padding-bottom": "10px"});
     jQuery(".runway-north").html(runwayNumber(opposite_runway));
     jQuery(".runway-south").html(runwayNumber(active_runway));
-    jQuery(".active-runway").html(runwayNumber(active_runway));
     jQuery(".compass-airfield").css({
         "transform": "rotate(" + active_runway * 10 + "deg)",
         "visibility": "visible"
@@ -402,32 +401,37 @@ function beaufort_cat(beaufort) {
 const active_runway = parseFloat($Extras.airfield_crosswind_active_runway).toFixed(0);
 
 // Find Opposite Runway
-var opposite_runway = (((active_runway * 10) + 180) % 360) / 10;
+const opposite_runway = (((active_runway * 10) + 180) % 360) / 10;
 
 function runwayNumber(number) {
     if (number <= 9) number = "0" + number;
     return number;
 }
 
+function activeRunway(windDir,runway) {
+    if (runway <= 90) windDir >= runway + 90 && windDir <= 360 - Math.abs(runway - 90) ? runway = opposite_runway * 10 : runway;
+    else if (runway >= 100 && runway <= 270) windDir >= runway + 90 || windDir <= runway - 90 ? runway = opposite_runway * 10 : runway;
+    else windDir >= (runway - 360) + 90 && windDir <= runway - 90 ? runway = opposite_runway * 10 : runway;
+    return runway;
+}
+
 function calcXwind(windDir, windspeed, runway) {
-    const runway_heading = runway * 10;
     windDir = parseFloat(windDir).toFixed(0);
+    // Find Active Runway relative to the wind direction
+    runway = activeRunway(windDir, runway * 10);
     // Windspeed must be Knots
     windspeed = parseFloat(windspeed).toFixed(0);
-    // windspeed = windspeed / 1.852; // convert km/h to knots
     var lrxw = "";
-    belchertown_debug("windDir: " + windDir + " Windspeed (knots): " + windspeed + " Runway Heading (°): " + runway_heading);
-    let u = Math.abs(windDir - runway_heading); // Crosswind angle
+    belchertown_debug("windDir: " + windDir + " Windspeed (knots): " + windspeed + " Runway Heading (°): " + runway);
+    let u = Math.abs(windDir - runway); // Crosswind angle
     const headwind = Math.round(Math.abs(windspeed * Math.sin(0.017453 * u))),
         crosswind  = Math.round(windspeed * Math.cos(0.017453 * u));
-    u > 180 && (u = Math.abs(u - 360));
-    0 === u || 180 === u ? (lrxw = "$obs.label.airfield_crosswind_none") : (windDir > runway_heading && windDir < runway_heading + 180) || runway_heading - 180 > windDir ? (lrxw = "$obs.label.airfield_crosswind_right") : (windDir < runway_heading || windDir > runway_heading + 180) && (lrxw = "$obs.label.airfield_crosswind_left");
+    0 === u || 180 === u ? (lrxw = "$obs.label.airfield_crosswind_none") : (windDir > runway && windDir < runway + 180) || runway - 180 > windDir ? (lrxw = "$obs.label.airfield_crosswind_right") : (windDir < runway || windDir > runway + 180) && (lrxw = "$obs.label.airfield_crosswind_left");
     belchertown_debug("Headwind: " + headwind + " Crosswind: " + crosswind + " Xwind Dir: " + lrxw + " Xwind angle: " + u);
+    jQuery(".active-runway").html(runwayNumber(runway / 10));
     jQuery(".headwind").html(headwind);
     jQuery(".crosswind").html(crosswind);
     jQuery(".crosswind-lrxw").html(lrxw);
-    jQuery(".arrow-crosswind").css({"transform": "rotate(" + parseFloat(u).toFixed(0) + "deg)", "visibility": "visible"})
-
 }
 #end if
 
