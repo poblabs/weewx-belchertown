@@ -264,9 +264,12 @@
                             <div class="weather-obs-bottom">
                                 <div class="col-sm-12 current_wind">
                                     #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                    <div class="col-sm-12 text-right">$obs.label.airfield_crosswind_active <span class="active-runway"></span></div>
+                                    <div class="col-sm-12 text-right">$obs.label.airfield_crosswind_active <span class="active-runway">--</span></div>
                                     #end if
                                     <div class="col-sm-6">
+                                        #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                        <div class="hidden-sm hidden-md hidden-lg" style="padding-top:15px;"></div>
+                                        #end if
                                         <div class="compass">
                                             <div class="direction">
                                                 <div class="winddir">
@@ -288,7 +291,6 @@
                                             </div>
                                             <div class="arrow"></div>
                                             #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                            <div class="arrow-crosswind"></div>
                                             <div class="compass-airfield">
                                                 <div class="airfieldnumber-north">
                                                     <span class="runway-north"></span>
@@ -322,7 +324,7 @@
                                                 #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
                                                 <tr>
                                                     <td class="windtext">$obs.label.airfield_crosswind_headwind</td>
-                                                    <td class="windtext"><span class="crosswind-lrxw">$obs.label.airfield_crosswind</span></td>
+                                                    <td class="windtext border-left"><span class="crosswind-lrxw">$obs.label.airfield_crosswind</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td>
@@ -408,7 +410,7 @@
                                                 <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
                                                 <!-- Almanac Modal -->
                                                 #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                                <div class="clear" style="padding-bottom:45px;"></div>
+                                                <div class="clear hidden-xs hidden-sm hidden-md" style="padding-bottom:15px;"></div>
                                                 #end if
                                                 <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg" role="document">

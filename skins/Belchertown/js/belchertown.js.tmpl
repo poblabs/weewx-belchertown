@@ -99,7 +99,7 @@ jQuery(document).ready(function() {
     });
 
     #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-    jQuery(".windrow").css({"padding-top": "10px", "padding-bottom": "10px"});
+    jQuery(".windrow").css("padding-top", "10px");
     jQuery(".runway-north").html(runwayNumber(opposite_runway));
     jQuery(".runway-south").html(runwayNumber(active_runway));
     jQuery(".compass-airfield").css({
@@ -107,7 +107,6 @@ jQuery(document).ready(function() {
         "visibility": "visible"
     });
     #end if
-
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
