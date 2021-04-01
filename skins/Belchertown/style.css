@@ -1656,7 +1656,7 @@ p.entry-meta {
 	font-size:20px;
 }
 
-.curwindspeed, .curwindgust {
+.curwindspeed, .curwindgust, .headwind, .crosswind {
 	font-size:30px;
 }
 
