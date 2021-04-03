@@ -2283,7 +2283,8 @@ function showChart(json_file, prepend_renderTo = false) {
                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
                                 var rounding = point.series.userOptions.rounding;
                                 var mirrored = point.series.userOptions.mirrored_value;
-                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory(point.y, point_obsType, true, rounding, mirrored);
+                                var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory(point.y, point_obsType, true, rounding, mirrored, numberFormat);
                             })
                         );
                     },
