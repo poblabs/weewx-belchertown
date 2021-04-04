@@ -397,41 +397,44 @@ function beaufort_cat(beaufort) {
 
 #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
 // Active Runway from skin.conf
-const active_runway = parseFloat($Extras.airfield_crosswind_active_runway).toFixed(0);
+const active_runway = $Extras.airfield_crosswind_active_runway;
 
 // Find Opposite Runway
-const opposite_runway = (((active_runway * 10) + 180) % 360) / 10;
+const opposite_runway = (active_runway + 18) % 36;
 
 function runwayNumber(number) {
     if (number <= 9) number = "0" + number;
     return number;
 }
 
-function activeRunway(windDir,runway) {
-    if (runway <= 90) windDir >= runway + 90 && windDir <= 360 - Math.abs(runway - 90) ? runway = opposite_runway * 10 : runway;
-    else if (runway >= 100 && runway <= 270) windDir >= runway + 90 || windDir <= runway - 90 ? runway = opposite_runway * 10 : runway;
-    else windDir >= (runway - 360) + 90 && windDir <= runway - 90 ? runway = opposite_runway * 10 : runway;
+function activeRunway(winddir,runway) {
+    // Find Active Runway relative to the wind.
+    const runway_heading = runway * 10;
+    if (runway_heading <= 90) winddir >= runway_heading + 90 && winddir <= 360 - Math.abs(runway_heading - 90) && (runway = opposite_runway);
+    else if (runway_heading >= 100 && runway_heading <= 270) winddir >= runway_heading + 90 || winddir <= runway_heading - 90 && (runway = opposite_runway);
+    else winddir >= (runway_heading - 360) + 90 && winddir <= runway_heading - 90 && (runway = opposite_runway);
+    // Show active runway number
+    jQuery(".active-runway").html(runwayNumber(runway));
+    // Return active runway to calculate Crosswind.
     return runway;
 }
 
-function calcXwind(windDir, windspeed, runway) {
-    windDir = parseFloat(windDir).toFixed(0);
-    // Find Active Runway relative to the wind direction
-    runway = activeRunway(windDir, runway * 10);
-    // Windspeed must be Knots
-    windspeed = parseFloat(windspeed).toFixed(0);
-    var lrxw = "";
-    belchertown_debug("windDir: " + windDir + " Windspeed (knots): " + windspeed + " Runway Heading (°): " + runway);
-    let u = Math.abs(windDir - runway); // Crosswind angle
-    const crosswind = Math.round(Math.abs(windspeed * Math.sin(0.017453 * u))),
-          headwind  = Math.round(windspeed * Math.cos(0.017453 * u));
-    u > 180 && (u = Math.abs(u - 360));
-    0 === u || 180 === u ? (lrxw = "$obs.label.airfield_crosswind_none") : (windDir > runway && windDir < runway + 180) || runway - 180 > windDir ? (lrxw = "$obs.label.airfield_crosswind_right") : (windDir < runway || windDir > runway + 180) && (lrxw = "$obs.label.airfield_crosswind_left");
-    belchertown_debug("Headwind: " + headwind + " Crosswind: " + crosswind + " Xwind Dir: " + lrxw + " Xwind angle: " + u);
-    jQuery(".active-runway").html(runwayNumber(runway / 10));
+function calcXwind(winddir, windspeed, runway) {
+    // The angle alpha is the difference between the wind and the active runway, in degrees. Use (Math.PI / 180) to convert to radians more precise.
+    const alpha = (winddir - runway * 10) * (Math.PI / 180);
+
+    // Calculate the headwind.
+    const headwind = Math.round(windspeed * Math.cos(alpha));
+
+    // Positive crosswind is from the right, negative is from the left. Become none when wind is come from front or no wind speed.
+    const crosswind = Math.round(windspeed * Math.sin(alpha));
+    const direction = crosswind == 0 ? "$obs.label.airfield_crosswind_none" : crosswind > 0 ? "$obs.label.airfield_crosswind_right" : "$obs.label.airfield_crosswind_left";
+
+    // Show the values
     jQuery(".headwind").html(headwind);
-    jQuery(".crosswind").html(crosswind);
-    jQuery(".crosswind-lrxw").html(lrxw);
+    jQuery(".crosswind").html(Math.abs(crosswind));
+    jQuery(".crosswind-lrxw").html(direction);
+
 }
 #end if
 
@@ -1910,7 +1913,7 @@ function update_current_wx(data) {
     #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
     // Airfield Crosswind
     if (data.hasOwnProperty("windDir") && data.hasOwnProperty("windSpeed_knot")) {
-        calcXwind(data["windDir"], data["windSpeed_knot"], active_runway);
+        calcXwind(parseFloat(data["windDir"]), parseFloat(data["windSpeed_knot"]), activeRunway(parseFloat(data["windDir"]).toFixed(0), active_runway));
     }
     #end if
 
