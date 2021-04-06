@@ -265,11 +265,11 @@
                                 <div class="col-sm-12 current_wind">
                                     #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
                                     <div class="col-sm-12 text-right">$obs.label.airfield_crosswind_active <span class="active-runway">--</span></div>
-                                    #end if
                                     <div class="col-sm-6">
-                                        #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
                                         <div class="hidden-sm hidden-md hidden-lg" style="padding-top:15px;"></div>
-                                        #end if
+                                    #else
+                                    <div class="col-sm-6">
+                                    #end if
                                         <div class="compass">
                                             <div class="direction">
                                                 <div class="winddir">
@@ -405,13 +405,13 @@
                                                     </div>
                                                 </div>
                                                 <div class="clear"></div>
+                                                #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
+                                                <div class="clear hidden-xs hidden-sm hidden-md" style="padding-bottom:35px;"></div>
+                                                #end if
                                                 #if $Extras.has_key("almanac_extras") and $Extras.almanac_extras == '1' and $almanac.hasExtras
                                                 <!-- Almanac Modal -->
                                                 <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
                                                 <!-- Almanac Modal -->
-                                                #if $Extras.has_key("airfield_crosswind_enabled") and $Extras.airfield_crosswind_enabled == '1'
-                                                <div class="clear hidden-xs hidden-sm hidden-md" style="padding-bottom:15px;"></div>
-                                                #end if
                                                 <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg" role="document">
                                                         <div class="modal-content">
