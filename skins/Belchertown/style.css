@@ -1865,6 +1865,10 @@ table.celestial td.label {
     font-size:20px;
 }
 
+.stats-title::first-letter {
+    text-transform: uppercase;
+}
+
 .magnitude {
 	/* font-size:23px; */
 }
