@@ -1543,40 +1543,38 @@ var mqttConnected = false;
 function ajaximages(section = false, reload_timer_interval_seconds = false) {
     // This function only runs if the elements have an img src.
     // Update images within the specific section
-    if (section) {
-        if (section == "radar") {
-            belchertown_debug("Updating radar image");
-            // Reload images
-            if (document.querySelectorAll(".radar-map img").length > 0) {
-                var radar_img = document.querySelectorAll(".radar-map img")[0].src;
-                var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
-                document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
-                //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-                //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
-            }
-            // Reload iframe - https://stackoverflow.com/a/4249946/1177153
-            if (document.querySelectorAll(".radar-map iframe").length > 0) {
-                jQuery(".radar-map iframe").each(function() {
-                    jQuery(this).attr('src', function(i, val) {return val;});
-                });
-            }
-        } else {
-            belchertown_debug("Updating " + section + " images");
-            // Reload images
-            jQuery('.' + section + ' img').each(function() {
-                new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
-                jQuery(this).attr('src', new_image_url);
-            });
-            // Reload iframes
-            jQuery('.' + section + ' iframe').each(function() {
+    if (!section || section == "radar") {
+        belchertown_debug("Updating radar image");
+    // Reload images
+        if (document.querySelectorAll(".radar-map img").length > 0) {
+            var radar_img = document.querySelectorAll(".radar-map img")[0].src;
+            var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
+            document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
+            //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+            //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
+        }
+        // Reload iframe - https://stackoverflow.com/a/4249946/1177153
+        if (document.querySelectorAll(".radar-map iframe").length > 0) {
+            jQuery(".radar-map iframe").each(function() {
                 jQuery(this).attr('src', function(i, val) {return val;});
             });
         }
-        // Set the new timer
-        if (reload_timer_interval_seconds) {
-            var reload_timer_ms = reload_timer_interval_seconds * 1000; // convert to millis
-            setTimeout(function() {ajaximages(section, reload_timer_interval_seconds);}, reload_timer_ms);
-        }
+        } else if (!section || section != "radar") {
+        belchertown_debug("Updating " + section + " images");
+        // Reload images
+        jQuery('.' + section + ' img').each(function() {
+            new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+            jQuery(this).attr('src', new_image_url);
+        });
+        // Reload iframes
+        jQuery('.' + section + ' iframe').each(function() {
+            jQuery(this).attr('src', function(i, val) {return val;});
+        });
+    }
+    // Set the new timer
+    if (reload_timer_interval_seconds) {
+        var reload_timer_ms = reload_timer_interval_seconds * 1000; // convert to millis
+        setTimeout(function() {ajaximages(section, reload_timer_interval_seconds);}, reload_timer_ms);
     }
 }
 
@@ -1737,7 +1735,6 @@ function update_current_wx(data) {
             #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                 setTimeout(ajaxforecast, 10000); // Update forecast data
             #end if
-            setTimeout(ajaximages, 10000); // Update radar and home page hook "img src" if present
             }).catch(function(e) {
                 console.log(e);
             });
