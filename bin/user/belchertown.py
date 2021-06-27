@@ -2832,12 +2832,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
             # Write the output to the JSON file
             with open(json_filename, mode="w") as jf:
-                jf.write(json.dumps(output[chart_group]))
+                jf.write(json.dumps(output[chart_group], indent=4))
 
             # Save the graphs.conf to a json file for future debugging
             chart_json_filename = html_dest_dir + "/graphs.json"
             with open(chart_json_filename, mode="w") as cjf:
-                cjf.write(json.dumps(self.chart_dict))
+                cjf.write(json.dumps(self.chart_dict, indent=4))
 
     def get_observation_data(
         self,
