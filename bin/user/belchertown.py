@@ -3362,7 +3362,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "Error was: %s." % (binding, obs_lookup, e)
                 )
 
-            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, end_ts, aggregate_interval)
+            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
             
             min_obs_vt = self.converter.convert(obs_vt)
 
@@ -3381,7 +3381,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "Error was: %s." % (binding, obs_lookup, e)
                 )
 
-            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, end_ts, aggregate_interval)
+            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
             
             max_obs_vt = self.converter.convert(obs_vt)
 
@@ -3594,7 +3594,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 % (binding, obs_lookup, e)
             )
 
-        self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, end_ts, aggregate_interval)
+        self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
         
         obs_vt = self.converter.convert(obs_vt)
 
@@ -3657,7 +3657,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
         return data
 
-    def insert_null_value_timestamps_to_end_ts(self, time_start_vt, time_stop_vt, obs_vt, end_ts, interval):
+    def insert_null_value_timestamps_to_end_ts(self, time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, interval):
         """
         In weewx 4.5.1 xtypes.py was modified to not return any data points which didn't exist in the archive database.
         This function adds the 'future' data points from the last timestamp in the list up until end_ts with None entries.
@@ -3665,10 +3665,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         """
         count = 0
 
-        last_ts = time_start_vt[0][-1]
-
         if interval is not None:
-            ts = last_ts + interval
+            try:
+                ts = time_start_vt[0][-1] + interval
+            except:
+                ts = start_ts
 
             while ts < end_ts:
                 time_start_vt[0].append(ts)
