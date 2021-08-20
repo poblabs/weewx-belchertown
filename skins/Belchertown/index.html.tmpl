@@ -53,14 +53,14 @@
                 rotateThis( "$current.windDir.formatted" );
 
                 // Update the Last Updated timestamp with moment.js,
-                updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
                 jQuery(".updated").html( updated_text );
             
                 #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'            
                 if ( moment.unix( "$earthquake_time" ).isValid() ) {
                     // Check that the time is the time (number) and not the "no earthquake available" wording
-                    jQuery(".earthquake-time").html( moment.unix( "$earthquake_time" ).utcOffset($moment_js_utc_offset).format( "$obs.label.time_earthquake" ) );
+                    jQuery(".earthquake-time").html( tzAdjustedMoment( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
                 } else {
                     jQuery(".earthquake-time").html( "$earthquake_time" );
                 }
@@ -149,7 +149,7 @@
                 #end if
                         
                 // Update the Last Updated timestamp with moment.js,
-                updated = moment.unix( $current.dateTime.raw ).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
                 jQuery(".updated").html( updated_text );
             
