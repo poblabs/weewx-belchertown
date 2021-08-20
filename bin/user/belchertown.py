@@ -3214,7 +3214,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 (time_start_vt, time_stop_vt, obs_vt) = weewx.xtypes.get_series(
                     obs_lookup,
                     TimeSpan(start_ts, end_ts),
-                    
+                    archive,
                     aggregate_type,
                     aggregate_interval,
                 )
