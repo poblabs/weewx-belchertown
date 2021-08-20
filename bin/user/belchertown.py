@@ -3188,6 +3188,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "Error was: %s." % (binding, obs_lookup, e)
                 )
 
+            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
+
             min_obs_vt = self.converter.convert(obs_vt)
 
             # Get max values
@@ -3206,6 +3208,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "Error was: %s." % (binding, obs_lookup, e)
                 )
 
+            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
+
             max_obs_vt = self.converter.convert(obs_vt)
 
             # Get avg values
@@ -3223,6 +3227,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "Error trying to use database binding %s to graph observation %s. "
                     "Error was: %s." % (binding, obs_lookup, e)
                 )
+
+            self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
 
             avg_obs_vt = self.converter.convert(obs_vt)
 
