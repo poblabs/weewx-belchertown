@@ -1141,6 +1141,10 @@ function show_forcast_alert(data, forecast_provider) {
             for (i = 0; i < data['alerts'][0]['response'].length; i++) {
                 //forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_title = aeris_coded_alerts(data['alerts'][0]['response'][i]['details']['type']);
+                if (typeof forecast_alert_title === "undefined") {
+                    // If the type can't be decoded then use the raw name in the alert. I have seen this for "Hurricane Local Statement" not matching a coded weather value
+                    forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
+                }
                 forecast_alert_body = data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
                 //forecast_alert_link = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_link = data['alerts'][0]['response'][i]['details']['type'];
