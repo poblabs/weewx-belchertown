@@ -39,6 +39,9 @@ var graphgroups_raw = $charts;
 var graphgroups_titles = $graphpage_titles;
 var graphpage_content = $graphpage_content;
 
+//  declare icon_dict as global variable
+var icon_dict = {};
+
 function belchertown_debug(message) {
     if (belchertown_debug_config > 0) {
         console.log(message);
@@ -690,8 +693,24 @@ function moon_icon(moonphase){
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
 function ajaxforecast() {
-    jQuery.getJSON(get_relative_url() + "/json/forecast.json", update_forecast_data);
-};
+    forecast_data = {};
+    jQuery.when(
+        // Get the iconlist - original source is // https://www.aerisweather.com/support/docs/api/reference/icon-list/
+        jQuery.getJSON(get_relative_url() + '/images/aeris-icon-list.json', function(iconlist) {
+        icon_dict = iconlist;
+            }
+        ),
+        // Get the forecast
+        jQuery.getJSON(get_relative_url() + "/json/forecast.json", function(forecast) {
+        forecast_data = forecast;
+            }
+        )
+    ).then(function() {
+        //  update forecast once both promises are fulfilled
+        update_forecast_data(forecast_data);
+        }
+    );
+}
 
 function aeris_coded_weather(data, full_observation = false) {
     // https://www.aerisweather.com/support/docs/api/reference/weather-codes/
@@ -996,125 +1015,12 @@ function aeris_coded_alerts(data, full_observation = false) {
 
 function aeris_icon(data) {
     // https://www.aerisweather.com/support/docs/api/reference/icon-list/
-    icon_name = data.split(".")[0]; // Remove .png
-
-    var icon_dict = {
-        "blizzard": "snow",
-        "blizzardn": "snow",
-        "blowingsnow": "snow",
-        "blowingsnown": "snow",
-        "clear": "clear-day",
-        "clearn": "clear-night",
-        "cloudy": "cloudy",
-        "cloudyn": "cloudy",
-        "cloudyw": "cloudy",
-        "cloudywn": "cloudy",
-        "cold": "clear-day",
-        "coldn": "clear-night",
-        "drizzle": "rain",
-        "drizzlen": "rain",
-        "dust": "fog",
-        "dustn": "fog",
-        "fair": "mostly-clear-day",
-        "fairn": "mostly-clear-night",
-        "drizzlef": "rain",
-        "fdrizzlen": "rain",
-        "flurries": "sleet",
-        "flurriesn": "sleet",
-        "flurriesw": "sleet",
-        "flurrieswn": "sleet",
-        "fog": "fog",
-        "fogn": "fog",
-        "freezingrain": "rain",
-        "freezingrainn": "rain",
-        "hazy": "fog",
-        "hazyn": "fog",
-        "hot": "clear-day",
-        "N/A ": "unknown",
-        "mcloudy": "mostly-cloudy-day",
-        "mcloudyn": "mostly-cloudy-night",
-        "mcloudyr": "rain",
-        "mcloudyrn": "rain",
-        "mcloudyrw": "rain",
-        "mcloudyrwn": "rain",
-        "mcloudys": "snow",
-        "mcloudysn": "snow",
-        "mcloudysf": "snow",
-        "mcloudysfn": "snow",
-        "mcloudysfw": "snow",
-        "mcloudysfwn": "snow",
-        "mcloudysw": "mostly-cloudy-day",
-        "mcloudyswn": "mostly-cloudy-night",
-        "mcloudyt": "thunderstorm",
-        "mcloudytn": "thunderstorm",
-        "mcloudytw": "thunderstorm",
-        "mcloudytwn": "thunderstorm",
-        "mcloudyw": "mostly-cloudy-day",
-        "mcloudywn": "mostly-cloudy-night",
-        "na": "unknown",
-        "pcloudy": "partly-cloudy-day",
-        "pcloudyn": "partly-cloudy-night",
-        "pcloudyr": "rain",
-        "pcloudyrn": "rain",
-        "pcloudyrw": "rain",
-        "pcloudyrwn": "rain",
-        "pcloudys": "snow",
-        "pcloudysn": "snow",
-        "pcloudysf": "snow",
-        "pcloudysfn": "snow",
-        "pcloudysfw": "snow",
-        "pcloudysfwn": "snow",
-        "pcloudysw": "partly-cloudy-day",
-        "pcloudyswn": "partly-cloudy-night",
-        "pcloudyt": "thunderstorm",
-        "pcloudytn": "thunderstorm",
-        "pcloudytw": "thunderstorm",
-        "pcloudytwn": "thunderstorm",
-        "pcloudyw": "partly-cloudy-day",
-        "pcloudywn": "partly-cloudy-night",
-        "rain": "rain",
-        "rainn": "rain",
-        "rainandsnow": "rain",
-        "rainandsnown": "rain",
-        "raintosnow": "rain",
-        "raintosnown": "rain",
-        "rainw": "rain",
-        "showers": "rain",
-        "showersn": "rain",
-        "showersw": "rain",
-        "showerswn": "rain",
-        "sleet": "sleet",
-        "sleetn": "sleet",
-        "sleetsnow": "sleet",
-        "sleetsnown": "sleet",
-        "smoke": "fog",
-        "smoken": "fog",
-        "snow": "snow",
-        "snown": "snow",
-        "snoww": "snow",
-        "snowwn": "snow",
-        "snowshowers": "snow",
-        "snowshowersn": "snow",
-        "snowshowersw": "snow",
-        "snowshowerswn": "snow",
-        "snowtorain": "snow",
-        "snowtorainn": "snow",
-        "sunny": "clear-day",
-        "sunnyn": "clear-night",
-        "sunnyw": "mostly-clear-day",
-        "sunnywn": "mostly-clear-night",
-        "tstorm": "thunderstorm",
-        "tstormn": "thunderstorm",
-        "tstorms": "thunderstorm",
-        "tstormsn": "thunderstorm",
-        "tstormsw": "thunderstorm",
-        "tstormswn": "thunderstorm",
-        "wind": "wind",
-        "wintrymix": "sleet",
-        "wintrymixn": "sleet"
-    }
-
-    return icon_dict[icon_name];
+    var icon_name = data.split(".")[0]; // Remove .png
+        icon_out = icon_dict[icon_name];
+        if ( icon_out === undefined ) {
+            icon_out ='unknown' 
+            }
+        return icon_out;
 }
 
 function show_forcast_alert(data, forecast_provider) {
