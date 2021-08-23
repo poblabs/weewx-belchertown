@@ -651,69 +651,85 @@ class getData(SearchList):
 
         # All Time - Largest Daily Temperature Range Conversions
         # Max temperature
-        at_outTemp_max_range_max_tuple = (
-            at_outTemp_max_range_query[3],
-            outTemp_unit,
-            "group_temperature",
-        )
-        at_outTemp_max_range_max = (
-            outTemp_round
-            % self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0]
-        )
-        # Min temperature for this day
-        at_outTemp_max_range_min_tuple = (
-            at_outTemp_max_range_query[2],
-            outTemp_unit,
-            "group_temperature",
-        )
-        at_outTemp_max_range_min = (
-            outTemp_round
-            % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
-        )
-        # Largest Daily Temperature Range total
-        at_outTemp_max_range_total = outTemp_round % (
-            float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min)
-        )
-        # Replace the SQL Query output with the converted values
-        at_outTemp_range_max = [
-            at_outTemp_max_range_query[0],
-            locale.format("%g", float(at_outTemp_max_range_total)),
-            locale.format("%g", float(at_outTemp_max_range_min)),
-            locale.format("%g", float(at_outTemp_max_range_max)),
-        ]
+        if at_outTemp_max_range_query is not None:
+            at_outTemp_max_range_max_tuple = (
+                at_outTemp_max_range_query[3],
+                outTemp_unit,
+                "group_temperature",
+            )
+            at_outTemp_max_range_max = (
+                outTemp_round
+                % self.generator.converter.convert(at_outTemp_max_range_max_tuple)[0]
+            )
+            # Min temperature for this day
+            at_outTemp_max_range_min_tuple = (
+                at_outTemp_max_range_query[2],
+                outTemp_unit,
+                "group_temperature",
+            )
+            at_outTemp_max_range_min = (
+                outTemp_round
+                % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
+            )
+            # Largest Daily Temperature Range total
+            at_outTemp_max_range_total = outTemp_round % (
+                float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min)
+            )
+            # Replace the SQL Query output with the converted values
+            at_outTemp_range_max = [
+                at_outTemp_max_range_query[0],
+                locale.format("%g", float(at_outTemp_max_range_total)),
+                locale.format("%g", float(at_outTemp_max_range_min)),
+                locale.format("%g", float(at_outTemp_max_range_max)),
+            ]
+        else:
+            at_outTemp_range_max = [
+                calendar.timegm(time.gmtime()),
+                locale.format("%.1f", 0),
+                locale.format("%.1f", 0),
+                locale.format("%.1f", 0),
+            ]
 
         # All Time - Smallest Daily Temperature Range Conversions
         # Max temperature for this day
-        at_outTemp_min_range_max_tuple = (
-            at_outTemp_min_range_query[3],
-            outTemp_unit,
-            "group_temperature",
-        )
-        at_outTemp_min_range_max = (
-            outTemp_round
-            % self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0]
-        )
-        # Min temperature for this day
-        at_outTemp_min_range_min_tuple = (
-            at_outTemp_min_range_query[2],
-            outTemp_unit,
-            "group_temperature",
-        )
-        at_outTemp_min_range_min = (
-            outTemp_round
-            % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
-        )
-        # Smallest Daily Temperature Range total
-        at_outTemp_min_range_total = outTemp_round % (
-            float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min)
-        )
-        # Replace the SQL Query output with the converted values
-        at_outTemp_range_min = [
-            at_outTemp_min_range_query[0],
-            locale.format("%g", float(at_outTemp_min_range_total)),
-            locale.format("%g", float(at_outTemp_min_range_min)),
-            locale.format("%g", float(at_outTemp_min_range_max)),
-        ]
+        if at_outTemp_min_range_query is not None:
+            at_outTemp_min_range_max_tuple = (
+                at_outTemp_min_range_query[3],
+                outTemp_unit,
+                "group_temperature",
+            )
+            at_outTemp_min_range_max = (
+                outTemp_round
+                % self.generator.converter.convert(at_outTemp_min_range_max_tuple)[0]
+            )
+            # Min temperature for this day
+            at_outTemp_min_range_min_tuple = (
+                at_outTemp_min_range_query[2],
+                outTemp_unit,
+                "group_temperature",
+            )
+            at_outTemp_min_range_min = (
+                outTemp_round
+                % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
+            )
+            # Smallest Daily Temperature Range total
+            at_outTemp_min_range_total = outTemp_round % (
+                float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min)
+            )
+            # Replace the SQL Query output with the converted values
+            at_outTemp_range_min = [
+                at_outTemp_min_range_query[0],
+                locale.format("%g", float(at_outTemp_min_range_total)),
+                locale.format("%g", float(at_outTemp_min_range_min)),
+                locale.format("%g", float(at_outTemp_min_range_max)),
+            ]
+        else:
+            at_outTemp_range_min = [
+                calendar.timegm(time.gmtime()),
+                locale.format("%.1f", 0),
+                locale.format("%.1f", 0),
+                locale.format("%.1f", 0),
+            ]
 
         # Rain lookups
         # Find the group_name for rain in database
