@@ -39,6 +39,9 @@ var graphgroups_raw = $charts;
 var graphgroups_titles = $graphpage_titles;
 var graphpage_content = $graphpage_content;
 
+//  declare icon_dict as global variable
+var icon_dict = {};
+
 function belchertown_debug(message) {
     if (belchertown_debug_config > 0) {
         console.log(message);
@@ -632,8 +635,8 @@ function update_weewx_data(data) {
     jQuery(".dailymaxgust").html(parseFloat(data["day"]["wind"]["max"]).toFixed(1));
 
     // Daily Snapshot Stats Section
-    jQuery(".snapshot-records-today-header").html(moment.unix(data["current"]["epoch"]).utcOffset($moment_js_utc_offset).format('$obs.label.time_snapshot_records_today_header'));
-    jQuery(".snapshot-records-month-header").html(moment.unix(data["current"]["epoch"]).utcOffset($moment_js_utc_offset).format('$obs.label.time_snapshot_records_month_header'));
+    jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_today_header'));
+    jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_month_header'));
     jQuery(".dailystatshigh").html(data["day"]["outTemp"]["max"]);
     jQuery(".dailystatslow").html(data["day"]["outTemp"]["min"]);
     jQuery(".dailystatswindavg").html(data["day"]["wind"]["average"]);
@@ -650,8 +653,8 @@ function update_weewx_data(data) {
     jQuery(".monthstatsrainrate").html(data["month"]["rain"]["max"]);
 
     // Sunrise and Sunset            
-    jQuery(".sunrise-value").html(moment.unix(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).utcOffset($moment_js_utc_offset).format("$obs.label.time_sunrise"));
-    jQuery(".sunset-value").html(moment.unix(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).utcOffset($moment_js_utc_offset).format("$obs.label.time_sunset"));
+    jQuery(".sunrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
+    jQuery(".sunset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format("$obs.label.time_sunset"));
 
     // Moon icon, phase and illumination percent
     jQuery(".moon-icon").html(moon_icon(data["almanac"]["moon"]["moon_index"]));        
@@ -661,7 +664,7 @@ function update_weewx_data(data) {
     // Close current modal if open
     jQuery('#almanac').modal('hide');
     jQuery(".almanac-extras-modal-body").html(data["almanac"]["almanac_extras_modal_html"]);
-    almanac_updated = "$obs.label.header_last_updated " + moment.unix(data["current"]["datetime_raw"]).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+    almanac_updated = "$obs.label.header_last_updated " + tzAdjustedMoment(data["current"]["datetime_raw"]).format("$obs.label.time_last_updated");
     jQuery(".almanac_last_updated").html(almanac_updated);
     #end if
 }
@@ -690,8 +693,24 @@ function moon_icon(moonphase){
 
 #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
 function ajaxforecast() {
-    jQuery.getJSON(get_relative_url() + "/json/forecast.json", update_forecast_data);
-};
+    forecast_data = {};
+    jQuery.when(
+        // Get the iconlist - original source is // https://www.aerisweather.com/support/docs/api/reference/icon-list/
+        jQuery.getJSON(get_relative_url() + '/images/aeris-icon-list.json', function(iconlist) {
+        icon_dict = iconlist;
+            }
+        ),
+        // Get the forecast
+        jQuery.getJSON(get_relative_url() + "/json/forecast.json", function(forecast) {
+        forecast_data = forecast;
+            }
+        )
+    ).then(function() {
+        //  update forecast once both promises are fulfilled
+        update_forecast_data(forecast_data);
+        }
+    );
+}
 
 function aeris_coded_weather(data, full_observation = false) {
     // https://www.aerisweather.com/support/docs/api/reference/weather-codes/
@@ -996,125 +1015,12 @@ function aeris_coded_alerts(data, full_observation = false) {
 
 function aeris_icon(data) {
     // https://www.aerisweather.com/support/docs/api/reference/icon-list/
-    icon_name = data.split(".")[0]; // Remove .png
-
-    var icon_dict = {
-        "blizzard": "snow",
-        "blizzardn": "snow",
-        "blowingsnow": "snow",
-        "blowingsnown": "snow",
-        "clear": "clear-day",
-        "clearn": "clear-night",
-        "cloudy": "cloudy",
-        "cloudyn": "cloudy",
-        "cloudyw": "cloudy",
-        "cloudywn": "cloudy",
-        "cold": "clear-day",
-        "coldn": "clear-night",
-        "drizzle": "drizzle",
-        "drizzlen": "drizzle",
-        "dust": "fog",
-        "dustn": "fog",
-        "fair": "mostly-clear-day",
-        "fairn": "mostly-clear-night",
-        "drizzlef": "drizzle",
-        "fdrizzlen": "drizzle",
-        "flurries": "sleet",
-        "flurriesn": "sleet",
-        "flurriesw": "sleet",
-        "flurrieswn": "sleet",
-        "fog": "fog",
-        "fogn": "fog",
-        "freezingrain": "rain",
-        "freezingrainn": "rain",
-        "hazy": "fog",
-        "hazyn": "fog",
-        "hot": "clear-day",
-        "N/A ": "unknown",
-        "mcloudy": "mostly-cloudy-day",
-        "mcloudyn": "mostly-cloudy-night",
-        "mcloudyr": "rain",
-        "mcloudyrn": "rain",
-        "mcloudyrw": "rain",
-        "mcloudyrwn": "rain",
-        "mcloudys": "snow",
-        "mcloudysn": "snow",
-        "mcloudysf": "snow",
-        "mcloudysfn": "snow",
-        "mcloudysfw": "snow",
-        "mcloudysfwn": "snow",
-        "mcloudysw": "mostly-cloudy-day",
-        "mcloudyswn": "mostly-cloudy-night",
-        "mcloudyt": "thunderstorm",
-        "mcloudytn": "thunderstorm",
-        "mcloudytw": "thunderstorm",
-        "mcloudytwn": "thunderstorm",
-        "mcloudyw": "mostly-cloudy-day",
-        "mcloudywn": "mostly-cloudy-night",
-        "na": "unknown",
-        "pcloudy": "partly-cloudy-day",
-        "pcloudyn": "partly-cloudy-night",
-        "pcloudyr": "rain",
-        "pcloudyrn": "rain",
-        "pcloudyrw": "rain",
-        "pcloudyrwn": "rain",
-        "pcloudys": "snow",
-        "pcloudysn": "snow",
-        "pcloudysf": "snow",
-        "pcloudysfn": "snow",
-        "pcloudysfw": "snow",
-        "pcloudysfwn": "snow",
-        "pcloudysw": "partly-cloudy-day",
-        "pcloudyswn": "partly-cloudy-night",
-        "pcloudyt": "thunderstorm",
-        "pcloudytn": "thunderstorm",
-        "pcloudytw": "thunderstorm",
-        "pcloudytwn": "thunderstorm",
-        "pcloudyw": "partly-cloudy-day",
-        "pcloudywn": "partly-cloudy-night",
-        "rain": "rain",
-        "rainn": "rain",
-        "rainandsnow": "rain",
-        "rainandsnown": "rain",
-        "raintosnow": "rain",
-        "raintosnown": "rain",
-        "rainw": "rain",
-        "showers": "rain",
-        "showersn": "rain",
-        "showersw": "rain",
-        "showerswn": "rain",
-        "sleet": "sleet",
-        "sleetn": "sleet",
-        "sleetsnow": "sleet",
-        "sleetsnown": "sleet",
-        "smoke": "fog",
-        "smoken": "fog",
-        "snow": "snow",
-        "snown": "snow",
-        "snoww": "snow",
-        "snowwn": "snow",
-        "snowshowers": "snow",
-        "snowshowersn": "snow",
-        "snowshowersw": "snow",
-        "snowshowerswn": "snow",
-        "snowtorain": "snow",
-        "snowtorainn": "snow",
-        "sunny": "clear-day",
-        "sunnyn": "clear-night",
-        "sunnyw": "mostly-clear-day",
-        "sunnywn": "mostly-clear-night",
-        "tstorm": "thunderstorm",
-        "tstormn": "thunderstorm",
-        "tstorms": "thunderstorm",
-        "tstormsn": "thunderstorm",
-        "tstormsw": "thunderstorm",
-        "tstormswn": "thunderstorm",
-        "wind": "wind",
-        "wintrymix": "sleet",
-        "wintrymixn": "sleet"
-    }
-
-    return icon_dict[icon_name];
+    var icon_name = data.split(".")[0]; // Remove .png
+        icon_out = icon_dict[icon_name];
+        if ( icon_out === undefined ) {
+            icon_out ='unknown' 
+            }
+        return icon_out;
 }
 
 function show_forcast_alert(data, forecast_provider) {
@@ -1132,7 +1038,7 @@ function show_forcast_alert(data, forecast_provider) {
                 forecast_alert_title = data['alerts'][i]['title'];
                 forecast_alert_body = data['alerts'][i]['description'].replace(/\n/g, '<br>');
                 forecast_alert_link = data['alerts'][i]['title'];
-                forecast_alert_expires = moment.unix(data['alerts'][i]['expires']).utcOffset($moment_js_utc_offset).format('$obs.label.time_forecast_alert_expires');
+                forecast_alert_expires = tzAdjustedMoment(data['alerts'][i]['expires']).format('$obs.label.time_forecast_alert_expires');
                 forecast_alerts.push({"title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires});
             }
         }
@@ -1141,10 +1047,14 @@ function show_forcast_alert(data, forecast_provider) {
             for (i = 0; i < data['alerts'][0]['response'].length; i++) {
                 //forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_title = aeris_coded_alerts(data['alerts'][0]['response'][i]['details']['type']);
+                if (typeof forecast_alert_title === "undefined") {
+                    // If the type can't be decoded then use the raw name in the alert. I have seen this for "Hurricane Local Statement" not matching a coded weather value
+                    forecast_alert_title = data['alerts'][0]['response'][i]['details']['name'];
+                }
                 forecast_alert_body = data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
                 //forecast_alert_link = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_link = data['alerts'][0]['response'][i]['details']['type'];
-                forecast_alert_expires = moment.unix(data['alerts'][0]['response'][i]['timestamps']['expires']).utcOffset($moment_js_utc_offset).format('$obs.label.time_forecast_alert_expires');
+                forecast_alert_expires = tzAdjustedMoment(data['alerts'][0]['response'][i]['timestamps']['expires']).format('$obs.label.time_forecast_alert_expires');
                 forecast_alerts.push({"title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires});
             }
         }
@@ -1207,7 +1117,7 @@ function update_forecast_data(data) {
         belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
     } else if (forecast_provider == "aeris") {
-        var forecast_subtitle = moment.unix(data["timestamp"]).utcOffset($moment_js_utc_offset).format('$obs.label.time_forecast_last_updated');
+        var forecast_subtitle = tzAdjustedMoment(data["timestamp"]).format('$obs.label.time_forecast_last_updated');
 
         var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
         
@@ -1266,11 +1176,11 @@ function update_forecast_data(data) {
                 if (forecast_interval == "forecast_24hr") {
                     var image_url = get_relative_url() + "/images/" + aeris_icon(data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"]) + ".png";
                     var condition_text = aeris_coded_weather(data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false);
-                    var weekday = moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).utcOffset($moment_js_utc_offset).format("$obs.label.time_forecast_date");
+                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("$obs.label.time_forecast_date");
                 } else {
                     var image_url = get_relative_url() + "/images/" + aeris_icon(data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"]) + ".png";
                     var condition_text = aeris_coded_weather(data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false);
-                    var weekday = moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).utcOffset($moment_js_utc_offset).format("$obs.label.time_forecast_time");
+                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("$obs.label.time_forecast_time");
                 }
 
                 // Determine temperature units
@@ -1338,9 +1248,9 @@ function update_forecast_data(data) {
 
                 //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
                 if (forecast_interval == "forecast_24hr") {
-                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).utcOffset($moment_js_utc_offset).format("YYYY")).replace("MM", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).utcOffset($moment_js_utc_offset).format("MM")).replace("DD", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).utcOffset($moment_js_utc_offset).format("DD"));
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("DD"));
                 } else {
-                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).utcOffset($moment_js_utc_offset).format("YYYY")).replace("MM", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).utcOffset($moment_js_utc_offset).format("MM")).replace("DD", moment.unix(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).utcOffset($moment_js_utc_offset).format("DD"));
+                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("DD"));
 
                 }
 
@@ -1543,40 +1453,38 @@ var mqttConnected = false;
 function ajaximages(section = false, reload_timer_interval_seconds = false) {
     // This function only runs if the elements have an img src.
     // Update images within the specific section
-    if (section) {
-        if (section == "radar") {
-            belchertown_debug("Updating radar image");
-            // Reload images
-            if (document.querySelectorAll(".radar-map img").length > 0) {
-                var radar_img = document.querySelectorAll(".radar-map img")[0].src;
-                var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
-                document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
-                //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-                //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
-            }
-            // Reload iframe - https://stackoverflow.com/a/4249946/1177153
-            if (document.querySelectorAll(".radar-map iframe").length > 0) {
-                jQuery(".radar-map iframe").each(function() {
-                    jQuery(this).attr('src', function(i, val) {return val;});
-                });
-            }
-        } else {
-            belchertown_debug("Updating " + section + " images");
-            // Reload images
-            jQuery('.' + section + ' img').each(function() {
-                new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
-                jQuery(this).attr('src', new_image_url);
-            });
-            // Reload iframes
-            jQuery('.' + section + ' iframe').each(function() {
+    if (!section || section == "radar") {
+        belchertown_debug("Updating radar image");
+    // Reload images
+        if (document.querySelectorAll(".radar-map img").length > 0) {
+            var radar_img = document.querySelectorAll(".radar-map img")[0].src;
+            var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
+            document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
+            //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
+            //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
+        }
+        // Reload iframe - https://stackoverflow.com/a/4249946/1177153
+        if (document.querySelectorAll(".radar-map iframe").length > 0) {
+            jQuery(".radar-map iframe").each(function() {
                 jQuery(this).attr('src', function(i, val) {return val;});
             });
         }
-        // Set the new timer
-        if (reload_timer_interval_seconds) {
-            var reload_timer_ms = reload_timer_interval_seconds * 1000; // convert to millis
-            setTimeout(function() {ajaximages(section, reload_timer_interval_seconds);}, reload_timer_ms);
-        }
+        } else if (!section || section != "radar") {
+        belchertown_debug("Updating " + section + " images");
+        // Reload images
+        jQuery('.' + section + ' img').each(function() {
+            new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
+            jQuery(this).attr('src', new_image_url);
+        });
+        // Reload iframes
+        jQuery('.' + section + ' iframe').each(function() {
+            jQuery(this).attr('src', function(i, val) {return val;});
+        });
+    }
+    // Set the new timer
+    if (reload_timer_interval_seconds) {
+        var reload_timer_ms = reload_timer_interval_seconds * 1000; // convert to millis
+        setTimeout(function() {ajaximages(section, reload_timer_interval_seconds);}, reload_timer_ms);
     }
 }
 
@@ -1591,9 +1499,9 @@ function connect() {
     belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
     #end if
     if (reconnect_using_inactive_timestamp) {
-            updated = moment.unix(inactive_timestamp).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated = tzAdjustedMoment(inactive_timestamp).format("$obs.label.time_last_updated");
         } else {
-            updated = moment.unix("$current.dateTime.raw").utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
         }
     reported = "$obs.label.mqtt_websockets_connecting $obs.label.header_last_updated " + updated;
     jQuery(".updated").html(reported);
@@ -1622,9 +1530,9 @@ function onConnect() {
     mqttConnected = true;
     belchertown_debug("MQTT: MQTT Connected. Subscribing.");
     if (reconnect_using_inactive_timestamp) {
-        updated = moment.unix(inactive_timestamp).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(inactive_timestamp).format("$obs.label.time_last_updated");
     } else {
-        updated = moment.unix("$current.dateTime.raw").utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
     }
     if (pageName == "pi") {
         reported = "$obs.label.mqtt_websockets_waiting_pi $obs.label.header_last_updated " + updated;
@@ -1656,12 +1564,12 @@ function onFailure() {
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0); // Convert millis to seconds
     if (client.isConnected()) {
-        updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
     } else {
-        updated = moment.unix("$current.dateTime.raw").utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
     }
     jQuery(".updated").html("$obs.label.mqtt_websockets_failed $obs.label.header_last_updated " + updated);
-    console.log("MQTT: " + moment.unix(epoch).utcOffset($moment_js_utc_offset).format() + ": Cannot connect to MQTT broker");
+    console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": Cannot connect to MQTT broker");
 }
 
 // MQTT connection lost
@@ -1673,13 +1581,13 @@ function onConnectionLost(responseObject) {
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
     if (client.isConnected()) {
-        updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
     } else {
-        updated = moment.unix("$current.dateTime.raw").utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
     }
     jQuery(".updated").html("$obs.label.mqtt_websockets_lost $obs.label.header_last_updated " + updated);
     if (responseObject.errorCode !== 0) {
-        console.log("MQTT: " + moment.unix(epoch).utcOffset($moment_js_utc_offset).format() + ": mqtt Connection Lost: " + responseObject.errorMessage);
+        console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": mqtt Connection Lost: " + responseObject.errorMessage);
     }
 }
 
@@ -1691,7 +1599,7 @@ function inactive() {
     jQuery(".loadingMarker").hide(); // Hide loading beacon
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
-    updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+    updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
     jQuery(".updated").html("$obs.label.mqtt_websockets_stopped $obs.label.header_last_updated " + updated + " <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>");
     reconnect_using_inactive_timestamp = true; // Set a flag to use the inactive timestamp in case we reconnect we have the latest last updated time
     inactive_timestamp = epoch; // Store this timestamp in case we reconnect
@@ -1737,14 +1645,13 @@ function update_current_wx(data) {
             #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
                 setTimeout(ajaxforecast, 10000); // Update forecast data
             #end if
-            setTimeout(ajaximages, 10000); // Update radar and home page hook "img src" if present
             }).catch(function(e) {
                 console.log(e);
             });
         } else {
             // Only show the updated time on non-archive packets
             epoch = parseFloat(data["dateTime"]).toFixed(0);
-            updated = moment.unix(epoch).utcOffset($moment_js_utc_offset).format("$obs.label.time_last_updated");
+            updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
             if (pageName == "pi") {
                 updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
             } else {
@@ -1873,11 +1780,11 @@ function update_current_wx(data) {
     }
     // Wind Gust Beaufort
     if (data.hasOwnProperty("windGust_beaufort")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed knots
     if (data.hasOwnProperty("windGust_knot")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
     // Windchill US
@@ -2202,7 +2109,7 @@ function showChart(json_file, prepend_renderTo = false) {
                         try {
                             // The first returned item is the header, subsequent items are the points.
                             // Mostly applies to line style charts (line, spline, area)
-                            return [moment.unix(this.x / 1000).utcOffset($moment_js_utc_offset).format(tooltip_date_format)].concat(
+                            return [tzAdjustedMoment(this.x / 1000).format(tooltip_date_format)].concat(
                                 this.points.map(function(point) {
                                     // If observation_type is in the series array, use that otherwise use the obsType
                                     var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
@@ -2219,7 +2126,7 @@ function showChart(json_file, prepend_renderTo = false) {
                                 var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
                                 var rounding = this.series.userOptions.rounding;
                                 var mirrored = this.series.userOptions.mirrored_value;
-                                return moment.unix(this.x / 1000).utcOffset($moment_js_utc_offset).format(tooltip_date_format) + '<br><b>' + highcharts_tooltip_factory(this.point.y, point_obsType, true, rounding, mirrored);
+                                return tzAdjustedMoment(this.x / 1000).format(tooltip_date_format) + '<br><b>' + highcharts_tooltip_factory(this.point.y, point_obsType, true, rounding, mirrored);
                             } else if (this.series.userOptions.type == "scatter") {
                                 // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
                                 return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
@@ -2283,7 +2190,8 @@ function showChart(json_file, prepend_renderTo = false) {
                                 var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
                                 var rounding = point.series.userOptions.rounding;
                                 var mirrored = point.series.userOptions.mirrored_value;
-                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory(point.y, point_obsType, true, rounding, mirrored);
+                                var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
+                                return "<span style='color:" + point.series.color + "'>\u25CF</span> " + point.series.name + ': ' + highcharts_tooltip_factory(point.y, point_obsType, true, rounding, mirrored, numberFormat);
                             })
                         );
                     },
@@ -2658,7 +2566,7 @@ function showChart(json_file, prepend_renderTo = false) {
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix(point.x / 1000).utcOffset($moment_js_utc_offset).format(tooltip_date_format) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat);
+                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat);
                         });
                     }
                 }
@@ -2801,7 +2709,7 @@ function showChart(json_file, prepend_renderTo = false) {
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + moment.unix(point.x / 1000).utcOffset($moment_js_utc_offset).format(tooltip_date_format) + "</strong><br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory(point.point.average, observation_type, true, rounding, mirrored, numberFormat);
+                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory(point.point.average, observation_type, true, rounding, mirrored, numberFormat);
                         });
                     }
                 }
@@ -2870,3 +2778,12 @@ function showChart(json_file, prepend_renderTo = false) {
     });
 
 };
+
+function tzAdjustedMoment(input) {
+    let tz = "$moment_js_tz";
+    if (!tz) {
+        return moment.unix(input).utcOffset($moment_js_utc_offset);
+    } else {
+        return moment.unix(input).tz(tz);
+    }
+}
