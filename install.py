@@ -226,7 +226,8 @@ files=[('bin/user', ['bin/user/belchertown.py'
                                      'skins/Belchertown/images/unknown.png',
                                      'skins/Belchertown/images/wind.png',
                                      'skins/Belchertown/images/windy.png',
-                                     'skins/Belchertown/images/index.html'
+                                     'skins/Belchertown/images/index.html',
+                                     'skins/Belchertown/images/aeris-icon-list.json'                                    
                                     ]
         )
 ]
