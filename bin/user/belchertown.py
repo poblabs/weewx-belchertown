@@ -783,18 +783,18 @@ class getData(SearchList):
         driver = self.generator.config_dict["DatabaseTypes"][database_type]["driver"]
         if driver == "weedb.sqlite":
             year_rainiest_month_sql = (
-                'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1;'
+                'SELECT strftime("%%m", datetime(dateTime, "unixepoch")) as month, SUM( sum ) as total FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" GROUP BY month ORDER BY total DESC LIMIT 1;'
                 % time.strftime("%Y", time.localtime(time.time()))
             )
-            at_rainiest_month_sql = 'SELECT strftime("%m", datetime(dateTime, "unixepoch")) as month, strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
+            at_rainiest_month_sql = 'SELECT strftime("%m", datetime(dateTime, "unixepoch")) as month, strftime("%Y", datetime(dateTime, "unixepoch")) as year, SUM( sum ) as total FROM archive_day_rain GROUP BY month, year ORDER BY total DESC LIMIT 1;'
             year_rain_data_sql = (
-                'SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" AND count > 0;'
+                'SELECT dateTime, sum FROM archive_day_rain WHERE strftime("%%Y", datetime(dateTime, "unixepoch")) = "%s" AND count > 0;'
                 % time.strftime("%Y", time.localtime(time.time()))
             )
             # The all stats from http://www.weewx.com/docs/customizing.htm
             # doesn't seem to calculate "Total Rainfall for" all time stat
             # correctly.
-            at_rain_highest_year_sql = 'SELECT strftime("%Y", datetime(dateTime, "unixepoch")) as year, ROUND( SUM( sum ), 2 ) as total FROM archive_day_rain GROUP BY year ORDER BY total DESC LIMIT 1;'
+            at_rain_highest_year_sql = 'SELECT strftime("%Y", datetime(dateTime, "unixepoch")) as year, SUM( sum ) as total FROM archive_day_rain GROUP BY year ORDER BY total DESC LIMIT 1;'
         elif driver == "weedb.mysql":
             year_rainiest_month_sql = 'SELECT FROM_UNIXTIME( dateTime, "%%m" ) AS month, ROUND( SUM( sum ), 2 ) AS total FROM archive_day_rain WHERE year( FROM_UNIXTIME( dateTime ) ) = "{0}" GROUP BY month ORDER BY total DESC LIMIT 1;'.format(
                 time.strftime("%Y", time.localtime(time.time()))
