@@ -2363,6 +2363,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     start_at_midnight = to_bool(
                         line_options.get("start_at_midnight", False)
                     )  # Should our timespan start at midnight?
+                    start_at_whole_hour = to_bool(
+                        line_options.get("start_at_whole_hour", False)
+                    )  # Should our timespan start at a whole hour?
+                    start_at_beginning_of_month = to_bool(
+                        line_options.get("start_at_beginning_of_month", False)
+                    )  # Should our timespan start at the beginning of a month?
                     if time_length == "today":
                         minstamp, maxstamp = archiveDaySpan(timespan.stop)
                     elif time_length == "week":
@@ -2522,6 +2528,13 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             minstamp = plotgen_ts - time_length
                         maxstamp = plotgen_ts
 
+                    if start_at_whole_hour:
+                        minstamp -= minstamp % 3600
+                    
+                    if start_at_beginning_of_month:
+                        start_ts, stop_ts = archiveMonthSpan(minstamp)
+                        minstamp = start_ts
+
                     # Find if this chart is using a new database binding.
                     # Default to the binding set in plot_options
                     binding = line_options.get("data_binding", binding)
@@ -2596,9 +2609,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     else:
                         try:
                             # Aggregation specified. Get the interval.
-                            aggregate_interval = line_options.as_int(
+                            aggregate_interval = weeutil.weeutil.nominal_spans(
+                                line_options.get(
                                 "aggregate_interval"
-                            )
+                            ))
                         except KeyError:
                             syslog.syslog(
                                 syslog.LOG_ERR,
