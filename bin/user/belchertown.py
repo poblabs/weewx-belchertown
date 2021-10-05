@@ -2561,6 +2561,31 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         else:
                             name = label_dict[observation_type]
 
+                    # Look for aggregation type:
+                    aggregate_type = line_options.get("aggregate_type")
+                    if aggregate_type in (None, "", "None", "none"):
+                        # No aggregation specified.
+                        aggregate_type = aggregate_interval = None
+                    else:
+                        try:
+                            # Aggregation specified. Get the interval.
+                            aggregate_interval = weeutil.weeutil.nominal_spans(
+                                line_options.get(
+                                "aggregate_interval"
+                            ))
+                        except KeyError:
+                            syslog.syslog(
+                                syslog.LOG_ERR,
+                                "HighchartsJsonGenerator: aggregate interval required for aggregate type %s"
+                                % aggregate_type,
+                            )
+                            syslog.syslog(
+                                syslog.LOG_ERR,
+                                "HighchartsJsonGenerator: line type %s skipped"
+                                % observation_type,
+                            )
+                            continue
+                            
                     # Get the unit label
                     if observation_type == "rainTotal":
                         obs_label = "rain"
@@ -2573,8 +2598,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         obs_label = observation_type
                     unit_label = line_options.get(
                         "yAxis_label_unit",
-                        weewx.units.get_label_string(
-                            self.formatter, self.converter, obs_label
+                        self.formatter.get_label_string(
+                            self.converter.getTargetUnit(obs_label,aggregate_type)[0]
                         ),
                     )
 
@@ -2601,31 +2626,6 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         "yAxis_label"
                     ] = yAxis_label
 
-                    # Look for aggregation type:
-                    aggregate_type = line_options.get("aggregate_type")
-                    if aggregate_type in (None, "", "None", "none"):
-                        # No aggregation specified.
-                        aggregate_type = aggregate_interval = None
-                    else:
-                        try:
-                            # Aggregation specified. Get the interval.
-                            aggregate_interval = weeutil.weeutil.nominal_spans(
-                                line_options.get(
-                                "aggregate_interval"
-                            ))
-                        except KeyError:
-                            syslog.syslog(
-                                syslog.LOG_ERR,
-                                "HighchartsJsonGenerator: aggregate interval required for aggregate type %s"
-                                % aggregate_type,
-                            )
-                            syslog.syslog(
-                                syslog.LOG_ERR,
-                                "HighchartsJsonGenerator: line type %s skipped"
-                                % observation_type,
-                            )
-                            continue
-                            
                     # Check for average type:
                     average_type = line_options.get("average_type")
                     if average_type in (None, "", "None", "none"):
