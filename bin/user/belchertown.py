@@ -3736,7 +3736,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         try:
             if not aggregate_type:
                 point_timestamp = time_stop_vt
-            elif aggregate_interval and aggregate_interval == 3600:
+            elif aggregate_interval and (
+                      aggregate_interval == 3600 or aggregate_interval==2629800):
                 point_timestamp = time_start_vt
             else:
                 point_timestamp = ([(x+y)/2.0 for x,y in zip(time_start_vt[0],time_stop_vt[0])],time_start_vt[1],time_start_vt[2])
