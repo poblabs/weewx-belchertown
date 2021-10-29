@@ -3733,14 +3733,16 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         # previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
         # Everything else has it on the start time so we don't see the next day
         # in the tooltip (e.g. Jan 2 instead of Jan 1)
-        if (
-            time_length == "today"
-            or time_length == "timespan_specific"
-            or isinstance(time_length, int)
-        ):
+        try:
+            if not aggregate_type:
+                point_timestamp = time_stop_vt
+            elif aggregate_interval and (
+                      aggregate_interval == 3600 or aggregate_interval==2629800):
+                point_timestamp = time_start_vt
+            else:
+                point_timestamp = ([(x+y)/2.0 for x,y in zip(time_start_vt[0],time_stop_vt[0])],time_start_vt[1],time_start_vt[2])
+        except Exception:
             point_timestamp = time_stop_vt
-        else:
-            point_timestamp = time_start_vt
 
         # If the values are to be mirrored, we need to make them negative
         if mirrored_value:
