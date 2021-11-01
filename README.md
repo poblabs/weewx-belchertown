@@ -162,6 +162,9 @@ A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic
 #### Install your own MQTT Broker
 If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/go/mqttbroker). 
 
+Setting up an MQTT server on DigitalOcean is quick and easy. BelchertownWeather.com runs on DigitalOcean. Click this **referral** link to get started on DigitalOcean with a free credit!
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg)](https://www.digitalocean.com/?refcode=f79cac0e591d&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
 #### Use a Public Broker
 These public brokers have been tested as working with MQTT and Websockets. If you have others to add the to the list, let me know.
 
