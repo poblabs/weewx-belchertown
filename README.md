@@ -213,6 +213,7 @@ If your weewx version is 3.9.1 or newer, to change your site to metric you would
                 group_altitude = meter
                 group_degree_day = degree_C_day
                 group_pressure = mbar
+                group_distance = km
                 group_rain = mm
                 group_rainrate = mm_per_hour
                 group_speed = meter_per_second
