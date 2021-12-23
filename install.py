@@ -89,16 +89,6 @@ extension_config = """
            # show_last_updated_alert = 0
            # last_updated_alert_threshold = 1800
 
-           #--- Common Titles under Labels Section to Change ---
-           # home_page_header = "My Station Weather Conditions"
-           # graphs_page_header = "Weather Observation Graphs"
-           # reports_page_header = "Weather Observation Reports"
-           # records_page_header = "Weather Observation Records"
-           # about_page_header = "About This Site"
-           # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
-           # footer_copyright_text = "My Weather Website"
-           # footer_disclaimer_text = "Never make important decisions based on info from this website."
-
            #--- MQTT Websockets (for Real Time Streaming) Options ---
            # mqtt_websockets_enabled = 0
            # mqtt_websockets_host = ""
@@ -150,6 +140,17 @@ extension_config = """
            #---
            #-------------------------------------------------------------
            work_around_ConfigObj_limitations = true
+
+           # [[[[Generic]]]]
+                #--- Common Titles under Labels Section to Change ---
+                # home_page_header = "My Station Weather Conditions"
+                # graphs_page_header = "Weather Observation Graphs"
+                # reports_page_header = "Weather Observation Reports"
+                # records_page_header = "Weather Observation Records"
+                # about_page_header = "About This Site"
+                # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
+                # footer_copyright_text = "My Weather Website"
+                # footer_disclaimer_text = "Never make important decisions based on info from this website."
 
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
