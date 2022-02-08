@@ -51,6 +51,7 @@ extension_config = """
         [[[Extras]]]
 
            # For help refer to the docs at https://github.com/poblabs/weewx-belchertown
+           # and consult skin.conf for the configurable elements and their hierarchy
 
            #--- General Options ---
            # belchertown_debug = 0
@@ -89,16 +90,6 @@ extension_config = """
            # show_last_updated_alert = 0
            # last_updated_alert_threshold = 1800
 
-           #--- Common Titles under Labels Section to Change ---
-           # home_page_header = "My Station Weather Conditions"
-           # graphs_page_header = "Weather Observation Graphs"
-           # reports_page_header = "Weather Observation Reports"
-           # records_page_header = "Weather Observation Records"
-           # about_page_header = "About This Site"
-           # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
-           # footer_copyright_text = "My Weather Website"
-           # footer_disclaimer_text = "Never make important decisions based on info from this website."
-
            #--- MQTT Websockets (for Real Time Streaming) Options ---
            # mqtt_websockets_enabled = 0
            # mqtt_websockets_host = ""
@@ -136,9 +127,6 @@ extension_config = """
            # twitter_enabled = 0
            # twitter_hashtags = "weewx #weather"
            # social_share_html = ""
-           # twitter_text = "Check out my website: My Weather Website Weather Conditions"
-           # twitter_owner = "YourTwitterUsernameHere"
-           # twitter_hashtag = "weewx #weather"
 
            #-------------------------------------------------------------
            #---
@@ -150,6 +138,24 @@ extension_config = """
            #---
            #-------------------------------------------------------------
            work_around_ConfigObj_limitations = true
+
+           # [[[[Generic]]]]
+                #-- Footer information --
+                # footer_copyright_text = "My Weather Website"
+                # footer_disclaimer_text = "Never make important decisions based on info from this website."
+
+                #-- Default page headers --
+                # home_page_header = "My Station Weather Conditions"
+                # graphs_page_header = "Weather Observation Graphs"
+                # reports_page_header = "Weather Observation Reports"
+                # records_page_header = "Weather Observation Records"
+                # about_page_header = "About This Site"
+                # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
+
+                #-- Twitter Social Share --
+                # twitter_text = "Check out my website: My Weather Website Weather Conditions"
+                # twitter_owner = "YourTwitterUsernameHere"
+                # twitter_hashtags = "weewx #weather"
 
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
