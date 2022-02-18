@@ -622,8 +622,12 @@ function update_weewx_data(data) {
     jQuery(".high").html(high);
     jQuery(".low").html(low);
 
-    // Barometer trending by finding a negative number
-    count = (data["current"]["barometer_trend"].match(/-/g) || []).length
+    try {
+        // Barometer trending by finding a negative number
+        count = (data["current"]["barometer_trend"].match(/-/g) || []).length
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
 
     if (count >= 1) {
         jQuery(".pressure-trend").html('<i class="fa fa-arrow-down barometer-down"></i>');
@@ -635,8 +639,14 @@ function update_weewx_data(data) {
     jQuery(".dailymaxgust").html(parseFloat(data["day"]["wind"]["max"]).toFixed(1));
 
     // Daily Snapshot Stats Section
-    jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_today_header'));
-    jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_month_header'));
+    try {
+        jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_today_header'));
+        jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_month_header'));
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
+
+
     jQuery(".dailystatshigh").html(data["day"]["outTemp"]["max"]);
     jQuery(".dailystatslow").html(data["day"]["outTemp"]["min"]);
     jQuery(".dailystatswindavg").html(data["day"]["wind"]["average"]);
@@ -664,7 +674,12 @@ function update_weewx_data(data) {
     // Close current modal if open
     jQuery('#almanac').modal('hide');
     jQuery(".almanac-extras-modal-body").html(data["almanac"]["almanac_extras_modal_html"]);
-    almanac_updated = "$obs.label.header_last_updated " + tzAdjustedMoment(data["current"]["datetime_raw"]).format("$obs.label.time_last_updated");
+    try {
+        almanac_updated = "$obs.label.header_last_updated " + tzAdjustedMoment(data["current"]["datetime_raw"]).format("$obs.label.time_last_updated");
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
+
     jQuery(".almanac_last_updated").html(almanac_updated);
     #end if
 }
@@ -1119,10 +1134,19 @@ function update_forecast_data(data) {
     } else if (forecast_provider == "aeris") {
         var forecast_subtitle = tzAdjustedMoment(data["timestamp"]).format('$obs.label.time_forecast_last_updated');
 
-        var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
+        try {
+            var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
+        } catch (err) {
+            // Returned "current" data does not have this value
+        }
         
         // Current observation text
-        jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
+        try {
+            jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
+        } catch (err) {
+            // Returned "current" data does not have this value
+        }
+
         
         // AQI
         if (data["aqi"][0]["success"] && !data["aqi"][0]["error"]) {
@@ -1147,14 +1171,19 @@ function update_forecast_data(data) {
         }
 
         // Visibility text in station observation table
-        if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
-            // si and ca = kilometer
-            visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
+        try {
+            if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
+                // si and ca = kilometer
+                visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
 
-        } else {
-            // us and uk2 and default = miles
-            visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
+            } else {
+                // us and uk2 and default = miles
+                visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
+            }
+        } catch (err) {
+            // Returned "current" data does not have this value
         }
+
         try {
             visibility_output = parseFloat(parseFloat(visibility)).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
