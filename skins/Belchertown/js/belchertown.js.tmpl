@@ -676,11 +676,10 @@ function update_weewx_data(data) {
     jQuery(".almanac-extras-modal-body").html(data["almanac"]["almanac_extras_modal_html"]);
     try {
         almanac_updated = "$obs.label.header_last_updated " + tzAdjustedMoment(data["current"]["datetime_raw"]).format("$obs.label.time_last_updated");
+        jQuery(".almanac_last_updated").html(almanac_updated);
     } catch (err) {
         // Returned "current" data does not have this value
     }
-
-    jQuery(".almanac_last_updated").html(almanac_updated);
     #end if
 }
 
