@@ -508,6 +508,19 @@ class getData(SearchList):
         else:
             radar_html_dark = self.generator.skin_dict["Extras"]["radar_html_dark"]
 
+        # If the kiosk radar is different then the homepage one.
+        if self.generator.skin_dict["Extras"].get("radar_html_kiosk") == "":
+            radar_html_kiosk = radar_html
+        else:
+            radar_width_kiosk = self.generator.skin_dict["Extras"]["radar_width_kiosk"]
+            radar_height_kiosk = self.generator.skin_dict["Extras"]["radar_height_kiosk"]
+            radar_html_kiosk = '<iframe width="{}px" height="{}px" src="{}" frameborder="0"></iframe>'.format(
+                radar_width_kiosk,
+                radar_height_kiosk,
+                self.generator.skin_dict["Extras"]["radar_html_kiosk"]
+            )
+
+
         # ==============================================================================
         # Build the all time stats.
         # ==============================================================================
@@ -1995,6 +2008,21 @@ class getData(SearchList):
                 social_html += twitter_html
             social_html += "</div>"
 
+        #==============================================================================
+        # MQTT settings for Kiosk page
+        # ==============================================================================
+
+        if self.generator.skin_dict["Extras"]["mqtt_websockets_host_kiosk"] != "":
+            if self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"] != "":
+                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"]
+            else:
+                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port"]
+            if self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"] != "":
+                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"]
+            else:
+                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl"]
+
+
         # Include custom.css if it exists in the HTML_ROOT folder
         custom_css_file = html_root + "/custom.css"
         # Determine if the file exists
@@ -2014,6 +2042,7 @@ class getData(SearchList):
             "highcharts_thousands": highcharts_thousands,
             "radar_html": radar_html,
             "radar_html_dark": radar_html_dark,
+            "radar_html_kiosk": radar_html_kiosk,
             "archive_interval_ms": archive_interval_ms,
             "ordinate_names": ordinate_names,
             "charts": json.dumps(charts),
@@ -2075,8 +2104,9 @@ class getData(SearchList):
             "beaufort10": label_dict["beaufort10"],
             "beaufort11": label_dict["beaufort11"],
             "beaufort12": label_dict["beaufort12"],
+            "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
+            "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
         }
-
         # Finally, return our extension as a list:
         return [search_list_extension]
 

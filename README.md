@@ -52,6 +52,7 @@ Screenshot of light and dark modes
   * [How to install the development version](#how-to-install-the-development-version)
   * [Frequently Asked Questions](#frequently-asked-questions)
   * [Raspberry Pi Console](#raspberry-pi-console)
+    * [Kiosk Page](#kiosk-page)
   * [Donate](#donate)
   * [Credits](#credits)
 
@@ -500,6 +501,39 @@ If you're interested in this type of setup, you'll need these items:
 * Point your new Raspberry Pi Kiosk to your weather website's `/pi` page, and you should be good to go!
 
 ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
+
+### Kiosk Page
+The Kiosk page is similar to the Pi Console page, but with a bit more information, as it is designed to be displayed on a 1280x800 resolution screen. It can be run from the display of Raspberry Pi (connected via HDMI), a laptop, or as part of a "Home Information Center".  Just like the Pi Console page, when used with MQTT Websockets, the timeout is disabled by default.
+
+It looks similar to the layout of the homepage, but the only has the current observations, and forecast, as it is designed for a 1280x800 resolution screen.  As such, does not include the navigation bar, logo, the `header.inc` file, or any charts.  The `index_hook_after_*.inc` checks are also commented out, remove the comment markers from `kiosk.html.tmpl` if you wish to re-enabled them. 
+
+To have a Raspberry Pi display this page on reboot, you can either follow the tutorial above, or put the following into `/home/pi/.config/lxsession/LXDE-pi/autostart` if running the desktop version (or have lxde installed on the lite version) of Raspberry Pi OS.
+```
+@sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
+@sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
+@chromium-browser --start-fullscreen --kiosk --disable-site-isolation-trials --enable-low-end-device-mode --renderer-process-limit=2 --app=http[s]://<localhost|hostname|IP>/[path_to_skin/]kiosk.html
+@unclutter -idle 0.1
+```
+For the most part, the Kiosk page will follow the same settings as the main homepage.  Below are the settings specific to the Kiosk page, they go under the `[Extras]` section of the skin config in `weewx.conf`.
+
+| Name | Default | Description
+| ---- | ------- | -----------
+|mqtt_websockets_host_kiosk | "" | If the kiosk will be running on the local machine, you can put `localhost` here, or any other host needed. If left empty, the `mqtt_websockets_host` value will be used, and all other MQTT settings for the kiosk page will be ignored.
+|mqtt_websockets_port_kiosk | "" | If the MQTT port needs different, set it here, if left empty, the `mqtt_websockets_port` value will be used.
+|mqtt_websockets_ssl_kiosk | "" | Set to `1` if ssl should be used, if left empty, the `mqtt_websockets_ssl` value will be used.
+| forecast_interval_hours_kiosk  | 24 |  **AerisWeather Only** Determines which forecast is displayed when a new browser session is opened.
+| aqi_enabled_kiosk | 0 | Enable AQI for the kiosk page. If disabled, then in place of the AQI will be the current inside temperature and humidity reading.
+| radar_html_kiosk | "" | If you want to use the [NWS radar](https://radar.weather.gov), put the URL of it here (it will be a very long string), or leave blank if you want to use the same radar as the homepage. <br><br>  After going to the site, select what setting you would like. If you select "weather for location" you will get a color overlay of watches and warnings for your area, you can also change the base layer to match your default theme ("Satellite" or "Dark Canvas" for the dark, any of the others for light), then click on "hide menu", next copy the url in the address bar to your `weeewx.conf` file.
+| radar_width_kiosk | 490 | Width of the radar.
+| radar_height_kiosk | 362 | Height of the radar.
+
+It is also suggested, if you are going to display the inside temperature and humidity, to shorten the labels for `inTemp` and `inHumidity`.
+```
+    [[[Labels]]]
+        [[[[Generic]]]]
+            inTemp = In Temp
+            inHumidity = In Humid
+```
 
 ## How to use debug
 
