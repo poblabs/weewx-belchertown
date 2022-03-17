@@ -534,7 +534,7 @@ It is also suggested, if you are going to display the inside temperature and hum
             inTemp = In Temp
             inHumidity = In Humid
 ```
-
+![kiosk page](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/kiosk.png)
 ## How to use debug
 
 Debug information will show a lot of useful information for troubleshooting a problem. Information such as MQTT messages, to skin theme and time settings to re-creating a chart for external debugging. If you need to use debug to find a problem with the skin, there are 2 ways to do this. 
