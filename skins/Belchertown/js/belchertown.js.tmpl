@@ -1529,6 +1529,13 @@ function connect() {
         client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
     }
     #else
+    #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
+    var useSSL = true;
+    #else
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
+    var useSSL = false;
+    #end if
     client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
     #end if
     client.onConnectionLost = onConnectionLost;
