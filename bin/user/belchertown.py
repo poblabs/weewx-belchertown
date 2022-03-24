@@ -2586,6 +2586,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             )
                             continue
                             
+                    # use different target unit
+                    special_target_unit = line_options.get("units",None)
+
                     # Get the unit label
                     if observation_type == "rainTotal":
                         obs_label = "rain"
@@ -2599,7 +2602,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     unit_label = line_options.get(
                         "yAxis_label_unit",
                         self.formatter.get_label_string(
-                            self.converter.getTargetUnit(obs_label,aggregate_type)[0]
+                            special_target_unit if special_target_unit else self.converter.getTargetUnit(obs_label,aggregate_type)[0]
                         ),
                     )
 
@@ -2726,6 +2729,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         mirrored_value,
                         weatherRange_obs_lookup,
                         wind_rose_color,
+                        special_target_unit
                     )
 
                     # Build the final series data JSON
@@ -2795,6 +2799,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
+        special_target_unit
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
@@ -3692,7 +3697,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
         self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
         
-        obs_vt = self.converter.convert(obs_vt)
+        if special_target_unit:
+            logdbg("unit_group=%s source_unit=%s special_target_unit=%s" % (obs_vt[2],obs_vt[1],special_target_unit))
+            obs_vt = weewx.units.Converter({obs_vt[2]:special_target_unit}).convert(obs_vt)
+        else:
+            obs_vt = self.converter.convert(obs_vt)
 
         # Special handling for the rain.
         if observation == "rainTotal":
