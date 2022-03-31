@@ -3723,9 +3723,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     round(x, usage_round) if x is not None else None for x in obs_vt[0]
                 ]
             else:
-                usage_round = int(
-                    self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
-                )
+                try:
+                   usage_round = int(
+                       self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
+                   )
+                except ValueError:
+                   loginf (
+                      "Observation %s is using unit %s that returns %s for StringFormat, rather than float point decimal format value - using 0 as rounding"
+                      % (observation, obs_vt[1], self.skin_dict["Units"]["StringFormats"].get(obs_vt[1]))
+                   )
+                   usage_round = 0
+
                 obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
 
         # "Today" charts, "timespan_specific" charts and floating timespan
