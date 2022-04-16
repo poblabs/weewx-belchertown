@@ -2587,7 +2587,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             continue
                             
                     # use different target unit
-                    special_target_unit = line_options.get("units",None)
+                    special_target_unit = line_options.get("unit",None)
 
                     # Get the unit label
                     if observation_type == "rainTotal":
