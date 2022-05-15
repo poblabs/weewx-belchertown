@@ -24,7 +24,7 @@ Screenshot of light and dark modes
   * [Install weewx-belchertown](#install-weewx-belchertown)
   * [Requirements](#requirements)
     + [weewx.conf](#weewxconf)
-    + [AerisWeather Forecast API (optional)](#aeris-weather-forecast-api-optional)
+    + [AerisWeather Forecast API (optional)](#aerisweather-forecast-api-optional)
     + [Forecast Units](#forecast-units)
     + [Forecast Translation](#forecast-translation)
     + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)

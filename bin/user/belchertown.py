@@ -91,7 +91,7 @@ else:
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "1.3b1"
+VERSION = "1.3b2"
 loginf("version %s" % VERSION)
 
 # Define these as global so they can be used in both the search list extension
@@ -2621,6 +2621,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             )
                             continue
                             
+                    # use different target unit
+                    special_target_unit = line_options.get("unit",None)
+
                     # Get the unit label
                     if observation_type == "rainTotal":
                         obs_label = "rain"
@@ -2634,7 +2637,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     unit_label = line_options.get(
                         "yAxis_label_unit",
                         self.formatter.get_label_string(
-                            self.converter.getTargetUnit(obs_label,aggregate_type)[0]
+                            special_target_unit if special_target_unit else self.converter.getTargetUnit(obs_label,aggregate_type)[0]
                         ),
                     )
 
@@ -2761,6 +2764,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         mirrored_value,
                         weatherRange_obs_lookup,
                         wind_rose_color,
+                        special_target_unit
                     )
 
                     # Build the final series data JSON
@@ -2830,6 +2834,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
+        special_target_unit
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
@@ -3727,7 +3732,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
         self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
         
-        obs_vt = self.converter.convert(obs_vt)
+        if special_target_unit:
+            logdbg("unit_group=%s source_unit=%s special_target_unit=%s" % (obs_vt[2],obs_vt[1],special_target_unit))
+            obs_vt = weewx.units.Converter({obs_vt[2]:special_target_unit}).convert(obs_vt)
+        else:
+            obs_vt = self.converter.convert(obs_vt)
 
         # Special handling for the rain.
         if observation == "rainTotal":
@@ -3758,9 +3767,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     round(x, usage_round) if x is not None else None for x in obs_vt[0]
                 ]
             else:
-                usage_round = int(
-                    self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
-                )
+                try:
+                   usage_round = int(
+                       self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
+                   )
+                except ValueError:
+                   loginf (
+                      "Observation %s is using unit %s that returns %s for StringFormat, rather than float point decimal format value - using 0 as rounding"
+                      % (observation, obs_vt[1], self.skin_dict["Units"]["StringFormats"].get(obs_vt[1]))
+                   )
+                   usage_round = 0
+
                 obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
 
         # "Today" charts, "timespan_specific" charts and floating timespan
