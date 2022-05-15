@@ -1518,7 +1518,7 @@ function connect() {
         #else
         useSSL: false,
         #end if
-        #if $Extras.has_key("mqtt_websockets_username") and $Extras.has_key("mqtt_websockets_password")
+        #if $Extras.has_key("mqtt_websockets_username") and $Extras.mqtt_websockets_username != "" and $Extras.has_key("mqtt_websockets_password") and $Extras.mqtt_websockets_password != ""
         userName:"$Extras.mqtt_websockets_username",
         password:"$Extras.mqtt_websockets_password",
         #end if
