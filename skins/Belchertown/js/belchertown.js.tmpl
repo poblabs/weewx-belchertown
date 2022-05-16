@@ -653,6 +653,7 @@ function update_weewx_data(data) {
     jQuery(".dailystatswindmax").html(data["day"]["wind"]["max"]);
     jQuery(".dailystatsrain").html(data["day"]["rain"]["sum"]);
     jQuery(".dailystatsrainrate").html(data["day"]["rain"]["max"]);
+    jQuery(".dailywindrun").html(data["day"]["wind"]["windrun"]);
 
     // Month Snapshot Stats Section
     jQuery(".monthstatshigh").html(data["month"]["outTemp"]["max"]);
@@ -665,6 +666,8 @@ function update_weewx_data(data) {
     // Sunrise and Sunset            
     jQuery(".sunrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
     jQuery(".sunset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format("$obs.label.time_sunset"));
+    jQuery(".moonrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
+    jQuery(".moonset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
 
     // Moon icon, phase and illumination percent
     jQuery(".moon-icon").html(moon_icon(data["almanac"]["moon"]["moon_index"]));        
@@ -1521,11 +1524,6 @@ var inactive_timestamp = "";
 
 // MQTT connect
 function connect() {
-    #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
-    #else
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
-    #end if
     if (reconnect_using_inactive_timestamp) {
             updated = tzAdjustedMoment(inactive_timestamp).format("$obs.label.time_last_updated");
         } else {
@@ -1537,16 +1535,42 @@ function connect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
 
+    #if $Extras.has_key("mqtt_websockets_host_kiosk") and $Extras.mqtt_websockets_host_kiosk != ""
+    if (pageName == "kiosk.html") {
+        #if $Extras.has_key("mqtt_websockets_ssl_kiosk") and $Extras.mqtt_websockets_ssl_kiosk == '1'
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host_kiosk $mqtt_websockets_port_kiosk (SSL Enabled)");
+        var useSSL = true;
+        #else
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host_kiosk $mqtt_websockets_port_kiosk (SSL Disabled)");
+        var useSSL = false;
+        #end if
+        client = new Paho.Client("$Extras.mqtt_websockets_host_kiosk", $mqtt_websockets_port_kiosk, mqttclient);
+    }
+    else {
+        #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
+        var useSSL = true;
+        #else
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
+        var useSSL = false;
+        #end if
+        client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+    }
+    #else
+    #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
+    var useSSL = true;
+    #else
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
+    var useSSL = false;
+    #end if
     client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+    #end if
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
-        #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
-        useSSL: true,
-        #else
-        useSSL: false,
-        #end if
-        #if $Extras.has_key("mqtt_websockets_username") and $Extras.mqtt_websockets_username != "" and $Extras.has_key("mqtt_websockets_password") and $Extras.mqtt_websockets_password != ""
+        useSSL: useSSL,
+        #if $Extras.has_key("mqtt_websockets_username") and $Extras.has_key("mqtt_websockets_password") and $Extras.mqtt_websockets_username != "" and $Extras.mqtt_websockets_password != ""
         userName:"$Extras.mqtt_websockets_username",
         password:"$Extras.mqtt_websockets_password",
         #end if
@@ -1579,9 +1603,12 @@ function onConnect() {
     client.subscribe("$Extras.mqtt_websockets_topic");
     #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
     if (getURLvar("stayconnected") && (getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1")) {
-        belchertown_debug("stayconnected URL var found: ignoring disconnect_live_website_visitor value");
+        belchertown_debug("MQTT: stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
-        if (pageName != "pi") {
+        if  (pageName == "pi" || pageName == "kiosk.html") {
+            belchertown_debug("MQTT: ignoring disconnect_live_website_visitor value for page: " + pageName);
+        }
+        else {
             var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor); // Stop automatic ajax refresh
         }
     }
@@ -1667,31 +1694,34 @@ function update_current_wx(data) {
 
     // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
     if (data.hasOwnProperty("interval_minute")) {
-            // Delays are recommended to allow the other skins to complete processing
-            belchertown_debug("MQTT: MQTT message indicates this is an archive interval.");
-            if (pageName != "pi") {
-                setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts. 
-            }
-            ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
-                setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Initial call to update (date, daily high, low, etc)
-                setTimeout(belchertown_debug.bind(null, weewx_data), 10000); // Make weewx_data.json available in debugging console
-            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
-                setTimeout(ajaxforecast, 10000); // Update forecast data
-            #end if
-            }).catch(function(e) {
-                console.log(e);
-            });
-        } else {
-            // Only show the updated time on non-archive packets
-            epoch = parseFloat(data["dateTime"]).toFixed(0);
-            updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
-            if (pageName == "pi") {
-                updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
-            } else {
-                updated_text = "$obs.label.mqtt_websockets_connected " + updated;
-            }
-            jQuery(".updated").html(updated_text);
+        // Delays are recommended to allow the other skins to complete processing
+        belchertown_debug("MQTT: MQTT message indicates this is an archive interval.");
+        if (pageName == "pi" || pageName == "kiosk.html") {
+            belchertown_debug("Skipping chart update for page " + pageName + ", no charts to be updated.");
         }
+        else {
+            setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts.
+        }
+        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+            setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Initial call to update (date, daily high, low, etc)
+            setTimeout(belchertown_debug.bind(null, weewx_data), 10000); // Make weewx_data.json available in debugging console
+        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+            setTimeout(ajaxforecast, 10000); // Update forecast data
+        #end if
+        }).catch(function(e) {
+            console.log(e);
+        });
+    } else {
+        // Only show the updated time on non-archive packets
+        epoch = parseFloat(data["dateTime"]).toFixed(0);
+        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
+        if (pageName == "pi") {
+            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
+        } else {
+            updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+        }
+        jQuery(".updated").html(updated_text);
+    }
     // If we're in this function, show the online beacon and hide the others
     jQuery(".onlineMarker").show(); // Show the online beacon
     jQuery(".offlineMarker").hide();
