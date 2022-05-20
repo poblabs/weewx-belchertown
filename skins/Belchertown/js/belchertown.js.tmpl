@@ -1574,7 +1574,12 @@ function connect() {
         userName:"$Extras.mqtt_websockets_username",
         password:"$Extras.mqtt_websockets_password",
         #end if
-        mqttVersion: 3,
+        // mqttVersion: 4 is spec MQTTv3.1.1 - mqttVersion: 3 is spec MQTTv3.1
+        mqttVersion: 4,
+        // If mqttVersionExplicit is true, it will force the connection to use the selected MQTT Version or will fail to connect.
+        // If mqttVersionExplicit is false and mqttVersion is 4, it will try mqttVersion: 4 and if it fails it will fallback to mqttVersion: 3
+        // Here's the relevant code: https://github.com/eclipse/paho.mqtt.javascript/blob/f5859463aba9a9b7c19f99ab7c4849a723f8d832/src/paho-mqtt.js#L1610
+        mqttVersionExplicit: false,
         reconnect: true,
         onSuccess: onConnect,
         onFailure: onFailure
