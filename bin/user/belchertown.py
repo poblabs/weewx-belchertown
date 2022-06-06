@@ -2719,6 +2719,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Add rounding from weewx.conf/skin.conf so Highcharts can use it
                     if observation_type == "rainTotal":
                         rounding_obs_lookup = "rain"
+                    elif observation_type == "weatherRange":
+                        rounding_obs_lookup = weatherRange_obs_lookup
                     else:
                         rounding_obs_lookup = observation_type
                     try:
