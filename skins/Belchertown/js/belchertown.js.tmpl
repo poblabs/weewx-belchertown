@@ -2786,6 +2786,7 @@ function showChart(json_file, prepend_renderTo = false) {
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
                 var range_unit = options.series[0].range_unit;
+                var rounding = options.series[0].rounding;
                 var newSeriesData = [];
                 currentSeriesData.forEach(seriesData => {
                     if (options.series[0].color) {
@@ -2806,7 +2807,8 @@ function showChart(json_file, prepend_renderTo = false) {
                 options.series.push({
                     data: newSeriesData,
                     obsType: "weatherRange",
-                    obsUnit: range_unit
+                    obsUnit: range_unit,
+                    rounding: rounding
                 });
             }
 
