@@ -2721,6 +2721,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         rounding_obs_lookup = "rain"
                     elif observation_type == "weatherRange":
                         rounding_obs_lookup = weatherRange_obs_lookup
+                    elif observation_type == "haysChart":
+                        rounding_obs_lookup = "windSpeed"
                     else:
                         rounding_obs_lookup = observation_type
                     try:
