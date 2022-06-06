@@ -2641,6 +2641,7 @@ function showChart(json_file, prepend_renderTo = false) {
                 var currentSeries = options.series;
                 var currentSeriesData = options.series[0].data;
                 var range_unit = options.series[0].range_unit;
+                var rounding = options.series[0].rounding;
                 var newSeriesData = [];
                 var currentSeriesColor = options.series[0].color;
                 currentSeriesData.forEach(seriesData => {
@@ -2655,6 +2656,7 @@ function showChart(json_file, prepend_renderTo = false) {
                     data: newSeriesData,
                     obsType: "haysChart",
                     obsUnit: range_unit,
+                    rounding: rounding,
                     color: currentSeriesColor,
                     fillColor: currentSeriesColor,
                     connectEnds: false,
