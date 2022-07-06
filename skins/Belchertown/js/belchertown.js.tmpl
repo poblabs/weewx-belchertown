@@ -1219,11 +1219,13 @@ function update_forecast_data(data) {
                     avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempC"];
                     minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempC"];
                     maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempC"];
+                    var dewPoint = data[(forecast_interval)][0]["response"][0]["periods"][i]["dewpointC"];
                 } else {
                     // Default
                     avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempF"];
                     minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempF"];
                     maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempF"];
+                    var dewPoint = data[(forecast_interval)][0]["response"][0]["periods"][i]["dewpointF"];
                 }
 
                 //  for 1hr interval determine temperature range, set to a minimum value of 2; also avoids div by zero
@@ -1264,6 +1266,9 @@ function update_forecast_data(data) {
                 */
                 var precip = data[(forecast_interval)][0]["response"][0]["periods"][i]["pop"] || 0;
 
+                // Humidity
+                var humidity = data[(forecast_interval)][0]["response"][0]["periods"][i]["humidity"];
+
                 /*
                 Determine snow unit. "snowCM" and "snowIN" are specified
                 to always return a number. We still convert to 0 if we ever get
@@ -1299,6 +1304,8 @@ function update_forecast_data(data) {
                     "snow_depth": snow_depth,
                     "snow_unit": snow_unit,
                     "precip": precip,
+                    "humidity": humidity,
+                    "dewPoint": dewPoint,
                     "forecast_link": forecast_link
                 });
             }
@@ -1322,10 +1329,19 @@ function update_forecast_data(data) {
                     }
                     output_html += '<span id="weekday">' + forecast_time(i, forecast_interval, forecast_row[i]["weekday"]) + '</span>';
                     output_html += '<br>';
-                    output_html += '<div class="forecast-conditions">';
+                    output_html += '<div class="forecast-conditions"';
+                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint > '0'
+                    output_html += ' style="min-height:155px">'
                     output_html += '<div class="forecast-temp-graph" style="padding-top:';
-                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding 
+                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 76 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
+                    output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 76 / (rangeTemp)) + 'px';
+                    output_html += '; height:155px">'
+                    #else
+                    output_html += '>'
+                    output_html += '<div class="forecast-temp-graph" style="padding-top:';
+                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
                     output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 100 / (rangeTemp)) + 'px">';
+                    #end if
                     output_html += '<div class="forecast-image">';
                     output_html += '<img id="icon" src="' + forecast_row[i]["image_url"] + '">';
                     output_html += '</div>';
@@ -1333,6 +1349,11 @@ function update_forecast_data(data) {
                     output_html += '</div>';
                     //  output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
+                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '1'
+                    output_html += '<div><i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span></div>';
+                    #elif $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '2'
+                    output_html += '<div><i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span></div>';
+                    #end if
                     if (forecast_row[i]["snow_depth"] > 0) {
                         output_html += '<div class="snow-precip">';
                         // output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
@@ -1380,6 +1401,11 @@ function update_forecast_data(data) {
                     output_html += '<span class="forecast-high">' + parseFloat(forecast_row[i]["maxTemp"]).toFixed(0) + '&deg;</span> | <span class="forecast-low">' + parseFloat(forecast_row[i]["minTemp"]).toFixed(0) + '&deg;</span>';
                     output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
+                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '1'
+                    output_html += '<i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span> | ';
+                    #elif $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '2'
+                    output_html += '<i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span> | ';
+                    #end if
                     if (forecast_row[i]["snow_depth"] > 0) {
                         output_html += '<div class="snow-precip">';
                         output_html += '<img src="' + get_relative_url() + '/images/snowflake-icon-15px.png"> <span>' + parseFloat(forecast_row[i]["snow_depth"]).toFixed(0) + '<span> ' + forecast_row[i]["snow_unit"];
