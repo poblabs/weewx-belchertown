@@ -106,7 +106,6 @@ extension_config = """
            # forecast_units = "us"
            # forecast_lang = "en"
            # forecast_stale = 3540
-           # forecast_aeris_use_metar = 1
            # forecast_interval_hours = 24
            # forecast_alert_enabled = 0
            # forecast_alert_limit = 1

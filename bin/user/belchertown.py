@@ -1180,16 +1180,10 @@ class getData(SearchList):
                     return 'unknown'
 
             forecast_lang = self.generator.skin_dict["Extras"]["forecast_lang"].lower()
-            if self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"] == "1":
-                forecast_current_url = (
-                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
-                )
-            else:
-                forecast_current_url = (
-                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s"
-                    % (latitude, longitude, forecast_api_id, forecast_api_secret)
-                )
+            forecast_current_url = (
+                "https://api.aerisapi.com/conditions/%s,%s?&format=json&plimit=1&filter=1hr&client_id=%s&client_secret=%s"
+                % (latitude, longitude, forecast_api_id, forecast_api_secret)
+            )
             forecast_24hr_url = (
                 "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
@@ -1419,7 +1413,7 @@ class getData(SearchList):
                 data = json.load(read_file)
 
             try:
-                cloud_cover = "{}%".format(data["current"][0]["response"]["ob"]["sky"])
+                cloud_cover = "{}%".format(data["current"][0]["response"][0]["periods"][0]["sky"])
             except Exception:
                 loginf("No cloud cover data from Aeris weather")
                 cloud_cover = ""
@@ -1467,30 +1461,18 @@ class getData(SearchList):
 
             if (
                 len(data["current"][0]["response"]) > 0
-                and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
-                == "0"
-            ):
-                # Non-metar responses do not contain these values. Set them to empty.
-                current_obs_summary = ""
-                current_obs_icon = ""
-                visibility = "N/A"
-                visibility_unit = ""
-            elif (
-                len(data["current"][0]["response"]) > 0
-                and self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"]
-                == "1"
             ):
                 current_obs_summary = aeris_coded_weather(
-                    data["current"][0]["response"]["ob"]["weatherPrimaryCoded"]
+                    data["current"][0]["response"][0]["periods"][0]["weatherPrimaryCoded"]
                 )
                 current_obs_icon = (
-                    aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png"
+                    aeris_icon(data["current"][0]["response"][0]["periods"][0]["icon"]) + ".png"
                 )
 
                 if forecast_units in ("si", "ca"):
-                    if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
+                    if data["current"][0]["response"][0]["periods"][0]["visibilityKM"] is not None:
                         visibility = locale.format(
-                            "%g", data["current"][0]["response"]["ob"]["visibilityKM"]
+                            "%g", data["current"][0]["response"][0]["periods"][0]["visibilityKM"]
                         )
                         visibility_unit = "km"
                     else:
@@ -1498,10 +1480,10 @@ class getData(SearchList):
                         visibility_unit = ""
                 else:
                     # us, uk2 and default to miles per hour
-                    if data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
+                    if data["current"][0]["response"][0]["periods"][0]["visibilityMI"] is not None:
                         visibility = locale.format(
                             "%g",
-                            float(data["current"][0]["response"]["ob"]["visibilityMI"]),
+                            float(data["current"][0]["response"][0]["periods"][0]["visibilityMI"]),
                         )
                         visibility_unit = "miles"
                     else:

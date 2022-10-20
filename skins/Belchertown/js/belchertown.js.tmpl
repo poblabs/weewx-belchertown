@@ -1137,14 +1137,14 @@ function update_forecast_data(data) {
         var forecast_subtitle = tzAdjustedMoment(data["timestamp"]).format('$obs.label.time_forecast_last_updated');
 
         try {
-            var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
+            var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"][0]["periods"][0]["icon"]) + ".png";
         } catch (err) {
             // Returned "current" data does not have this value
         }
         
         // Current observation text
         try {
-            jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"]["ob"]["weatherPrimaryCoded"], true));
+            jQuery(".current-obs-text").html(aeris_coded_weather(data["current"][0]["response"][0]["periods"][0]["weatherPrimaryCoded"], true));
         } catch (err) {
             // Returned "current" data does not have this value
         }
@@ -1176,11 +1176,11 @@ function update_forecast_data(data) {
         try {
             if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
                 // si and ca = kilometer
-                visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
+                visibility = data["current"][0]["response"][0]["periods"][0]["visibilityKM"];
 
             } else {
                 // us and uk2 and default = miles
-                visibility = data["current"][0]["response"]["ob"]["visibilityMI"];
+                visibility = data["current"][0]["response"][0]["periods"][0]["visibilityMI"];
             }
         } catch (err) {
             // Returned "current" data does not have this value
