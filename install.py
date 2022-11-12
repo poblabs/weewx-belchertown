@@ -13,7 +13,7 @@ except ImportError:
 
 #-------- extension info -----------
 
-VERSION      = "1.3b1"
+VERSION      = "1.3b2"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -51,6 +51,7 @@ extension_config = """
         [[[Extras]]]
 
            # For help refer to the docs at https://github.com/poblabs/weewx-belchertown
+           # and consult skin.conf for the configurable elements and their hierarchy
 
            #--- General Options ---
            # belchertown_debug = 0
@@ -61,7 +62,7 @@ extension_config = """
            # logo_image_dark = ""
            # site_title = "My Weather Website"
            # station_observations = "barometer","dewpoint","outHumidity","rainWithRainRate"
-           # beaufort_categoty = 0
+           # beaufort_category = 0
            # manifest_name = "My Weather Website"
            # manifest_short_name = "MWW"
            # aeris_map = 0
@@ -88,16 +89,6 @@ extension_config = """
            # reload_images_hook_ac = -1
            # show_last_updated_alert = 0
            # last_updated_alert_threshold = 1800
-
-           #--- Common Titles under Labels Section to Change ---
-           # home_page_header = "My Station Weather Conditions"
-           # graphs_page_header = "Weather Observation Graphs"
-           # reports_page_header = "Weather Observation Reports"
-           # records_page_header = "Weather Observation Records"
-           # about_page_header = "About This Site"
-           # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
-           # footer_copyright_text = "My Weather Website"
-           # footer_disclaimer_text = "Never make important decisions based on info from this website."
 
            #--- MQTT Websockets (for Real Time Streaming) Options ---
            # mqtt_websockets_enabled = 0
@@ -136,9 +127,16 @@ extension_config = """
            # twitter_enabled = 0
            # twitter_hashtags = "weewx #weather"
            # social_share_html = ""
-           # twitter_text = "Check out my website: My Weather Website Weather Conditions"
-           # twitter_owner = "YourTwitterUsernameHere"
-           # twitter_hashtag = "weewx #weather"
+           
+           #--- Kiosk Options ---
+           # radar_html_kiosk = ""
+           # radar_width_kiosk = 490
+           # radar_height_kiosk = 362
+           # mqtt_websockets_host_kiosk = ""
+           # mqtt_websockets_port_kiosk = ""
+           # mqtt_websockets_ssl_kiosk = ""
+           # forecast_interval_hours_kiosk = 24
+           # aqi_enabled_kiosk = 0
 
            #-------------------------------------------------------------
            #---
@@ -150,6 +148,24 @@ extension_config = """
            #---
            #-------------------------------------------------------------
            work_around_ConfigObj_limitations = true
+
+           # [[[[Generic]]]]
+                #-- Footer information --
+                # footer_copyright_text = "My Weather Website"
+                # footer_disclaimer_text = "Never make important decisions based on info from this website."
+
+                #-- Default page headers --
+                # home_page_header = "My Station Weather Conditions"
+                # graphs_page_header = "Weather Observation Graphs"
+                # reports_page_header = "Weather Observation Reports"
+                # records_page_header = "Weather Observation Records"
+                # about_page_header = "About This Site"
+                # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
+
+                #-- Twitter Social Share --
+                # twitter_text = "Check out my website: My Weather Website Weather Conditions"
+                # twitter_owner = "YourTwitterUsernameHere"
+                # twitter_hashtags = "weewx #weather"
 
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
@@ -166,6 +182,8 @@ files=[('bin/user', ['bin/user/belchertown.py'
                               'skins/Belchertown/header.html.tmpl',
                               'skins/Belchertown/index.html.tmpl',
                               'skins/Belchertown/about.inc.example',
+                              'skins/Belchertown/kiosk.html.tmpl',
+                              'skins/Belchertown/kiosk.css',
                               'skins/Belchertown/celestial.inc',
                               'skins/Belchertown/graphs.conf.example',
                               'skins/Belchertown/page-header.inc',

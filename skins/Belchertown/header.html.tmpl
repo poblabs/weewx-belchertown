@@ -40,7 +40,7 @@
 #end if
 
 ## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
-#if $page == "home"
+#if $page == "home" or $page == "kiosk"
 #set global $relative_url = "."
 #else
 #set global $relative_url = ".."
@@ -68,7 +68,9 @@
         #end if
         <meta property="og:site_name" content="$head_title" />
 
+        #if $page != "kiosk"
         <link rel='dns-prefetch' href='//code.highcharts.com' />
+        #end if
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
         <link rel='dns-prefetch' href='//stackpath.bootstrapcdn.com' />
         <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
@@ -76,14 +78,16 @@
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Roboto%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
-        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='$relative_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
         <link rel='stylesheet' href='$relative_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
+        #if $page == "kiosk"
+        <link rel='stylesheet' href='$relative_url/kiosk.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownCustomStyle" />
+        #end if
         #if $custom_css_exists
         <link rel='stylesheet' href='$relative_url/custom.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownCustomStyle" />
         #end if
-        
+
         <link rel="manifest" href="$relative_url/manifest.json" crossorigin="use-credentials">
         <link rel="apple-touch-icon" href="$relative_url/images/station.png">
         <link rel="apple-touch-icon" sizes="48x48" href="$relative_url/images/station48.png">
@@ -97,16 +101,17 @@
         <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
         <![endif]-->
         <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
         <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
-        #if $page == "pi" or $page == "home" and $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        #if $page == "pi" or $page == "home" or $page == "kiosk" and $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
         #end if
+        #if $page != "kiosk"
         <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
         <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
         <script type='text/javascript' src='//code.highcharts.com/modules/exporting.js'></script>
         <script type='text/javascript' src='//code.highcharts.com/modules/solid-gauge.js'></script>
+        #end if
         <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
         #if $page == "pi"
@@ -137,7 +142,7 @@
                 
         <link rel="icon" href="$relative_url/favicon.ico" />
         
-        #if $Extras.has_key('googleAnalyticsId')
+        #if $Extras.has_key('googleAnalyticsId') and $page != "kiosk"
         <!-- Global Site Tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
         <script>
@@ -148,7 +153,7 @@
         </script>
         #end if
 
-        #if os.path.exists("header.inc")
+        #if os.path.exists("header.inc") and $page != "kiosk"
         #include "header.inc"
         #end if
 
@@ -160,6 +165,7 @@
     #else
     <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
         <div class="site-container">
+        #if $page != "kiosk"
             <header class="site-header">
                 <div class="wrap">
                     <div class="title-area">
@@ -201,4 +207,5 @@
                     </div>
                 </div>
             </header>
+            #end if
     #end if

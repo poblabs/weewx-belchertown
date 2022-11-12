@@ -1,0 +1,465 @@
+#errorCatcher Echo
+##
+## Specifying an encoding of UTF-8 is usually safe, but if your text is 
+## actually in Latin-1, then you should replace the string "UTF-8" with "latin-1"
+## If you do this, you should also change the 'Content-Type' metadata below.
+#encoding UTF-8
+##
+#set global $page = "kiosk"
+
+    #include "header.html.tmpl"
+    <!-- end of header -->
+
+    <script type="text/javascript">
+        var finalRotation;
+        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        var mqttMsg;
+        var mqttclient = "website" + Math.floor(Math.random() * 999999999);
+        #end if
+        var moment_locale = "$system_locale_js";
+        moment.locale(moment_locale);
+        
+        function autoRefreshPage() {
+            window.location = window.location.href;
+        }
+
+        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+            update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+            belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+            // Load forecast
+            ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
+            #end if
+
+            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
+            // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
+            setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+            #end if
+
+            jQuery(document).ready(function() {
+                #if $Extras.has_key("aqi_enabled_kiosk") and $Extras.aqi_enabled_kiosk == '1'
+                get_aqi_color( "$aqi" );
+                #end if
+
+                #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
+                // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
+                // knots and then use Javascript function to convert to Beaufort
+                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
+                #end if
+
+                get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
+
+                rotateThis( "$current.windDir.formatted" );
+
+                // Update the Last Updated timestamp with moment.js,
+                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
+                updated_text = "$obs.label.header_last_updated " + updated;
+                jQuery(".updated").html( updated_text );
+
+                #if $Extras.has_key('earthquake_enabled') and $Extras.earthquake_enabled == '1'
+                if ( moment.unix( "$earthquake_time" ).isValid() ) {
+                    // Check that the time is the time (number) and not the "no earthquake available" wording
+                    jQuery(".earthquake-time").html( tzAdjustedMoment( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+                } else {
+                    jQuery(".earthquake-time").html( "$earthquake_time" );
+                }
+                #end if
+
+
+                #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+                if ( getURLvar("offline") && ( getURLvar("offline") == "true" || getURLvar("offline") == "1" ) ) {
+                    belchertown_debug("MQTT: offline url var detected. Skipping MQTT connect.");
+                } else {
+                    connect(); // Begin mqtt after weewx initial load
+                    // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
+                    jQuery(document).on('click', '.restart-interval', function() {
+                        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+                            update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+                            belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+
+                            #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+                            ajaxforecast(); // Update forecast data
+                            #end if
+                            ajaximages(); // Update radar and home page hook "img src" if present
+                            connect(); // Restart mqtt after weewx data's re-loaded
+                        }).catch(function(e){
+                            console.log(e);
+                        });
+                    });
+                }
+
+                #if $Extras.has_key("reload_hook_images") and $Extras.reload_hook_images == '1'
+                // Update any images in the radar section or hooks
+
+                #if $Extras.has_key("reload_images_radar") and $Extras.reload_images_radar != '-1'
+                    var reload_radar_timer = $Extras.reload_images_radar * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("radar", $Extras.reload_images_radar); }, reload_radar_timer);
+                #end if
+
+                #if $Extras.has_key("reload_images_hook_asi") and $Extras.reload_images_hook_asi != '-1'
+                    var reload_asi_timer = $Extras.reload_images_hook_asi * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-station-info", $Extras.reload_images_hook_asi); }, reload_asi_timer);
+                #end if
+
+                #if $Extras.has_key("reload_images_hook_af") and $Extras.reload_images_hook_af != '-1'
+                    var reload_af_timer = $Extras.reload_images_hook_af * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-forecast", $Extras.reload_images_hook_af); }, reload_af_timer);
+                #end if
+
+                #if $Extras.has_key("reload_images_hook_as") and $Extras.reload_images_hook_as != '-1'
+                    var reload_as_timer = $Extras.reload_images_hook_as * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-snapshot", $Extras.reload_images_hook_as); }, reload_as_timer);
+                #end if
+
+                #if $Extras.has_key("reload_images_hook_ac") and $Extras.reload_images_hook_ac != '-1'
+                    var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
+                    setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
+                #end if
+
+                #end if
+
+                #else
+                // MQTT Websockets not enabled
+
+                #if $Extras.has_key("show_last_updated_alert") and $Extras.show_last_updated_alert == '1'
+                // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
+                if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
+                    belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
+                    last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
+                    jQuery(".last-updated-alert").html( last_updated_alert_text );
+                    jQuery(".last-updated-alert").show();
+                }
+                #end if
+
+                // Update the Last Updated timestamp with moment.js,
+                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
+                updated_text = "$obs.label.header_last_updated " + updated;
+                jQuery(".updated").html( updated_text );
+
+                #end if
+
+                //  display the relevant forecast; a new session will display the default forecast, a reloaded session the currently displayed forecast
+                if ( sessionStorage.getItem ("forecastInterval")  ) {
+                    interval = sessionStorage.getItem("forecastInterval");
+                    sessionStorage.setItem ( "forecastInterval" , null );
+                    forecast_select( interval );
+                } else {
+                    sessionStorage.setItem ( "forecastInterval" , null );
+                    forecast_select( sessionStorage.getItem( "defaultInterval") );
+                }
+            });
+        }).catch(function(e) {
+            console.log(e);
+        });
+        
+    </script>
+  
+    <div class="site-inner">
+        <main class="content">    
+
+            <article class="weewx frontpage" itemscope="" itemtype="http://schema.org/CreativeWork">
+            
+                <!-- Top bar with city and share -->
+                <div class="wx-stn-info-container">
+                        <div class="clear"></div>
+                    <!-- Updated time ago -->
+                    <div class="updated-wrapper">
+                        <div class="onlineMarkerOuter">
+                            <span class="loadingMarker" style="display:none"></span>
+                            <span class="onlineMarker" style="display:none"></span>
+                            <span class="offlineMarker" style="display:none"></span>
+                        </div>
+                        <div class="updated"></div><!-- AJAX moment.js -->
+                    </div>
+                    <div class="clear"></div>
+                    <div class="last-updated-alert" style="display:none;"></div><!-- AJAX moment.js -->
+                    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+                    <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
+                    #end if
+                </div>
+                
+                <!-- First row with temperature, observation data and radar -->
+                <div class="row temperature-row">
+                    <div class="col-lg-4 toprow-height">
+                        <div class="row obs-row">
+                        
+                            <!-- Temperature -->
+                            <div class="weather-obs-top">
+                                <div class="row temp-observation">
+                                    <div class="col-sm-6 current_obs_top">
+                                        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1' and $current_obs_icon != ""
+                                        <img id="wxicon" src="$relative_url/images/$current_obs_icon">
+                                        #end if
+                                    </div>
+                                    <div class="col-sm-6 current_temp">
+                                        <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6 current-obs-container">
+                                        <div class="current-obs-text">
+                                            $current_obs_summary
+                                        </div>
+                                        #if $Extras.has_key("aqi_enabled_kiosk") and $Extras.aqi_enabled_kiosk == '1'
+                                        <div class="aqi_outer">
+                                            $obs.label.aqi: <span class="wx-aqi">$aqi</span> (<span class="wx-aqi-category">$aqi_category</span>)
+                                            #if $Extras.has_key("aqi_location_enabled") and $Extras.aqi_location_enabled == '1'
+                                            <span class="aqi_location_outer"><br>$aqi_location</span>
+                                            #end if
+                                        </div>
+                                        #else
+                                        <div class="stn-high-low station-observations">
+                                            <table class="stn-high-low-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="stn-high-low-table-title">$obs.label.inTemp</td>
+                                                        <td class="stn-high-low-table-title border-left">$obs.label.inHumidity</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="inTemp">$current.inTemp</span></td>
+                                                        <td class="border-left"><span class="inHumidity">$current.inHumidity</span></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        #end if
+                                    </div>
+                                    <div class="col-sm-6">
+                                        #if $current.appTemp.has_data
+                                        <div class="feelslike">$obs.label.feels_like: $current.appTemp</div><!-- AJAX -->
+                                        #end if
+                                        <div class="stn-high-low">
+                                            <table class="stn-high-low-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="stn-high-low-table-title">$obs.label.highest_temperature</td>
+                                                        <td class="stn-high-low-table-title border-left">$obs.label.lowest_temperature</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="high">$day.outTemp.max</td>
+                                                        <td class="border-left low">$day.outTemp.min</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Wind -->
+                        <div class="obs-wind-divider"></div>
+                        <div class="row windrow">
+                            <div class="weather-obs-bottom">
+                            <div class="col-sm-12 current_wind">
+                                <div class="col-sm-6">
+                                    <div class="compass">
+                                        <div class="direction">
+                                            <span class="curwinddir">
+                                            #if $current.windDir.ordinal_compass == "N/A"
+                                            --
+                                            #else
+                                            $current.windDir.ordinal_compass
+                                            #end if
+                                            </span>
+                                            <span class="curwinddeg">
+                                            #if $current.windDir.raw is None:
+                                            -
+                                            #else
+                                            $current.windDir.format("%.0f")
+                                            #end if
+                                            </span>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 windspeedtable">
+                                    <table class="wind-table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="windtext">$obs.label.wind_speed</td>
+                                                <td class="windtext border-left gust">$obs.label.wind_gust</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="curwindspeed">
+                                                        $current.windSpeed.toString(addLabel=False, NONE_string="--")
+                                                    </span>
+                                                </td>
+                                                <td class="border-left gust">&nbsp;
+                                                    <span class="curwindgust">
+                                                        $current.windGust.toString(addLabel=False, NONE_string="--")
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="mph" colspan="3">$unit.label.windSpeed</td>
+                                            </tr>
+                                            #if $day.windrun.has_data
+                                            <tr>
+                                                <td style="padding-top:5px">Wind Run</td><td class="dailywindrun" style="padding-top:5px">$day.windrun.sum</td>
+                                            </tr>
+                                            #end if
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Station observations -->
+                    <div class="col-lg-3 current-almanac toprow-height border-left border-right">
+                        <div class="station-observations weather-obs-top">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    $station_obs_html
+                                </tbody>
+                            </table>
+                        </div>                        
+                        
+                        <!-- Sun and Moon section -->
+                        <div class="weather-obs-bottom">
+                            <table cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="row small-almanac">
+                                                #if $obs.label.sun_and_moon and $obs.label.sun_and_moon != ''
+                                                <div class="sun-moon-title">
+                                                    $obs.label.sun_and_moon
+                                                </div>
+                                                #end if
+                                                <div class="col-sm-6 sun">
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png"></span><span class="sunrise-value"></span><!-- moment.js -->
+                                                    <br>
+                                                    <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png"></span><span class="sunset-value"></span><!-- moment.js -->
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <i class="wi wi-moonrise"></i> <span class="moonrise-value"></span>
+                                                    <br>
+                                                    <i class="wi wi-moonset"></i> <span class="moonset-value"></span>
+                                                </div>
+                                                <div class="clear"></div>
+                                                <div class="moon">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:149px;">
+                                                                    <div class="moon-container">
+                                                                        <span class="moon-icon">
+                                                                            <div class="moon-icon"></div><!-- JS -->
+                                                                        </span>
+                                                                        <strong><span class="moon-phase">#echo $almanac.moon_phase.title()#</span></strong><!-- AJAX -->
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="moon-visible"><strong>$almanac.moon_fullness%</strong> $obs.label.moon_visible</span><!-- AJAX -->
+                                                                    </td>
+                                                                </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Radar image -->
+                    <div class="col-lg-5 radar-map toprow-height">
+                        $radar_html_kiosk
+                    </div>
+                </div>
+                <!-- End of first row -->
+                
+                ## #if os.path.exists("index_hook_after_station_info.inc")
+                ## <!-- Start of index_hook_after_station_info row -->
+                ## <div class="row index-hook-after-station-info border-bottom">
+                ##     #include "index_hook_after_station_info.inc"
+                ## </div>
+                ## <!-- End of index_hook_after_station_info row -->
+                ## #end if
+
+                #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1' and (($Extras.has_key("forecast_interval_hours_kiosk") and $Extras.forecast_interval_hours_kiosk != '0') or not ($Extras.has_key("forecast_interval_hours_kiosk")))
+                <!-- Start of second row -->
+
+                <div class="row forecastrow">
+                    <!-- Forecast -->
+                    <div class="col-lg-8 forecast-title">
+                        $obs.label.forecast_header <span class="forecast-subtitle"></span><!-- moment.js -->
+                    </div>
+                    <div class="col-lg-4 forecast-menu">
+                        $obs.label.forecast_interval_caption <div class="forecast-button" onclick="forecast_select(1);" id="button1">1</div>
+                        <div class="forecast-button" onclick="forecast_select(3);" id="button3">3</div>
+                        <div class="forecast-button" onclick="forecast_select(24);" id="button24">24</div>
+                    </div>
+
+                    #if $Extras.has_key("forecast_interval_hours_kiosk") and $Extras.forecast_interval_hours_kiosk != '0'
+                    #if $Extras.has_key("forecast_interval_hours_kiosk") and $Extras.forecast_interval_hours_kiosk == '1'
+                    <script>forecast_default(1);</script>
+                    #end if
+                    <div id="1hour-selected-forecast" style="display: none;">
+                        <!-- 1hour Forecast -->
+                        <div class="col-lg-12 row 1hr_forecasts row-no-padding"></div><!-- JS -->
+                    </div>
+                    #end if
+
+                    #if $Extras.has_key("forecast_interval_hours_kiosk") and $Extras.forecast_interval_hours_kiosk == '3'
+                    <script>forecast_default(3);</script>
+                    #end if
+                    <div id="3hour-selected-forecast" style="display: none;">
+                        <!-- 3hour-Forecast -->
+                        <div class="col-lg-12 row 3hr_forecasts row-no-padding"></div><!-- JS -->
+                    </div>
+
+                    #if ($Extras.has_key("forecast_interval_hours_kiosk") and $Extras.forecast_interval_hours_kiosk == '24') or not ($Extras.has_key("forecast_interval_hours_kiosk"))
+                    <script>forecast_default(24);</script>
+                    #end if
+                    <div id="24hour-selected-forecast" style="display: none;">
+                        <!-- 24hour-Forecast -->
+                        <div class="col-lg-12 row 24hr_forecasts row-no-padding"></div><!-- JS -->
+                    </div>
+                </div>
+                #end if
+
+                <!-- End of second row -->
+
+                ## #if os.path.exists("index_hook_after_forecast.inc")
+                ## <!-- Start of index_hook_after_forecast row -->
+                ## <div class="row index-hook-after-forecast border-bottom">
+                ##     #include "index_hook_after_forecast.inc"
+                ## </div>
+                ## <!-- End of index_hook_after_forecast row -->
+                ## #end if
+                
+                <!-- Start of third row -->
+                <!-- End of third row -->
+                
+                ## #if os.path.exists("index_hook_after_snapshot.inc")
+                ## <!-- Start of index_hook_after_snapshot row -->
+                ## <div class="row index-hook-after-snapshot border-bottom">
+                ##     #include "index_hook_after_snapshot.inc"
+                ## </div>
+                ## <!-- End of index_hook_after_snapshot row -->
+                ## #end if
+
+                
+                <div class="clear"></div>
+                
+                ## #if os.path.exists("index_hook_after_charts.inc")
+                ## <!-- Start of index_hook_after_charts row -->
+                ## <div class="row index-hook-after-charts border-top">
+                ##     #include "index_hook_after_charts.inc"
+                ## </div>
+                ## <!-- End of index_hook_after_charts row -->
+                ## #end if
+                
+            </article>
+
+        </main>
+    </div>
+
+    #include "footer.html.tmpl" 

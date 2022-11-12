@@ -109,6 +109,13 @@
         "outTemp": "$current.outTemp",
         "outTemp_formatted": "$current.outTemp.formatted",
         "outHumidity": "$current.outHumidity",
+        ## TODO: Move inside data to it's own json file, and update ajax functions to correctly pull and parse data.
+        #if $Extras.has_key("aqi_enabled_kiosk") and $Extras.aqi_enabled_kiosk == '0'
+        "inTemp": "$current.inTemp",
+        "inTemp_formatted": "$current.inTemp.formatted",
+        "inHumidity": "$current.inHumidity",
+        "inHumidity_formatted": "$current.inHumidity.formatted",
+        #end if
         #if $day.appTemp.has_data
         "appTemp": "$current.appTemp",
         #end if
@@ -116,7 +123,9 @@
         "heatindex": "$current.heatindex",
         "dewpoint": "$current.dewpoint",
         "barometer": "$current.barometer",
+        "barometer_formatted": "$current.barometer.formatted",
         "barometer_trend": "$trend.barometer",
+        "barometer_trend_formatted": "$trend.barometer.formatted",
         "windspeed": "$current.windSpeed",
         "winddir": "$current.windDir",
         "winddir_formatted": "$current.windDir.formatted",
@@ -145,8 +154,10 @@
     "day": {
         "outTemp": {
             "max": "$day.outTemp.max",
+            "max_formatted": "$day.outTemp.max.formatted",
             "maxtime": "$day.outTemp.maxtime",
             "min": "$day.outTemp.min",
+            "min_formatted": "$day.outTemp.min.formatted",
             "mintime": "$day.outTemp.mintime"
         },
         #if $day.appTemp.has_data        
@@ -185,6 +196,7 @@
         },
         "wind": {
             "max": "$day.wind.max",
+            "max_formatted": "$day.wind.max.formatted",
             "maxtime": "$day.wind.maxtime",
             "gustdir": "$day.wind.gustdir",
             "average": "$day.wind.avg",
@@ -195,6 +207,7 @@
             "windrun_maxtime": "$day.windrun.maxtime",
             "windrun_min": "$day.windrun.min",
             "windrun_mintime": "$day.windrun.mintime",
+            "windrun": "$day.windrun.sum",
             #end if
             "rms": "$day.wind.rms"
         },
@@ -496,7 +509,11 @@
         "moon": {
             "moon_fullness": "$almanac.moon_fullness",
             "moon_phase": "$almanac.moon_phase",
-            "moon_index": "$almanac.moon_index"
+            "moon_index": "$almanac.moon_index",
+            "moon_rise": "$almanac.moon.rise",
+            "moon_rise_epoch": "$almanac.moon.rise.raw",
+            "moon_set": "$almanac.moon.set",
+            "moon_set_epoch": "$almanac.moon.set.raw"
         }
     }
 }

@@ -1,0 +1,47 @@
+/*
+ CSS file for Belchertown weather website.
+ This website was originally created in WordPress on Genesis WP. 
+ A lot of this CSS here is from the Genesis WP Child Theme.
+ License URI: http://www.gnu.org/licenses/gpl-2.0.html
+*/
+
+/* ## Baseline Normalize
+--------------------------------------------- */
+/* normalize.css v3.0.1 | MIT License | git.io/normalize */
+
+html{overflow:hidden;}
+
+.site-inner {
+    margin-bottom: 10px;
+}
+.site-footer {
+  padding: 15px 0;
+}
+
+.sun-moon-title {
+  padding-bottom: 8px;
+}
+
+.forecast-conditions {
+	min-height:150px;
+}
+
+.forecast-conditions-1hour {
+	min-height:144px;
+    word-wrap:break-word;
+}
+
+.moon {
+	text-align:left;
+}
+
+.forecast-day {
+    min-height: 225px;
+}
+
+@media only screen and (max-width: 800px) {
+
+    .forecast-conditions {
+        min-height: 70px;
+    }
+}

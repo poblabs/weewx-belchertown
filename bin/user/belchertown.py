@@ -91,7 +91,7 @@ else:
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "1.3b1"
+VERSION = "1.3b2"
 loginf("version %s" % VERSION)
 
 # Define these as global so they can be used in both the search list extension
@@ -507,6 +507,19 @@ class getData(SearchList):
                 radar_html_dark = "None"
         else:
             radar_html_dark = self.generator.skin_dict["Extras"]["radar_html_dark"]
+
+        # If the kiosk radar is different then the homepage one.
+        if self.generator.skin_dict["Extras"].get("radar_html_kiosk") == "":
+            radar_html_kiosk = radar_html
+        else:
+            radar_width_kiosk = self.generator.skin_dict["Extras"]["radar_width_kiosk"]
+            radar_height_kiosk = self.generator.skin_dict["Extras"]["radar_height_kiosk"]
+            radar_html_kiosk = '<iframe width="{}px" height="{}px" src="{}" frameborder="0"></iframe>'.format(
+                radar_width_kiosk,
+                radar_height_kiosk,
+                self.generator.skin_dict["Extras"]["radar_html_kiosk"]
+            )
+
 
         # ==============================================================================
         # Build the all time stats.
@@ -1995,6 +2008,26 @@ class getData(SearchList):
                 social_html += twitter_html
             social_html += "</div>"
 
+        #==============================================================================
+        # MQTT settings for Kiosk page
+        # ==============================================================================
+
+        if self.generator.skin_dict["Extras"]["mqtt_websockets_host_kiosk"] != "":
+            if self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"] != "":
+                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"]
+            else:
+                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port"]
+            if self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"] != "":
+                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"]
+            else:
+                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl"]
+        else:
+            mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_host"]
+            mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port"]
+            mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl"]
+
+
+
         # Include custom.css if it exists in the HTML_ROOT folder
         custom_css_file = html_root + "/custom.css"
         # Determine if the file exists
@@ -2014,6 +2047,7 @@ class getData(SearchList):
             "highcharts_thousands": highcharts_thousands,
             "radar_html": radar_html,
             "radar_html_dark": radar_html_dark,
+            "radar_html_kiosk": radar_html_kiosk,
             "archive_interval_ms": archive_interval_ms,
             "ordinate_names": ordinate_names,
             "charts": json.dumps(charts),
@@ -2075,8 +2109,9 @@ class getData(SearchList):
             "beaufort10": label_dict["beaufort10"],
             "beaufort11": label_dict["beaufort11"],
             "beaufort12": label_dict["beaufort12"],
+            "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
+            "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
         }
-
         # Finally, return our extension as a list:
         return [search_list_extension]
 
@@ -2586,6 +2621,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             )
                             continue
                             
+                    # use different target unit
+                    special_target_unit = line_options.get("unit",None)
+
                     # Get the unit label
                     if observation_type == "rainTotal":
                         obs_label = "rain"
@@ -2599,7 +2637,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     unit_label = line_options.get(
                         "yAxis_label_unit",
                         self.formatter.get_label_string(
-                            self.converter.getTargetUnit(obs_label,aggregate_type)[0]
+                            special_target_unit if special_target_unit else self.converter.getTargetUnit(obs_label,aggregate_type)[0]
                         ),
                     )
 
@@ -2681,6 +2719,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Add rounding from weewx.conf/skin.conf so Highcharts can use it
                     if observation_type == "rainTotal":
                         rounding_obs_lookup = "rain"
+                    elif observation_type == "weatherRange":
+                        rounding_obs_lookup = weatherRange_obs_lookup
+                    elif observation_type == "haysChart":
+                        rounding_obs_lookup = "windSpeed"
                     else:
                         rounding_obs_lookup = observation_type
                     try:
@@ -2726,6 +2768,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         mirrored_value,
                         weatherRange_obs_lookup,
                         wind_rose_color,
+                        special_target_unit
                     )
 
                     # Build the final series data JSON
@@ -2795,6 +2838,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
+        special_target_unit
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
@@ -3692,7 +3736,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
         self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
         
-        obs_vt = self.converter.convert(obs_vt)
+        if special_target_unit:
+            logdbg("unit_group=%s source_unit=%s special_target_unit=%s" % (obs_vt[2],obs_vt[1],special_target_unit))
+            obs_vt = weewx.units.Converter({obs_vt[2]:special_target_unit}).convert(obs_vt)
+        else:
+            obs_vt = self.converter.convert(obs_vt)
 
         # Special handling for the rain.
         if observation == "rainTotal":
@@ -3723,9 +3771,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     round(x, usage_round) if x is not None else None for x in obs_vt[0]
                 ]
             else:
-                usage_round = int(
-                    self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
-                )
+                try:
+                   usage_round = int(
+                       self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
+                   )
+                except ValueError:
+                   loginf (
+                      "Observation %s is using unit %s that returns %s for StringFormat, rather than float point decimal format value - using 0 as rounding"
+                      % (observation, obs_vt[1], self.skin_dict["Units"]["StringFormats"].get(obs_vt[1]))
+                   )
+                   usage_round = 0
+
                 obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
 
         # "Today" charts, "timespan_specific" charts and floating timespan
