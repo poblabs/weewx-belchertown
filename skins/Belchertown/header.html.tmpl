@@ -164,6 +164,12 @@
         <div class="site-container">
     #else
     <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
+        #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+         <!-- Back to top button -->
+        <button type="button" class="btn btn-danger" id="btn-back-to-top">
+            <i class="fa fa-arrow-up fa-2x"></i>
+        </button>
+        #end if
         <div class="site-container">
         #if $page != "kiosk"
             <header class="site-header">
