@@ -2577,15 +2577,13 @@ input:checked + .slider:before {
     width: 50px;
     height: 50px;
     z-index: 99;
-	opacity: 0.8;
 }
 
-#btn-back-to-top:focus {
+#btn-back-to-top:focus, #btn-back-to-top:hover {
     outline: none;
 }
 
 #btn-back-to-top:hover .fa-arrow-up {
-    outline: none;
     animation: jump 800ms infinite;
     animation-iteration-count: 3;
 }
@@ -2598,3 +2596,4 @@ input:checked + .slider:before {
       transform: translateY(0);
     }
 }
+
