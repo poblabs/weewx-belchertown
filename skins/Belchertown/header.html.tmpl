@@ -57,7 +57,8 @@
         <meta name="description" content="$head_desc"/>
         <meta name="robots" content="noodp"/>
         #if $station.station_url
-        <link rel="canonical" href="$station.station_url" />
+        #set $canonical_url = ($station.station_url+"/"+$filename).replace("/index.html","/")
+        <link rel="canonical" href="$canonical_url" />
         #end if
         <meta property="og:locale" content="$system_locale" />
         <meta property="og:type" content="website" />
