@@ -14,7 +14,7 @@
     <ul>
         <li>Station hardware: $station.hardware</li>
         <li>Server uptime: $station.os_uptime.long_form</li>
-        <li>WeeWX uptime: $station.uptime.ong_form</li>
+        <li>WeeWX uptime: $station.uptime.long_form</li>
         <li>WeeWX version: $station.version</li>
         <li>Belchertown Skin Version: $belchertown_version</li>
     </ul>
