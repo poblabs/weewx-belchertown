@@ -2568,3 +2568,32 @@ input:checked + .slider:before {
         border-bottom: 0px;
     }
 
+/* Back to top button */
+#btn-back-to-top {
+    position: fixed;
+    transform: scale(0);
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    z-index: 99;
+}
+
+#btn-back-to-top:focus, #btn-back-to-top:hover {
+    outline: none;
+}
+
+#btn-back-to-top:hover .fa-arrow-up {
+    animation: jump 800ms infinite;
+    animation-iteration-count: 3;
+}
+
+@keyframes jump {
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+}
+
