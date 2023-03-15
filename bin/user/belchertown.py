@@ -1059,7 +1059,10 @@ class getData(SearchList):
             and self.generator.skin_dict["Extras"]["forecast_api_id"] != ""
             or "forecast_dev_file" in self.generator.skin_dict["Extras"]
         ):
-
+            # ensure the directory exists - Issue #271
+            directory = html_root + "/json"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             forecast_file = html_root + "/json/forecast.json"
             forecast_api_id = self.generator.skin_dict["Extras"]["forecast_api_id"]
             forecast_api_secret = self.generator.skin_dict["Extras"][
@@ -1578,7 +1581,7 @@ class getData(SearchList):
 
                 earthquake_url = (
                     "https://api.franceseisme.fr/fdsnws/event/1/query?eventtype=earthquake&minmagnitude=2&minlatitude=%.2f&minlongitude=%.2f&maxlatitude=%.2f&maxlongitude=%.2f&format=json&limit=1&orderby=time"
-                    % (minLat, minLong, maxLat, maxLong) 
+                    % (minLat, minLong, maxLat, maxLong)
                 )
             earthquake_is_stale = False
 
@@ -2565,7 +2568,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
 
                     if start_at_whole_hour:
                         minstamp -= minstamp % 3600
-                    
+
                     if start_at_beginning_of_month:
                         start_ts, stop_ts = archiveMonthSpan(minstamp)
                         minstamp = start_ts
@@ -2620,7 +2623,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                 % observation_type,
                             )
                             continue
-                            
+
                     # use different target unit
                     special_target_unit = line_options.get("unit",None)
 
@@ -3360,7 +3363,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 )
 
             self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
-            
+
             min_obs_vt = self.converter.convert(obs_vt)
 
             # Get max values
@@ -3380,7 +3383,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 )
 
             self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
-            
+
             max_obs_vt = self.converter.convert(obs_vt)
 
             obs_unit = max_obs_vt[1]
@@ -3412,9 +3415,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_type = "max"
         else:
             obs_lookup = observation
-            
+
         #   Special aggregation_subtype measures to enable average rainfall, max and min temperatures to be calculated
-        
+
         if aggregate_type == "avg" and observation == "avgRainfall" and aggregate_interval == 86400:
             obs_lookup = "rain"
             obs_label = "Rainfall"
@@ -3472,7 +3475,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             elif xAxis_groupby == "day": subqry_groupby = '"%Y%m%d"'
             elif xAxis_groupby == "hour": subqry_groupby = '"%Y%m%d%H"'
             else: subqry_groupby = ''
-                            
+
             if driver == "weedb.sqlite":
                 # Use daily summaries where possible - MUST BE FOR WHOLE DAYS determined by start and stop times otherwise use archive
                 if xAxis_groupby != "hour" and isStartOfDay(start_ts) and isStartOfDay(end_ts) and end_ts - start_ts > 0 :  # 1 or more exact days
@@ -3679,8 +3682,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 obs_group = None
                 obs_unit_from_target_unit = None
 
-            # introduce test to catch any sql errors; a try / except sequence 
-            
+            # introduce test to catch any sql errors; a try / except sequence
+
             try:
                 query = archive.genSql(sql_lookup)
             except:
@@ -3688,9 +3691,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "SQL error in"
                     "sql_lookup"
                     "The error is: %s"
-                        % (error)                    
+                        % (error)
                 )
-                
+
             for row in query:
                 xAxis_labels.append(row[0])
                 row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
@@ -3738,7 +3741,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             )
 
         self.insert_null_value_timestamps_to_end_ts(time_start_vt, time_stop_vt, obs_vt, start_ts, end_ts, aggregate_interval)
-        
+
         if special_target_unit:
             logdbg("unit_group=%s source_unit=%s special_target_unit=%s" % (obs_vt[2],obs_vt[1],special_target_unit))
             obs_vt = weewx.units.Converter({obs_vt[2]:special_target_unit}).convert(obs_vt)
@@ -3818,7 +3821,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         """
         In weewx 4.5.1 xtypes.py was modified to not return any data points which didn't exist in the archive database.
         This function adds the 'future' data points from the last timestamp in the list up until end_ts with None entries.
-        This means that graphs still have the option of showing a full day or month or year on the x axis depending on the time_length specfied.       
+        This means that graphs still have the option of showing a full day or month or year on the x axis depending on the time_length specfied.
         """
         count = 0
 
