@@ -217,6 +217,7 @@ files=[('bin/user', ['bin/user/belchertown.py'
        ('skins/Belchertown/images', ['skins/Belchertown/images/clear-day.png',
                                      'skins/Belchertown/images/clear-night.png',
                                      'skins/Belchertown/images/cloudy.png',
+                                     'skins/Belchertown/images/drizzle.png',
                                      'skins/Belchertown/images/fog.png',
                                      'skins/Belchertown/images/hail.png',
                                      'skins/Belchertown/images/mostly-clear-day.png',
