@@ -374,7 +374,7 @@ For ease of readability I have broken them out into separate tables. However you
 | forecast_alert_limit | 1 | **Only applies to AerisWeather Alerts**. The number of alerts to show for your location. Max of 10.
 | forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
 | forecast_daily_forecast_link | "" | **Only applies to AerisWeather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
-|forecast_show_humidiy_dewpoint| 0 | **AerisWeather Only** 0 = disabled, 1 = humidity, 2 = dew point. 
+|forecast_show_humidity_dewpoint| 0 | **AerisWeather Only** 0 = disabled, 1 = humidity, 2 = dew point. 
 | aqi_enabled | 0 | Enables display of Air Quality Index from AerisWeather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 50 miles. If no stations are available within 50 miles, no value will be available.
 | aqi_location_enabled | 0 | Enables display of the AQI reporting station underneath AQI. Use this option to display where the AQI is being read from--it may be very far away, depending on your location.
 
