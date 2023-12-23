@@ -2850,7 +2850,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
-        special_target_unit
+        special_target_unit,
+        obs_round
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
