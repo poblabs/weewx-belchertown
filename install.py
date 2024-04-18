@@ -13,7 +13,7 @@ except ImportError:
 
 #-------- extension info -----------
 
-VERSION      = "1.3b2"
+VERSION      = "1.3.1"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -216,6 +216,7 @@ files=[('bin/user', ['bin/user/belchertown.py'
        ('skins/Belchertown/images', ['skins/Belchertown/images/clear-day.png',
                                      'skins/Belchertown/images/clear-night.png',
                                      'skins/Belchertown/images/cloudy.png',
+                                     'skins/Belchertown/images/drizzle.png',
                                      'skins/Belchertown/images/fog.png',
                                      'skins/Belchertown/images/hail.png',
                                      'skins/Belchertown/images/mostly-clear-day.png',

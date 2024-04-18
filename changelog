@@ -1,13 +1,12 @@
-1.3 ????, 2021
-### Breaking Changes
-* New AerisWeather forecast display options for Belchertown skin will require you to delete your forecast.json file so that the skin can generate a new one.
+1.3.1 April 30, 2023
 
-### Added
+* Reverts a change which pins the HighCharts to version 10
 
-### Changed
+1.3 March 2, 2023
 
-### Removed
+The last 2+ years have been challenging for me and as a result I've had to take a step back on developing the skin. There are so many changes in this skin since the last release in 2020. I don't have all the changes documented because the community has helped keep this skin going! I want to thank everyone who submitted a pull request!
 
+If you're curious, you can read all of the commits that have happened between 1.2 and 1.3 here: https://github.com/poblabs/weewx-belchertown/compare/weewx-belchertown-1.2...weewx-belchertown-1.3
 
 1.2 September 11, 2020
 

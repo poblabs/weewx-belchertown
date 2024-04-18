@@ -57,7 +57,8 @@
         <meta name="description" content="$head_desc"/>
         <meta name="robots" content="noodp"/>
         #if $station.station_url
-        <link rel="canonical" href="$station.station_url" />
+        #set $canonical_url = ($station.station_url+"/"+$filename).replace("/index.html","/")
+        <link rel="canonical" href="$canonical_url" />
         #end if
         <meta property="og:locale" content="$system_locale" />
         <meta property="og:type" content="website" />
@@ -107,10 +108,10 @@
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
         #end if
         #if $page != "kiosk"
-        <script type='text/javascript' src='//code.highcharts.com/stock/highstock.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/highcharts-more.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/modules/exporting.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/modules/solid-gauge.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/stock/10/highstock.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/10/highcharts-more.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/10/modules/exporting.js'></script>
+        <script type='text/javascript' src='//code.highcharts.com/10/modules/solid-gauge.js'></script>
         #end if
         <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
@@ -164,6 +165,12 @@
         <div class="site-container">
     #else
     <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
+        #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+         <!-- Back to top button -->
+        <button type="button" class="btn btn-danger" id="btn-back-to-top">
+            <i class="fa fa-arrow-up fa-2x"></i>
+        </button>
+        #end if
         <div class="site-container">
         #if $page != "kiosk"
             <header class="site-header">
@@ -189,11 +196,11 @@
                                         <!-- class = current-menu-item -->
                                         <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
                                         #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
-                                        <li class="menu-item menu-item-1"><a href="$relative_url/graphs" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
+                                        <li class="menu-item menu-item-1"><a href="$relative_url/graphs/" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
-                                        <li class="menu-item menu-item-2"><a href="$relative_url/records" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
-                                        <li class="menu-item menu-item-3"><a href="$relative_url/reports" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
-                                        <li class="menu-item menu-item-4"><a href="$relative_url/about" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
+                                        <li class="menu-item menu-item-2"><a href="$relative_url/records/" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
+                                        <li class="menu-item menu-item-3"><a href="$relative_url/reports/" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
+                                        <li class="menu-item menu-item-4"><a href="$relative_url/about/" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
                                         #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
                                         <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>

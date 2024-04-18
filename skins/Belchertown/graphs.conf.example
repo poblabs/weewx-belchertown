@@ -44,7 +44,7 @@ tooltip_date_format = "LLL"
         title = Temperature
         [[[outTemp]]]
             zIndex = 1
-            name = Temperature
+#            name = Temperature
         [[[windchill]]]
         [[[heatindex]]]
             color = "#f7a35c"
@@ -74,7 +74,7 @@ tooltip_date_format = "LLL"
         [[[rainRate]]]
             yAxis = 1
         [[[rainTotal]]]
-            name = Rain Total
+#            name = Rain Total
     
     [[chart4]]
         title = Barometer
@@ -96,7 +96,7 @@ tooltip_date_format = "LLL"
         title = Temperature
         [[[outTemp]]]
             zIndex = 1
-            name = Temperature
+#            name = Temperature
         [[[windchill]]]
         [[[heatindex]]]
             color = "#f7a35c"
@@ -126,7 +126,7 @@ tooltip_date_format = "LLL"
         [[[rainRate]]]
             yAxis = 1
         [[[rainTotal]]]
-            name = Rain Total
+#            name = Rain Total
     
     [[chart4]]
         title = Barometer
@@ -149,7 +149,7 @@ tooltip_date_format = "LLL"
         title = Temperature
         [[[outTemp]]]
             zIndex = 1
-            name = Temperature
+#            name = Temperature
         [[[windchill]]]
         [[[heatindex]]]
             color = "#f7a35c"

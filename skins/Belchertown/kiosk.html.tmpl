@@ -20,7 +20,7 @@
         moment.locale(moment_locale);
         
         function autoRefreshPage() {
-            window.location = window.location.href;
+            location.reload();
         }
 
         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
@@ -33,7 +33,7 @@
 
             #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '0' and $Extras.has_key("webpage_autorefresh") and $Extras.webpage_autorefresh != '0'
             // Reload the page on an interval for updated data. This is for non-mqtt websocket websites
-            setInterval('autoRefreshPage()', $Extras.webpage_autorefresh);
+            setTimeout(autoRefreshPage, $Extras.webpage_autorefresh);
             #end if
 
             jQuery(document).ready(function() {

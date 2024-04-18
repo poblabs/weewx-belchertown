@@ -101,6 +101,33 @@ jQuery(document).ready(function() {
         }
     });
 
+    #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+    // Back to Top Button is visible after 400px
+    jQuery(window).scroll(function() {
+        if (jQuery(this).scrollTop() > 400) {
+            jQuery('#btn-back-to-top').css('transform', 'scale(1)');
+        } else {
+            jQuery('#btn-back-to-top').css('transform', 'scale(0)');
+        }
+    });
+
+    jQuery('#btn-back-to-top').click(function() {
+        jQuery("html, body").animate({
+            scrollTop: 0
+        }, 1000);
+        return false;
+    });
+
+    #if $Extras.back_to_top_button_position == '1'
+    // Button is visible on left side
+    jQuery('#btn-back-to-top').css('left','20px').css('right','auto');
+    #end if
+
+    #if $Extras.back_to_top_button_opacity >= '0.1' and $Extras.back_to_top_button_opacity <= '0.9'
+    jQuery('#btn-back-to-top').css('opacity','$Extras.back_to_top_button_opacity');
+    #end if
+    #end if
+
 });
 
 #if $Extras.has_key("theme") and $Extras.theme == 'auto'
