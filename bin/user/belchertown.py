@@ -2716,30 +2716,41 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             "yAxis_max"
                         ] = yAxis_max
 
-                    # Add rounding from weewx.conf/skin.conf so Highcharts can use it
-                    if observation_type == "rainTotal":
-                        rounding_obs_lookup = "rain"
-                    elif observation_type == "weatherRange":
-                        rounding_obs_lookup = weatherRange_obs_lookup
-                    elif observation_type == "haysChart":
-                        rounding_obs_lookup = "windSpeed"
-                    else:
-                        rounding_obs_lookup = observation_type
-                    try:
-                        obs_group = weewx.units.obs_group_dict[rounding_obs_lookup]
-                        obs_unit = self.converter.group_unit_dict[obs_group]
-                        obs_round = self.skin_dict["Units"]["StringFormats"].get(
-                            obs_unit, "0"
-                        )[2]
-                        output[chart_group][plotname]["series"][line_name][
-                            "rounding"
-                        ] = obs_round
-                    except:
-                        # Not a valid weewx schema name - maybe this is
-                        # windRose or something?
-                        output[chart_group][plotname]["series"][line_name][
-                            "rounding"
-                        ] = "-1"
+                    # data rounding
+                    obs_round = None
+                    if (obs_round is None and 
+                        self.chart_dict[chart_group][plotname][line_name].get("numberFormat",dict()).get(
+                            "decimals") is not None
+                       ):
+                        # The user specified decimals. Use them for rounding,
+                        # too.
+                        try:
+                            obs_round = float(self.chart_dict[chart_group][plotname][line_name]["numberFormat"]["decimals"])
+                        except (ValueError,TypeError):
+                            logerr("cannot use numberFormat decimals %s for rounding" % self.chart_dict[chart_group][plotname][line_name]["numberFormat"]["decimals"])
+                    if obs_round is None:
+                        # Add rounding from weewx.conf/skin.conf so Highcharts can use it
+                        if observation_type == "rainTotal":
+                            rounding_obs_lookup = "rain"
+                        elif observation_type == "weatherRange":
+                            rounding_obs_lookup = weatherRange_obs_lookup
+                        elif observation_type == "haysChart":
+                            rounding_obs_lookup = "windSpeed"
+                        else:
+                            rounding_obs_lookup = observation_type
+                        try:
+                            obs_group = weewx.units.obs_group_dict[rounding_obs_lookup]
+                            obs_unit = self.converter.group_unit_dict[obs_group]
+                            obs_round = self.skin_dict["Units"]["StringFormats"].get(
+                                obs_unit, "0"
+                            )[2]
+                        except:
+                            # Not a valid weewx schema name - maybe this is
+                            # windRose or something?
+                            obs_round = -1
+                    output[chart_group][plotname]["series"][line_name][
+                        "rounding"
+                    ] = obs_round
 
                     # Set default colors, unless the user has specified
                     # otherwise in graphs.conf
@@ -2768,7 +2779,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         mirrored_value,
                         weatherRange_obs_lookup,
                         wind_rose_color,
-                        special_target_unit
+                        special_target_unit,
+                        obs_round
                     )
 
                     # Build the final series data JSON
@@ -2838,7 +2850,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         mirrored_value,
         weatherRange_obs_lookup,
         wind_rose_color,
-        special_target_unit
+        special_target_unit,
+        obs_round
     ):
         """
         Get the SQL vectors for the observation, the aggregate type and the
@@ -3775,9 +3788,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 ]
             else:
                 try:
-                   usage_round = int(
-                       self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
-                   )
+                   if obs_round is None:
+                       usage_round = int(
+                           self.skin_dict["Units"]["StringFormats"].get(obs_vt[1], "2f")[-2]
+                       )
+                   else:
+                       usage_round = int(obs_round)+1
                 except ValueError:
                    loginf (
                       "Observation %s is using unit %s that returns %s for StringFormat, rather than float point decimal format value - using 0 as rounding"
