@@ -472,7 +472,7 @@ class getData(SearchList):
         # Set default radar html code, and override with user-specified value
         if self.generator.skin_dict["Extras"].get("radar_html") == "":
             if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/{}x{}/{},{},{}/current.png"></img>'.format(
+                radar_html = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
                     radar_width,
                     radar_height,
                     self.generator.skin_dict["Extras"]["forecast_api_id"],
@@ -492,7 +492,7 @@ class getData(SearchList):
 
         if self.generator.skin_dict["Extras"].get("radar_html_dark") == "":
             if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html_dark = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/{}x{}/{},{},{}/current.png"></img>'.format(
+                radar_html_dark = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
                     radar_width,
                     radar_height,
                     self.generator.skin_dict["Extras"]["forecast_api_id"],
