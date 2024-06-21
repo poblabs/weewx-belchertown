@@ -609,16 +609,16 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             year_outTemp_range_max = [
                 year_outTemp_max_range_query[0],
-                locale.format("%g", float(year_outTemp_max_range_total)),
-                locale.format("%g", float(year_outTemp_max_range_min)),
-                locale.format("%g", float(year_outTemp_max_range_max)),
+                locale.format_string("%g", float(year_outTemp_max_range_total)),
+                locale.format_string("%g", float(year_outTemp_max_range_min)),
+                locale.format_string("%g", float(year_outTemp_max_range_max)),
             ]
         else:
             year_outTemp_range_max = [
                 calendar.timegm(time.gmtime()),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
             ]
 
         # Smallest Daily Temperature Range Conversions
@@ -650,16 +650,16 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             year_outTemp_range_min = [
                 year_outTemp_min_range_query[0],
-                locale.format("%g", float(year_outTemp_min_range_total)),
-                locale.format("%g", float(year_outTemp_min_range_min)),
-                locale.format("%g", float(year_outTemp_min_range_max)),
+                locale.format_string("%g", float(year_outTemp_min_range_total)),
+                locale.format_string("%g", float(year_outTemp_min_range_min)),
+                locale.format_string("%g", float(year_outTemp_min_range_max)),
             ]
         else:
             year_outTemp_range_min = [
                 calendar.timegm(time.gmtime()),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
             ]
 
         # All Time - Largest Daily Temperature Range Conversions
@@ -691,16 +691,16 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             at_outTemp_range_max = [
                 at_outTemp_max_range_query[0],
-                locale.format("%g", float(at_outTemp_max_range_total)),
-                locale.format("%g", float(at_outTemp_max_range_min)),
-                locale.format("%g", float(at_outTemp_max_range_max)),
+                locale.format_string("%g", float(at_outTemp_max_range_total)),
+                locale.format_string("%g", float(at_outTemp_max_range_min)),
+                locale.format_string("%g", float(at_outTemp_max_range_max)),
             ]
         else:
             at_outTemp_range_max = [
                 calendar.timegm(time.gmtime()),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
             ]
 
         # All Time - Smallest Daily Temperature Range Conversions
@@ -732,16 +732,16 @@ class getData(SearchList):
             # Replace the SQL Query output with the converted values
             at_outTemp_range_min = [
                 at_outTemp_min_range_query[0],
-                locale.format("%g", float(at_outTemp_min_range_total)),
-                locale.format("%g", float(at_outTemp_min_range_min)),
-                locale.format("%g", float(at_outTemp_min_range_max)),
+                locale.format_string("%g", float(at_outTemp_min_range_total)),
+                locale.format_string("%g", float(at_outTemp_min_range_min)),
+                locale.format_string("%g", float(at_outTemp_min_range_max)),
             ]
         else:
             at_outTemp_range_min = [
                 calendar.timegm(time.gmtime()),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
+                locale.format_string("%.1f", 0),
             ]
 
         # Rain lookups
@@ -768,10 +768,10 @@ class getData(SearchList):
             )
             rainiest_day = [
                 rainiest_day_query[0],
-                locale.format("%g", float(rainiest_day_converted)),
+                locale.format_string("%g", float(rainiest_day_converted)),
             ]
         else:
-            rainiest_day = [calendar.timegm(time.gmtime()), locale.format("%.2f", 0)]
+            rainiest_day = [calendar.timegm(time.gmtime()), locale.format_string("%.2f", 0)]
 
         # All Time Rainiest Day
         at_rainiest_day_query = wx_manager.getSql(
@@ -783,7 +783,7 @@ class getData(SearchList):
         )
         at_rainiest_day = [
             at_rainiest_day_query[0],
-            locale.format("%g", float(at_rainiest_day_converted)),
+            locale.format_string("%g", float(at_rainiest_day_converted)),
         ]
 
         # Find what kind of database we're working with and specify the
@@ -839,7 +839,7 @@ class getData(SearchList):
             ]
             year_rainiest_month = [
                 year_rainiest_month_name,
-                locale.format("%g", float(year_rainiest_month_converted)),
+                locale.format_string("%g", float(year_rainiest_month_converted)),
             ]
         else:
             year_rainiest_month = ["N/A", 0.0]
@@ -853,7 +853,7 @@ class getData(SearchList):
         at_rainiest_month_name = calendar.month_name[int(at_rainiest_month_query[0])]
         at_rainiest_month = [
             "%s, %s" % (at_rainiest_month_name, at_rainiest_month_query[1]),
-            locale.format("%g", float(at_rainiest_month_converted)),
+            locale.format_string("%g", float(at_rainiest_month_converted)),
         ]
 
         # All time rainiest year
@@ -868,7 +868,7 @@ class getData(SearchList):
         )
         at_rain_highest_year = [
             at_rain_highest_year_query[0],
-            locale.format("%g", float(at_rain_highest_year_converted)),
+            locale.format_string("%g", float(at_rain_highest_year_converted)),
         ]
 
         # Consecutive days with/without rainfall
@@ -903,7 +903,7 @@ class getData(SearchList):
             )
         else:
             year_days_with_rain = [
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
                 calendar.timegm(time.gmtime()),
             ]
 
@@ -916,7 +916,7 @@ class getData(SearchList):
             )
         else:
             year_days_without_rain = [
-                locale.format("%.1f", 0),
+                locale.format_string("%.1f", 0),
                 calendar.timegm(time.gmtime()),
             ]
 
@@ -1489,7 +1489,7 @@ class getData(SearchList):
 
                 if forecast_units in ("si", "ca"):
                     if data["current"][0]["response"]["ob"]["visibilityKM"] is not None:
-                        visibility = locale.format(
+                        visibility = locale.format_string(
                             "%g", data["current"][0]["response"]["ob"]["visibilityKM"]
                         )
                         visibility_unit = "km"
@@ -1499,7 +1499,7 @@ class getData(SearchList):
                 else:
                     # us, uk2 and default to miles per hour
                     if data["current"][0]["response"]["ob"]["visibilityMI"] is not None:
-                        visibility = locale.format(
+                        visibility = locale.format_string(
                             "%g",
                             float(data["current"][0]["response"]["ob"]["visibilityMI"]),
                         )
@@ -1687,7 +1687,7 @@ class getData(SearchList):
                             )
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
-                    eqmag = locale.format(
+                    eqmag = locale.format_string(
                         "%g", float(eqdata["features"][0]["properties"]["mag"])
                     )
                 elif (
@@ -1722,7 +1722,7 @@ class getData(SearchList):
                         + eqdata["features"][0]["properties"]["publicID"]
                     )
                     eqplace = eqdata["features"][0]["properties"]["locality"]
-                    eqmag = locale.format(
+                    eqmag = locale.format_string(
                         "%g",
                         float(
                             round(eqdata["features"][0]["properties"]["magnitude"], 1)
@@ -1739,7 +1739,7 @@ class getData(SearchList):
                     (float(eqlat), float(eqlon)),
                     distance_unit,
                 )
-                eqdistance = locale.format(
+                eqdistance = locale.format_string(
                     "%g", float(eq_distance_round % eqdistance_bearing[0])
                 )
                 eqbearing = eqdistance_bearing[1]
