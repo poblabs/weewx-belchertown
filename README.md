@@ -24,6 +24,7 @@ Screenshot of light and dark modes
   * [Install weewx-belchertown](#install-weewx-belchertown)
   * [Requirements](#requirements)
     + [weewx.conf](#weewxconf)
+    + [weewx database requirements](#database)
     + [AerisWeather Forecast API (optional)](#aerisweather-forecast-api-optional)
     + [Forecast Units](#forecast-units)
     + [Forecast Translation](#forecast-translation)
@@ -93,6 +94,11 @@ sudo /etc/init.d/weewx start
 These settings need to be enabled in order for the skin to work. Within `weewx.conf`, under `[Station]` make sure you have: 
 * `latitude` - used for forecasting and earthquake data
 * `longitude` - used for forecasting and earthquake data
+
+### database
+Belchertown assumes that the weewx database uses the 'wview-extended' schema that has been the weewx default since v4 was released in April 2020.  Users whose database was created using the original wview compatible schema prior to weewx v4 may see significant performance issues processing the Belchertown skin after they upgrade to weewx v5.  This is due to a change in weewx behavior in which it will now calculate elements referenced in a skin that are not in the actual weewx database.
+
+This change in weewx behavior is documented at some length in many weewx-user google group threads and in Issue 924 [(link)](https://github.com/poblabs/weewx-belchertown/issues/924) here. The simplest way to deal with this is to add the 'appTemp' element to your database if it is missing, or alternately run "weectl station reconfigure" and switch to the v4 and above default 'wview-extended' schema that contains the required database elements.   For details and some ways to do so, please see the issue 924 link above.
 
 ### AerisWeather Forecast API (optional)
 AerisWeather's Forecast API is where the current observations and forecast data comes from. The skin will work without this integration, however it is used to show current weather observations and icons as well as the forecast. 
@@ -642,6 +648,9 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
 ---
 * Q: How do I uninstall this skin?
 * A: `sudo wee_extension --uninstall Belchertown`
+---
+* Q: Why is Belchertown so slow after upgrading to weewx v5 ?
+* A: [See above.](#database)
 
 ## Donate
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
