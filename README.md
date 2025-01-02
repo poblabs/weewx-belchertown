@@ -69,9 +69,17 @@ Screenshot of light and dark modes
 
 2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
 
+For weewx 4.x.x and earlier, use
 ```
 sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 ```
+
+For weewx 5.x.x and later, use
+```
+weectl extension --install weewx-belchertown-x.x.tar.gz
+```
+
+**Note:** It is not necessary to use `sudo` on weewx 5.x and later if you are running as user `weewx` or a user in the `weewx` group.
 
 3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
 
@@ -79,12 +87,32 @@ sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 
 5) Restart weewx:
 
+For weewx 4.x.x and earlier, use
+
 ```
 sudo /etc/init.d/weewx stop
 sudo /etc/init.d/weewx start
 ```
 
-6) Wait for an archive period, or run `sudo wee_reports` to force an update
+For weewx 5.x.x and later, use
+
+```
+sudo systemctl restart weewx
+```
+
+6) Wait for an archive period, or force an update:
+
+For weewx 4.x.x and earlier, use
+
+```
+sudo wee_reports
+```
+
+For weewx 5.x.x and later, use
+
+```
+weectl report run
+```
 
 7) Browse to your website to see the skin. It may be in a belchertown subdirectory.
 
