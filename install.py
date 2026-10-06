@@ -10,7 +10,7 @@ from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
-VERSION      = "1.3.1"
+VERSION      = "2.0.0"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -19,11 +19,11 @@ AUTHOR_EMAIL = "https://github.com/poblabs/weewx-belchertown"
 #-------- main loader -----------
 
 def loader():
-    # weewx 4.0 is the first Python 3 release; 3.x (Python 2) is no longer supported.
-    if sys.version_info[0] < 3 or int(weewx.__version__.split(".")[0]) < 4:
-        sys.exit("Belchertown requires weewx 4.0 or newer on Python 3 (found weewx %s on Python %s). "
-                 "weewx 3.x users: stay on Belchertown 1.3.1."
-                 % (weewx.__version__, sys.version.split()[0]))
+    # Belchertown 2.x needs weewx 5; older weewx stays on Belchertown 1.3.1.
+    if int(weewx.__version__.split(".")[0]) < 5:
+        sys.exit("Belchertown 2.x requires weewx 5.0 or newer (found weewx %s). "
+                 "On older weewx, install Belchertown 1.3.1."
+                 % weewx.__version__)
     return BelchertownInstaller()
 
 class BelchertownInstaller(ExtensionInstaller):
@@ -207,7 +207,8 @@ files=[('bin/user', ['bin/user/belchertown.py'
        ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl']),
        ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
        ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
-       ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown.js.tmpl',
+       ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',
+                                 'skins/Belchertown/js/belchertown.js',
                                  'skins/Belchertown/js/index.html',
                                  'skins/Belchertown/js/responsive-menu.js'
                                 ]

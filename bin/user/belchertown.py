@@ -45,11 +45,11 @@ from weewx.tags import TimespanBinder
 
 from weeutil.config import accumulateLeaves
 
-# weewx 4.0 is the first Python 3 release; 3.x (Python 2) is no longer supported.
-if sys.version_info[0] < 3 or int(weewx.__version__.split(".")[0]) < 4:
+# Belchertown 2.x needs weewx 5; older weewx stays on Belchertown 1.3.1.
+if int(weewx.__version__.split(".")[0]) < 5:
     raise weewx.UnsupportedFeature(
-        "weewx 4.0 or newer on Python 3 is required, found weewx %s on Python %s"
-        % (weewx.__version__, sys.version.split()[0])
+        "Belchertown 2.x requires weewx 5.0 or newer, found weewx %s"
+        % weewx.__version__
     )
 
 log = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ def logerr(msg):
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "1.3.1"
+VERSION = "2.0.0"
 loginf("version %s" % VERSION)
 
 # Define these as global so they can be used in both the search list extension

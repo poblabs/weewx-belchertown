@@ -61,9 +61,9 @@ Screenshot of light and dark modes
 
 ---
 
-### :warning: You must be running weewx 4.0 or newer on Python 3!
+### :warning: Belchertown 2.x requires weewx 5.0 or newer!
 
-weewx 3.x (Python 2) is no longer supported. If you're still on weewx 3.x, stay on [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
+On weewx 3 or 4, stay on [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
 
 ---
 
@@ -72,11 +72,7 @@ weewx 3.x (Python 2) is no longer supported. If you're still on weewx 3.x, stay 
 2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
 
 ```
-# weewx 5
 weectl extension install weewx-belchertown-x.x.tar.gz
-
-# weewx 4
-sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 ```
 
 3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
@@ -89,7 +85,7 @@ sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 sudo systemctl restart weewx
 ```
 
-6) Wait for an archive period, or force an update with `weectl report run` (weewx 5) or `sudo wee_reports` (weewx 4)
+6) Wait for an archive period, or force an update with `weectl report run`
 
 7) Browse to your website to see the skin. It may be in a belchertown subdirectory.
 
@@ -542,7 +538,7 @@ In both cases, you'll need to open the browsers console to find the debug inform
 
 If you want to try out the latest features the skin has to offer, you can install the [`next` branch](https://github.com/poblabs/weewx-belchertown/tree/next), where the current rewrite happens. To start download the [next zip file](https://github.com/poblabs/weewx-belchertown/archive/next.zip). Then you can 
 
-1. upload it to your weewx system and install it using `weectl extension install next.zip` (weewx 5) or `sudo wee_extension --install next.zip` (weewx 4)
+1. upload it to your weewx system and install it using `weectl extension install next.zip`
 
 or
 
@@ -634,7 +630,7 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
 * A: Upgrade to 0.8.1 or newer which resolves this error
 ---
 * Q: How do I uninstall this skin?
-* A: `weectl extension uninstall Belchertown` (weewx 5) or `sudo wee_extension --uninstall Belchertown` (weewx 4)
+* A: `weectl extension uninstall Belchertown`
 ---
 * Q: Why is Belchertown so slow after upgrading to weewx v5 ?
 * A: [See above.](#database)

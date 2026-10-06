@@ -1,11 +1,12 @@
-#encoding "UTF-8"
-#import datetime
-
-#if "-" in str($station.stn_info.latitude_f)
-#set global $hemisphere = "southern-hemisphere"
-#else
-#set global $hemisphere = "northern-hemisphere"
-#end if
+// Settings come from belchertown-config.js (js/belchertown-config.js.tmpl), loaded just before this file.
+var config = belchertown_config;
+var extras = belchertown_config.extras;
+// Like $obs.label in a template: an unknown label returns its own name.
+var labels = new Proxy(belchertown_config.labels, {
+    get: function(target, key) {
+        return (typeof key === "string" && !(key in target)) ? key : target[key];
+    }
+});
 
 var pages = ["graphs", "records", "reports", "about", "pi"];
 var pageName = "";
@@ -28,16 +29,16 @@ if (getURLvar("debug") && (getURLvar("debug") == "true" || getURLvar("debug") ==
     var belchertown_debug_config = true;
     belchertown_debug("Debug: URL debug variable enabled");
 } else {
-    var belchertown_debug_config = $belchertown_debug;
+    var belchertown_debug_config = config.belchertown_debug;
     belchertown_debug("Debug: skin.conf belchertown_debug enabled");
 }
 
-var moment_locale = "$system_locale_js";
+var moment_locale = config.system_locale_js;
 moment.locale(moment_locale);
 
-var graphgroups_raw = $charts;
-var graphgroups_titles = $graphpage_titles;
-var graphpage_content = $graphpage_content;
+var graphgroups_raw = config.charts;
+var graphgroups_titles = config.graphpage_titles;
+var graphpage_content = config.graphpage_content;
 
 //  declare icon_dict as global variable
 var icon_dict = {};
@@ -72,13 +73,13 @@ jQuery(document).ready(function() {
         } else if (window.location.search.indexOf('?theme=auto') === 0) {
             belchertown_debug("Theme: Setting auto theme because of URL override");
             sessionStorage.setItem('theme', 'auto')
-            #if $almanac.sunrise.raw is not None and $almanac.sunset.raw is not None
-            autoTheme(#echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%M')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')#, #echo datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%M')#)
-            #end if
+            if (config.almanac_times) {
+                autoTheme(config.almanac_times.sunset_hour, config.almanac_times.sunset_minute, config.almanac_times.sunrise_hour, config.almanac_times.sunrise_minute);
+            }
         }
     }
 
-    #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
+    if (extras.theme_toggle_enabled === '1') {
     // Dark mode checkbox toggle switcher
     try {
         document.getElementById('themeSwitch').addEventListener('change', function(event) {
@@ -88,7 +89,7 @@ jQuery(document).ready(function() {
     } catch (err) {
         // Silently exit
     }
-    #end if
+    }
 
     // After charts are loaded, if an anchor tag is in the URL, let's scroll to it
     jQuery(window).on('load', function() {
@@ -101,7 +102,7 @@ jQuery(document).ready(function() {
         }
     });
 
-    #if "back_to_top_button_enabled" in $Extras and $Extras.back_to_top_button_enabled == '1'
+    if (extras.back_to_top_button_enabled === '1') {
     // Back to Top Button is visible after 400px
     jQuery(window).scroll(function() {
         if (jQuery(this).scrollTop() > 400) {
@@ -118,19 +119,19 @@ jQuery(document).ready(function() {
         return false;
     });
 
-    #if $Extras.back_to_top_button_position == '1'
+    if (extras.back_to_top_button_position === '1') {
     // Button is visible on left side
     jQuery('#btn-back-to-top').css('left','20px').css('right','auto');
-    #end if
+    }
 
-    #if $Extras.back_to_top_button_opacity >= '0.1' and $Extras.back_to_top_button_opacity <= '0.9'
-    jQuery('#btn-back-to-top').css('opacity','$Extras.back_to_top_button_opacity');
-    #end if
-    #end if
+    if (extras.back_to_top_button_opacity >= '0.1' && extras.back_to_top_button_opacity <= '0.9') {
+    jQuery('#btn-back-to-top').css('opacity',extras.back_to_top_button_opacity);
+    }
+    }
 
 });
 
-#if "theme" in $Extras and $Extras.theme == 'auto'
+if (extras.theme === 'auto') {
 // Run this on every page for dark mode if skin theme is auto
 ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
     update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
@@ -138,7 +139,7 @@ ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_d
 }).catch(function(e) {
     console.log(e);
 });
-#end if
+}
 
 // Disable AJAX caching
 jQuery.ajaxSetup({
@@ -153,7 +154,7 @@ function getURLvar(k) {
 }
 
 // http://stackoverflow.com/a/14887961/1177153
-var weatherdirection = $obs.label.graphs_windDir_ordinals;
+var weatherdirection = config.windDir_ordinals;
 
 // Change the color of the outTemp_F variable
 function get_outTemp_color(unit, outTemp, returnColor = false) {
@@ -388,31 +389,31 @@ function beaufort_cat(beaufort) {
     // Given Beaufort number, returns category description
     switch (beaufort) {
         case 0:
-            return "$beaufort0"
+            return labels.beaufort0
         case 1:
-            return "$beaufort1"
+            return labels.beaufort1
         case 2:
-            return "$beaufort2"
+            return labels.beaufort2
         case 3:
-            return "$beaufort3"
+            return labels.beaufort3
         case 4:
-            return "$beaufort4"
+            return labels.beaufort4
         case 5:
-            return "$beaufort5"
+            return labels.beaufort5
         case 6:
-            return "$beaufort6"
+            return labels.beaufort6
         case 7:
-            return "$beaufort7"
+            return labels.beaufort7
         case 8:
-            return "$beaufort8"
+            return labels.beaufort8
         case 9:
-            return "$beaufort9"
+            return labels.beaufort9
         case 10:
-            return "$beaufort10"
+            return labels.beaufort10
         case 11:
-            return "$beaufort11"
+            return labels.beaufort11
         case 12:
-            return "$beaufort12"
+            return labels.beaufort12
     }
 }
 
@@ -424,39 +425,39 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = 
 
     if (point_obsType == "windDir") {
         if (obsvalue >= 0 && obsvalue <= 11.25) {
-            ordinal = "$ordinate_names[0]"; // N
+            ordinal = config.ordinate_names[0]; // N
         } else if (obsvalue >= 11.26 && obsvalue <= 33.75) {
-            ordinal = "$ordinate_names[1]"; // NNE
+            ordinal = config.ordinate_names[1]; // NNE
         } else if (obsvalue >= 33.76 && obsvalue <= 56.25) {
-            ordinal = "$ordinate_names[2]"; // NE
+            ordinal = config.ordinate_names[2]; // NE
         } else if (obsvalue >= 56.26 && obsvalue <= 78.75) {
-            ordinal = "$ordinate_names[3]"; // ENE
+            ordinal = config.ordinate_names[3]; // ENE
         } else if (obsvalue >= 78.76 && obsvalue <= 101.25) {
-            ordinal = "$ordinate_names[4]"; // E
+            ordinal = config.ordinate_names[4]; // E
         } else if (obsvalue >= 101.26 && obsvalue <= 123.75) {
-            ordinal = "$ordinate_names[5]"; // ESE
+            ordinal = config.ordinate_names[5]; // ESE
         } else if (obsvalue >= 123.76 && obsvalue <= 146.25) {
-            ordinal = "$ordinate_names[6]"; // SE
+            ordinal = config.ordinate_names[6]; // SE
         } else if (obsvalue >= 146.26 && obsvalue <= 168.75) {
-            ordinal = "$ordinate_names[7]"; // SSE
+            ordinal = config.ordinate_names[7]; // SSE
         } else if (obsvalue >= 168.76 && obsvalue <= 191.25) {
-            ordinal = "$ordinate_names[8]"; // S
+            ordinal = config.ordinate_names[8]; // S
         } else if (obsvalue >= 191.26 && obsvalue <= 213.75) {
-            ordinal = "$ordinate_names[9]"; // SSW
+            ordinal = config.ordinate_names[9]; // SSW
         } else if (obsvalue >= 213.76 && obsvalue <= 236.25) {
-            ordinal = "$ordinate_names[10]"; // SW
+            ordinal = config.ordinate_names[10]; // SW
         } else if (obsvalue >= 236.26 && obsvalue <= 258.75) {
-            ordinal = "$ordinate_names[11]"; // WSW
+            ordinal = config.ordinate_names[11]; // WSW
         } else if (obsvalue >= 258.76 && obsvalue <= 281.25) {
-            ordinal = "$ordinate_names[12]"; // W
+            ordinal = config.ordinate_names[12]; // W
         } else if (obsvalue >= 281.26 && obsvalue <= 303.75) {
-            ordinal = "$ordinate_names[13]"; // WNW
+            ordinal = config.ordinate_names[13]; // WNW
         } else if (obsvalue >= 303.76 && obsvalue <= 326.25) {
-            ordinal = "$ordinate_names[14]"; // NW
+            ordinal = config.ordinate_names[14]; // NW
         } else if (obsvalue >= 326.26 && obsvalue <= 348.75) {
-            ordinal = "$ordinate_names[15]"; // NNW
+            ordinal = config.ordinate_names[15]; // NNW
         } else if (obsvalue >= 348.76 && obsvalue <= 360) {
-            ordinal = "$ordinate_names[0]"; // N
+            ordinal = config.ordinate_names[0]; // N
         }
 
         // highchartsReturn returns the full wind direction string for highcharts tooltips. e.g "NNW (337)"
@@ -481,11 +482,11 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = 
                 }
                 // If decimalPoint is undefined, use the auto detect from the skin since this comes from the skin.
                 if (typeof decimalPoint === "undefined") {
-                    decimalPoint = "$highcharts_decimal";
+                    decimalPoint = config.highcharts_decimal;
                 }
                 // If thousandsSep is undefined, use the auto detect from the skin since this comes from the skin.
                 if (typeof thousandsSep === "undefined") {
-                    thousandsSep = "$highcharts_thousands";
+                    thousandsSep = config.highcharts_thousands;
                 }
 
                 output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
@@ -585,33 +586,33 @@ function changeTheme(themeName, toggleOverride = false) {
     }
     if (themeName == "dark") {
         // Apply dark theme
-        #if $radar_html_dark != "None"
-        jQuery('.radar_image').html('$radar_html_dark');
-        #end if
+        if (config.radar_html_dark !== "None") {
+        jQuery('.radar_image').html(config.radar_html_dark);
+        }
         jQuery('body').addClass("dark");
         jQuery('body').removeClass("light");
-        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
+        if (extras.theme_toggle_enabled === '1') {
         jQuery("#themeSwitch").prop("checked", true);
-        #end if
-        #if 'logo_image_dark' in $Extras and $Extras.logo_image_dark != ""
+        }
+        if (extras.logo_image_dark !== undefined && extras.logo_image_dark !== "") {
         belchertown_debug("Theme: logo_image_dark is defined.");
-        jQuery("#logo_image").attr("src", "$Extras.logo_image_dark");
-        #end if
+        jQuery("#logo_image").attr("src", extras.logo_image_dark);
+        }
         sessionStorage.setItem('currentTheme', 'dark');
     } else if (themeName == "light") {
         // Apply light theme
-        #if $radar_html_dark != "None"
-        jQuery('.radar_image').html('$radar_html');
-        #end if
+        if (config.radar_html_dark !== "None") {
+        jQuery('.radar_image').html(config.radar_html);
+        }
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
-        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
+        if (extras.theme_toggle_enabled === '1') {
         jQuery("#themeSwitch").prop("checked", false);
-        #end if
-        #if 'logo_image' in $Extras and $Extras.logo_image != ""
+        }
+        if (extras.logo_image !== undefined && extras.logo_image !== "") {
         belchertown_debug("Theme: logo_image is defined.");
-        jQuery("#logo_image").attr("src", "$Extras.logo_image");
-        #end if
+        jQuery("#logo_image").attr("src", extras.logo_image);
+        }
         sessionStorage.setItem('currentTheme', 'light');
     }
 }
@@ -634,10 +635,10 @@ function update_weewx_data(data) {
     belchertown_debug("Updating weewx data");
     weewx_data = data;
     
-    #if "theme" in $Extras and $Extras.theme == 'auto'
+    if (extras.theme === 'auto') {
     // Auto theme if enabled
     autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"]);
-    #end if
+    }
 
     //station_obs_array = data["station_observations"];
     unit_rounding_array = data["unit_rounding"];
@@ -667,8 +668,8 @@ function update_weewx_data(data) {
 
     // Daily Snapshot Stats Section
     try {
-        jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_today_header'));
-        jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format('$obs.label.time_snapshot_records_month_header'));
+        jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_today_header));
+        jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_month_header));
     } catch (err) {
         // Returned "current" data does not have this value
     }
@@ -691,26 +692,26 @@ function update_weewx_data(data) {
     jQuery(".monthstatsrainrate").html(data["month"]["rain"]["max"]);
 
     // Sunrise and Sunset            
-    jQuery(".sunrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
-    jQuery(".sunset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format("$obs.label.time_sunset"));
-    jQuery(".moonrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
-    jQuery(".moonset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format("$obs.label.time_sunrise"));
+    jQuery(".sunrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    jQuery(".sunset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
+    jQuery(".moonrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    jQuery(".moonset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
 
     // Moon icon, phase and illumination percent
     jQuery(".moon-icon").html(moon_icon(data["almanac"]["moon"]["moon_index"]));        
     jQuery(".moon-phase").html(titleCase(data["almanac"]["moon"]["moon_phase"])); // Javascript function above
-    jQuery(".moon-visible").html("<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> $obs.label.moon_visible");
-    #if $almanac.hasExtras
+    jQuery(".moon-visible").html("<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> " + labels.moon_visible);
+    if (config.almanac_has_extras) {
     // Close current modal if open
     jQuery('#almanac').modal('hide');
     jQuery(".almanac-extras-modal-body").html(data["almanac"]["almanac_extras_modal_html"]);
     try {
-        almanac_updated = "$obs.label.header_last_updated " + tzAdjustedMoment(data["current"]["datetime_raw"]).format("$obs.label.time_last_updated");
+        almanac_updated = labels.header_last_updated + " " + tzAdjustedMoment(data["current"]["datetime_raw"]).format(labels.time_last_updated);
         jQuery(".almanac_last_updated").html(almanac_updated);
     } catch (err) {
         // Returned "current" data does not have this value
     }
-    #end if
+    }
 }
 
 //  function returns html for moon-icon according to moonphase value and currentTheme setting
@@ -718,13 +719,13 @@ function moon_icon(moonphase){
     
     var moon_icon_dict = {
         "0": "<div class='wi wi-moon-new'></div>",
-        "1": "<div class='wi wi-moon-waxing-crescent-3 $hemisphere'></div>",
-        "2": "<div class='wi wi-moon-first-quarter $hemisphere'></div>",
-        "3": "<div class='wi wi-moon-waxing-gibbous-3 $hemisphere'></div>",
+        "1": "<div class='wi wi-moon-waxing-crescent-3 " + config.hemisphere + "'></div>",
+        "2": "<div class='wi wi-moon-first-quarter " + config.hemisphere + "'></div>",
+        "3": "<div class='wi wi-moon-waxing-gibbous-3 " + config.hemisphere + "'></div>",
         "4": "<div class='wi wi-moon-full'></div>",
-        "5": "<div class='wi wi-moon-waning-gibbous-3 $hemisphere'></div>",
-        "6": "<div class='wi wi-moon-third-quarter $hemisphere'></div>",
-        "7": "<div class='wi wi-moon-waning-crescent-4 $hemisphere'></div>",
+        "5": "<div class='wi wi-moon-waning-gibbous-3 " + config.hemisphere + "'></div>",
+        "6": "<div class='wi wi-moon-third-quarter " + config.hemisphere + "'></div>",
+        "7": "<div class='wi wi-moon-waning-crescent-4 " + config.hemisphere + "'></div>",
     }
     
     var output = moon_icon_dict[moonphase];
@@ -735,7 +736,7 @@ function moon_icon(moonphase){
     }
 }
 
-#if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
+// Forecast (only called when forecast_enabled = 1)
 function ajaxforecast() {
     forecast_data = {};
     jQuery.when(
@@ -764,69 +765,69 @@ function aeris_coded_weather(data, full_observation = false) {
     var weather_code = data.split(":")[2]
 
     var cloud_dict = {
-        "CL": "$obs.label.forecast_cloud_code_CL",
-        "FW": "$obs.label.forecast_cloud_code_FW",
-        "SC": "$obs.label.forecast_cloud_code_SC",
-        "BK": "$obs.label.forecast_cloud_code_BK",
-        "OV": "$obs.label.forecast_cloud_code_OV"
+        "CL": labels.forecast_cloud_code_CL,
+        "FW": labels.forecast_cloud_code_FW,
+        "SC": labels.forecast_cloud_code_SC,
+        "BK": labels.forecast_cloud_code_BK,
+        "OV": labels.forecast_cloud_code_OV
     }
 
     var coverage_dict = {
-        "AR": "$obs.label.forecast_coverage_code_AR",
-        "BR": "$obs.label.forecast_coverage_code_BR",
-        "C": "$obs.label.forecast_coverage_code_C",
-        "D": "$obs.label.forecast_coverage_code_D",
-        "FQ": "$obs.label.forecast_coverage_code_FQ",
-        "IN": "$obs.label.forecast_coverage_code_IN",
-        "IS": "$obs.label.forecast_coverage_code_IS",
-        "L": "$obs.label.forecast_coverage_code_L",
-        "NM": "$obs.label.forecast_coverage_code_NM",
-        "O": "$obs.label.forecast_coverage_code_O",
-        "PA": "$obs.label.forecast_coverage_code_PA",
-        "PD": "$obs.label.forecast_coverage_code_PD",
-        "S": "$obs.label.forecast_coverage_code_S",
-        "SC": "$obs.label.forecast_coverage_code_SC",
-        "VC": "$obs.label.forecast_coverage_code_VC",
-        "WD": "$obs.label.forecast_coverage_code_WD"
+        "AR": labels.forecast_coverage_code_AR,
+        "BR": labels.forecast_coverage_code_BR,
+        "C": labels.forecast_coverage_code_C,
+        "D": labels.forecast_coverage_code_D,
+        "FQ": labels.forecast_coverage_code_FQ,
+        "IN": labels.forecast_coverage_code_IN,
+        "IS": labels.forecast_coverage_code_IS,
+        "L": labels.forecast_coverage_code_L,
+        "NM": labels.forecast_coverage_code_NM,
+        "O": labels.forecast_coverage_code_O,
+        "PA": labels.forecast_coverage_code_PA,
+        "PD": labels.forecast_coverage_code_PD,
+        "S": labels.forecast_coverage_code_S,
+        "SC": labels.forecast_coverage_code_SC,
+        "VC": labels.forecast_coverage_code_VC,
+        "WD": labels.forecast_coverage_code_WD
     }
 
     var intensity_dict = {
-        "VL": "$obs.label.forecast_intensity_code_VL",
-        "L": "$obs.label.forecast_intensity_code_L",
-        "H": "$obs.label.forecast_intensity_code_H",
-        "VH": "$obs.label.forecast_intensity_code_VH"
+        "VL": labels.forecast_intensity_code_VL,
+        "L": labels.forecast_intensity_code_L,
+        "H": labels.forecast_intensity_code_H,
+        "VH": labels.forecast_intensity_code_VH
     }
 
     var weather_dict = {
-        "A": "$obs.label.forecast_weather_code_A",
-        "BD": "$obs.label.forecast_weather_code_BD",
-        "BN": "$obs.label.forecast_weather_code_BN",
-        "BR": "$obs.label.forecast_weather_code_BR",
-        "BS": "$obs.label.forecast_weather_code_BS",
-        "BY": "$obs.label.forecast_weather_code_BY",
-        "F": "$obs.label.forecast_weather_code_F",
-        "FR": "$obs.label.forecast_weather_code_FR",
-        "H": "$obs.label.forecast_weather_code_H",
-        "IC": "$obs.label.forecast_weather_code_IC",
-        "IF": "$obs.label.forecast_weather_code_IF",
-        "IP": "$obs.label.forecast_weather_code_IP",
-        "K": "$obs.label.forecast_weather_code_K",
-        "L": "$obs.label.forecast_weather_code_L",
-        "R": "$obs.label.forecast_weather_code_R",
-        "RW": "$obs.label.forecast_weather_code_RW",
-        "RS": "$obs.label.forecast_weather_code_RS",
-        "SI": "$obs.label.forecast_weather_code_SI",
-        "WM": "$obs.label.forecast_weather_code_WM",
-        "S": "$obs.label.forecast_weather_code_S",
-        "SW": "$obs.label.forecast_weather_code_SW",
-        "T": "$obs.label.forecast_weather_code_T",
-        "UP": "$obs.label.forecast_weather_code_UP",
-        "VA": "$obs.label.forecast_weather_code_VA",
-        "WP": "$obs.label.forecast_weather_code_WP",
-        "ZF": "$obs.label.forecast_weather_code_ZF",
-        "ZL": "$obs.label.forecast_weather_code_ZL",
-        "ZR": "$obs.label.forecast_weather_code_ZR",
-        "ZY": "$obs.label.forecast_weather_code_ZY"
+        "A": labels.forecast_weather_code_A,
+        "BD": labels.forecast_weather_code_BD,
+        "BN": labels.forecast_weather_code_BN,
+        "BR": labels.forecast_weather_code_BR,
+        "BS": labels.forecast_weather_code_BS,
+        "BY": labels.forecast_weather_code_BY,
+        "F": labels.forecast_weather_code_F,
+        "FR": labels.forecast_weather_code_FR,
+        "H": labels.forecast_weather_code_H,
+        "IC": labels.forecast_weather_code_IC,
+        "IF": labels.forecast_weather_code_IF,
+        "IP": labels.forecast_weather_code_IP,
+        "K": labels.forecast_weather_code_K,
+        "L": labels.forecast_weather_code_L,
+        "R": labels.forecast_weather_code_R,
+        "RW": labels.forecast_weather_code_RW,
+        "RS": labels.forecast_weather_code_RS,
+        "SI": labels.forecast_weather_code_SI,
+        "WM": labels.forecast_weather_code_WM,
+        "S": labels.forecast_weather_code_S,
+        "SW": labels.forecast_weather_code_SW,
+        "T": labels.forecast_weather_code_T,
+        "UP": labels.forecast_weather_code_UP,
+        "VA": labels.forecast_weather_code_VA,
+        "WP": labels.forecast_weather_code_WP,
+        "ZF": labels.forecast_weather_code_ZF,
+        "ZL": labels.forecast_weather_code_ZL,
+        "ZR": labels.forecast_weather_code_ZR,
+        "ZY": labels.forecast_weather_code_ZY
     }
 
     // Check if the weather_code is in the cloud_dict and use that if it's there. If not then it's a combined weather code.
@@ -852,206 +853,206 @@ function aeris_coded_alerts(data, full_observation = false) {
     // https://www.aerisweather.com/support/docs/aeris-maps/reference/alert-types/
 
     var alert_dict = {
-        "TOE": "$obs.label.forecast_alert_code_TOE",
-        "ADR": "$obs.label.forecast_alert_code_ADR",
-        "AQA": "$obs.label.forecast_alert_code_AQA",
-        "AQ.S": "$obs.label.forecast_alert_code_AQ_S",
-        "AS.Y": "$obs.label.forecast_alert_code_AS_Y",
-        "AR.W": "$obs.label.forecast_alert_code_AR_W",
-        "AF.Y": "$obs.label.forecast_alert_code_AF_Y",
-        "MH.Y": "$obs.label.forecast_alert_code_MH_Y",
-        "AF.W": "$obs.label.forecast_alert_code_AF_W",
-        "AVW": "$obs.label.forecast_alert_code_AVW",
-        "AVA": "$obs.label.forecast_alert_code_AVA",
-        "BH.S": "$obs.label.forecast_alert_code_BH_S",
-        "BZ.W": "$obs.label.forecast_alert_code_BZ_W",
-        "DU.Y": "$obs.label.forecast_alert_code_DU_Y",
-        "BS.Y": "$obs.label.forecast_alert_code_BS_Y",
-        "BW.Y": "$obs.label.forecast_alert_code_BW_Y",
-        "CAE": "$obs.label.forecast_alert_code_CAE",
-        "CDW": "$obs.label.forecast_alert_code_CDW",
-        "CEM": "$obs.label.forecast_alert_code_CEM",
-        "CF.Y": "$obs.label.forecast_alert_code_CF_Y",
-        "CF.S": "$obs.label.forecast_alert_code_CF_S",
-        "CF.W": "$obs.label.forecast_alert_code_CF_W",
-        "CF.A": "$obs.label.forecast_alert_code_CF_A",
-        "FG.Y": "$obs.label.forecast_alert_code_FG_Y",
-        "MF.Y": "$obs.label.forecast_alert_code_MF_Y",
-        "FO.Y": "$obs.label.forecast_alert_code_FO_Y",
-        "SM.Y": "$obs.label.forecast_alert_code_SM_Y",
-        "MS.Y": "$obs.label.forecast_alert_code_MS_Y",
-        "DS.W": "$obs.label.forecast_alert_code_DS_W",
-        "EQW": "$obs.label.forecast_alert_code_EQW",
-        "EVI": "$obs.label.forecast_alert_code_EVI",
-        "EH.W": "$obs.label.forecast_alert_code_EH_W",
-        "EH.A": "$obs.label.forecast_alert_code_EH_A",
-        "EC.W": "$obs.label.forecast_alert_code_EC_W",
-        "EC.A": "$obs.label.forecast_alert_code_EC_A",
-        "RFD": "$obs.label.forecast_alert_code_RFD",
-        "EW.W": "$obs.label.forecast_alert_code_EW_W",
-        "FRW": "$obs.label.forecast_alert_code_FRW",
-        "FW.A": "$obs.label.forecast_alert_code_FW_A",
-        "FF.S": "$obs.label.forecast_alert_code_FF_S",
-        "FF.W": "$obs.label.forecast_alert_code_FF_W",
-        "FF.A": "$obs.label.forecast_alert_code_FF_A",
-        "FE.W": "$obs.label.forecast_alert_code_FE_W",
-        "FL.Y": "$obs.label.forecast_alert_code_FL_Y",
-        "FL.S": "$obs.label.forecast_alert_code_FL_S",
-        "FL.W": "$obs.label.forecast_alert_code_FL_W",
-        "FA.W": "$obs.label.forecast_alert_code_FA_W",
-        "FL.A": "$obs.label.forecast_alert_code_FL_A",
-        "FA.A": "$obs.label.forecast_alert_code_FA_A",
-        "FZ.W": "$obs.label.forecast_alert_code_FZ_W",
-        "FZ.A": "$obs.label.forecast_alert_code_FZ_A",
-        "ZL.Y": "$obs.label.forecast_alert_code_ZL_Y",
-        "ZF.Y": "$obs.label.forecast_alert_code_ZF_Y",
-        "ZR.W": "$obs.label.forecast_alert_code_ZR_W",
-        "UP.Y": "$obs.label.forecast_alert_code_UP_Y",
-        "FR.Y": "$obs.label.forecast_alert_code_FR_Y",
-        "GL.W": "$obs.label.forecast_alert_code_GL_W",
-        "GL.A": "$obs.label.forecast_alert_code_GL_A",
-        "HZ.W": "$obs.label.forecast_alert_code_HZ_W",
-        "HZ.A": "$obs.label.forecast_alert_code_HZ_A",
-        "HMW": "$obs.label.forecast_alert_code_HMW",
-        "SE.W": "$obs.label.forecast_alert_code_SE_W",
-        "SE.A": "$obs.label.forecast_alert_code_SE_A",
-        "HWO": "$obs.label.forecast_alert_code_HWO",
-        "HT.Y": "$obs.label.forecast_alert_code_HT_Y",
-        "HT.W": "$obs.label.forecast_alert_code_HT_W",
-        "UP.W": "$obs.label.forecast_alert_code_UP_W",
-        "UP.A": "$obs.label.forecast_alert_code_UP_A",
-        "SU.Y": "$obs.label.forecast_alert_code_SU_Y",
-        "SU.W": "$obs.label.forecast_alert_code_SU_W",
-        "HW.W": "$obs.label.forecast_alert_code_HW_W",
-        "HW.A": "$obs.label.forecast_alert_code_HW_A",
-        "HF.W": "$obs.label.forecast_alert_code_HF_W",
-        "HF.A": "$obs.label.forecast_alert_code_HF_A",
-        "HU.S": "$obs.label.forecast_alert_code_HU_S",
-        "HU.W": "$obs.label.forecast_alert_code_HU_W",
-        "HU.A": "$obs.label.forecast_alert_code_HU_A",
-        "FA.Y": "$obs.label.forecast_alert_code_FA_Y",
-        "IS.W": "$obs.label.forecast_alert_code_IS_W",
-        "LE.W": "$obs.label.forecast_alert_code_LE_W",
-        "LW.Y": "$obs.label.forecast_alert_code_LW_Y",
-        "LS.Y": "$obs.label.forecast_alert_code_LS_Y",
-        "LS.S": "$obs.label.forecast_alert_code_LS_S",
-        "LS.W": "$obs.label.forecast_alert_code_LS_W",
-        "LS.A": "$obs.label.forecast_alert_code_LS_A",
-        "LEW": "$obs.label.forecast_alert_code_LEW",
-        "LAE": "$obs.label.forecast_alert_code_LAE",
-        "LO.Y": "$obs.label.forecast_alert_code_LO_Y",
-        "MA.S": "$obs.label.forecast_alert_code_MA_S",
-        "NUW": "$obs.label.forecast_alert_code_NUW",
-        "RHW": "$obs.label.forecast_alert_code_RHW",
-        "RA.W": "$obs.label.forecast_alert_code_RA_W",
-        "FW.W": "$obs.label.forecast_alert_code_FW_W",
-        "RFW": "$obs.label.forecast_alert_code_RFW",
-        "RP.S": "$obs.label.forecast_alert_code_RP_S",
-        "SV.W": "$obs.label.forecast_alert_code_SV_W",
-        "SV.A": "$obs.label.forecast_alert_code_SV_A",
-        "SV.S": "$obs.label.forecast_alert_code_SV_S",
-        "TO.S": "$obs.label.forecast_alert_code_TO_S",
-        "SPW": "$obs.label.forecast_alert_code_SPW",
-        "NOW": "$obs.label.forecast_alert_code_NOW",
-        "SC.Y": "$obs.label.forecast_alert_code_SC_Y",
-        "SW.Y": "$obs.label.forecast_alert_code_SW_Y",
-        "RB.Y": "$obs.label.forecast_alert_code_RB_Y",
-        "SI.Y": "$obs.label.forecast_alert_code_SI_Y",
-        "SO.W": "$obs.label.forecast_alert_code_SO_W",
-        "SQ.W": "$obs.label.forecast_alert_code_SQ_W",
-        "SQ.A": "$obs.label.forecast_alert_code_SQ_A",
-        "SB.Y": "$obs.label.forecast_alert_code_SB_Y",
-        "SN.W": "$obs.label.forecast_alert_code_SN_W",
-        "MA.W": "$obs.label.forecast_alert_code_MA_W",
-        "SP.S": "$obs.label.forecast_alert_code_SPS",
-        "SG.W": "$obs.label.forecast_alert_code_SG_W",
-        "SS.W": "$obs.label.forecast_alert_code_SS_W",
-        "SS.A": "$obs.label.forecast_alert_code_SS_A",
-        "SR.W": "$obs.label.forecast_alert_code_SR_W",
-        "SR.A": "$obs.label.forecast_alert_code_SR_A",
-        "TO.W": "$obs.label.forecast_alert_code_TO_W",
-        "TO.A": "$obs.label.forecast_alert_code_TO_A",
-        "TC.S": "$obs.label.forecast_alert_code_TC_S",
-        "TR.S": "$obs.label.forecast_alert_code_TR_S",
-        "TR.W": "$obs.label.forecast_alert_code_TR_W",
-        "TR.A": "$obs.label.forecast_alert_code_TR_A",
-        "TS.Y": "$obs.label.forecast_alert_code_TS_Y",
-        "TS.W": "$obs.label.forecast_alert_code_TS_W",
-        "TS.A": "$obs.label.forecast_alert_code_TS_A",
-        "TY.S": "$obs.label.forecast_alert_code_TY_S",
-        "TY.W": "$obs.label.forecast_alert_code_TY_W",
-        "TY.A": "$obs.label.forecast_alert_code_TY_A",
-        "VOW": "$obs.label.forecast_alert_code_VOW",
-        "WX.Y": "$obs.label.forecast_alert_code_WX_Y",
-        "WX.W": "$obs.label.forecast_alert_code_WX_W",
-        "WI.Y": "$obs.label.forecast_alert_code_WI_Y",
-        "WC.Y": "$obs.label.forecast_alert_code_WC_Y",
-        "WC.W": "$obs.label.forecast_alert_code_WC_W",
-        "WC.A": "$obs.label.forecast_alert_code_WC_A",
-        "WI.W": "$obs.label.forecast_alert_code_WI_W",
-        "WS.W": "$obs.label.forecast_alert_code_WS_W",
-        "WS.A": "$obs.label.forecast_alert_code_WS_A",
-        "LE.A": "$obs.label.forecast_alert_code_LE_A",
-        "BZ.A": "$obs.label.forecast_alert_code_BZ_A",
-        "WW.Y": "$obs.label.forecast_alert_code_WW_Y",
-        "LE.Y": "$obs.label.forecast_alert_code_LE_Y",
-        "ZR.Y": "$obs.label.forecast_alert_code_ZR_Y",
-        "AW.WI.MN": "$obs.label.forecast_alert_code_AW_WI_MN",
-        "AW.WI.MD": "$obs.label.forecast_alert_code_AW_WI_MD",
-        "AW.WI.SV": "$obs.label.forecast_alert_code_AW_WI_SV",
-        "AW.WI.EX": "$obs.label.forecast_alert_code_AW_WI_EX",
-        "AW.SI.MN": "$obs.label.forecast_alert_code_AW_SI_MN",
-        "AW.SI.MD": "$obs.label.forecast_alert_code_AW_SI_MD",
-        "AW.SI.SV": "$obs.label.forecast_alert_code_AW_SI_SV",
-        "AW.SI.EX": "$obs.label.forecast_alert_code_AW_SI_EX",
-        "AW.TS.MN": "$obs.label.forecast_alert_code_AW_TS_MN",
-        "AW.TS.MD": "$obs.label.forecast_alert_code_AW_TS_MD",
-        "AW.TS.SV": "$obs.label.forecast_alert_code_AW_TS_SV",
-        "AW.TS.EX": "$obs.label.forecast_alert_code_AW_TS_EX",
-        "AW.LI.MN": "$obs.label.forecast_alert_code_AW_LI_MN",
-        "AW.LI.MD": "$obs.label.forecast_alert_code_AW_LI_MD",
-        "AW.LI.SV": "$obs.label.forecast_alert_code_AW_LI_SV",
-        "AW.LI.EX": "$obs.label.forecast_alert_code_AW_LI_EX",
-        "AW.FG.MN": "$obs.label.forecast_alert_code_AW_FG_MN",
-        "AW.FG.MD": "$obs.label.forecast_alert_code_AW_FG_MD",
-        "AW.FG.SV": "$obs.label.forecast_alert_code_AW_FG_SV",
-        "AW.FG.EX": "$obs.label.forecast_alert_code_AW_FG_EX",
-        "AW.HT.MN": "$obs.label.forecast_alert_code_AW_HT_MN",
-        "AW.HT.MD": "$obs.label.forecast_alert_code_AW_HT_MD",
-        "AW.HT.SV": "$obs.label.forecast_alert_code_AW_HT_SV",
-        "AW.HT.EX": "$obs.label.forecast_alert_code_AW_HT_EX",
-        "AW.LT.MN": "$obs.label.forecast_alert_code_AW_LT_MN",
-        "AW.LT.MD": "$obs.label.forecast_alert_code_AW_LT_MD",
-        "AW.LT.SV": "$obs.label.forecast_alert_code_AW_LT_SV",
-        "AW.LT.EX": "$obs.label.forecast_alert_code_AW_LT_EX",
-        "AW.CE.MN": "$obs.label.forecast_alert_code_AW_CE_MN",
-        "AW.CE.MD": "$obs.label.forecast_alert_code_AW_CE_MD",
-        "AW.CE.SV": "$obs.label.forecast_alert_code_AW_CE_SV",
-        "AW.CE.EX": "$obs.label.forecast_alert_code_AW_CE_EX",
-        "AW.FR.MN": "$obs.label.forecast_alert_code_AW_FR_MN",
-        "AW.FR.MD": "$obs.label.forecast_alert_code_AW_FR_MD",
-        "AW.FR.SV": "$obs.label.forecast_alert_code_AW_FR_SV",
-        "AW.FR.EX": "$obs.label.forecast_alert_code_AW_FR_EX",
-        "AW.AV.MN": "$obs.label.forecast_alert_code_AW_AV_MN",
-        "AW.AV.MD": "$obs.label.forecast_alert_code_AW_AV_MD",
-        "AW.AV.SV": "$obs.label.forecast_alert_code_AW_AV_SV",
-        "AW.AV.EX": "$obs.label.forecast_alert_code_AW_AV_EX",
-        "AW.RA.MN": "$obs.label.forecast_alert_code_AW_RA_MN",
-        "AW.RA.MD": "$obs.label.forecast_alert_code_AW_RA_MD",
-        "AW.RA.SV": "$obs.label.forecast_alert_code_AW_RA_SV",
-        "AW.RA.EX": "$obs.label.forecast_alert_code_AW_RA_EX",
-        "AW.FL.MN": "$obs.label.forecast_alert_code_AW_FL_MN",
-        "AW.FL.MD": "$obs.label.forecast_alert_code_AW_FL_MD",
-        "AW.FL.SV": "$obs.label.forecast_alert_code_AW_FL_SV",
-        "AW.FL.EX": "$obs.label.forecast_alert_code_AW_FL_EX",
-        "AW.RF.MN": "$obs.label.forecast_alert_code_AW_RF_MN",
-        "AW.RF.MD": "$obs.label.forecast_alert_code_AW_RF_MD",
-        "AW.RF.SV": "$obs.label.forecast_alert_code_AW_RF_SV",
-        "AW.RF.EX": "$obs.label.forecast_alert_code_AW_RF_EX",
-        "AW.UK.MN": "$obs.label.forecast_alert_code_AW_UK_MN",
-        "AW.UK.MD": "$obs.label.forecast_alert_code_AW_UK_MD",
-        "AW.UK.SV": "$obs.label.forecast_alert_code_AW_UK_SV",
-        "AW.UK.EX": "$obs.label.forecast_alert_code_AW_UK_EX"
+        "TOE": labels.forecast_alert_code_TOE,
+        "ADR": labels.forecast_alert_code_ADR,
+        "AQA": labels.forecast_alert_code_AQA,
+        "AQ.S": labels.forecast_alert_code_AQ_S,
+        "AS.Y": labels.forecast_alert_code_AS_Y,
+        "AR.W": labels.forecast_alert_code_AR_W,
+        "AF.Y": labels.forecast_alert_code_AF_Y,
+        "MH.Y": labels.forecast_alert_code_MH_Y,
+        "AF.W": labels.forecast_alert_code_AF_W,
+        "AVW": labels.forecast_alert_code_AVW,
+        "AVA": labels.forecast_alert_code_AVA,
+        "BH.S": labels.forecast_alert_code_BH_S,
+        "BZ.W": labels.forecast_alert_code_BZ_W,
+        "DU.Y": labels.forecast_alert_code_DU_Y,
+        "BS.Y": labels.forecast_alert_code_BS_Y,
+        "BW.Y": labels.forecast_alert_code_BW_Y,
+        "CAE": labels.forecast_alert_code_CAE,
+        "CDW": labels.forecast_alert_code_CDW,
+        "CEM": labels.forecast_alert_code_CEM,
+        "CF.Y": labels.forecast_alert_code_CF_Y,
+        "CF.S": labels.forecast_alert_code_CF_S,
+        "CF.W": labels.forecast_alert_code_CF_W,
+        "CF.A": labels.forecast_alert_code_CF_A,
+        "FG.Y": labels.forecast_alert_code_FG_Y,
+        "MF.Y": labels.forecast_alert_code_MF_Y,
+        "FO.Y": labels.forecast_alert_code_FO_Y,
+        "SM.Y": labels.forecast_alert_code_SM_Y,
+        "MS.Y": labels.forecast_alert_code_MS_Y,
+        "DS.W": labels.forecast_alert_code_DS_W,
+        "EQW": labels.forecast_alert_code_EQW,
+        "EVI": labels.forecast_alert_code_EVI,
+        "EH.W": labels.forecast_alert_code_EH_W,
+        "EH.A": labels.forecast_alert_code_EH_A,
+        "EC.W": labels.forecast_alert_code_EC_W,
+        "EC.A": labels.forecast_alert_code_EC_A,
+        "RFD": labels.forecast_alert_code_RFD,
+        "EW.W": labels.forecast_alert_code_EW_W,
+        "FRW": labels.forecast_alert_code_FRW,
+        "FW.A": labels.forecast_alert_code_FW_A,
+        "FF.S": labels.forecast_alert_code_FF_S,
+        "FF.W": labels.forecast_alert_code_FF_W,
+        "FF.A": labels.forecast_alert_code_FF_A,
+        "FE.W": labels.forecast_alert_code_FE_W,
+        "FL.Y": labels.forecast_alert_code_FL_Y,
+        "FL.S": labels.forecast_alert_code_FL_S,
+        "FL.W": labels.forecast_alert_code_FL_W,
+        "FA.W": labels.forecast_alert_code_FA_W,
+        "FL.A": labels.forecast_alert_code_FL_A,
+        "FA.A": labels.forecast_alert_code_FA_A,
+        "FZ.W": labels.forecast_alert_code_FZ_W,
+        "FZ.A": labels.forecast_alert_code_FZ_A,
+        "ZL.Y": labels.forecast_alert_code_ZL_Y,
+        "ZF.Y": labels.forecast_alert_code_ZF_Y,
+        "ZR.W": labels.forecast_alert_code_ZR_W,
+        "UP.Y": labels.forecast_alert_code_UP_Y,
+        "FR.Y": labels.forecast_alert_code_FR_Y,
+        "GL.W": labels.forecast_alert_code_GL_W,
+        "GL.A": labels.forecast_alert_code_GL_A,
+        "HZ.W": labels.forecast_alert_code_HZ_W,
+        "HZ.A": labels.forecast_alert_code_HZ_A,
+        "HMW": labels.forecast_alert_code_HMW,
+        "SE.W": labels.forecast_alert_code_SE_W,
+        "SE.A": labels.forecast_alert_code_SE_A,
+        "HWO": labels.forecast_alert_code_HWO,
+        "HT.Y": labels.forecast_alert_code_HT_Y,
+        "HT.W": labels.forecast_alert_code_HT_W,
+        "UP.W": labels.forecast_alert_code_UP_W,
+        "UP.A": labels.forecast_alert_code_UP_A,
+        "SU.Y": labels.forecast_alert_code_SU_Y,
+        "SU.W": labels.forecast_alert_code_SU_W,
+        "HW.W": labels.forecast_alert_code_HW_W,
+        "HW.A": labels.forecast_alert_code_HW_A,
+        "HF.W": labels.forecast_alert_code_HF_W,
+        "HF.A": labels.forecast_alert_code_HF_A,
+        "HU.S": labels.forecast_alert_code_HU_S,
+        "HU.W": labels.forecast_alert_code_HU_W,
+        "HU.A": labels.forecast_alert_code_HU_A,
+        "FA.Y": labels.forecast_alert_code_FA_Y,
+        "IS.W": labels.forecast_alert_code_IS_W,
+        "LE.W": labels.forecast_alert_code_LE_W,
+        "LW.Y": labels.forecast_alert_code_LW_Y,
+        "LS.Y": labels.forecast_alert_code_LS_Y,
+        "LS.S": labels.forecast_alert_code_LS_S,
+        "LS.W": labels.forecast_alert_code_LS_W,
+        "LS.A": labels.forecast_alert_code_LS_A,
+        "LEW": labels.forecast_alert_code_LEW,
+        "LAE": labels.forecast_alert_code_LAE,
+        "LO.Y": labels.forecast_alert_code_LO_Y,
+        "MA.S": labels.forecast_alert_code_MA_S,
+        "NUW": labels.forecast_alert_code_NUW,
+        "RHW": labels.forecast_alert_code_RHW,
+        "RA.W": labels.forecast_alert_code_RA_W,
+        "FW.W": labels.forecast_alert_code_FW_W,
+        "RFW": labels.forecast_alert_code_RFW,
+        "RP.S": labels.forecast_alert_code_RP_S,
+        "SV.W": labels.forecast_alert_code_SV_W,
+        "SV.A": labels.forecast_alert_code_SV_A,
+        "SV.S": labels.forecast_alert_code_SV_S,
+        "TO.S": labels.forecast_alert_code_TO_S,
+        "SPW": labels.forecast_alert_code_SPW,
+        "NOW": labels.forecast_alert_code_NOW,
+        "SC.Y": labels.forecast_alert_code_SC_Y,
+        "SW.Y": labels.forecast_alert_code_SW_Y,
+        "RB.Y": labels.forecast_alert_code_RB_Y,
+        "SI.Y": labels.forecast_alert_code_SI_Y,
+        "SO.W": labels.forecast_alert_code_SO_W,
+        "SQ.W": labels.forecast_alert_code_SQ_W,
+        "SQ.A": labels.forecast_alert_code_SQ_A,
+        "SB.Y": labels.forecast_alert_code_SB_Y,
+        "SN.W": labels.forecast_alert_code_SN_W,
+        "MA.W": labels.forecast_alert_code_MA_W,
+        "SP.S": labels.forecast_alert_code_SPS,
+        "SG.W": labels.forecast_alert_code_SG_W,
+        "SS.W": labels.forecast_alert_code_SS_W,
+        "SS.A": labels.forecast_alert_code_SS_A,
+        "SR.W": labels.forecast_alert_code_SR_W,
+        "SR.A": labels.forecast_alert_code_SR_A,
+        "TO.W": labels.forecast_alert_code_TO_W,
+        "TO.A": labels.forecast_alert_code_TO_A,
+        "TC.S": labels.forecast_alert_code_TC_S,
+        "TR.S": labels.forecast_alert_code_TR_S,
+        "TR.W": labels.forecast_alert_code_TR_W,
+        "TR.A": labels.forecast_alert_code_TR_A,
+        "TS.Y": labels.forecast_alert_code_TS_Y,
+        "TS.W": labels.forecast_alert_code_TS_W,
+        "TS.A": labels.forecast_alert_code_TS_A,
+        "TY.S": labels.forecast_alert_code_TY_S,
+        "TY.W": labels.forecast_alert_code_TY_W,
+        "TY.A": labels.forecast_alert_code_TY_A,
+        "VOW": labels.forecast_alert_code_VOW,
+        "WX.Y": labels.forecast_alert_code_WX_Y,
+        "WX.W": labels.forecast_alert_code_WX_W,
+        "WI.Y": labels.forecast_alert_code_WI_Y,
+        "WC.Y": labels.forecast_alert_code_WC_Y,
+        "WC.W": labels.forecast_alert_code_WC_W,
+        "WC.A": labels.forecast_alert_code_WC_A,
+        "WI.W": labels.forecast_alert_code_WI_W,
+        "WS.W": labels.forecast_alert_code_WS_W,
+        "WS.A": labels.forecast_alert_code_WS_A,
+        "LE.A": labels.forecast_alert_code_LE_A,
+        "BZ.A": labels.forecast_alert_code_BZ_A,
+        "WW.Y": labels.forecast_alert_code_WW_Y,
+        "LE.Y": labels.forecast_alert_code_LE_Y,
+        "ZR.Y": labels.forecast_alert_code_ZR_Y,
+        "AW.WI.MN": labels.forecast_alert_code_AW_WI_MN,
+        "AW.WI.MD": labels.forecast_alert_code_AW_WI_MD,
+        "AW.WI.SV": labels.forecast_alert_code_AW_WI_SV,
+        "AW.WI.EX": labels.forecast_alert_code_AW_WI_EX,
+        "AW.SI.MN": labels.forecast_alert_code_AW_SI_MN,
+        "AW.SI.MD": labels.forecast_alert_code_AW_SI_MD,
+        "AW.SI.SV": labels.forecast_alert_code_AW_SI_SV,
+        "AW.SI.EX": labels.forecast_alert_code_AW_SI_EX,
+        "AW.TS.MN": labels.forecast_alert_code_AW_TS_MN,
+        "AW.TS.MD": labels.forecast_alert_code_AW_TS_MD,
+        "AW.TS.SV": labels.forecast_alert_code_AW_TS_SV,
+        "AW.TS.EX": labels.forecast_alert_code_AW_TS_EX,
+        "AW.LI.MN": labels.forecast_alert_code_AW_LI_MN,
+        "AW.LI.MD": labels.forecast_alert_code_AW_LI_MD,
+        "AW.LI.SV": labels.forecast_alert_code_AW_LI_SV,
+        "AW.LI.EX": labels.forecast_alert_code_AW_LI_EX,
+        "AW.FG.MN": labels.forecast_alert_code_AW_FG_MN,
+        "AW.FG.MD": labels.forecast_alert_code_AW_FG_MD,
+        "AW.FG.SV": labels.forecast_alert_code_AW_FG_SV,
+        "AW.FG.EX": labels.forecast_alert_code_AW_FG_EX,
+        "AW.HT.MN": labels.forecast_alert_code_AW_HT_MN,
+        "AW.HT.MD": labels.forecast_alert_code_AW_HT_MD,
+        "AW.HT.SV": labels.forecast_alert_code_AW_HT_SV,
+        "AW.HT.EX": labels.forecast_alert_code_AW_HT_EX,
+        "AW.LT.MN": labels.forecast_alert_code_AW_LT_MN,
+        "AW.LT.MD": labels.forecast_alert_code_AW_LT_MD,
+        "AW.LT.SV": labels.forecast_alert_code_AW_LT_SV,
+        "AW.LT.EX": labels.forecast_alert_code_AW_LT_EX,
+        "AW.CE.MN": labels.forecast_alert_code_AW_CE_MN,
+        "AW.CE.MD": labels.forecast_alert_code_AW_CE_MD,
+        "AW.CE.SV": labels.forecast_alert_code_AW_CE_SV,
+        "AW.CE.EX": labels.forecast_alert_code_AW_CE_EX,
+        "AW.FR.MN": labels.forecast_alert_code_AW_FR_MN,
+        "AW.FR.MD": labels.forecast_alert_code_AW_FR_MD,
+        "AW.FR.SV": labels.forecast_alert_code_AW_FR_SV,
+        "AW.FR.EX": labels.forecast_alert_code_AW_FR_EX,
+        "AW.AV.MN": labels.forecast_alert_code_AW_AV_MN,
+        "AW.AV.MD": labels.forecast_alert_code_AW_AV_MD,
+        "AW.AV.SV": labels.forecast_alert_code_AW_AV_SV,
+        "AW.AV.EX": labels.forecast_alert_code_AW_AV_EX,
+        "AW.RA.MN": labels.forecast_alert_code_AW_RA_MN,
+        "AW.RA.MD": labels.forecast_alert_code_AW_RA_MD,
+        "AW.RA.SV": labels.forecast_alert_code_AW_RA_SV,
+        "AW.RA.EX": labels.forecast_alert_code_AW_RA_EX,
+        "AW.FL.MN": labels.forecast_alert_code_AW_FL_MN,
+        "AW.FL.MD": labels.forecast_alert_code_AW_FL_MD,
+        "AW.FL.SV": labels.forecast_alert_code_AW_FL_SV,
+        "AW.FL.EX": labels.forecast_alert_code_AW_FL_EX,
+        "AW.RF.MN": labels.forecast_alert_code_AW_RF_MN,
+        "AW.RF.MD": labels.forecast_alert_code_AW_RF_MD,
+        "AW.RF.SV": labels.forecast_alert_code_AW_RF_SV,
+        "AW.RF.EX": labels.forecast_alert_code_AW_RF_EX,
+        "AW.UK.MN": labels.forecast_alert_code_AW_UK_MN,
+        "AW.UK.MD": labels.forecast_alert_code_AW_UK_MD,
+        "AW.UK.SV": labels.forecast_alert_code_AW_UK_SV,
+        "AW.UK.EX": labels.forecast_alert_code_AW_UK_EX
     }
 
     return alert_dict[data];
@@ -1082,7 +1083,7 @@ function show_forcast_alert(data, forecast_provider) {
                 forecast_alert_title = data['alerts'][i]['title'];
                 forecast_alert_body = data['alerts'][i]['description'].replace(/\n/g, '<br>');
                 forecast_alert_link = data['alerts'][i]['title'];
-                forecast_alert_expires = tzAdjustedMoment(data['alerts'][i]['expires']).format('$obs.label.time_forecast_alert_expires');
+                forecast_alert_expires = tzAdjustedMoment(data['alerts'][i]['expires']).format(labels.time_forecast_alert_expires);
                 forecast_alerts.push({"title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires});
             }
         }
@@ -1098,7 +1099,7 @@ function show_forcast_alert(data, forecast_provider) {
                 forecast_alert_body = data['alerts'][0]['response'][i]['details']['body'].replace(/\n/g, '<br>');
                 //forecast_alert_link = data['alerts'][0]['response'][i]['details']['name'];
                 forecast_alert_link = data['alerts'][0]['response'][i]['details']['type'];
-                forecast_alert_expires = tzAdjustedMoment(data['alerts'][0]['response'][i]['timestamps']['expires']).format('$obs.label.time_forecast_alert_expires');
+                forecast_alert_expires = tzAdjustedMoment(data['alerts'][0]['response'][i]['timestamps']['expires']).format(labels.time_forecast_alert_expires);
                 forecast_alerts.push({"title": forecast_alert_title, "body": forecast_alert_body, "link": forecast_alert_link, "expires": forecast_alert_expires});
             }
         }
@@ -1108,7 +1109,7 @@ function show_forcast_alert(data, forecast_provider) {
         belchertown_debug("Forecast: There are " + forecast_alerts.length + " alert(s).");
         for (i = 0; i < forecast_alerts.length; i++) {
 
-            alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-" + i + "' data-toggle='modal' data-target='#forecast-alert-" + i + "'>" + forecast_alerts[i]["title"] + " $obs.label.alert_in_effect " + forecast_alerts[i]["expires"] + "</a><br>";
+            alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-" + i + "' data-toggle='modal' data-target='#forecast-alert-" + i + "'>" + forecast_alerts[i]["title"] + " " + labels.alert_in_effect + " " + forecast_alerts[i]["expires"] + "</a><br>";
             jQuery(".wx-stn-alert-text").append(alert_link);
 
             forecast_alert_modal += "<!-- Forecast Alert Modal " + i + " -->";
@@ -1123,7 +1124,7 @@ function show_forcast_alert(data, forecast_provider) {
             forecast_alert_modal += forecast_alerts[i]["body"];
             forecast_alert_modal += "</div>";
             forecast_alert_modal += "<div class='modal-footer'>";
-            forecast_alert_modal += "<button type='button' class='btn btn-primary' data-dismiss='modal'>$obs.label.close</button>";
+            forecast_alert_modal += "<button type='button' class='btn btn-primary' data-dismiss='modal'>" + labels.close + "</button>";
             forecast_alert_modal += "</div>";
             forecast_alert_modal += "</div>";
             forecast_alert_modal += "</div>";
@@ -1139,19 +1140,19 @@ function show_forcast_alert(data, forecast_provider) {
 }
 
 function aeris_aqi_translate(data) {
-    if (data === "good") data = "$obs.label.aqi_good";
-    else if (data === "moderate") data = "$obs.label.aqi_moderate";
-    else if (data === "usg") data = "$obs.label.aqi_usg";
-    else if (data === "unhealthy") data = "$obs.label.aqi_unhealthy";
-    else if (data === "very unhealthy") data = "$obs.label.aqi_very_unhealthy";
-    else if (data === "hazardous") data = "$obs.label.aqi_hazardous";
-    else data = "$obs.label.aqi_unknown";
+    if (data === "good") data = labels.aqi_good;
+    else if (data === "moderate") data = labels.aqi_moderate;
+    else if (data === "usg") data = labels.aqi_usg;
+    else if (data === "unhealthy") data = labels.aqi_unhealthy;
+    else if (data === "very unhealthy") data = labels.aqi_very_unhealthy;
+    else if (data === "hazardous") data = labels.aqi_hazardous;
+    else data = labels.aqi_unknown;
 
     return data;
 }
 
 function update_forecast_data(data) {
-    forecast_provider = "$Extras.forecast_provider";
+    forecast_provider = extras.forecast_provider;
     belchertown_debug("Forecast: Provider is " + forecast_provider);
     belchertown_debug("Forecast: Updating data");
     belchertown_debug(data);
@@ -1161,7 +1162,7 @@ function update_forecast_data(data) {
         belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
     } else if (forecast_provider == "aeris") {
-        var forecast_subtitle = tzAdjustedMoment(data["timestamp"]).format('$obs.label.time_forecast_last_updated');
+        var forecast_subtitle = tzAdjustedMoment(data["timestamp"]).format(labels.time_forecast_last_updated);
 
         try {
             var wxicon = get_relative_url() + "/images/" + aeris_icon(data["current"][0]["response"]["ob"]["icon"]) + ".png";
@@ -1181,7 +1182,7 @@ function update_forecast_data(data) {
         if (data["aqi"][0]["success"] && !data["aqi"][0]["error"]) {
             jQuery(".wx-aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
             jQuery(".wx-aqi-category").html(aeris_aqi_translate(data["aqi"][0]["response"][0]["periods"][0]["category"]));
-            if ("$Extras.aqi_location_enabled" === "1") jQuery(".aqi_location_outer").html("<br>" + data["aqi"][0]["response"][0]["place"]["name"]).css('textTransform', 'capitalize');
+            if (extras.aqi_location_enabled === "1") jQuery(".aqi_location_outer").html("<br>" + data["aqi"][0]["response"][0]["place"]["name"]).css('textTransform', 'capitalize');
             get_aqi_color(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
             try {
                 jQuery(".station-observations .aqi").html(data["aqi"][0]["response"][0]["periods"][0]["aqi"]);
@@ -1191,7 +1192,7 @@ function update_forecast_data(data) {
         } else if (data["aqi"][0]["success"] && data["aqi"][0]["error"]["code"] === "warn_no_data") {
             jQuery(".wx-aqi").html("No Data");
             jQuery(".wx-aqi-category").html(aeris_aqi_translate(""));
-            if ("$Extras.aqi_location_enabled" === "1") jQuery(".aqi_location_outer").html("");
+            if (extras.aqi_location_enabled === "1") jQuery(".aqi_location_outer").html("");
             try {
                 jQuery(".station-observations .aqi").html("No Data");
             } catch (err) {
@@ -1201,7 +1202,7 @@ function update_forecast_data(data) {
 
         // Visibility text in station observation table
         try {
-            if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca")) {
+            if ((extras.forecast_units == "si") || (extras.forecast_units == "ca")) {
                 // si and ca = kilometer
                 visibility = data["current"][0]["response"]["ob"]["visibilityKM"];
 
@@ -1214,7 +1215,7 @@ function update_forecast_data(data) {
         }
 
         try {
-            visibility_output = parseFloat(parseFloat(visibility)).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
+            visibility_output = parseFloat(parseFloat(visibility)).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
 
             jQuery(".station-observations .visibility").html(visibility_output);
         } catch (err) {
@@ -1234,15 +1235,15 @@ function update_forecast_data(data) {
                 if (forecast_interval == "forecast_24hr") {
                     var image_url = get_relative_url() + "/images/" + aeris_icon(data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"]) + ".png";
                     var condition_text = aeris_coded_weather(data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false);
-                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("$obs.label.time_forecast_date");
+                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format(labels.time_forecast_date);
                 } else {
                     var image_url = get_relative_url() + "/images/" + aeris_icon(data[(forecast_interval)][0]["response"][0]["periods"][i]["icon"]) + ".png";
                     var condition_text = aeris_coded_weather(data[(forecast_interval)][0]["response"][0]["periods"][i]["weatherPrimaryCoded"], false);
-                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("$obs.label.time_forecast_time");
+                    var weekday = tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format(labels.time_forecast_time);
                 }
 
                 // Determine temperature units
-                if (("$Extras.forecast_units" == "ca") || ("$Extras.forecast_units" == "uk2") || ("$Extras.forecast_units" == "si")) {
+                if ((extras.forecast_units == "ca") || (extras.forecast_units == "uk2") || (extras.forecast_units == "si")) {
                     avgTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["avgTempC"];
                     minTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["minTempC"];
                     maxTemp = data[(forecast_interval)][0]["response"][0]["periods"][i]["maxTempC"];
@@ -1267,17 +1268,17 @@ function update_forecast_data(data) {
                 }
 
                 // Determine wind units
-                if ("$unit.unit_type.windSpeed" == "knot") {
+                if (config.unit_type.windSpeed == "knot") {
                     windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKTS"];
                     windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKTS"];
-                } else if ("$unit.unit_type.windSpeed" == "beaufort") {
+                } else if (config.unit_type.windSpeed == "beaufort") {
                     windSpeed = kts_to_beaufort(data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKTS"]);
                     windGust = kts_to_beaufort(data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKTS"]);
-                } else if ("$Extras.forecast_units" == "ca") {
+                } else if (extras.forecast_units == "ca") {
                     // ca = kph
                     windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"];
                     windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"];
-                } else if ("$Extras.forecast_units" == "si") {
+                } else if (extras.forecast_units == "si") {
                     // si = meters per second. MPS is KPH / 3.6
                     windSpeed = data[(forecast_interval)][0]["response"][0]["periods"][i]["windSpeedKPH"] / 3.6;
                     windGust = data[(forecast_interval)][0]["response"][0]["periods"][i]["windGustKPH"] / 3.6;
@@ -1301,7 +1302,7 @@ function update_forecast_data(data) {
                 to always return a number. We still convert to 0 if we ever get
                 null.
                 */
-                if (("$Extras.forecast_units" == "si") || ("$Extras.forecast_units" == "ca") || ("$Extras.forecast_units" == "uk2")) {
+                if ((extras.forecast_units == "si") || (extras.forecast_units == "ca") || (extras.forecast_units == "uk2")) {
                     var snow_depth = data[(forecast_interval)][0]["response"][0]["periods"][i]["snowCM"] || 0;
                     var snow_unit = "cm";
                 } else {
@@ -1311,13 +1312,13 @@ function update_forecast_data(data) {
 
                 //  for 24hr interval add 7200 (2 hours) to the epoch to get an hour well into the day to avoid any DST issues. This way it'll either be 1am or 2am. Without it, we get 12am or 11pm (the previous day).
                 if (forecast_interval == "forecast_24hr") {
-                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("DD"));
+                    var forecast_link_setup = extras.forecast_daily_forecast_link.replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"] + 7200).format("DD"));
                 } else {
-                    var forecast_link_setup = "$Extras.forecast_daily_forecast_link".replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("DD"));
+                    var forecast_link_setup = extras.forecast_daily_forecast_link.replace("YYYY", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("YYYY")).replace("MM", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("MM")).replace("DD", tzAdjustedMoment(data[(forecast_interval)][0]["response"][0]["periods"][i]["timestamp"]).format("DD"));
 
                 }
 
-                var forecast_link = '<a href="' + forecast_link_setup + '" target="_blank">$obs.label.daily_forecast</a>';
+                var forecast_link = '<a href="' + forecast_link_setup + '" target="_blank">' + labels.daily_forecast + '</a>';
 
                 forecast_row.push({
                     "weekday": weekday,
@@ -1357,18 +1358,18 @@ function update_forecast_data(data) {
                     output_html += '<span id="weekday">' + forecast_time(i, forecast_interval, forecast_row[i]["weekday"]) + '</span>';
                     output_html += '<br>';
                     output_html += '<div class="forecast-conditions"';
-                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint > '0'
+                    if (extras.forecast_show_humidity_dewpoint > '0') {
                     output_html += ' style="min-height:155px">'
                     output_html += '<div class="forecast-temp-graph" style="padding-top:';
                     //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 76 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
                     output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 76 / (rangeTemp)) + 'px';
                     output_html += '; height:155px">'
-                    #else
+                    } else {
                     output_html += '>'
                     output_html += '<div class="forecast-temp-graph" style="padding-top:';
                     //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
                     output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 100 / (rangeTemp)) + 'px">';
-                    #end if
+                    }
                     output_html += '<div class="forecast-image">';
                     output_html += '<img id="icon" src="' + forecast_row[i]["image_url"] + '">';
                     output_html += '</div>';
@@ -1376,11 +1377,11 @@ function update_forecast_data(data) {
                     output_html += '</div>';
                     //  output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
-                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '1'
+                    if (extras.forecast_show_humidity_dewpoint === '1') {
                     output_html += '<div><i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span></div>';
-                    #elif "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '2'
+                    } else if (extras.forecast_show_humidity_dewpoint === '2') {
                     output_html += '<div><i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span></div>';
-                    #end if
+                    }
                     if (forecast_row[i]["snow_depth"] > 0) {
                         output_html += '<div class="snow-precip">';
                         // output_html += '<img src="'+get_relative_url()+'/images/snowflake-icon-15px.png"> <span>';
@@ -1396,9 +1397,9 @@ function update_forecast_data(data) {
                     output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span>';
                     //  output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
                     output_html += '</div>';
-                    #if "forecast_show_daily_forecast_link" in $Extras and $Extras.forecast_show_daily_forecast_link == '1'
+                    if (extras.forecast_show_daily_forecast_link === '1') {
                     output_html += forecast_row[i]["forecast_link"];
-                    #end if
+                    }
                     output_html += '</div>';
                 }
             } else {
@@ -1428,11 +1429,11 @@ function update_forecast_data(data) {
                     output_html += '<span class="forecast-high">' + parseFloat(forecast_row[i]["maxTemp"]).toFixed(0) + '&deg;</span> | <span class="forecast-low">' + parseFloat(forecast_row[i]["minTemp"]).toFixed(0) + '&deg;</span>';
                     output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
-                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '1'
+                    if (extras.forecast_show_humidity_dewpoint === '1') {
                     output_html += '<i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span> | ';
-                    #elif "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '2'
+                    } else if (extras.forecast_show_humidity_dewpoint === '2') {
                     output_html += '<i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span> | ';
-                    #end if
+                    }
                     if (forecast_row[i]["snow_depth"] > 0) {
                         output_html += '<div class="snow-precip">';
                         output_html += '<img src="' + get_relative_url() + '/images/snowflake-icon-15px.png"> <span>' + parseFloat(forecast_row[i]["snow_depth"]).toFixed(0) + '<span> ' + forecast_row[i]["snow_unit"];
@@ -1444,11 +1445,11 @@ function update_forecast_data(data) {
                     }
                     output_html += '</div>';
                     output_html += '<div class="forecast-wind">';
-                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + '$unit.label.windSpeed';
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + config.unit_label.windSpeed;
                     output_html += '</div>';
-                    #if "forecast_show_daily_forecast_link" in $Extras and $Extras.forecast_show_daily_forecast_link == '1'
+                    if (extras.forecast_show_daily_forecast_link === '1') {
                     output_html += forecast_row[i]["forecast_link"];
-                    #end if
+                    }
                     output_html += '</div>';
                 }
             }
@@ -1465,22 +1466,21 @@ function update_forecast_data(data) {
                 belchertown_debug("html_24hr: " + output_html);
             }
             // Show the forecast_subtitle
-            jQuery(".forecast-subtitle").html("$obs.label.forecast_last_updated " + forecast_subtitle);
+            jQuery(".forecast-subtitle").html(labels.forecast_last_updated + " " + forecast_subtitle);
         }
 
 //	End of new composite version of forecast code
     
-    #if "forecast_alert_enabled" in $Extras and $Extras.forecast_alert_enabled == '1'
+    if (extras.forecast_alert_enabled === '1') {
         // Show weather alert
         show_forcast_alert(data, forecast_provider);
-    #end if
+    }
 
     // WX icon in temperature box    
     jQuery("#wxicon").attr("src", wxicon);
     }
 }
 
-#end if
 //  function to display selected forecast according to value of interval (1, 3 or 24); 0 hides all forecasts
 function forecast_select(interval) {
         if (interval == 0) {
@@ -1527,9 +1527,9 @@ function forecast_time(i, interval, daytime) {
     return output;
 }
 
-#if "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
 //============================================//
-// Live website using MQTT Websockets enabled //
+// Live website using MQTT Websockets         //
+// (only called when mqtt_websockets_enabled = 1)
 //============================================//
 
 var mqttConnected = false;
@@ -1578,55 +1578,51 @@ var inactive_timestamp = "";
 // MQTT connect
 function connect() {
     if (reconnect_using_inactive_timestamp) {
-            updated = tzAdjustedMoment(inactive_timestamp).format("$obs.label.time_last_updated");
+            updated = tzAdjustedMoment(inactive_timestamp).format(labels.time_last_updated);
         } else {
-            updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
+            updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
         }
-    reported = "$obs.label.mqtt_websockets_connecting $obs.label.header_last_updated " + updated;
+    reported = labels.mqtt_websockets_connecting + " " + labels.header_last_updated + " " + updated;
     jQuery(".updated").html(reported);
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
 
-    #if "mqtt_websockets_host_kiosk" in $Extras and $Extras.mqtt_websockets_host_kiosk != ""
+    if (extras.mqtt_websockets_host_kiosk !== undefined && extras.mqtt_websockets_host_kiosk !== "") {
     if (pageName == "kiosk.html") {
-        #if "mqtt_websockets_ssl_kiosk" in $Extras and $Extras.mqtt_websockets_ssl_kiosk == '1'
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host_kiosk $mqtt_websockets_port_kiosk (SSL Enabled)");
+        if (extras.mqtt_websockets_ssl_kiosk === '1') {
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host_kiosk + " " + config.mqtt_websockets_port_kiosk + " (SSL Enabled)");
         var useSSL = true;
-        #else
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host_kiosk $mqtt_websockets_port_kiosk (SSL Disabled)");
+        } else {
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host_kiosk + " " + config.mqtt_websockets_port_kiosk + " (SSL Disabled)");
         var useSSL = false;
-        #end if
-        client = new Paho.Client("$Extras.mqtt_websockets_host_kiosk", $mqtt_websockets_port_kiosk, mqttclient);
+        }
+        client = new Paho.Client(extras.mqtt_websockets_host_kiosk, Number(config.mqtt_websockets_port_kiosk), mqttclient);
     }
     else {
-        #if "mqtt_websockets_ssl" in $Extras and $Extras.mqtt_websockets_ssl == '1'
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
+        if (extras.mqtt_websockets_ssl === '1') {
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Enabled)");
         var useSSL = true;
-        #else
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
+        } else {
+        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Disabled)");
         var useSSL = false;
-        #end if
-        client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
+        }
+        client = new Paho.Client(extras.mqtt_websockets_host, Number(extras.mqtt_websockets_port), mqttclient);
     }
-    #else
-    #if "mqtt_websockets_ssl" in $Extras and $Extras.mqtt_websockets_ssl == '1'
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
+    } else {
+    if (extras.mqtt_websockets_ssl === '1') {
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Enabled)");
     var useSSL = true;
-    #else
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Disabled)");
+    } else {
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Disabled)");
     var useSSL = false;
-    #end if
-    client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
-    #end if
+    }
+    client = new Paho.Client(extras.mqtt_websockets_host, Number(extras.mqtt_websockets_port), mqttclient);
+    }
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
         useSSL: useSSL,
-        #if "mqtt_websockets_username" in $Extras and "mqtt_websockets_password" in $Extras and $Extras.mqtt_websockets_username != "" and $Extras.mqtt_websockets_password != ""
-        userName:"$Extras.mqtt_websockets_username",
-        password:"$Extras.mqtt_websockets_password",
-        #end if
         // mqttVersion: 4 is spec MQTTv3.1.1 - mqttVersion: 3 is spec MQTTv3.1
         mqttVersion: 4,
         // If mqttVersionExplicit is true, it will force the connection to use the selected MQTT Version or will fail to connect.
@@ -1637,6 +1633,10 @@ function connect() {
         onSuccess: onConnect,
         onFailure: onFailure
     }
+    if (extras.mqtt_websockets_username && extras.mqtt_websockets_password) {
+        options.userName = extras.mqtt_websockets_username;
+        options.password = extras.mqtt_websockets_password;
+    }
     client.connect(options);
 }
 
@@ -1645,21 +1645,21 @@ function onConnect() {
     mqttConnected = true;
     belchertown_debug("MQTT: MQTT Connected. Subscribing.");
     if (reconnect_using_inactive_timestamp) {
-        updated = tzAdjustedMoment(inactive_timestamp).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(inactive_timestamp).format(labels.time_last_updated);
     } else {
-        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
     if (pageName == "pi") {
-        reported = "$obs.label.mqtt_websockets_waiting_pi $obs.label.header_last_updated " + updated;
+        reported = labels.mqtt_websockets_waiting_pi + " " + labels.header_last_updated + " " + updated;
     } else {
-        reported = "$obs.label.mqtt_websockets_waiting $obs.label.header_last_updated " + updated;
+        reported = labels.mqtt_websockets_waiting + " " + labels.header_last_updated + " " + updated;
     }
     jQuery(".updated").html(reported);
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
-    client.subscribe("$Extras.mqtt_websockets_topic");
-    #if "disconnect_live_website_visitor" in $Extras and $Extras.disconnect_live_website_visitor != '0'
+    client.subscribe(extras.mqtt_websockets_topic);
+    if (extras.disconnect_live_website_visitor !== undefined && extras.disconnect_live_website_visitor !== '0') {
     if (getURLvar("stayconnected") && (getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1")) {
         belchertown_debug("MQTT: stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
@@ -1667,10 +1667,10 @@ function onConnect() {
             belchertown_debug("MQTT: ignoring disconnect_live_website_visitor value for page: " + pageName);
         }
         else {
-            var activityTimeout = setTimeout(inactive, $Extras.disconnect_live_website_visitor); // Stop automatic ajax refresh
+            var activityTimeout = setTimeout(inactive, Number(extras.disconnect_live_website_visitor)); // Stop automatic ajax refresh
         }
     }
-    #end if
+    }
 }
 
 // MQTT Failure
@@ -1682,11 +1682,11 @@ function onFailure() {
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0); // Convert millis to seconds
     if (client.isConnected()) {
-        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
     } else {
-        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
-    jQuery(".updated").html("$obs.label.mqtt_websockets_failed $obs.label.header_last_updated " + updated);
+    jQuery(".updated").html(labels.mqtt_websockets_failed + " " + labels.header_last_updated + " " + updated);
     console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": Cannot connect to MQTT broker");
 }
 
@@ -1699,11 +1699,11 @@ function onConnectionLost(responseObject) {
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
     if (client.isConnected()) {
-        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
     } else {
-        updated = tzAdjustedMoment("$current.dateTime.raw").format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
-    jQuery(".updated").html("$obs.label.mqtt_websockets_lost $obs.label.header_last_updated " + updated);
+    jQuery(".updated").html(labels.mqtt_websockets_lost + " " + labels.header_last_updated + " " + updated);
     if (responseObject.errorCode !== 0) {
         console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": mqtt Connection Lost: " + responseObject.errorMessage);
     }
@@ -1717,8 +1717,8 @@ function inactive() {
     jQuery(".loadingMarker").hide(); // Hide loading beacon
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
-    updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
-    jQuery(".updated").html("$obs.label.mqtt_websockets_stopped $obs.label.header_last_updated " + updated + " <button type='button' class='btn btn-primary restart-interval'>$obs.label.mqtt_websockets_continue</button>");
+    updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
+    jQuery(".updated").html(labels.mqtt_websockets_stopped + " " + labels.header_last_updated + " " + updated + " <button type='button' class='btn btn-primary restart-interval'>" + labels.mqtt_websockets_continue + "</button>");
     reconnect_using_inactive_timestamp = true; // Set a flag to use the inactive timestamp in case we reconnect we have the latest last updated time
     inactive_timestamp = epoch; // Store this timestamp in case we reconnect
 }
@@ -1745,10 +1745,10 @@ function update_current_wx(data) {
     } catch (e) {
     }
     
-    #if 'googleAnalyticsId' in $Extras
+    if (extras.googleAnalyticsId !== undefined) {
     // Send a pageview
-    gtag('config', '$Extras.googleAnalyticsId');
-    #end if
+    gtag('config', extras.googleAnalyticsId);
+    }
 
     // This message is a weewx archive update. Update weewx data, forecast data and highcharts graphs
     if (data.hasOwnProperty("interval_minute")) {
@@ -1763,20 +1763,20 @@ function update_current_wx(data) {
         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
             setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Initial call to update (date, daily high, low, etc)
             setTimeout(belchertown_debug.bind(null, weewx_data), 10000); // Make weewx_data.json available in debugging console
-        #if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
+        if (extras.forecast_enabled === '1') {
             setTimeout(ajaxforecast, 10000); // Update forecast data
-        #end if
+        }
         }).catch(function(e) {
             console.log(e);
         });
     } else {
         // Only show the updated time on non-archive packets
         epoch = parseFloat(data["dateTime"]).toFixed(0);
-        updated = tzAdjustedMoment(epoch).format("$obs.label.time_last_updated");
+        updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
         if (pageName == "pi") {
-            updated_text = "$obs.label.mqtt_websockets_connected_pi " + updated;
+            updated_text = labels.mqtt_websockets_connected_pi + " " + updated;
         } else {
-            updated_text = "$obs.label.mqtt_websockets_connected " + updated;
+            updated_text = labels.mqtt_websockets_connected + " " + updated;
         }
         jQuery(".updated").html(updated_text);
     }
@@ -1805,7 +1805,7 @@ function update_current_wx(data) {
             }
             // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
             if (mqttdata.startsWith(thisElementClass)) {
-                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
+                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
                 // Finally update the element class
                 jQuery("." + thisElementClass).html(html_output);
@@ -1818,7 +1818,7 @@ function update_current_wx(data) {
     if (data.hasOwnProperty("outTemp_F")) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
-        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
+        outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         get_outTemp_color("degree_F", outTemp);
         jQuery(".outtemp").html(outTemp);
 
@@ -1834,19 +1834,19 @@ function update_current_wx(data) {
 
     // Temperature C
     if (data.hasOwnProperty("outTemp_C")) {
-        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
+        outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         get_outTemp_color("degree_C", outTemp);
         jQuery(".outtemp").html(outTemp);
     }
 
     // Apparent Temperature US
     if (data.hasOwnProperty("appTemp_F")) {
-        jQuery(".feelslike").html("$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp");
+        jQuery(".feelslike").html(labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
     }
 
     // Apparent Temperature Metric
     if (data.hasOwnProperty("appTemp_C")) {
-        jQuery(".feelslike").html("$obs.label.feels_like: " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " $unit.label.outTemp");
+        jQuery(".feelslike").html(labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
     }
 
     // Wind
@@ -1860,78 +1860,76 @@ function update_current_wx(data) {
 
     // Windspeed US
     if (data.hasOwnProperty("windSpeed_mph")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed Metric
     if (data.hasOwnProperty("windSpeed_kph")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed METRICWX
     if (data.hasOwnProperty("windSpeed_mps")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed Beaufort
     if (data.hasOwnProperty("windSpeed_beaufort")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_beaufort"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed knots
     if (data.hasOwnProperty("windSpeed_knot")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
     // Beaufort
-    #if "beaufort_category" in $Extras and $Extras.beaufort_category == '1'
+    if (extras.beaufort_category === '1') {
     if (data.hasOwnProperty("beaufort")) {
         jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort"])));
     }
-    #end if
+    }
 
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
     if (data.hasOwnProperty("windGust_mph")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust Metric
     if (data.hasOwnProperty("windGust_kph")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_kph"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust METRICWX
     if (data.hasOwnProperty("windGust_mps")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mps"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust Beaufort
     if (data.hasOwnProperty("windGust_beaufort")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed knots
     if (data.hasOwnProperty("windGust_knot")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
     // Windchill US
     if (data.hasOwnProperty("windchill")) {
-        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp");
+        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
     }
     // Windchill Metric
     if (data.hasOwnProperty("windchill_C")) {
-        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill_C"])).toLocaleString("$system_locale_js", {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + "$unit.label.outTemp");
+        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
     }
 };
-#end if
-
 
 Highcharts.setOptions({
     global: {
         //useUTC: false
-        timezoneOffset: $highcharts_timezoneoffset
+        timezoneOffset: config.highcharts_timezoneoffset
     },
     lang: {
         months: moment.months(),
         shortMonths: moment.monthsShort(),
         weekdays: moment.weekdays(),
         shortWeekdays: moment.weekdaysShort(),
-        decimalPoint: "$highcharts_decimal",
-        thousandsSep: "$highcharts_thousands"
+        decimalPoint: config.highcharts_decimal,
+        thousandsSep: config.highcharts_thousands
     }
 });
 
@@ -2451,13 +2449,7 @@ function showChart(json_file, prepend_renderTo = false) {
 
             // If windRose is present, configure a special chart to show that data
             if (observation_type == "windRose") {
-                #if isinstance($ordinate_names[1], str) is True:
-                ## Python 3 unicode string, don't change anything
-                var categories = $ordinate_names;
-                #else
-                ## Python 2 hack to convert backslash unicode to html char
-                var categories = #echo[x.encode('ascii', 'xmlcharrefreplace') for x in $ordinate_names] #;
-                #end if
+                var categories = config.ordinate_names;
                 options.chart.className = "highcharts-windRose"; // Used for dark mode
                 options.chart.type = "column";
                 options.chart.polar = true;
@@ -2480,7 +2472,7 @@ function showChart(json_file, prepend_renderTo = false) {
                 options.yAxis[0].min = 0;
                 options.yAxis[0].endOnTick = false;
                 options.yAxis[0].reversedStacks = false;
-                options.yAxis[0].title.text = "$obs.label.graphs_windrose_frequency (%)";
+                options.yAxis[0].title.text = labels.graphs_windrose_frequency + " (%)";
                 options.yAxis[0].gridLineWidth = 0;
                 options.yAxis[0].labels = {enabled: false}
                 options.yAxis[0].zIndex = 800;
@@ -2687,7 +2679,7 @@ function showChart(json_file, prepend_renderTo = false) {
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat);
+                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + options.series[0].color + "'>\u25CF</span> " + labels.highest_temperature + ": " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + options.series[0].color + "'>\u25CF</span> " + labels.lowest_temperature + ": " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat);
                         });
                     }
                 }
@@ -2832,7 +2824,7 @@ function showChart(json_file, prepend_renderTo = false) {
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
-                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> $obs.label.highest_temperature: " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> $obs.label.lowest_temperature: " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> $obs.label.average_temperature: " + highcharts_tooltip_factory(point.point.average, observation_type, true, rounding, mirrored, numberFormat);
+                            return "<strong>" + tzAdjustedMoment(point.x / 1000).format(tooltip_date_format) + "</strong><br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.high, true) + "'>\u25CF</span> " + labels.highest_temperature + ": " + highcharts_tooltip_factory(point.point.high, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.low, true) + "'>\u25CF</span> " + labels.lowest_temperature + ": " + highcharts_tooltip_factory(point.point.low, observation_type, true, rounding, mirrored, numberFormat) + "<br><span style='color:" + get_outTemp_color(point.series.userOptions.obsUnit, point.point.average, true) + "'>\u25CF</span> " + labels.average_temperature + ": " + highcharts_tooltip_factory(point.point.average, observation_type, true, rounding, mirrored, numberFormat);
                         });
                     }
                 }
@@ -2905,9 +2897,9 @@ function showChart(json_file, prepend_renderTo = false) {
 };
 
 function tzAdjustedMoment(input) {
-    let tz = "$moment_js_tz";
+    let tz = config.moment_js_tz;
     if (!tz) {
-        return moment.unix(input).utcOffset($moment_js_utc_offset);
+        return moment.unix(input).utcOffset(config.moment_js_utc_offset);
     } else {
         return moment.unix(input).tz(tz);
     }

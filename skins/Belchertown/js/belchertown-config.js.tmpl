@@ -1,0 +1,38 @@
+#encoding "UTF-8"
+#import datetime
+#import json
+## Only these [Extras] options reach the browser; [Extras] also holds API keys.
+#set $js_extras = ["aqi_location_enabled", "back_to_top_button_enabled", "back_to_top_button_opacity", "back_to_top_button_position", "beaufort_category", "disconnect_live_website_visitor", "forecast_alert_enabled", "forecast_daily_forecast_link", "forecast_enabled", "forecast_provider", "forecast_show_daily_forecast_link", "forecast_show_humidity_dewpoint", "forecast_units", "googleAnalyticsId", "logo_image", "logo_image_dark", "mqtt_websockets_host", "mqtt_websockets_host_kiosk", "mqtt_websockets_password", "mqtt_websockets_port", "mqtt_websockets_ssl", "mqtt_websockets_ssl_kiosk", "mqtt_websockets_topic", "mqtt_websockets_username", "theme", "theme_toggle_enabled"]
+#if $almanac.sunrise.raw is not None and $almanac.sunset.raw is not None
+#set $sunrise = datetime.datetime.fromtimestamp($almanac.sunrise.raw)
+#set $sunset = datetime.datetime.fromtimestamp($almanac.sunset.raw)
+#set $almanac_times = {"sunrise_hour": $sunrise.hour, "sunrise_minute": $sunrise.minute, "sunset_hour": $sunset.hour, "sunset_minute": $sunset.minute}
+#else
+#set $almanac_times = None
+#end if
+var belchertown_config = {
+    "belchertown_debug": $belchertown_debug,
+    "system_locale_js": $json.dumps(str($system_locale_js)),
+    "moment_js_tz": $json.dumps(str($moment_js_tz)),
+    "moment_js_utc_offset": $moment_js_utc_offset,
+    "highcharts_timezoneoffset": $highcharts_timezoneoffset,
+    "highcharts_decimal": $json.dumps(str($highcharts_decimal)),
+    "highcharts_thousands": $json.dumps(str($highcharts_thousands)),
+    "hemisphere": $json.dumps("southern-hemisphere" if "-" in str($station.stn_info.latitude_f) else "northern-hemisphere"),
+    "current_datetime_raw": $json.dumps(str($current.dateTime.raw)),
+    "almanac_times": $json.dumps($almanac_times),
+    "almanac_has_extras": $json.dumps(bool($almanac.hasExtras)),
+    "unit_label": {"outTemp": $json.dumps(str($unit.label.outTemp)), "windSpeed": $json.dumps(str($unit.label.windSpeed))},
+    "unit_type": {"windSpeed": $json.dumps(str($unit.unit_type.windSpeed))},
+    "ordinate_names": $json.dumps([str(x) for x in $ordinate_names]),
+    ## This label is a JS object literal in skin.conf, so it is written as code, not text.
+    "windDir_ordinals": $obs.label.graphs_windDir_ordinals,
+    "radar_html": $json.dumps(str($radar_html)),
+    "radar_html_dark": $json.dumps(str($radar_html_dark)),
+    "mqtt_websockets_port_kiosk": $json.dumps(str($mqtt_websockets_port_kiosk)),
+    "charts": $charts,
+    "graphpage_titles": $graphpage_titles,
+    "graphpage_content": $graphpage_content,
+    "extras": $json.dumps(dict([(k, $Extras[k]) for k in $js_extras if k in $Extras])),
+    "labels": $json.dumps(dict($obs.label))
+};
