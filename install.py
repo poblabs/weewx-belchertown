@@ -202,6 +202,10 @@ files=[('bin/user', ['bin/user/belchertown.py'
        ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
        ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',
                                  'skins/Belchertown/js/belchertown.js',
+                                 'skins/Belchertown/js/belchertown-charts.js',
+                                 'skins/Belchertown/js/belchertown-forecast.js',
+                                 'skins/Belchertown/js/belchertown-live.js',
+                                 'skins/Belchertown/js/belchertown-theme.js',
                                  'skins/Belchertown/js/index.html',
                                  'skins/Belchertown/js/responsive-menu.js'
                                 ]

@@ -114,8 +114,15 @@
         <script type='text/javascript' src='//code.highcharts.com/10/modules/solid-gauge.js'></script>
         #end if
         <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
-        <script type='text/javascript' src='$relative_url/js/belchertown-config.js?#echo int( time.time() )#'></script>
-        <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
+        #set $js_version = int(time.time())
+        <script type='text/javascript' src='$relative_url/js/belchertown-config.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-theme.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-forecast.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-live.js?$js_version'></script>
+        #if $page != "kiosk"
+        <script type='text/javascript' src='$relative_url/js/belchertown-charts.js?$js_version'></script>
+        #end if
         #if $page == "pi"
         <script>
             // Set the session variables for the theme
