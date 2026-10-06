@@ -1,3 +1,13 @@
+Unreleased (next branch)
+
+### Breaking Changes
+* weewx 4.0 or newer on Python 3 is now required. weewx 3.x (Python 2) is no longer supported; the installer and the extension both refuse to run on it. If you're on weewx 3.x, stay on 1.3.1.
+
+### Changed
+* Removed the Python 2 / weewx 3 compatibility code (syslog logging, urllib2, StringIO and encode fallbacks).
+* Templates use `"option" in $Extras` instead of the Python 2 style `$Extras.has_key("option")`.
+* README: install, uninstall and report commands for weewx 5 (`weectl`) and weewx 4, and the broken requirement badge replaced.
+
 1.3.1 April 30, 2023
 
 * Reverts a change which pins the HighCharts to version 10

@@ -61,7 +61,9 @@ Screenshot of light and dark modes
 
 ---
 
-### ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) You must be running weewx 3.9 or newer!
+### :warning: You must be running weewx 4.0 or newer on Python 3!
+
+weewx 3.x (Python 2) is no longer supported. If you're still on weewx 3.x, stay on [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
 
 ---
 
@@ -70,6 +72,10 @@ Screenshot of light and dark modes
 2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
 
 ```
+# weewx 5
+weectl extension install weewx-belchertown-x.x.tar.gz
+
+# weewx 4
 sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 ```
 
@@ -80,11 +86,10 @@ sudo wee_extension --install weewx-belchertown-x.x.tar.gz
 5) Restart weewx:
 
 ```
-sudo /etc/init.d/weewx stop
-sudo /etc/init.d/weewx start
+sudo systemctl restart weewx
 ```
 
-6) Wait for an archive period, or run `sudo wee_reports` to force an update
+6) Wait for an archive period, or force an update with `weectl report run` (weewx 5) or `sudo wee_reports` (weewx 4)
 
 7) Browse to your website to see the skin. It may be in a belchertown subdirectory.
 
@@ -210,7 +215,7 @@ I changed it so the standard skin would be in a subfolder, and the main folder h
 
 If you want to use metric units in your website,you can display the metric values in the skin. Just like with the Standard weewx skins, [there are group units available to switch to](http://weewx.com/docs/customizing.htm#[Units]). 
 
-If your weewx version is 3.9.1 or newer, to change your site to metric you would modify `weewx.conf` `[StdReport]` section. Here's an example:
+To change your site to metric, modify the `[StdReport]` section of `weewx.conf`. Here's an example:
 
 ```
 [StdReport]
@@ -229,24 +234,6 @@ If your weewx version is 3.9.1 or newer, to change your site to metric you would
 ```
 Restart weewx when you've made these changes.
 
-If your weewx version is **older than 3.9.1 (not recommended)**, to change the site to metric you would need a configuration in `weewx.conf`, like below. Restart weewx when you have made the changes.
-
-```
-[StdReport]
-    [[Belchertown]]
-        skin = Belchertown
-        HTML_ROOT = belchertown
-        [[[Units]]]
-            [[[[Groups]]]]
-                group_altitude = meter
-                group_degree_day = degree_C_day
-                group_pressure = mbar
-                group_rain = mm
-                group_rainrate = mm_per_hour
-                group_speed = meter_per_second
-                group_speed2 = meter_per_second2
-                group_temperature = degree_C
-```
 
 ## Dark Mode Theme Options
 
@@ -553,9 +540,9 @@ In both cases, you'll need to open the browsers console to find the debug inform
 
 ## How to install the development version
 
-If you want to try out the latest features the skin has to offer, you can [install the master branch](https://github.com/poblabs/weewx-belchertown/tree/master). To start download the [master zip file](https://github.com/poblabs/weewx-belchertown/archive/master.zip). Then you can 
+If you want to try out the latest features the skin has to offer, you can install the [`next` branch](https://github.com/poblabs/weewx-belchertown/tree/next), where the current rewrite happens. To start download the [next zip file](https://github.com/poblabs/weewx-belchertown/archive/next.zip). Then you can 
 
-1. upload it to your weewx system and install it using `wee_extension --install master.zip` 
+1. upload it to your weewx system and install it using `weectl extension install next.zip` (weewx 5) or `sudo wee_extension --install next.zip` (weewx 4)
 
 or
 
@@ -647,7 +634,7 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
 * A: Upgrade to 0.8.1 or newer which resolves this error
 ---
 * Q: How do I uninstall this skin?
-* A: `sudo wee_extension --uninstall Belchertown`
+* A: `weectl extension uninstall Belchertown` (weewx 5) or `sudo wee_extension --uninstall Belchertown` (weewx 4)
 ---
 * Q: Why is Belchertown so slow after upgrading to weewx v5 ?
 * A: [See above.](#database)

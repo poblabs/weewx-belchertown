@@ -1,15 +1,12 @@
 # Installer for Belchertown weewx skin
 # Pat O'Brien, 2018
 
-import configobj
-from setup import ExtensionInstaller
+import sys
+from io import StringIO
 
-try:
-    # Python 2
-    from StringIO import StringIO
-except ImportError:
-    # Python 3
-    from io import StringIO
+import configobj
+import weewx
+from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
@@ -22,6 +19,11 @@ AUTHOR_EMAIL = "https://github.com/poblabs/weewx-belchertown"
 #-------- main loader -----------
 
 def loader():
+    # weewx 4.0 is the first Python 3 release; 3.x (Python 2) is no longer supported.
+    if sys.version_info[0] < 3 or int(weewx.__version__.split(".")[0]) < 4:
+        sys.exit("Belchertown requires weewx 4.0 or newer on Python 3 (found weewx %s on Python %s). "
+                 "weewx 3.x users: stay on Belchertown 1.3.1."
+                 % (weewx.__version__, sys.version.split()[0]))
     return BelchertownInstaller()
 
 class BelchertownInstaller(ExtensionInstaller):

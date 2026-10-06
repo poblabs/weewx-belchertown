@@ -6,17 +6,14 @@ as a crude "cron" to download necessary files.
 Pat O'Brien, August 19, 2018
 """
 
-from __future__ import print_function  # Python 2/3 compatibility
-from __future__ import with_statement
-
 import calendar
 import datetime
 import json
 import locale
 import os
 import os.path
+import logging
 import sys
-import syslog
 import time
 from collections import OrderedDict
 from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
@@ -46,48 +43,28 @@ from weeutil.weeutil import (
 from weewx.cheetahgenerator import SearchList
 from weewx.tags import TimespanBinder
 
-if sys.version_info[0] >= 3:
-    from weeutil.config import search_up
+from weeutil.config import accumulateLeaves
 
-# Check weewx version. Many things like search_up, weeutil.weeutil.KeyDict
-# (label_dict) are from 3.9
-if weewx.__version__ < "3.9":
+# weewx 4.0 is the first Python 3 release; 3.x (Python 2) is no longer supported.
+if sys.version_info[0] < 3 or int(weewx.__version__.split(".")[0]) < 4:
     raise weewx.UnsupportedFeature(
-        "weewx 3.9 and newer is required, found %s" % weewx.__version__
+        "weewx 4.0 or newer on Python 3 is required, found weewx %s on Python %s"
+        % (weewx.__version__, sys.version.split()[0])
     )
 
-if weewx.__version__ < "4":
+log = logging.getLogger(__name__)
 
-    def logmsg(level, msg):
-        syslog.syslog(level, "Belchertown Extension: %s" % msg)
 
-    def logdbg(msg):
-        logmsg(syslog.LOG_DEBUG, msg)
+def logdbg(msg):
+    log.debug(msg)
 
-    def loginf(msg):
-        logmsg(syslog.LOG_INFO, msg)
 
-    def logerr(msg):
-        logmsg(syslog.LOG_ERR, msg)
+def loginf(msg):
+    log.info(msg)
 
-    from weeutil.weeutil import accumulateLeaves
-    import syslog
-else:
-    # weewx 4.0+
-    from weeutil.config import accumulateLeaves
-    import weeutil.logger
-    import logging
 
-    log = logging.getLogger(__name__)
-
-    def logdbg(msg):
-        log.debug(msg)
-
-    def loginf(msg):
-        log.info(msg)
-
-    def logerr(msg):
-        log.error(msg)
+def logerr(msg):
+    log.error(msg)
 
 
 # Print version in syslog for easier troubleshooting
@@ -1249,11 +1226,7 @@ class getData(SearchList):
             # File is stale, download a new copy
             if forecast_is_stale:
                 try:
-                    if sys.version_info[0] >= 3:
-                        from urllib.request import Request, urlopen
-                    else:
-                        # Python 2
-                        from urllib2 import Request, urlopen
+                    from urllib.request import Request, urlopen
 
                     user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
                     headers = {"User-Agent": user_agent}
@@ -1401,12 +1374,7 @@ class getData(SearchList):
                 # exist, and truncates the file and re-writes it everytime
                 try:
                     with open(forecast_file, "wb+") as file:
-                        try:
-                            # Python 2/3
-                            file.write(forecast_file_result.encode("utf-8"))
-                        except:
-                            # Catch errors caused by ASCII characters in Python2
-                            file.write(forecast_file_result)
+                        file.write(forecast_file_result.encode("utf-8"))
                         loginf("New forecast file downloaded to %s" % forecast_file)
                 except IOError as e:
                     raise Warning(
@@ -1596,11 +1564,7 @@ class getData(SearchList):
             if earthquake_is_stale:
                 # Download new earthquake data
                 try:
-                    if sys.version_info[0] >= 3:
-                        from urllib.request import Request, urlopen
-                    else:
-                        # Python 2
-                        from urllib2 import Request, urlopen
+                    from urllib.request import Request, urlopen
 
                     user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
                     headers = {"User-Agent": user_agent}
@@ -1610,15 +1574,15 @@ class getData(SearchList):
                     response.close()
                     if weewx.debug:
                         logdbg(
-                            "Downloading earthquake data using urllib2 was successful"
+                            "Downloading earthquake data using urllib was successful"
                         )
                 except Exception as forecast_error:
                     if weewx.debug:
                         logdbg(
-                            "Error downloading earthquake data with urllib2, reverting to curl and subprocess. "
+                            "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
                             "Full error: %s" % forecast_error
                         )
-                    # Nested try - only execute if the urllib2 method fails
+                    # Nested try - only execute if the urllib method fails
                     try:
                         import subprocess
 
@@ -1636,7 +1600,7 @@ class getData(SearchList):
                             )
                     except Exception as error:
                         raise Warning(
-                            "Error downloading earthquake data using urllib2 and subprocess curl. "
+                            "Error downloading earthquake data using urllib and subprocess curl. "
                             "Your software may need to be updated, or the URL is incorrect. "
                             "You are trying to use URL: %s, and the error is: %s"
                             % (earthquake_url, error)
@@ -1647,12 +1611,8 @@ class getData(SearchList):
                 # everytime
                 try:
                     with open(earthquake_file, "wb+") as file:
-                        try:
-                            # Python 2/3
-                            file.write(page.encode("utf-8"))
-                        except:
-                            # Catch errors caused by ASCII characters in Python2
-                            file.write(page)
+                        # urlopen and the curl fallback both return bytes
+                        file.write(page)
                         if weewx.debug:
                             logdbg("Earthquake data saved to %s" % earthquake_file)
                 except IOError as e:
@@ -2609,15 +2569,13 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                 "aggregate_interval"
                             ))
                         except KeyError:
-                            syslog.syslog(
-                                syslog.LOG_ERR,
+                            logerr(
                                 "HighchartsJsonGenerator: aggregate interval required for aggregate type %s"
-                                % aggregate_type,
+                                % aggregate_type
                             )
-                            syslog.syslog(
-                                syslog.LOG_ERR,
+                            logerr(
                                 "HighchartsJsonGenerator: line type %s skipped"
-                                % observation_type,
+                                % observation_type
                             )
                             continue
                             

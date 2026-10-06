@@ -13,7 +13,7 @@
     
     <script type="text/javascript">
         var finalRotation;
-        #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        #if "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
@@ -22,7 +22,7 @@
                 
         ajaxweewx(); // Initial call to load from weewx (date, daily high, low, etc)
         
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+        #if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
         // Load forecast
         ajaxforecast(); // Initial call to load forecast data like 8 day outlook, weather icon and observation text
         #end if
@@ -32,7 +32,7 @@
             
             rotateThis( "$current.windDir.formatted" );
             
-            #if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+            #if "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
             connect(); // Begin mqtt after weewx initial load
             
             // Update the Last Updated timestamp with moment.js,

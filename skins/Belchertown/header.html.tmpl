@@ -104,7 +104,7 @@
         <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
         <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
-        #if $page == "pi" or $page == "home" or $page == "kiosk" and $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        #if $page == "pi" or $page == "home" or $page == "kiosk" and "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
         #end if
         #if $page != "kiosk"
@@ -143,7 +143,7 @@
                 
         <link rel="icon" href="$relative_url/favicon.ico" />
         
-        #if $Extras.has_key('googleAnalyticsId') and $page != "kiosk"
+        #if 'googleAnalyticsId' in $Extras and $page != "kiosk"
         <!-- Global Site Tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
         <script>
@@ -165,7 +165,7 @@
         <div class="site-container">
     #else
     <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
-        #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+        #if "back_to_top_button_enabled" in $Extras and $Extras.back_to_top_button_enabled == '1'
          <!-- Back to top button -->
         <button type="button" class="btn btn-danger" id="btn-back-to-top">
             <i class="fa fa-arrow-up fa-2x"></i>
@@ -178,11 +178,11 @@
                     <div class="title-area">
                         <p class="site-title" itemprop="headline">
                             <a href="$relative_url/">
-                                #if $Extras.has_key("logo_image_dark") and $Extras.logo_image_dark != '' and $bodyTheme == "dark"
+                                #if "logo_image_dark" in $Extras and $Extras.logo_image_dark != '' and $bodyTheme == "dark"
                                 <img src="$Extras.logo_image_dark" id="logo_image" title="$head_title" alt="$head_title">
-                                #elif $Extras.has_key("logo_image") and $Extras.logo_image != ''
+                                #elif "logo_image" in $Extras and $Extras.logo_image != ''
                                 <img src="$Extras.logo_image" id="logo_image" title="$head_title" alt="$head_title">
-                                #else if $Extras.has_key("site_title") and $Extras.site_title != ''
+                                #else if "site_title" in $Extras and $Extras.site_title != ''
                                 $Extras.site_title
                                 #end if
                             </a>
@@ -195,13 +195,13 @@
                                     <ul id="menu-menu" class="menu genesis-nav-menu">
                                         <!-- class = current-menu-item -->
                                         <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
-                                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                                        #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
                                         <li class="menu-item menu-item-1"><a href="$relative_url/graphs/" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
                                         <li class="menu-item menu-item-2"><a href="$relative_url/records/" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
                                         <li class="menu-item menu-item-3"><a href="$relative_url/reports/" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$relative_url/about/" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
-                                        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+                                        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
                                         <label class="themeSwitchLabel">
                                             <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
                                             <span class="slider round"></span>

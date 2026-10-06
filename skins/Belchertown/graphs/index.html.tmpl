@@ -81,7 +81,7 @@
                 <!-- Begin row -->
                 <div class="row">
                     <div class="col-sm-12 wx-buttons">
-                        #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
+                        #if "graph_page_show_all_button" in $Extras and $Extras.graph_page_show_all_button == '1'
                         <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
                         #end if
                         $graph_page_buttons

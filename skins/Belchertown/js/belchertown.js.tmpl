@@ -78,7 +78,7 @@ jQuery(document).ready(function() {
         }
     }
 
-    #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+    #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
     // Dark mode checkbox toggle switcher
     try {
         document.getElementById('themeSwitch').addEventListener('change', function(event) {
@@ -101,7 +101,7 @@ jQuery(document).ready(function() {
         }
     });
 
-    #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+    #if "back_to_top_button_enabled" in $Extras and $Extras.back_to_top_button_enabled == '1'
     // Back to Top Button is visible after 400px
     jQuery(window).scroll(function() {
         if (jQuery(this).scrollTop() > 400) {
@@ -130,7 +130,7 @@ jQuery(document).ready(function() {
 
 });
 
-#if $Extras.has_key("theme") and $Extras.theme == 'auto'
+#if "theme" in $Extras and $Extras.theme == 'auto'
 // Run this on every page for dark mode if skin theme is auto
 ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
     update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
@@ -590,10 +590,10 @@ function changeTheme(themeName, toggleOverride = false) {
         #end if
         jQuery('body').addClass("dark");
         jQuery('body').removeClass("light");
-        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop("checked", true);
         #end if
-        #if $Extras.has_key('logo_image_dark') and $Extras.logo_image_dark != ""
+        #if 'logo_image_dark' in $Extras and $Extras.logo_image_dark != ""
         belchertown_debug("Theme: logo_image_dark is defined.");
         jQuery("#logo_image").attr("src", "$Extras.logo_image_dark");
         #end if
@@ -605,10 +605,10 @@ function changeTheme(themeName, toggleOverride = false) {
         #end if
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
-        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
+        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
         jQuery("#themeSwitch").prop("checked", false);
         #end if
-        #if $Extras.has_key('logo_image') and $Extras.logo_image != ""
+        #if 'logo_image' in $Extras and $Extras.logo_image != ""
         belchertown_debug("Theme: logo_image is defined.");
         jQuery("#logo_image").attr("src", "$Extras.logo_image");
         #end if
@@ -634,7 +634,7 @@ function update_weewx_data(data) {
     belchertown_debug("Updating weewx data");
     weewx_data = data;
     
-    #if $Extras.has_key("theme") and $Extras.theme == 'auto'
+    #if "theme" in $Extras and $Extras.theme == 'auto'
     // Auto theme if enabled
     autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"]);
     #end if
@@ -735,7 +735,7 @@ function moon_icon(moonphase){
     }
 }
 
-#if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+#if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
 function ajaxforecast() {
     forecast_data = {};
     jQuery.when(
@@ -1357,7 +1357,7 @@ function update_forecast_data(data) {
                     output_html += '<span id="weekday">' + forecast_time(i, forecast_interval, forecast_row[i]["weekday"]) + '</span>';
                     output_html += '<br>';
                     output_html += '<div class="forecast-conditions"';
-                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint > '0'
+                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint > '0'
                     output_html += ' style="min-height:155px">'
                     output_html += '<div class="forecast-temp-graph" style="padding-top:';
                     //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 76 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
@@ -1376,9 +1376,9 @@ function update_forecast_data(data) {
                     output_html += '</div>';
                     //  output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
-                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '1'
+                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '1'
                     output_html += '<div><i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span></div>';
-                    #elif $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '2'
+                    #elif "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '2'
                     output_html += '<div><i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span></div>';
                     #end if
                     if (forecast_row[i]["snow_depth"] > 0) {
@@ -1396,7 +1396,7 @@ function update_forecast_data(data) {
                     output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span>';
                     //  output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
                     output_html += '</div>';
-                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    #if "forecast_show_daily_forecast_link" in $Extras and $Extras.forecast_show_daily_forecast_link == '1'
                     output_html += forecast_row[i]["forecast_link"];
                     #end if
                     output_html += '</div>';
@@ -1428,9 +1428,9 @@ function update_forecast_data(data) {
                     output_html += '<span class="forecast-high">' + parseFloat(forecast_row[i]["maxTemp"]).toFixed(0) + '&deg;</span> | <span class="forecast-low">' + parseFloat(forecast_row[i]["minTemp"]).toFixed(0) + '&deg;</span>';
                     output_html += '<br>';
                     output_html += '<div class="forecast-precip">';
-                    #if $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '1'
+                    #if "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '1'
                     output_html += '<i class="wi wi-humidity rain-precip"></i> <span>' + parseFloat(forecast_row[i]["humidity"]).toFixed(0) + '%</span> | ';
-                    #elif $Extras.has_key("forecast_show_humidity_dewpoint") and $Extras.forecast_show_humidity_dewpoint == '2'
+                    #elif "forecast_show_humidity_dewpoint" in $Extras and $Extras.forecast_show_humidity_dewpoint == '2'
                     output_html += '<i class="wi wi-raindrops rain-precip"></i> <span>' + parseFloat(forecast_row[i]["dewPoint"]).toFixed(0) + '&deg;</span> | ';
                     #end if
                     if (forecast_row[i]["snow_depth"] > 0) {
@@ -1446,7 +1446,7 @@ function update_forecast_data(data) {
                     output_html += '<div class="forecast-wind">';
                     output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + '$unit.label.windSpeed';
                     output_html += '</div>';
-                    #if $Extras.has_key("forecast_show_daily_forecast_link") and $Extras.forecast_show_daily_forecast_link == '1'
+                    #if "forecast_show_daily_forecast_link" in $Extras and $Extras.forecast_show_daily_forecast_link == '1'
                     output_html += forecast_row[i]["forecast_link"];
                     #end if
                     output_html += '</div>';
@@ -1470,7 +1470,7 @@ function update_forecast_data(data) {
 
 //	End of new composite version of forecast code
     
-    #if $Extras.has_key("forecast_alert_enabled") and $Extras.forecast_alert_enabled == '1'
+    #if "forecast_alert_enabled" in $Extras and $Extras.forecast_alert_enabled == '1'
         // Show weather alert
         show_forcast_alert(data, forecast_provider);
     #end if
@@ -1527,7 +1527,7 @@ function forecast_time(i, interval, daytime) {
     return output;
 }
 
-#if $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+#if "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
 //============================================//
 // Live website using MQTT Websockets enabled //
 //============================================//
@@ -1588,9 +1588,9 @@ function connect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
 
-    #if $Extras.has_key("mqtt_websockets_host_kiosk") and $Extras.mqtt_websockets_host_kiosk != ""
+    #if "mqtt_websockets_host_kiosk" in $Extras and $Extras.mqtt_websockets_host_kiosk != ""
     if (pageName == "kiosk.html") {
-        #if $Extras.has_key("mqtt_websockets_ssl_kiosk") and $Extras.mqtt_websockets_ssl_kiosk == '1'
+        #if "mqtt_websockets_ssl_kiosk" in $Extras and $Extras.mqtt_websockets_ssl_kiosk == '1'
         belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host_kiosk $mqtt_websockets_port_kiosk (SSL Enabled)");
         var useSSL = true;
         #else
@@ -1600,7 +1600,7 @@ function connect() {
         client = new Paho.Client("$Extras.mqtt_websockets_host_kiosk", $mqtt_websockets_port_kiosk, mqttclient);
     }
     else {
-        #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+        #if "mqtt_websockets_ssl" in $Extras and $Extras.mqtt_websockets_ssl == '1'
         belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
         var useSSL = true;
         #else
@@ -1610,7 +1610,7 @@ function connect() {
         client = new Paho.Client("$Extras.mqtt_websockets_host", $Extras.mqtt_websockets_port, mqttclient);
     }
     #else
-    #if $Extras.has_key("mqtt_websockets_ssl") and $Extras.mqtt_websockets_ssl == '1'
+    #if "mqtt_websockets_ssl" in $Extras and $Extras.mqtt_websockets_ssl == '1'
     belchertown_debug("MQTT: Connecting to MQTT Websockets: $Extras.mqtt_websockets_host $Extras.mqtt_websockets_port (SSL Enabled)");
     var useSSL = true;
     #else
@@ -1623,7 +1623,7 @@ function connect() {
     client.onMessageArrived = onMessageArrived;
     var options = {
         useSSL: useSSL,
-        #if $Extras.has_key("mqtt_websockets_username") and $Extras.has_key("mqtt_websockets_password") and $Extras.mqtt_websockets_username != "" and $Extras.mqtt_websockets_password != ""
+        #if "mqtt_websockets_username" in $Extras and "mqtt_websockets_password" in $Extras and $Extras.mqtt_websockets_username != "" and $Extras.mqtt_websockets_password != ""
         userName:"$Extras.mqtt_websockets_username",
         password:"$Extras.mqtt_websockets_password",
         #end if
@@ -1659,7 +1659,7 @@ function onConnect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
     client.subscribe("$Extras.mqtt_websockets_topic");
-    #if $Extras.has_key("disconnect_live_website_visitor") and $Extras.disconnect_live_website_visitor != '0'
+    #if "disconnect_live_website_visitor" in $Extras and $Extras.disconnect_live_website_visitor != '0'
     if (getURLvar("stayconnected") && (getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1")) {
         belchertown_debug("MQTT: stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
@@ -1745,7 +1745,7 @@ function update_current_wx(data) {
     } catch (e) {
     }
     
-    #if $Extras.has_key('googleAnalyticsId')
+    #if 'googleAnalyticsId' in $Extras
     // Send a pageview
     gtag('config', '$Extras.googleAnalyticsId');
     #end if
@@ -1763,7 +1763,7 @@ function update_current_wx(data) {
         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
             setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Initial call to update (date, daily high, low, etc)
             setTimeout(belchertown_debug.bind(null, weewx_data), 10000); // Make weewx_data.json available in debugging console
-        #if $Extras.has_key("forecast_enabled") and $Extras.forecast_enabled == '1'
+        #if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
             setTimeout(ajaxforecast, 10000); // Update forecast data
         #end if
         }).catch(function(e) {
@@ -1880,7 +1880,7 @@ function update_current_wx(data) {
     }
 
     // Beaufort
-    #if $Extras.has_key("beaufort_category") and $Extras.beaufort_category == '1'
+    #if "beaufort_category" in $Extras and $Extras.beaufort_category == '1'
     if (data.hasOwnProperty("beaufort")) {
         jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort"])));
     }
