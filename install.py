@@ -173,6 +173,7 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
                               'skins/Belchertown/graphs.conf.example',
                               'skins/Belchertown/page-header.inc',
                               'skins/Belchertown/manifest.json.tmpl',
+                              'skins/Belchertown/index_radar.inc.example',
                               'skins/Belchertown/records.inc.example',
                               'skins/Belchertown/records-table.inc.example',
                               'skins/Belchertown/robots.txt',
@@ -182,6 +183,11 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
                              ]
         ),
        ('skins/Belchertown/about', ['skins/Belchertown/about/index.html.tmpl']),
+       ('skins/Belchertown/lang', ['skins/Belchertown/lang/ca.conf',
+                                   'skins/Belchertown/lang/de.conf',
+                                   'skins/Belchertown/lang/it.conf'
+                                  ]
+        ),
        ('skins/Belchertown/graphs', ['skins/Belchertown/graphs/index.html.tmpl']),
        ('skins/Belchertown/NOAA', ['skins/Belchertown/NOAA/NOAA-YYYY-MM.txt.tmpl',
                                    'skins/Belchertown/NOAA/NOAA-YYYY.txt.tmpl'
