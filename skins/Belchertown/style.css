@@ -2634,15 +2634,16 @@ html.view-kiosk {
     order: -1;
 }
 .view-radar .wx-conditions {
-    grid-template-columns: 4fr 3fr 3fr 4fr;
+    grid-template-columns: 4fr 3fr 5fr;
     grid-template-areas:
-        "radar radar    radar radar"
-        "now   readings wind  sunmoon";
+        "radar radar    radar"
+        "now   readings wind"
+        "now   readings sunmoon";
 }
+/* min-height, not height, so it also wins over the wide-screen fill rule */
 .view-radar .wx-radar iframe {
     aspect-ratio: auto;
-    height: 70vh;
-    max-height: 760px;
+    min-height: min(70vh, 760px);
 }
 @media only screen and (max-width: 1199px) {
     .view-radar .wx-conditions {
@@ -2659,7 +2660,7 @@ html.view-kiosk {
         grid-template-areas: "radar" "now" "wind" "readings" "sunmoon";
     }
     .view-radar .wx-radar iframe {
-        height: 60vh;
+        min-height: 60vh;
     }
 }
 
