@@ -69,6 +69,24 @@ def logerr(msg):
 
 # Print version in syslog for easier troubleshooting
 VERSION = "2.0.0"
+
+# Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
+# English is built in.
+DAYJS_VERSION = "1.11.23"
+DAYJS_LOCALES = frozenset([
+    'af', 'am', 'ar', 'ar-dz', 'ar-iq', 'ar-kw', 'ar-ly', 'ar-ma', 'ar-sa', 'ar-tn', 'az', 'be',
+    'bg', 'bi', 'bm', 'bn', 'bn-bd', 'bo', 'br', 'bs', 'ca', 'cs', 'cv', 'cy', 'da', 'de',
+    'de-at', 'de-ch', 'dv', 'el', 'en', 'en-au', 'en-ca', 'en-gb', 'en-ie', 'en-il', 'en-in',
+    'en-nz', 'en-sg', 'en-tt', 'eo', 'es', 'es-do', 'es-mx', 'es-pr', 'es-us', 'et', 'eu', 'fa',
+    'fi', 'fo', 'fr', 'fr-ca', 'fr-ch', 'fy', 'ga', 'gd', 'gl', 'gom-latn', 'gu', 'he', 'hi',
+    'hr', 'ht', 'hu', 'hy-am', 'id', 'is', 'it', 'it-ch', 'ja', 'jv', 'ka', 'kk', 'km', 'kn',
+    'ko', 'ku', 'ky', 'lb', 'lo', 'lt', 'lv', 'me', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'ms-my',
+    'mt', 'my', 'nb', 'ne', 'nl', 'nl-be', 'nn', 'oc-lnc', 'pa-in', 'pl', 'pt', 'pt-br', 'rn',
+    'ro', 'ru', 'rw', 'sd', 'se', 'si', 'sk', 'sl', 'sq', 'sr', 'sr-cyrl', 'ss', 'sv', 'sv-fi',
+    'sw', 'ta', 'te', 'tet', 'tg', 'th', 'tk', 'tl-ph', 'tlh', 'tr', 'tzl', 'tzm', 'tzm-latn',
+    'ug-cn', 'uk', 'ur', 'uz', 'uz-latn', 'vi', 'x-pseudo', 'yo', 'zh', 'zh-cn', 'zh-hk',
+    'zh-tw'
+])
 loginf("version %s" % VERSION)
 
 # Define these as global so they can be used in both the search list extension
@@ -316,6 +334,13 @@ class getData(SearchList):
             )  # Python's locale is underscore. JS uses dashes.
         except:
             system_locale_js = "en-US"  # Error finding locale, set to en-US
+
+        # Best Day.js locale file for this locale: "pt-BR" -> "pt-br", "de-DE" -> "de", else English
+        dayjs_locale = "en"
+        for candidate in (system_locale_js.lower(), system_locale_js.lower().split("-")[0]):
+            if candidate in DAYJS_LOCALES:
+                dayjs_locale = candidate
+                break
 
         highcharts_decimal = self.generator.skin_dict["Extras"].get(
             "highcharts_decimal", None
@@ -1923,6 +1948,8 @@ class getData(SearchList):
             "highcharts_timezoneoffset": highcharts_timezoneoffset,
             "system_locale": system_locale,
             "system_locale_js": system_locale_js,
+            "dayjs_locale": dayjs_locale,
+            "dayjs_version": DAYJS_VERSION,
             "locale_encoding": locale_encoding,
             "highcharts_decimal": highcharts_decimal,
             "highcharts_thousands": highcharts_thousands,

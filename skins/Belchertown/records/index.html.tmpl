@@ -8,8 +8,6 @@
     #include "header.html.tmpl"
 
     <script type="text/javascript">
-        var moment_locale = "$system_locale_js";
-        moment.locale(moment_locale);
         
         jQuery(document).ready(function() {
             jQuery("#year-outtemp-max-ts").text( tzAdjustedMoment($year.outTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );

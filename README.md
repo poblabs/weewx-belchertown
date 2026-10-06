@@ -118,7 +118,7 @@ The skin also ships in Catalan, German and Italian: add `lang = ca`, `lang = de`
 <details>
 <summary><b>Dates and times in your language</b></summary>
 
-Dates and times are formatted in the browser by [moment.js](https://momentjs.com/docs/#/parsing/string-format/), using your server's locale and timezone. The formats are labels too (look for the moment.js section under `[Labels]` in `skin.conf`). If a date looks wrong for your locale, set the right locale and timezone on your weewx server and restart it, or write the format out yourself. For example, `Wednesday 15 May 20:25` is `dddd DD MMM HH:mm`:
+Dates and times are formatted in the browser by [Day.js](https://day.js.org/docs/en/display/format), using your server's locale and timezone. Day.js uses the same format codes as moment.js, which earlier versions of the skin used, so formats you set before still work. The formats are labels too (look for the moment.js section under `[Labels]` in `skin.conf`). If a date looks wrong for your locale, set the right locale and timezone on your weewx server and restart it, or write the format out yourself. For example, `Wednesday 15 May 20:25` is `dddd DD MMM HH:mm`:
 
 * `dddd` is the full day name (Saturday); `ddd` is the short one (Sat)
 * `DD` is the day with a leading zero (05); `D` without (5)
@@ -510,7 +510,7 @@ That's on purpose: the home page waits 30 seconds so the new chart data is ready
 <details>
 <summary>The forecast's "Last Updated" time changes format when the page loads.</summary>
 
-The page is built with your server's date format, and the browser then reformats it with moment.js. The two formats can differ slightly for some locales.
+The page is built with your server's date format, and the browser then reformats it with Day.js. The two formats can differ slightly for some locales.
 
 </details>
 

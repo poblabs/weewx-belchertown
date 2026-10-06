@@ -38,8 +38,33 @@ if (getURLvar("debug") && (getURLvar("debug") == "true" || getURLvar("debug") ==
     belchertown_debug("Debug: skin.conf belchertown_debug enabled");
 }
 
-var moment_locale = config.system_locale_js;
-moment.locale(moment_locale);
+// Dates are formatted with Day.js, which takes the same format codes as moment.js (LLL, dddd, ...)
+["utc", "timezone", "localizedFormat", "advancedFormat", "localeData"].forEach(function(plugin) {
+    dayjs.extend(window["dayjs_plugin_" + plugin]);
+});
+fix_dayjs_catalan();
+dayjs.locale(config.dayjs_locale);
+
+// Day.js's Catalan capitalizes names and drops "de"/"d'" ("6 Octubre de 2026");
+// use moment.js's wording ("6 d'octubre de 2026"), which the skin had before 2.0.
+function fix_dayjs_catalan() {
+    var ca = dayjs.Ls.ca;
+    if (!ca) {
+        return;
+    }
+    var standalone = "gener_febrer_març_abril_maig_juny_juliol_agost_setembre_octubre_novembre_desembre".split("_");
+    var after_day = "de gener_de febrer_de març_d'abril_de maig_de juny_de juliol_d'agost_de setembre_d'octubre_de novembre_de desembre".split("_");
+    var months = function(date, format) {
+        // After a day number; advancedFormat has already turned Do into text such as "6è"
+        return /(D[oD]?|\d+\S*)(\[[^\[\]]*\]|\s)+MMMM/.test(format) ? after_day[date.month()] : standalone[date.month()];
+    };
+    months.s = standalone;
+    months.f = after_day;
+    ca.months = months;
+    ca.monthsShort = "gen._febr._març_abr._maig_juny_jul._ag._set._oct._nov._des.".split("_");
+    ca.weekdays = "diumenge_dilluns_dimarts_dimecres_dijous_divendres_dissabte".split("_");
+    ca.weekdaysShort = "dg._dl._dt._dc._dj._dv._ds.".split("_");
+}
 
 function belchertown_debug(message) {
     if (belchertown_debug_config > 0) {
@@ -546,8 +571,8 @@ function moon_icon(moonphase){
 function tzAdjustedMoment(input) {
     let tz = config.moment_js_tz;
     if (!tz) {
-        return moment.unix(input).utcOffset(config.moment_js_utc_offset);
+        return dayjs.unix(Number(input)).utcOffset(config.moment_js_utc_offset);
     } else {
-        return moment.unix(input).tz(tz);
+        return dayjs.unix(Number(input)).tz(tz);
     }
 }

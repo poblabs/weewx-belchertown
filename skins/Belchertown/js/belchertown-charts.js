@@ -107,10 +107,10 @@ Highcharts.setOptions({
         timezoneOffset: config.highcharts_timezoneoffset
     },
     lang: {
-        months: moment.months(),
-        shortMonths: moment.monthsShort(),
-        weekdays: moment.weekdays(),
-        shortWeekdays: moment.weekdaysShort(),
+        months: dayjs.months(),
+        shortMonths: dayjs.monthsShort(),
+        weekdays: dayjs.weekdays(),
+        shortWeekdays: dayjs.weekdaysShort(),
         decimalPoint: config.highcharts_decimal,
         thousandsSep: config.highcharts_thousands
     }

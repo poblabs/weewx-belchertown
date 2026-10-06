@@ -15,8 +15,6 @@
         var mqttMsg;
         var mqttclient = "website" + Math.floor(Math.random() * 999999999);
         #end if
-        var moment_locale = "$system_locale_js";
-        moment.locale(moment_locale);
         
         var homepage_graphgroup = "$Extras.highcharts_homepage_graphgroup";
 
@@ -58,7 +56,7 @@
                 jQuery(".updated").html( updated_text );
             
                 #if 'earthquake_enabled' in $Extras and $Extras.earthquake_enabled == '1'            
-                if ( moment.unix( "$earthquake_time" ).isValid() ) {
+                if ( dayjs.unix( Number("$earthquake_time") ).isValid() ) {
                     // Check that the time is the time (number) and not the "no earthquake available" wording
                     jQuery(".earthquake-time").html( tzAdjustedMoment( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
                 } else {
