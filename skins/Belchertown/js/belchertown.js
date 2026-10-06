@@ -108,11 +108,11 @@ jQuery(document).ready(function() {
     }
 
     if (extras.theme_toggle_enabled === '1') {
-    // Dark mode checkbox toggle switcher
+    // Light/dark button: a moon in light mode, a sun in dark mode
     try {
-        document.getElementById('themeSwitch').addEventListener('change', function(event) {
-            belchertown_debug("Theme: Toggle button changed");
-            (event.target.checked) ? changeTheme("dark", true) : changeTheme("light", true);
+        document.getElementById('themeSwitch').addEventListener('click', function() {
+            belchertown_debug("Theme: Toggle button clicked");
+            changeTheme(jQuery('body').hasClass('dark') ? "light" : "dark", true);
         });
     } catch (err) {
         // Silently exit

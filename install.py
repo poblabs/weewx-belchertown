@@ -208,8 +208,7 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
                                  'skins/Belchertown/js/belchertown-forecast.js',
                                  'skins/Belchertown/js/belchertown-live.js',
                                  'skins/Belchertown/js/belchertown-theme.js',
-                                 'skins/Belchertown/js/index.html',
-                                 'skins/Belchertown/js/responsive-menu.js'
+                                 'skins/Belchertown/js/index.html'
                                 ]
         ),
        ('skins/Belchertown/json', ['skins/Belchertown/json/index.html',

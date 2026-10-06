@@ -2,13 +2,13 @@
 ## Determine initial skin theme CSS class from config
 ## Auto theme setting determines which CSS class to use based on the hour
 #set $bodyTheme = ""
-#set $themeSwitchChecked = ""
+#set $themeIcon = "fa-moon-o"
 #if $Extras.theme == "dark"
     #set $bodyTheme = "dark"
-    #set $themeSwitchChecked = "checked"
+    #set $themeIcon = "fa-sun-o"
 #elif $Extras.theme == "light"
     #set $bodyTheme = "light"
-    #set $themeSwitchChecked = ""
+    #set $themeIcon = "fa-moon-o"
 #elif $Extras.theme == "auto"
     #import datetime
     #set $now = datetime.datetime.now()
@@ -18,11 +18,11 @@
         ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
         #if int($sunrise_hour) <= int($nowHour) and int($nowHour) < int($sunset_hour)
             #set $bodyTheme = "light"
-            #set $themeSwitchChecked = ""
+            #set $themeIcon = "fa-moon-o"
         #else
             ## Night time, use dark mode
             #set $bodyTheme = "dark"
-            #set $themeSwitchChecked = "checked"
+            #set $themeIcon = "fa-sun-o"
         #end if
 #end if
 
@@ -184,7 +184,9 @@
                         <section id="nav_menu">
                             <div class="widget-wrap">
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
-                                    <ul id="menu-menu" class="menu genesis-nav-menu">
+                                    <input type="checkbox" id="menu-toggle" class="menu-toggle-state">
+                                    <label for="menu-toggle" class="menu-toggle" title="$obs.label.menu_toggle_title" aria-label="$obs.label.menu_toggle_title"><i class="fa fa-bars" aria-hidden="true"></i></label>
+                                    <ul id="menu-menu" class="menu genesis-nav-menu responsive-menu">
                                         <!-- class = current-menu-item -->
                                         <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
                                         #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
@@ -193,14 +195,13 @@
                                         <li class="menu-item menu-item-2"><a href="$relative_url/records/" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
                                         <li class="menu-item menu-item-3"><a href="$relative_url/reports/" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$relative_url/about/" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
-                                        #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
-                                        <label class="themeSwitchLabel">
-                                            <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
-                                            <span class="slider round"></span>
-                                        </label>
-                                        #end if
                                     </ul>
                                 </nav>
+                                <div class="header-toggles">
+                                    #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
+                                    <button type="button" id="themeSwitch" class="wx-icon-button" title="$obs.label.theme_toggle_title" aria-label="$obs.label.theme_toggle_title"><i class="fa $themeIcon" aria-hidden="true"></i></button>
+                                    #end if
+                                </div>
                             </div>
                         </section>
                     </div>

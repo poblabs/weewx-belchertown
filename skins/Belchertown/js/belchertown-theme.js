@@ -66,7 +66,7 @@ function changeTheme(themeName, toggleOverride = false) {
         jQuery('body').addClass("dark");
         jQuery('body').removeClass("light");
         if (extras.theme_toggle_enabled === '1') {
-        jQuery("#themeSwitch").prop("checked", true);
+        jQuery("#themeSwitch i").attr("class", "fa fa-sun-o");
         }
         if (extras.logo_image_dark !== undefined && extras.logo_image_dark !== "") {
         belchertown_debug("Theme: logo_image_dark is defined.");
@@ -81,7 +81,7 @@ function changeTheme(themeName, toggleOverride = false) {
         jQuery('body').addClass("light");
         jQuery('body').removeClass("dark");
         if (extras.theme_toggle_enabled === '1') {
-        jQuery("#themeSwitch").prop("checked", false);
+        jQuery("#themeSwitch i").attr("class", "fa fa-moon-o");
         }
         if (extras.logo_image !== undefined && extras.logo_image !== "") {
         belchertown_debug("Theme: logo_image is defined.");
