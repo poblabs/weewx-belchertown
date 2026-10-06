@@ -309,7 +309,6 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | beaufort_category | 0 | Shows the Beaufort category ("calm", "gale", ...) under wind speed. For live updates, add `beaufort = prefer_hardware` under `[StdWXCalculate]` → `[[Calculations]]` in `weewx.conf`.
 | manifest_name | "My Weather Website" | Your site's name when someone adds it to their phone's home screen.
 | manifest_short_name | "MWW" | The name under its home screen icon.
-| aeris_map | 0 | 1 shows a static Xweather map instead of the radar (needs the [Xweather keys](#forecasts-xweather)). It follows the light/dark theme unless you set the radar options below.
 | radar_html | A windy.com map | The radar for light mode (and dark mode, if `radar_html_dark` isn't set). Any HTML, about 650 × 360 pixels. To make your own from windy.com, open Weather Radar there and choose "embed widget on page".
 | radar_html_dark | None | The radar for dark mode. Any HTML.
 | radar_zoom | 8 | How far the radar starts zoomed in, from 1 (far) to 11 (close).

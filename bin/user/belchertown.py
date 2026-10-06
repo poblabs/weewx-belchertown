@@ -448,40 +448,14 @@ class getData(SearchList):
 
         # Set default radar html code, and override with user-specified value
         if self.generator.skin_dict["Extras"].get("radar_html") == "":
-            if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.api.xweather.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
-                    radar_width,
-                    radar_height,
-                    self.generator.skin_dict["Extras"]["forecast_api_id"],
-                    self.generator.skin_dict["Extras"]["forecast_api_secret"],
-                    radar_width,
-                    radar_height,
-                    lat,
-                    lon,
-                    zoom,
-                )
-            else:
-                radar_html = '<iframe width="{}px" height="{}px" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format(
-                    radar_width, radar_height, lat, lon, zoom, marker, lat, lon
-                )
+            radar_html = '<iframe width="{}px" height="{}px" src="https://embed.windy.com/embed2.html?lat={}&lon={}&zoom={}&level=surface&overlay=radar&menu=&message=true&marker={}&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat={}&detailLon={}&metricWind=&metricTemp=&radarRange=-1" frameborder="0"></iframe>'.format(
+                radar_width, radar_height, lat, lon, zoom, marker, lat, lon
+            )
         else:
             radar_html = self.generator.skin_dict["Extras"]["radar_html"]
 
         if self.generator.skin_dict["Extras"].get("radar_html_dark") == "":
-            if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html_dark = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.api.xweather.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
-                    radar_width,
-                    radar_height,
-                    self.generator.skin_dict["Extras"]["forecast_api_id"],
-                    self.generator.skin_dict["Extras"]["forecast_api_secret"],
-                    radar_width,
-                    radar_height,
-                    lat,
-                    lon,
-                    zoom,
-                )
-            else:
-                radar_html_dark = "None"
+            radar_html_dark = "None"
         else:
             radar_html_dark = self.generator.skin_dict["Extras"]["radar_html_dark"]
 
@@ -3729,7 +3703,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                    )
                    usage_round = 0
 
-                obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
+                # -1 means weewx has no unit for this observation (e.g. an O3 sensor):
+                # keep the raw values instead of rounding them to whole numbers.
+                if str(obs_round) in ("-1", "-1.0"):
+                    obs_round_vt = obs_vt[0]
+                else:
+                    obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
 
         # "Today" charts, "timespan_specific" charts and floating timespan
         # charts have the point timestamp on the stop time so we don't see the

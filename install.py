@@ -67,7 +67,6 @@ extension_config = """
            # beaufort_category = 0
            # manifest_name = "My Weather Website"
            # manifest_short_name = "MWW"
-           # aeris_map = 0
            # radar_html = ''   #  (default seems to center on your lat/lon)
            # radar_html_dark = None
            # radar_zoom = 8
