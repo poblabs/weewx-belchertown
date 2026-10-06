@@ -1,6 +1,6 @@
 # Belchertown weewx skin
 
-[![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
+[![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://paypal.me/pobhq)
 
 This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
 
@@ -167,7 +167,7 @@ A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic
 ### MQTT Brokers
 
 #### Install your own MQTT Broker
-If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://obrienlabs.net/go/mqttbroker). 
+If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://web.archive.org/web/20240412180952/https://obrienlabs.net/how-to-setup-your-own-mqtt-broker). 
 
 Setting up an MQTT server on DigitalOcean is quick and easy. BelchertownWeather.com runs on DigitalOcean. Click this **referral** link to get started on DigitalOcean with a free credit!
 
@@ -504,7 +504,7 @@ If you're interested in this type of setup, you'll need these items:
 * An [SD Card for your Raspberry Pi](https://amzn.to/2IjxVRN)
 * The [Adafruit 3.5" Raspberry Pi TFT Screen Hat](https://amzn.to/2KiZxso) (other models may work, your experience may vary)
 * Get the Raspberry Pi setup with the easy NOOBS installer and get it updated.
-* Once it's setup and the screen is also setup [run this tutorial for getting it into Kiosk mode](https://obrienlabs.net/setup-raspberry-pi-kiosk-chromium/). 
+* Once it's setup and the screen is also setup [run this tutorial for getting it into Kiosk mode](https://web.archive.org/web/20240524031620/https://obrienlabs.net/setup-raspberry-pi-kiosk-chromium/). 
 * Point your new Raspberry Pi Kiosk to your weather website's `/pi` page, and you should be good to go!
 
 ![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
@@ -653,9 +653,9 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
 * A: [See above.](#database)
 
 ## Donate
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://obrienlabs.net/go/donate)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://paypal.me/pobhq)
 
-This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://obrienlabs.net/go/donate) :)
+This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://paypal.me/pobhq) :)
 
 ## Credits
 * AerisWeather API for current weather conditions and weather forecasts.
