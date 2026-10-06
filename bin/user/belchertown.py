@@ -1914,11 +1914,7 @@ class getData(SearchList):
         # ==============================================================================
 
         facebook_enabled = self.generator.skin_dict["Extras"]["facebook_enabled"]
-        twitter_enabled = self.generator.skin_dict["Extras"]["twitter_enabled"]
         social_share_html = self.generator.skin_dict["Extras"]["social_share_html"]
-        twitter_text = label_dict["twitter_text"]
-        twitter_owner = label_dict["twitter_owner"]
-        twitter_hashtags = label_dict["twitter_hashtags"]
 
         if facebook_enabled == "1":
             facebook_html = (
@@ -1938,35 +1934,9 @@ class getData(SearchList):
         else:
             facebook_html = ""
 
-        if twitter_enabled == "1":
-            twitter_html = """
-                <script>
-                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
-                </script>
-                <a href="https://twitter.com/share" class="twitter-share-button" data-url="%s" data-text="%s" data-via="%s" data-hashtags="%s">Tweet</a>
-            """ % (
-                social_share_html,
-                twitter_text,
-                twitter_owner,
-                twitter_hashtags,
-            )
-        else:
-            twitter_html = ""
-
-        # Build the output
         social_html = ""
-        if facebook_html != "" or twitter_html != "":
-            social_html = '<div class="wx-stn-share">'
-            # Facebook first
-            if facebook_html != "":
-                social_html += facebook_html
-            # Add a separator margin if both are enabled
-            if facebook_html != "" and twitter_html != "":
-                social_html += '<div class="wx-share-sep"></div>'
-            # Twitter second
-            if twitter_html != "":
-                social_html += twitter_html
-            social_html += "</div>"
+        if facebook_html != "":
+            social_html = '<div class="wx-stn-share">' + facebook_html + "</div>"
 
         #==============================================================================
         # MQTT settings for Kiosk page

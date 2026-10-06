@@ -1416,16 +1416,12 @@ p.entry-meta {
 
 .wx-stn-alert i { color: red; }
 
-.wx-fb, .wx-share-sep, .wx-twitter {
+.wx-fb {
     display:inline-block;
 }
 
-.wx-share-sep {
-    margin:0px 5px;
-}
-
 /* Custom styling for the share buttons */
-.fb_iframe_widget span, .twitter-share-button {
+.fb_iframe_widget span {
     vertical-align: middle !important;
 }
 

@@ -2,6 +2,7 @@
 
 ### Breaking Changes
 * Requires weewx 5.0 or newer. On weewx 3 or 4, stay on 1.3.1; the installer and the extension both refuse to run on older weewx.
+* The Twitter share button is gone (twitter_enabled, twitter_text, twitter_owner, twitter_hashtags). Leftover settings are ignored.
 * js/belchertown.js.tmpl is gone. js/belchertown.js is now a static file and your settings reach it through js/belchertown-config.js (generated from js/belchertown-config.js.tmpl). If you customized belchertown.js.tmpl, move those changes into belchertown.js.
 
 ### Changed
@@ -9,7 +10,7 @@
 * Templates use "option" in $Extras instead of the Python 2 style $Extras.has_key("option").
 * Only the [Extras] options the JavaScript needs are sent to the browser.
 * The radar and image reload timers no longer fail when MQTT is turned off.
-* README: weectl commands, the broken requirement badge replaced.
+* README rewritten: a quick start first, where weewx.conf lives, plain-language steps, and the option tables, Pi/kiosk and FAQ folded into expandable sections. DarkSky and other outdated material removed.
 
 1.3.1 April 30, 2023
 

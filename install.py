@@ -126,8 +126,6 @@ extension_config = """
 
            #--- Social Options ---
            # facebook_enabled = 0
-           # twitter_enabled = 0
-           # twitter_hashtags = "weewx #weather"
            # social_share_html = ""
            
            #--- Kiosk Options ---
@@ -163,11 +161,6 @@ extension_config = """
                 # records_page_header = "Weather Observation Records"
                 # about_page_header = "About This Site"
                 # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
-
-                #-- Twitter Social Share --
-                # twitter_text = "Check out my website: My Weather Website Weather Conditions"
-                # twitter_owner = "YourTwitterUsernameHere"
-                # twitter_hashtags = "weewx #weather"
 
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
