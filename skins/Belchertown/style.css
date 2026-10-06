@@ -2027,6 +2027,53 @@ table.celestial td.label {
 .wx-icon-button:hover, .wx-icon-button:focus-visible {
     opacity: 1;
 }
+/* Bootstrap's 10px under every ul pushed the menu text above the buttons */
+.nav-header #menu-menu {
+    margin-bottom: 0;
+}
+.view-picker {
+    position: relative;
+}
+.view-picker summary {
+    list-style: none;
+    display: block;
+}
+.view-picker summary::-webkit-details-marker {
+    display: none;
+}
+.view-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1000;
+    min-width: 180px;
+    margin: 6px 0 0;
+    padding: 6px 0;
+    list-style: none;
+    text-align: left;
+    background: var(--wx-bg);
+    border: 1px solid var(--wx-line);
+    border-radius: var(--wx-radius);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+.view-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: inherit;
+    white-space: nowrap;
+    text-decoration: none;
+}
+.view-menu a .fa {
+    width: 20px;
+    text-align: center;
+    margin-right: 6px;
+}
+.view-menu a:hover, .view-menu a:focus-visible {
+    background: rgba(127, 127, 127, 0.12);
+}
+.view-menu a.active {
+    font-weight: 700;
+}
 
 @media only screen and (max-width: 800px) {
 	
@@ -2581,3 +2628,45 @@ html.view-kiosk {
     }
 }
 
+
+/* Home page layouts (home_view and the layout button). Dashboard is the plain order. */
+.home-blocks {
+    display: flex;
+    flex-direction: column;
+}
+.home-block {
+    min-width: 0;
+}
+.view-charts .home-block-charts,
+.view-radar .home-block-conditions {
+    order: -1;
+}
+.view-radar .wx-conditions {
+    grid-template-columns: 4fr 3fr 3fr 4fr;
+    grid-template-areas:
+        "radar radar    radar radar"
+        "now   readings wind  sunmoon";
+}
+.view-radar .wx-radar iframe {
+    aspect-ratio: auto;
+    height: 70vh;
+    max-height: 760px;
+}
+@media only screen and (max-width: 1199px) {
+    .view-radar .wx-conditions {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "radar radar"
+            "now   readings"
+            "wind  sunmoon";
+    }
+}
+@media only screen and (max-width: 767px) {
+    .view-radar .wx-conditions {
+        grid-template-columns: 1fr;
+        grid-template-areas: "radar" "now" "wind" "readings" "sunmoon";
+    }
+    .view-radar .wx-radar iframe {
+        height: 60vh;
+    }
+}

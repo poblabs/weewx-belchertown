@@ -53,9 +53,19 @@
         <meta charset="UTF-8" />
         <title>$head_title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        #set $home_view = $Extras.get("home_view", "dashboard")
         <script>
-            // ?view=kiosk: conditions, radar and forecast only, for wall displays (see style.css)
-            if (/[?&]view=kiosk(&|$)/.test(location.search)) document.documentElement.classList.add("view-kiosk");
+            // Home page layout: ?view= in the address, else the visitor's last choice, else home_view (see style.css)
+            (function() {
+                var view = (location.search.match(/[?&]view=([a-z]+)/) || [])[1];
+                if (view === "kiosk") { document.documentElement.classList.add("view-kiosk"); return; }
+                #if $page == "home"
+                var views = ["dashboard", "radar", "charts"];
+                if (views.indexOf(view) < 0) { try { view = localStorage.getItem("belchertown_view"); } catch (e) {} }
+                if (views.indexOf(view) < 0) view = "$home_view";
+                document.documentElement.classList.add("view-" + view);
+                #end if
+            })();
         </script>
 
         <meta name="description" content="$head_desc"/>
@@ -198,6 +208,18 @@
                                     </ul>
                                 </nav>
                                 <div class="header-toggles">
+                                    #if $page == "home"
+                                    <details class="view-picker">
+                                        <summary class="wx-icon-button" title="$obs.label.view_toggle_title" aria-label="$obs.label.view_toggle_title"><i class="fa fa-th-large" aria-hidden="true"></i></summary>
+                                        <ul class="view-menu">
+                                            <li><a href="?view=dashboard" data-view="dashboard"><i class="fa fa-th-large" aria-hidden="true"></i> $obs.label.view_dashboard</a></li>
+                                            <li><a href="?view=radar" data-view="radar"><i class="fa fa-map-o" aria-hidden="true"></i> $obs.label.view_radar</a></li>
+                                            #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
+                                            <li><a href="?view=charts" data-view="charts"><i class="fa fa-line-chart" aria-hidden="true"></i> $obs.label.view_charts</a></li>
+                                            #end if
+                                        </ul>
+                                    </details>
+                                    #end if
                                     #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
                                     <button type="button" id="themeSwitch" class="wx-icon-button" title="$obs.label.theme_toggle_title" aria-label="$obs.label.theme_toggle_title"><i class="fa $themeIcon" aria-hidden="true"></i></button>
                                     #end if

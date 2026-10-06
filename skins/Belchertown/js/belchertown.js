@@ -29,6 +29,51 @@ function is_kiosk_view() {
     return document.documentElement.classList.contains("view-kiosk");
 }
 
+var HOME_VIEWS = ["dashboard", "radar", "charts"];
+
+function set_home_view(view) {
+    var root = document.documentElement;
+    HOME_VIEWS.forEach(function(v) { root.classList.remove("view-" + v); });
+    root.classList.add("view-" + view);
+    try { localStorage.setItem("belchertown_view", view); } catch (e) {}
+    mark_home_view();
+    if (window.Highcharts) {
+        Highcharts.charts.forEach(function(chart) { if (chart) chart.reflow(); });
+    }
+}
+
+function mark_home_view() {
+    document.querySelectorAll(".view-menu a").forEach(function(a) {
+        var on = document.documentElement.classList.contains("view-" + a.dataset.view);
+        a.classList.toggle("active", on);
+        if (on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var picker = document.querySelector(".view-picker");
+    if (!picker) return;
+    mark_home_view();
+    picker.addEventListener("click", function(e) {
+        var link = e.target.closest(".view-menu a");
+        if (!link) return;
+        e.preventDefault();
+        set_home_view(link.dataset.view);
+        picker.open = false;
+        if (/[?&]view=/.test(location.search)) {
+            var url = new URL(location.href);
+            url.searchParams.delete("view");
+            history.replaceState(null, "", url);
+        }
+    });
+    document.addEventListener("click", function(e) {
+        if (picker.open && !picker.contains(e.target)) picker.open = false;
+    });
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && picker.open) { picker.open = false; picker.querySelector("summary").focus(); }
+    });
+});
+
 // The home page charts are drawn only when the charts block is on the page and visible
 function home_charts_shown() {
     return !is_kiosk_view() && document.querySelector(".graph-outer") !== null;

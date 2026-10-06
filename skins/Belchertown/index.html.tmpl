@@ -214,8 +214,10 @@
                 #if isinstance($sections, str)
                 #set $sections = [s.strip() for s in $sections.split(",") if s.strip()]
                 #end if
+                <div class="home-blocks">
                 #for $section in $sections
                 #if $section in $hooks
+                <div class="home-block home-block-$section">
                 #set $block_file = "home/" + $section + ".inc"
                 #include $block_file
                 #set $hook_file = $hooks[$section][0]
@@ -224,13 +226,17 @@
                     #include $hook_file
                 </div>
                 #end if
+                </div>
                 #elif os.path.exists("home_" + $section + ".inc")
                 #set $block_file = "home_" + $section + ".inc"
+                <div class="home-block home-block-$section">
                 <div class="row home-custom home-$section">
                     #include $block_file
                 </div>
+                </div>
                 #end if
                 #end for
+                </div>
                 
             </article>
 
