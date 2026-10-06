@@ -14,7 +14,10 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 ![BelchertownWeather.com home page in light and dark mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)
 
 > [!IMPORTANT]
-> **Belchertown 2.x requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
+> **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
+
+> [!NOTE]
+> **Looking for New Belchertown?** While this skin was quiet, uajqq kept it going as [New Belchertown](https://github.com/uajqq/weewx-belchertown-new), a separate fork with its own features and its own 2.x versions. The two are different skins: this one jumps from 1.3.1 to 3.0 so the version numbers don't overlap. Both are free, so use whichever suits you.
 
 ## Contents
 
@@ -532,7 +535,7 @@ weectl extension uninstall Belchertown
 
 ## Development version
 
-To try the newest changes before they're released, download the [`next` branch](https://github.com/poblabs/weewx-belchertown/archive/next.zip) and install it with `weectl extension install next.zip`, or copy its files over your `skins/Belchertown` and `bin/user` folders. Then restart weewx. The `next` branch is where the 2.0 rewrite happens, so expect rough edges.
+To try the newest changes before they're released, download the [`next` branch](https://github.com/poblabs/weewx-belchertown/archive/next.zip) and install it with `weectl extension install next.zip`, or copy its files over your `skins/Belchertown` and `bin/user` folders. Then restart weewx. The `next` branch is where the 3.0 rewrite happens, so expect rough edges.
 
 ## Donate
 
@@ -549,3 +552,4 @@ This project took a lot of coffee to create. If you enjoy this skin and find som
 * Gary, for help with the charts from version 0.1 through 0.9.1.
 * Brian at weather34.com for the weather icons from the Simplicity 2015 theme, used with agreement.
 * Some icons remixed by michaelundwd. Thanks!
+* uajqq and the [New Belchertown](https://github.com/uajqq/weewx-belchertown-new) contributors, for keeping Belchertown alive between 2024 and 2026. Fixes from that fork are credited where they were used, such as michaelundwd's consecutive rain days fix.

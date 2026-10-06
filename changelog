@@ -1,4 +1,6 @@
-2.0.0 (unreleased, on the next branch)
+3.0.0 (unreleased, on the next branch)
+
+Belchertown goes from 1.3.1 straight to 3.0. The 2.x numbers belong to New Belchertown, a separate fork by uajqq (github.com/uajqq/weewx-belchertown-new), and skipping them keeps the two apart.
 
 ### Breaking Changes
 * Requires weewx 5.0 or newer. On weewx 3 or 4, stay on 1.3.1; the installer and the extension both refuse to run on older weewx.
@@ -15,6 +17,7 @@
 * Only the [Extras] options the JavaScript needs are sent to the browser.
 * The radar and image reload timers no longer fail when MQTT is turned off.
 * Charts no longer round observations weewx has no unit for (add-on sensors such as O3) down to 0 (#935).
+* Records: the consecutive days with and without rain no longer run across days with no data (a station outage could produce a 275-day streak). Fix by michaelundwd from the New Belchertown fork (#1001).
 * ?theme=dark (or light, auto) in the address now works together with other options, such as ?view=kiosk&theme=dark.
 * README rewritten: a quick start first, where weewx.conf lives, plain-language steps, and the option tables, Pi/kiosk and FAQ folded into expandable sections. DarkSky and other outdated material removed.
 

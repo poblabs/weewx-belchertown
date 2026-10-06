@@ -10,7 +10,7 @@ from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
-VERSION      = "2.0.0"
+VERSION      = "3.0.0"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -19,9 +19,9 @@ AUTHOR_EMAIL = "https://github.com/poblabs/weewx-belchertown"
 #-------- main loader -----------
 
 def loader():
-    # Belchertown 2.x needs weewx 5; older weewx stays on Belchertown 1.3.1.
+    # Belchertown 3 needs weewx 5; older weewx stays on Belchertown 1.3.1.
     if int(weewx.__version__.split(".")[0]) < 5:
-        sys.exit("Belchertown 2.x requires weewx 5.0 or newer (found weewx %s). "
+        sys.exit("Belchertown 3 requires weewx 5.0 or newer (found weewx %s). "
                  "On older weewx, install Belchertown 1.3.1."
                  % weewx.__version__)
     return BelchertownInstaller()

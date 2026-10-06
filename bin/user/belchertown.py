@@ -45,10 +45,10 @@ from weewx.tags import TimespanBinder
 
 from weeutil.config import accumulateLeaves
 
-# Belchertown 2.x needs weewx 5; older weewx stays on Belchertown 1.3.1.
+# Belchertown 3 needs weewx 5; older weewx stays on Belchertown 1.3.1.
 if int(weewx.__version__.split(".")[0]) < 5:
     raise weewx.UnsupportedFeature(
-        "Belchertown 2.x requires weewx 5.0 or newer, found weewx %s"
+        "Belchertown 3 requires weewx 5.0 or newer, found weewx %s"
         % weewx.__version__
     )
 
@@ -68,7 +68,7 @@ def logerr(msg):
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "2.0.0"
+VERSION = "3.0.0"
 
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.
@@ -95,6 +95,28 @@ aqi = ""
 aqi_category = ""
 aqi_time = 0
 aqi_location = ""
+
+
+def rain_streaks(rows):
+    """Running counts of consecutive days with and without rain, keyed by day.
+
+    rows are (dateTime, rain sum) for days that have rain data. A missing day (station
+    offline, rain gauge down) ends both streaks, so outages don't join streaks together.
+    Fix from michaelundwd in uajqq's New Belchertown fork (#1001).
+    """
+    with_rain, without_rain = {}, {}
+    wet = dry = 0
+    previous_day = None
+    for date_time, rain in rows:
+        day = round(date_time / 86400)
+        if previous_day is not None and day - previous_day != 1:
+            wet = dry = 0
+        previous_day = day
+        wet = wet + 1 if rain != 0 else 0
+        dry = dry + 1 if rain == 0 else 0
+        with_rain[date_time] = wet
+        without_rain[date_time] = dry
+    return with_rain, without_rain
 
 
 class getData(SearchList):
@@ -836,26 +858,9 @@ class getData(SearchList):
 
         # Consecutive days with/without rainfall
         # dateTime needs to be epoch. Conversion done in the template using #echo
-        year_days_with_rain_total = 0
-        year_days_without_rain_total = 0
-        year_days_with_rain_output = {}
-        year_days_without_rain_output = {}
-        year_rain_query = wx_manager.genSql(year_rain_data_sql)
-        for row in year_rain_query:
-            # Original MySQL way: CASE WHEN sum!=0 THEN @total+1 ELSE 0 END
-            if row[1] != 0:
-                year_days_with_rain_total += 1
-            else:
-                year_days_with_rain_total = 0
-
-            # Original MySQL way: CASE WHEN sum=0 THEN @total+1 ELSE 0 END
-            if row[1] == 0:
-                year_days_without_rain_total += 1
-            else:
-                year_days_without_rain_total = 0
-
-            year_days_with_rain_output[row[0]] = year_days_with_rain_total
-            year_days_without_rain_output[row[0]] = year_days_without_rain_total
+        year_days_with_rain_output, year_days_without_rain_output = rain_streaks(
+            wx_manager.genSql(year_rain_data_sql)
+        )
 
         if year_days_with_rain_output:
             year_days_with_rain = max(
@@ -883,28 +888,11 @@ class getData(SearchList):
                 calendar.timegm(time.gmtime()),
             ]
 
-        at_days_with_rain_total = 0
-        at_days_without_rain_total = 0
-        at_days_with_rain_output = {}
-        at_days_without_rain_output = {}
-        at_rain_query = wx_manager.genSql(
-            "SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE count > 0;"
+        at_days_with_rain_output, at_days_without_rain_output = rain_streaks(
+            wx_manager.genSql(
+                "SELECT dateTime, ROUND( sum, 2 ) FROM archive_day_rain WHERE count > 0;"
+            )
         )
-        for row in at_rain_query:
-            # Original MySQL way: CASE WHEN sum!=0 THEN @total+1 ELSE 0 END
-            if row[1] != 0:
-                at_days_with_rain_total += 1
-            else:
-                at_days_with_rain_total = 0
-
-            # Original MySQL way: CASE WHEN sum=0 THEN @total+1 ELSE 0 END
-            if row[1] == 0:
-                at_days_without_rain_total += 1
-            else:
-                at_days_without_rain_total = 0
-
-            at_days_with_rain_output[row[0]] = at_days_with_rain_total
-            at_days_without_rain_output[row[0]] = at_days_without_rain_total
 
         if len(at_days_with_rain_output) > 0:
             at_days_with_rain = max(
