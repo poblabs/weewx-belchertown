@@ -22,7 +22,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 ## Contents
 
 * [Quick start](#quick-start)
-* [Make it yours](#make-it-yours): site title and text, metric units, logo, theme, your own pages and content
+* [Make it yours](#make-it-yours): site title and text, metric units, logo, theme, what's on the home page, your own pages and content
 * [Forecasts](#forecasts)
 * [Live updates (MQTT)](#live-updates-mqtt)
 * [Charts](#charts)
@@ -183,9 +183,27 @@ To make Belchertown the main site and move weewx's standard pages into a `weewx`
 
 Your About and Records pages can contain your own text (HTML is fine). In the Belchertown files folder ([where is it?](#quick-start)), copy `about.inc.example` to `about.inc` and `records.inc.example` to `records.inc`, edit them, and wait for the next archive period. Upgrades don't overwrite these files, but keep a backup anyway.
 
+### Choose what's on the home page, and in what order
+
+The home page is made of four blocks:
+
+* `conditions`: the current temperature, wind, station readings, sun and moon, and the radar
+* `forecast`: the forecast
+* `snapshot`: today's and this month's highs, lows, wind and rain, and the latest nearby earthquake
+* `charts`: the charts
+
+`home_sections` lists them in the order they appear. To reorder them, change the order; to hide one, leave it out. For example, to put the forecast first and drop the snapshot, add this to `[[[Extras]]]` in `weewx.conf`:
+
+```
+        [[[Extras]]]
+            home_sections = forecast, conditions, charts
+```
+
+You can also add **your own block**, such as a webcam picture or a note to visitors. Make up a name, put it in `home_sections`, and create a file called `home_` plus that name plus `.inc` in the Belchertown files folder. For example, with `home_sections = conditions, webcam, forecast, snapshot, charts`, the skin shows the contents of `home_webcam.inc` between the conditions and the forecast. HTML is fine, and weewx tags such as `$current.outTemp` work too.
+
 ### Add your own content to the home page
 
-There are four places on the home page for your own content (HTML is fine). Create any of these files in the Belchertown files folder:
+There are also four fixed places for your own content (HTML is fine). Create any of these files in the Belchertown files folder:
 
 * Below the station info: `index_hook_after_station_info.inc`
 * Below the forecast: `index_hook_after_forecast.inc`
@@ -330,6 +348,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | radar_marker | 0 | 1 puts a marker at your station on the windy.com radar.
 | almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
 | highcharts_enabled | 1 | 0 hides the charts.
+| home_sections | conditions, forecast, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
 | graph_page_show_all_button | 1 | Adds an "All" button on the Graphs page that shows every chart, two per row.
 | graph_page_default_graphgroup | "day" | Which chart group the Graphs page opens with. `"all"` shows them all.
 | highcharts_homepage_graphgroup | "day" | Which chart group the home page shows. See the [chart wiki](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).

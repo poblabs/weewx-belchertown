@@ -184,6 +184,12 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
                              ]
         ),
        ('skins/Belchertown/about', ['skins/Belchertown/about/index.html.tmpl']),
+       ('skins/Belchertown/home', ['skins/Belchertown/home/charts.inc',
+                                   'skins/Belchertown/home/conditions.inc',
+                                   'skins/Belchertown/home/forecast.inc',
+                                   'skins/Belchertown/home/snapshot.inc'
+                                  ]
+        ),
        ('skins/Belchertown/lang', ['skins/Belchertown/lang/ca.conf',
                                    'skins/Belchertown/lang/de.conf',
                                    'skins/Belchertown/lang/it.conf'

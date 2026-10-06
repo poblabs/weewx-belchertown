@@ -29,6 +29,11 @@ function is_kiosk_view() {
     return document.documentElement.classList.contains("view-kiosk");
 }
 
+// The home page charts are drawn only when the charts block is on the page and visible
+function home_charts_shown() {
+    return !is_kiosk_view() && document.querySelector(".graph-outer") !== null;
+}
+
 // Determine if debug is on via URL var or config setting
 if (getURLvar("debug") && (getURLvar("debug") == "true" || getURLvar("debug") == "1")) {
     var belchertown_debug_config = true;

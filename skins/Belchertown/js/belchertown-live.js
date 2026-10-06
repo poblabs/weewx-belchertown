@@ -202,8 +202,8 @@ function update_current_wx(data) {
     if (data.hasOwnProperty("interval_minute")) {
         // Delays are recommended to allow the other skins to complete processing
         belchertown_debug("MQTT: MQTT message indicates this is an archive interval.");
-        if (is_kiosk_view()) {
-            belchertown_debug("Skipping chart update in the kiosk view, no charts to be updated.");
+        if (!home_charts_shown()) {
+            belchertown_debug("Skipping chart update, no charts on this page.");
         }
         else {
             setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts.

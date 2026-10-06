@@ -20,6 +20,7 @@ Belchertown goes from 1.3.1 straight to 3.0. The 2.x numbers belong to New Belch
 * New forecast provider: the US National Weather Service (forecast_provider = nws; free, no key): the weather.gov forecast, highs and lows exactly as NWS gives them, current conditions from the nearest station that reports them.
 * New forecast provider: Open-Meteo, with current conditions, 1-hour, 3-hour and 7-day forecasts and US air quality. Its weather codes use the existing forecast labels, so translations carry over. Air quality from Open-Meteo also fills in for providers without it.
 * Forecast code moved to bin/user/belchertown_forecast.py, one adapter per provider; the browser no longer decodes Xweather codes or loads aeris-icon-list.json. A failed forecast download now logs an error and keeps the last forecast instead of stopping the report.
+* The home page is built from blocks (home/conditions.inc, forecast.inc, snapshot.inc, charts.inc) in the order of the new home_sections option. Leave a block out to hide it, or add your own home_<name>.inc.
 * Only the [Extras] options the JavaScript needs are sent to the browser.
 * The radar and image reload timers no longer fail when MQTT is turned off.
 * Charts no longer round observations weewx has no unit for (add-on sensors such as O3) down to 0 (#935).
