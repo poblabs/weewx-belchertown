@@ -7,7 +7,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 * **Live updates** on the home page without reloading, if you set up MQTT ([see Live updates](#live-updates-mqtt)).
 * **Charts** you can customize: which observations, what time range, how they're grouped.
 * **Light and dark mode**, switching automatically at sunrise and sunset if you like.
-* **Forecasts and air quality** with no setup (Open-Meteo), plus weather alerts with a free Xweather key.
+* **Forecasts, air quality and (in the US) weather alerts** with no setup, from Open-Meteo and the National Weather Service; Xweather optional.
 * **Your nearest recent earthquake**, plus weather records for this year and all time.
 * Works on phones and tablets, and can be added to a phone's home screen like an app.
 
@@ -215,21 +215,24 @@ Sitemap: http://YOURWEBSITE/sitemap.xml
 
 **The forecast works out of the box.** With no setup at all, the current conditions, the 7-day, 3-hour and 1-hour forecasts and the air quality come from [Open-Meteo](https://open-meteo.com), which is free, needs no account and covers the whole world.
 
-You only need to do something if you want **weather alerts** (watches and warnings), which Open-Meteo doesn't have. They come from [Xweather](https://www.xweather.com) (formerly AerisWeather), which needs a free key. There are two ways to get one:
+**Weather alerts** (watches and warnings) also work with no setup **in the US**: they come from the National Weather Service. Outside the US there are no alerts unless you use Xweather.
 
-* **Xweather's free tier** (US and Canada): the first 15,000 calls each month are free, with no credit card. The skin uses roughly 7,000 a month with everything turned on. [Sign up here](https://www.xweather.com/pricing/weather-api-pay-as-you-go).
-* **The PWSweather contributor plan** (anywhere): free if you send your station's data to [PWSweather](https://www.pwsweather.com/register), which weewx can do for you with the `[[PWSweather]]` section under `[StdRESTful]` in `weewx.conf`. [Sign up here](https://signup.xweather.com/pws-contributor) with your PWSweather login.
+**Other forecast sources** are optional:
 
-Then copy your client ID and secret from your Xweather account into `[[[Extras]]]`. As soon as a key is there, the skin uses Xweather instead of Open-Meteo:
+* **National Weather Service** (US only, free, no key): set `forecast_provider = nws` to use the NWS forecast itself, the one on weather.gov.
+* **[Xweather](https://www.xweather.com)** (formerly AerisWeather): needs a free key, and brings its own alerts, including outside the US where Xweather covers them. There are two ways to get a key:
+  * **Xweather's free tier** (US and Canada): the first 15,000 calls each month are free, with no credit card. The skin uses roughly 7,000 a month with everything turned on. [Sign up here](https://www.xweather.com/pricing/weather-api-pay-as-you-go).
+  * **The PWSweather contributor plan** (anywhere): free if you send your station's data to [PWSweather](https://www.pwsweather.com/register), which weewx can do for you with the `[[PWSweather]]` section under `[StdRESTful]` in `weewx.conf`. [Sign up here](https://signup.xweather.com/pws-contributor) with your PWSweather login.
+
+  Then copy your client ID and secret from your Xweather account into `[[[Extras]]]`. As soon as a key is there, the skin uses Xweather instead of Open-Meteo:
 
 ```
         [[[Extras]]]
             forecast_api_id = "your_id"
             forecast_api_secret = "your_secret_key"
-            forecast_alert_enabled = 1
 ```
 
-The skin downloads a new forecast about once an hour. To choose the source yourself, set `forecast_provider` to `openmeteo` or `aeris` (Xweather); the default, `auto`, picks Xweather when a key is set and Open-Meteo otherwise. To turn the forecast off, set `forecast_enabled = 0`. More settings are under "Forecast options" in [All skin options](#all-skin-options).
+The skin downloads a new forecast about once an hour. `forecast_provider` chooses the source: `auto` (the default: Xweather when a key is set, otherwise Open-Meteo), `openmeteo`, `nws` or `aeris` (Xweather). `forecast_alert_provider` does the same for alerts: `auto` (Xweather's alerts with Xweather, otherwise the National Weather Service), `nws`, `aeris` or `none`. Air quality comes from Xweather with Xweather, and from Open-Meteo otherwise. To turn the forecast off, set `forecast_enabled = 0`; to turn only the alerts off, set `forecast_alert_enabled = 0`. More settings are under "Forecast options" in [All skin options](#all-skin-options).
 
 <details>
 <summary><b>For developers: the forecast.json file</b></summary>
@@ -367,19 +370,20 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | Name | Default | Description
 | ---- | ------- | -----------
 | forecast_enabled | 1 | 1 shows the [forecast](#forecasts). 0 turns it off.
-| forecast_provider | "auto" | Where the forecast comes from: `openmeteo` (free, no key), `aeris` (Xweather, needs a key), or `auto` (Xweather when `forecast_api_id` is set, otherwise Open-Meteo).
+| forecast_provider | "auto" | Where the forecast comes from: `openmeteo` (free, no key, worldwide), `nws` (National Weather Service, US only, no key), `aeris` (Xweather, needs a key), or `auto` (Xweather when `forecast_api_id` is set, otherwise Open-Meteo).
 | forecast_api_id | "" | Your Xweather client ID.
 | forecast_api_secret | "" | Your Xweather client secret.
 | forecast_units | "us" | `us`, `si`, `ca` or `uk2`. See [Forecast units](#forecast-units).
 | forecast_stale | 3540 | Seconds before a new forecast is downloaded (3540 = 59 minutes). Each download costs about 10 Xweather calls (air quality counts 5), so going much below an hour can use up the free tier.
 | forecast_aeris_use_metar | 1 | Xweather only: 1 takes current conditions from airports and official stations; 0 from nearby personal weather stations.
 | forecast_interval_hours | 24 | Which forecast shows when someone opens the site: 1, 3 or 24 hours apart, or 0 to hide the forecast.
-| forecast_alert_enabled | 0 | 1 shows weather alerts from Xweather (USA and Canada only). They refresh with the forecast.
+| forecast_alert_enabled | 1 | 1 shows weather alerts (watches and warnings). They refresh with the forecast. 0 turns them off.
+| forecast_alert_provider | "auto" | Where alerts come from: `nws` (National Weather Service, US only, no key), `aeris` (Xweather), `none`, or `auto` (Xweather's alerts when the forecast is from Xweather, otherwise the National Weather Service).
 | forecast_alert_limit | 1 | How many alerts to show, up to 10.
 | forecast_show_daily_forecast_link | 0 | 1 adds a link under each forecast day to the website in the next option.
 | forecast_daily_forecast_link | "" | The address for those links. `YYYY`, `MM` and `DD` are replaced with the day's date, for example `https://live.xweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`.
 | forecast_show_humidity_dewpoint | 0 | Show humidity (1) or dew point (2) in the forecast. 0 shows neither.
-| aqi_enabled | 0 | 1 shows the Air Quality Index: from the nearest station within 50 miles with Xweather, or modeled for your location with Open-Meteo.
+| aqi_enabled | 0 | 1 shows the Air Quality Index: from the nearest station within 50 miles with Xweather, otherwise modeled for your location by Open-Meteo.
 | aqi_location_enabled | 0 | Xweather only: 1 shows where that AQI reading comes from, which may be far away.
 
 </details>
@@ -554,7 +558,7 @@ This project took a lot of coffee to create. If you enjoy this skin and find som
 
 ## Credits
 
-* Open-Meteo and Xweather (formerly AerisWeather) for current conditions, forecasts and air quality.
+* Open-Meteo, the US National Weather Service and Xweather (formerly AerisWeather) for current conditions, forecasts, air quality and alerts.
 * Windy.com for the embedded radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica for the chart dark mode.

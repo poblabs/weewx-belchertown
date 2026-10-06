@@ -99,7 +99,7 @@ extension_config = """
 
            #--- Forecast Options ---
            # forecast_enabled = 1
-           # forecast_provider = "auto"   # auto, openmeteo or aeris (Xweather)
+           # forecast_provider = "auto"   # auto, openmeteo, nws or aeris (Xweather)
            # forecast_api_id = ""
            # forecast_api_secret = ""
            # forecast_units = "us"
@@ -107,7 +107,8 @@ extension_config = """
            # forecast_stale = 3540
            # forecast_aeris_use_metar = 1
            # forecast_interval_hours = 24
-           # forecast_alert_enabled = 0
+           # forecast_alert_enabled = 1
+           # forecast_alert_provider = "auto"   # auto, nws, aeris (Xweather) or none
            # forecast_alert_limit = 1
            # forecast_show_daily_forecast_link = 0
            # forecast_daily_forecast_link = ""

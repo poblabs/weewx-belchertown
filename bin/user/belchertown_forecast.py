@@ -5,6 +5,7 @@ drawn by belchertown-forecast.js. Values are already in the units forecast_units
 wind is also given in knots for stations that show knots or Beaufort.
 
     {"belchertown_forecast": 3, "provider": "openmeteo", "timestamp": 1791306900,
+     "timezone": "America/New_York", "utc_offset": -14400,
      "units": {"temp": "F", "wind": "mph", "snow": "in", "visibility": "miles"},
      "current": {"icon": "clear-day", "text": "Clear", "visibility": 10.0, "cloud_cover": 0} or null,
      "aqi": {"value": 34, "category": "good", "place": ""} or null,
@@ -179,13 +180,14 @@ def xweather_convert(raw, extras, labels, icons):
 
     return {
         "belchertown_forecast": FORMAT, "provider": "xweather", "timestamp": raw.get("timestamp", int(time.time())),
+        "timezone": ((raw["forecast_24hr"][0].get("response") or [{}])[0].get("profile") or {}).get("tz"),
         "units": units, "current": current, "aqi": aqi,
         "daily": periods("forecast_24hr"), "three_hourly": periods("forecast_3hr"), "hourly": periods("forecast_1hr"),
         "alerts": alerts,
     }
 
 
-# ---------------------------------------------------------------------------- Open-Meteo
+# ---------------------------------------------------------------------------- Open-Meteo weather codes
 
 # WMO weather code -> (day icon, night icon, coverage, intensity, Xweather-style weather code).
 # The codes reuse the forecast_*_code labels, so existing translations cover Open-Meteo too.
@@ -221,123 +223,371 @@ WMO = {
 }
 
 
+# ---------------------------------------------------------------------------- metric providers
+# Open-Meteo and NWS both give hourly metric data; these turn it into display periods.
+
+class Display:
+    """Metric values (C, km/h, cm, m) in the forecast_units display units."""
+
+    def __init__(self, units):
+        self.units = units
+
+    def temp(self, c):
+        return None if c is None else (c * 9 / 5 + 32 if self.units["temp"] == "F" else c)
+
+    def wind(self, kph):
+        if kph is None:
+            return None
+        return {"mph": kph / 1.609344, "km/h": kph, "m/s": kph / 3.6}[self.units["wind"]]
+
+    def snow(self, cm):
+        return 0 if not cm else (cm if self.units["snow"] == "cm" else cm / 2.54)
+
+    def visibility(self, meters):
+        if meters is None:
+            return None
+        return round(meters / 1000 if self.units["visibility"] == "km" else meters / 1609.344, 1)
+
+
+def mean(values):
+    values = [v for v in values if v is not None]
+    return sum(values) / len(values) if values else None
+
+
+def period(show, when, icon, text, temps, dewpoints, humidities, pops, winds, gusts, snows, avg=None):
+    """One forecast period from lists of hourly metric values (or single daily values)."""
+    temps = [t for t in temps if t is not None]
+    return {
+        "time": when, "icon": icon, "text": text,
+        "temp_avg": show.temp(avg if avg is not None else (temps[0] if temps else None)),
+        "temp_min": show.temp(min(temps)) if temps else None,
+        "temp_max": show.temp(max(temps)) if temps else None,
+        "dewpoint": show.temp(dewpoints[0] if dewpoints else None),
+        "humidity": humidities[0] if humidities else None,
+        "pop": max([p or 0 for p in pops] or [0]),
+        "wind": show.wind(winds[0] if winds else None),
+        "gust": show.wind(max([g or 0 for g in gusts] or [0])),
+        "wind_kts": kts(winds[0] if winds else None),
+        "gust_kts": kts(max([g or 0 for g in gusts] or [0])),
+        "snow": show.snow(sum(s or 0 for s in snows)),
+    }
+
+
+def hour_periods(show, h, start, span, count):
+    """Periods of `span` hours from an hourly series: dict of equal-length lists."""
+    out = []
+    for i in range(start, min(start + span * count, len(h["time"])), span):
+        w = slice(i, min(i + span, len(h["time"])))
+        out.append(period(show, h["time"][i], h["icon"][i], h["text"][i], h["temp"][w], h["dewpoint"][i:i + 1],
+                          h["humidity"][i:i + 1], h["pop"][w], h["wind"][i:i + 1], h["gust"][w], h["snow"][w]))
+    return out
+
+
+def first_hour(times):
+    now = time.time()
+    return next((i for i, t in enumerate(times) if t + 3600 > now), 0)
+
+
+def openmeteo_aqi(lat, lon):
+    data = get_json("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=%s&longitude=%s&current=us_aqi&timeformat=unixtime"
+                    % (lat, lon))
+    value = (data.get("current") or {}).get("us_aqi")
+    return None if value is None else {"value": value, "category": aqi_category(value), "place": ""}
+
+
+# ---------------------------------------------------------------------------- Open-Meteo
+
 def openmeteo_download(extras, lat, lon):
     hourly = "temperature_2m,dew_point_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,snowfall,is_day"
     daily = ("weather_code,temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_probability_max,"
              "wind_speed_10m_max,wind_gusts_10m_max,snowfall_sum,relative_humidity_2m_mean,dew_point_2m_mean")
-    raw = {
+    return {
         "timestamp": int(time.time()),
         "forecast": get_json(
             "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&timezone=auto&timeformat=unixtime"
             "&forecast_days=7&wind_speed_unit=kmh&current=weather_code,is_day,cloud_cover,visibility&hourly=%s&daily=%s"
             % (lat, lon, hourly, daily)),
     }
-    if extras.get("aqi_enabled") == "1":
-        raw["aqi"] = get_json(
-            "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=%s&longitude=%s&current=us_aqi&timeformat=unixtime"
-            % (lat, lon))
-    return raw
 
 
 def openmeteo_convert(raw, extras, labels):
     units = UNITS.get(extras.get("forecast_units", "us").lower(), UNITS["us"])
+    show = Display(units)
     f = raw["forecast"]
-
-    def temp(c):
-        return None if c is None else (c * 9 / 5 + 32 if units["temp"] == "F" else c)
-
-    def wind(kph):
-        if kph is None:
-            return None
-        return {"mph": kph / 1.609344, "km/h": kph, "m/s": kph / 3.6}[units["wind"]]
-
-    def snow(cm):
-        return 0 if not cm else (cm if units["snow"] == "cm" else cm / 2.54)
 
     def look(code, is_day=1):
         day_icon, night_icon, coverage, intensity, weather = WMO.get(code, ("unknown", "unknown", "", "", "CL"))
         return (day_icon if is_day else night_icon), coded_text(labels, coverage, intensity, weather, True)
 
     h = f["hourly"]
-    start = next((i for i, t in enumerate(h["time"]) if t + 3600 > time.time()), 0)
-
-    def hour_period(i, span):
-        window = range(i, min(i + span, len(h["time"])))
-        icon, text = look(h["weather_code"][i], h["is_day"][i])
-        temps = [h["temperature_2m"][j] for j in window if h["temperature_2m"][j] is not None]
-        return {
-            "time": h["time"][i], "icon": icon, "text": text,
-            "temp_avg": temp(h["temperature_2m"][i]),
-            "temp_min": temp(min(temps)) if temps else None,
-            "temp_max": temp(max(temps)) if temps else None,
-            "dewpoint": temp(h["dew_point_2m"][i]),
-            "humidity": h["relative_humidity_2m"][i],
-            "pop": max((h["precipitation_probability"][j] or 0) for j in window),
-            "wind": wind(h["wind_speed_10m"][i]),
-            "gust": wind(max((h["wind_gusts_10m"][j] or 0) for j in window)),
-            "wind_kts": kts(h["wind_speed_10m"][i]),
-            "gust_kts": kts(max((h["wind_gusts_10m"][j] or 0) for j in window)),
-            "snow": snow(sum((h["snowfall"][j] or 0) for j in window)),
-        }
+    looks = [look(c, d) for c, d in zip(h["weather_code"], h["is_day"])]
+    series = {
+        "time": h["time"], "icon": [l[0] for l in looks], "text": [l[1] for l in looks],
+        "temp": h["temperature_2m"], "dewpoint": h["dew_point_2m"], "humidity": h["relative_humidity_2m"],
+        "pop": h["precipitation_probability"], "wind": h["wind_speed_10m"], "gust": h["wind_gusts_10m"], "snow": h["snowfall"],
+    }
+    start = first_hour(h["time"])
 
     d = f["daily"]
     daily = []
     for i in range(len(d["time"])):
         icon, text = look(d["weather_code"][i])
-        daily.append({
-            "time": d["time"][i], "icon": icon, "text": text,
-            "temp_avg": temp(d["temperature_2m_mean"][i]),
-            "temp_min": temp(d["temperature_2m_min"][i]),
-            "temp_max": temp(d["temperature_2m_max"][i]),
-            "dewpoint": temp(d["dew_point_2m_mean"][i]),
-            "humidity": d["relative_humidity_2m_mean"][i],
-            "pop": d["precipitation_probability_max"][i] or 0,
-            "wind": wind(d["wind_speed_10m_max"][i]),
-            "gust": wind(d["wind_gusts_10m_max"][i]),
-            "wind_kts": kts(d["wind_speed_10m_max"][i]),
-            "gust_kts": kts(d["wind_gusts_10m_max"][i]),
-            "snow": snow(d["snowfall_sum"][i]),
-        })
+        daily.append(period(show, d["time"][i], icon, text,
+                            [d["temperature_2m_min"][i], d["temperature_2m_max"][i]], [d["dew_point_2m_mean"][i]],
+                            [d["relative_humidity_2m_mean"][i]], [d["precipitation_probability_max"][i]],
+                            [d["wind_speed_10m_max"][i]], [d["wind_gusts_10m_max"][i]], [d["snowfall_sum"][i]],
+                            avg=d["temperature_2m_mean"][i]))
 
     c = f.get("current") or {}
     current = None
     if "weather_code" in c:
         icon, text = look(c["weather_code"], c.get("is_day", 1))
-        meters = c.get("visibility")
-        visibility = None if meters is None else round(meters / 1000 if units["visibility"] == "km" else meters / 1609.344, 1)
-        current = {"icon": icon, "text": text, "visibility": visibility, "cloud_cover": c.get("cloud_cover")}
-
-    aqi = None
-    value = ((raw.get("aqi") or {}).get("current") or {}).get("us_aqi")
-    if value is not None:
-        aqi = {"value": value, "category": aqi_category(value), "place": ""}
+        current = {"icon": icon, "text": text, "visibility": show.visibility(c.get("visibility")), "cloud_cover": c.get("cloud_cover")}
 
     return {
-        "belchertown_forecast": FORMAT, "provider": "openmeteo", "timestamp": raw["timestamp"],
-        "units": units, "current": current, "aqi": aqi,
+        "belchertown_forecast": FORMAT, "provider": "openmeteo", "timestamp": raw["timestamp"], "timezone": f.get("timezone"),
+        "units": units, "current": current, "aqi": None,
         "daily": daily,
-        "three_hourly": [hour_period(i, 3) for i in range(start, min(start + 24, len(h["time"])), 3)],
-        "hourly": [hour_period(i, 1) for i in range(start, min(start + 16, len(h["time"])))],
+        "three_hourly": hour_periods(show, series, start, 3, 8),
+        "hourly": hour_periods(show, series, start, 1, 16),
         "alerts": [],
     }
 
 
+# ---------------------------------------------------------------------------- NWS (US only, no key)
+
+# NWS icon codes (https://api.weather.gov/icons) -> skin icon; "day"/"night" picks the variant
+NWS_ICONS = {
+    "skc": "clear", "few": "mostly-clear", "sct": "partly-cloudy", "bkn": "mostly-cloudy", "ovc": "cloudy",
+    "wind_skc": "wind", "wind_few": "wind", "wind_sct": "wind", "wind_bkn": "wind", "wind_ovc": "wind",
+    "snow": "snow", "blizzard": "snow", "rain_snow": "sleet", "rain_sleet": "sleet", "snow_sleet": "sleet",
+    "sleet": "sleet", "fzra": "sleet", "rain_fzra": "sleet", "snow_fzra": "sleet",
+    "rain": "rain", "rain_showers": "rain", "rain_showers_hi": "rain",
+    "tsra": "thunderstorm", "tsra_sct": "thunderstorm", "tsra_hi": "thunderstorm",
+    "tornado": "thunderstorm", "hurricane": "thunderstorm", "tropical_storm": "thunderstorm",
+    "dust": "fog", "smoke": "fog", "haze": "fog", "fog": "fog", "hot": "clear", "cold": "clear",
+}
+DAY_NIGHT = ("clear", "mostly-clear", "partly-cloudy", "mostly-cloudy")
+NWS_CLOUDS = {"SKC": 0, "CLR": 0, "FEW": 25, "SCT": 50, "BKN": 75, "OVC": 100, "VV": 100}
+
+
+def nws_icon(url):
+    """https://api.weather.gov/icons/land/night/rain,40/tsra?size=small -> "rain"."""
+    try:
+        parts = url.split("?")[0].split("/")
+        when, code = parts[-2], parts[-1]
+        if when not in ("day", "night"):
+            when, code = parts[-3], parts[-2]
+        icon = NWS_ICONS.get(code.split(",")[0], "unknown")
+        return icon + "-" + when if icon in DAY_NIGHT else icon
+    except (AttributeError, IndexError):
+        return "unknown"
+
+
+def iso_epoch(text):
+    from datetime import datetime
+    return int(datetime.fromisoformat(text.replace("Z", "+00:00")).timestamp())
+
+
+def nws_windows(layer):
+    """Gridpoint values as (start epoch, hours, value)."""
+    import re
+    out = []
+    for v in layer.get("values", []):
+        start, _, duration = v["validTime"].partition("/")
+        m = re.match(r"P(?:(\d+)D)?(?:T(?:(\d+)H)?)?", duration)
+        out.append((iso_epoch(start), max(1, int(m.group(1) or 0) * 24 + int(m.group(2) or 0)), v["value"]))
+    return out
+
+
+def nws_series(layer):
+    """Gridpoint values like {"validTime": "2026-10-06T12:00:00+00:00/PT6H", "value": 3} -> {hour epoch: value}.
+    Rates are repeated over their hours; amounts (mm) go on the first hour."""
+    out = {}
+    amount = layer.get("uom", "").endswith(":mm")
+    for start, hours, value in nws_windows(layer):
+        for k in range(1 if amount else hours):
+            out[start + 3600 * k] = value
+    return out
+
+
+def nws_download(extras, lat, lon):
+    point = get_json("https://api.weather.gov/points/%s,%s" % (lat, lon))["properties"]
+    raw = {
+        "timestamp": int(time.time()),
+        "forecast": get_json(point["forecast"]),
+        "hourly": get_json(point["forecastHourly"]),
+        "grid": get_json(point["forecastGridData"]),
+        "timezone": point.get("timeZone"),
+    }
+    # Some stations don't report a weather description; use the nearest one that does
+    raw["observation"] = None
+    try:
+        for station in get_json(point["observationStations"])["features"][:3]:
+            observation = get_json(station["id"] + "/observations/latest")
+            if (observation.get("properties") or {}).get("textDescription"):
+                raw["observation"] = observation
+                break
+    except Exception:
+        pass
+    return raw
+
+
+def nws_convert(raw, extras, labels):
+    units = UNITS.get(extras.get("forecast_units", "us").lower(), UNITS["us"])
+    show = Display(units)
+    grid = raw["grid"]["properties"]
+    layers = {name: nws_series(grid.get(name, {})) for name in (
+        "temperature", "dewpoint", "relativeHumidity", "probabilityOfPrecipitation", "windSpeed", "windGust",
+        "snowfallAmount")}
+
+    hourly_periods = raw["hourly"]["properties"]["periods"]
+    times = [iso_epoch(p["startTime"]) for p in hourly_periods]
+    series = {
+        "time": times,
+        "icon": [nws_icon(p["icon"]) for p in hourly_periods],
+        "text": [p["shortForecast"] for p in hourly_periods],
+        "temp": [layers["temperature"].get(t) for t in times],
+        "dewpoint": [layers["dewpoint"].get(t) for t in times],
+        "humidity": [layers["relativeHumidity"].get(t) for t in times],
+        "pop": [layers["probabilityOfPrecipitation"].get(t) for t in times],
+        "wind": [layers["windSpeed"].get(t) for t in times],
+        "gust": [layers["windGust"].get(t) for t in times],
+        "snow": [(layers["snowfallAmount"].get(t) or 0) / 10 for t in times],
+    }
+    start = first_hour(times)
+
+    # Days, highs and lows follow NWS's own 12-hour forecast ("Wednesday 64 / Wednesday Night 49", in F),
+    # so the page matches weather.gov; the rest comes from the hourly grid for that date
+    tz = None
+    try:
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo(raw.get("timezone") or "UTC")
+    except Exception:
+        pass
+    from datetime import datetime
+
+    def day_of(epoch):
+        return datetime.fromtimestamp(epoch, tz).date()
+
+    days = {}
+    for p in raw["forecast"]["properties"]["periods"]:
+        day = day_of(iso_epoch(p["startTime"]))
+        entry = days.setdefault(day, {"look": None, "pops": [], "high": None, "low": None})
+        if p["isDaytime"] or entry["look"] is None:
+            entry["look"] = (nws_icon(p["icon"]), p["shortForecast"])
+        entry["pops"].append((p.get("probabilityOfPrecipitation") or {}).get("value"))
+        celsius = (p["temperature"] - 32) * 5 / 9 if p.get("temperatureUnit") == "F" else p["temperature"]
+        entry["high" if p["isDaytime"] else "low"] = celsius
+    daily = []
+    for day in sorted(days)[:7]:
+        hours = [t for t in times if day_of(t) == day]
+        hourly_temps = [layers["temperature"].get(t) for t in hours if layers["temperature"].get(t) is not None]
+        midnight = int(datetime(day.year, day.month, day.day, tzinfo=tz).timestamp())
+        icon, text = days[day]["look"]
+        high = days[day]["high"] if days[day]["high"] is not None else (max(hourly_temps) if hourly_temps else None)
+        low = days[day]["low"] if days[day]["low"] is not None else (min(hourly_temps) if hourly_temps else None)
+        temps = [low, high]
+        daily.append(period(show, midnight, icon, text, temps,
+                            [mean(layers["dewpoint"].get(t) for t in hours)],
+                            [mean(layers["relativeHumidity"].get(t) for t in hours)],
+                            days[day]["pops"],
+                            [max([layers["windSpeed"].get(t) or 0 for t in hours] or [0])],
+                            [layers["windGust"].get(t) for t in hours],
+                            [(layers["snowfallAmount"].get(t) or 0) / 10 for t in hours],
+                            avg=mean(layers["temperature"].get(t) for t in hours)))
+
+    current = None
+    ob = ((raw.get("observation") or {}).get("properties")) or {}
+    if ob.get("textDescription"):
+        clouds = [NWS_CLOUDS.get(layer.get("amount"), 0) for layer in ob.get("cloudLayers") or []]
+        current = {
+            "icon": nws_icon(ob.get("icon") or ""),
+            "text": ob["textDescription"],
+            "visibility": show.visibility((ob.get("visibility") or {}).get("value")),
+            "cloud_cover": max(clouds) if clouds else None,
+        }
+
+    return {
+        "belchertown_forecast": FORMAT, "provider": "nws", "timestamp": raw["timestamp"], "timezone": raw.get("timezone"),
+        "units": units, "current": current, "aqi": None,
+        "daily": daily,
+        "three_hourly": hour_periods(show, series, start, 3, 8),
+        "hourly": hour_periods(show, series, start, 1, 16),
+        "alerts": [],
+    }
+
+
+def nws_alerts(lat, lon):
+    """Active NWS alerts for the station; an empty list outside the US."""
+    try:
+        features = get_json("https://api.weather.gov/alerts/active?point=%s,%s" % (lat, lon))["features"]
+    except Exception:
+        return []
+    alerts = []
+    for f in features:
+        p = f["properties"]
+        alerts.append({
+            "title": p["event"],
+            "body": "\n\n".join(x for x in (p.get("description"), p.get("instruction")) if x),
+            "type": p["event"],
+            "expires": iso_epoch(p.get("ends") or p["expires"]),
+        })
+    return alerts
+
+
 # ---------------------------------------------------------------------------- entry points
+
+def alert_provider_for(extras, provider):
+    """auto: the forecast provider's own alerts (Xweather), else NWS (empty outside the US)."""
+    choice = extras.get("forecast_alert_provider", "auto").lower()
+    if choice == "auto":
+        return "xweather" if provider == "xweather" else "nws"
+    return "xweather" if choice == "aeris" else choice
+
 
 def update(path, extras, lat, lon, labels, icon_list_path):
     """Refresh forecast.json if it's stale; return the forecast either way."""
     provider = provider_for(extras)
-    if is_stale(path, extras.get("forecast_stale", 3540)):
-        if provider == "xweather":
-            with open(icon_list_path) as f:
-                icons = json.load(f)
-            forecast = xweather_convert(xweather_download(extras, lat, lon), extras, labels, icons)
-        elif provider == "openmeteo":
-            forecast = openmeteo_convert(openmeteo_download(extras, lat, lon), extras, labels)
-        else:
-            raise ValueError("Unknown forecast_provider %r" % provider)
-        with open(path, "w") as f:
-            json.dump(forecast, f)
-        return forecast, True
-    with open(path) as f:
-        return json.load(f), False
+    if not is_stale(path, extras.get("forecast_stale", 3540)):
+        with open(path) as f:
+            return json.load(f), False
+    if provider == "xweather":
+        with open(icon_list_path) as f:
+            icons = json.load(f)
+        forecast = xweather_convert(xweather_download(extras, lat, lon), extras, labels, icons)
+    elif provider == "openmeteo":
+        forecast = openmeteo_convert(openmeteo_download(extras, lat, lon), extras, labels)
+    elif provider == "nws":
+        forecast = nws_convert(nws_download(extras, lat, lon), extras, labels)
+    else:
+        raise ValueError("Unknown forecast_provider %r" % provider)
+
+    # Fill what the provider doesn't have: air quality from Open-Meteo, alerts from NWS
+    if extras.get("aqi_enabled") == "1" and forecast["aqi"] is None and provider != "xweather":
+        try:
+            forecast["aqi"] = openmeteo_aqi(lat, lon)
+        except Exception:
+            pass
+    alert_provider = alert_provider_for(extras, provider)
+    if extras.get("forecast_alert_enabled") != "1" or alert_provider == "none":
+        forecast["alerts"] = []
+    elif alert_provider == "nws":
+        forecast["alerts"] = nws_alerts(lat, lon)[:int(extras.get("forecast_alert_limit") or 10)]
+        forecast["alert_provider"] = "nws"
+
+    forecast["utc_offset"] = utc_offset(forecast.get("timezone"))
+    with open(path, "w") as f:
+        json.dump(forecast, f)
+    return forecast, True
+
+
+def utc_offset(timezone):
+    """The location's current UTC offset in seconds (the server's own if the provider gave no zone)."""
+    from datetime import datetime
+    try:
+        from zoneinfo import ZoneInfo
+        return int(datetime.now(ZoneInfo(timezone)).utcoffset().total_seconds())
+    except Exception:
+        return int(datetime.now().astimezone().utcoffset().total_seconds())
+
