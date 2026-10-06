@@ -8,6 +8,7 @@
 ### Changed
 * Removed the Python 2 / weewx 3 and 4 compatibility code (syslog logging, urllib2, StringIO and encode fallbacks).
 * Templates use "option" in $Extras instead of the Python 2 style $Extras.has_key("option").
+* AerisWeather is now Xweather: API calls go to data.api.xweather.com and maps.api.xweather.com, and the docs and README say Xweather. Option names (forecast_provider = "aeris", aeris_map, ...) are unchanged, so existing configs keep working.
 * Only the [Extras] options the JavaScript needs are sent to the browser.
 * The radar and image reload timers no longer fail when MQTT is turned off.
 * README rewritten: a quick start first, where weewx.conf lives, plain-language steps, and the option tables, Pi/kiosk and FAQ folded into expandable sections. DarkSky and other outdated material removed.

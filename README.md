@@ -7,7 +7,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 * **Live updates** on the home page without reloading, if you set up MQTT ([see Live updates](#live-updates-mqtt)).
 * **Charts** you can customize: which observations, what time range, how they're grouped.
 * **Light and dark mode**, switching automatically at sunrise and sunset if you like.
-* **Forecasts, alerts and air quality** from AerisWeather (free if you share your data with PWSweather).
+* **Forecasts, alerts and air quality** from Xweather (formerly AerisWeather), free for a personal station.
 * **Your nearest recent earthquake**, plus weather records for this year and all time.
 * Works on phones and tablets, and can be added to a phone's home screen like an app.
 
@@ -20,7 +20,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 * [Quick start](#quick-start)
 * [Make it yours](#make-it-yours): site title and text, metric units, logo, theme, your own pages and content
-* [Forecasts (AerisWeather)](#forecasts-aerisweather)
+* [Forecasts (Xweather)](#forecasts-xweather)
 * [Live updates (MQTT)](#live-updates-mqtt)
 * [Charts](#charts)
 * [All skin options](#all-skin-options)
@@ -208,14 +208,14 @@ Sitemap: http://YOURWEBSITE/sitemap.xml
 
 </details>
 
-## Forecasts (AerisWeather)
+## Forecasts (Xweather)
 
-The current conditions, forecast, weather alerts and air quality come from AerisWeather. The skin works without them, but they're a big part of the design. AerisWeather is free if you send your station's data to PWSweather, which weewx can do for you:
+The current conditions, forecast, weather alerts and air quality come from [Xweather](https://www.xweather.com) (formerly AerisWeather). The skin works without them, but they're a big part of the design. There are two free ways to get a key:
 
-1. Sign up at [pwsweather.com](https://www.pwsweather.com/register) and add your station.
-2. Turn on PWSweather in `weewx.conf` (the `[[PWSweather]]` section under `[StdRESTful]`) so weewx starts sending your data.
-3. Sign up for a free [AerisWeather developer account](https://www.aerisweather.com/signup/pws/) with your PWSweather login. Create the demo project when it asks.
-4. On [your AerisWeather apps page](https://www.aerisweather.com/account/apps), copy the ID and secret into `[[[Extras]]]`, and turn the forecast on:
+* **Xweather's free tier** (US and Canada): the first 15,000 calls each month are free, with no credit card. The skin uses roughly 7,000 a month with everything turned on. [Sign up here](https://www.xweather.com/pricing/weather-api-pay-as-you-go).
+* **The PWSweather contributor plan** (anywhere): free if you send your station's data to [PWSweather](https://www.pwsweather.com/register), which weewx can do for you with the `[[PWSweather]]` section under `[StdRESTful]` in `weewx.conf`. [Sign up here](https://signup.xweather.com/pws-contributor) with your PWSweather login.
+
+Then copy your client ID and secret from your Xweather account into `[[[Extras]]]`, and turn the forecast on:
 
 ```
         [[[Extras]]]
@@ -237,7 +237,7 @@ The forecast's units are set separately with `forecast_units`:
 
 ### Forecast in your language
 
-AerisWeather sends weather as codes, and each code has a label, so the forecast can be translated like any other text. Look for the `forecast_` labels in `skin.conf` and copy the ones you want to change into `weewx.conf` ([how](#change-the-site-title-and-other-text)).
+Xweather sends weather as codes, and each code has a label, so the forecast can be translated like any other text. Look for the `forecast_` labels in `skin.conf` and copy the ones you want to change into `weewx.conf` ([how](#change-the-site-title-and-other-text)).
 
 ## Live updates (MQTT)
 
@@ -305,11 +305,11 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.
 | logo_image_dark | "" | The **full** web address of a logo for dark mode.
 | site_title | "My Weather Website" | Shown instead of a logo when `logo_image` is empty.
-| station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | Which observations are listed next to the radar, in order. Use weewx database names, plus `aqi`, `visibility` and `cloud_cover` (from AerisWeather) and `rainWithRainRate` (rain total and rate on one line). To read from another database, add the binding, for example `leafTemp2(data_binding=sdr_binding)`; if that observation isn't in the live MQTT data it only updates when the page reloads.
+| station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | Which observations are listed next to the radar, in order. Use weewx database names, plus `aqi`, `visibility` and `cloud_cover` (from Xweather) and `rainWithRainRate` (rain total and rate on one line). To read from another database, add the binding, for example `leafTemp2(data_binding=sdr_binding)`; if that observation isn't in the live MQTT data it only updates when the page reloads.
 | beaufort_category | 0 | Shows the Beaufort category ("calm", "gale", ...) under wind speed. For live updates, add `beaufort = prefer_hardware` under `[StdWXCalculate]` → `[[Calculations]]` in `weewx.conf`.
 | manifest_name | "My Weather Website" | Your site's name when someone adds it to their phone's home screen.
 | manifest_short_name | "MWW" | The name under its home screen icon.
-| aeris_map | 0 | 1 shows a static AerisWeather map instead of the radar (needs the [AerisWeather keys](#forecasts-aerisweather)). It follows the light/dark theme unless you set the radar options below.
+| aeris_map | 0 | 1 shows a static Xweather map instead of the radar (needs the [Xweather keys](#forecasts-xweather)). It follows the light/dark theme unless you set the radar options below.
 | radar_html | A windy.com map | The radar for light mode (and dark mode, if `radar_html_dark` isn't set). Any HTML, about 650 × 360 pixels. To make your own from windy.com, open Weather Radar there and choose "embed widget on page".
 | radar_html_dark | None | The radar for dark mode. Any HTML.
 | radar_zoom | 8 | How far the radar starts zoomed in, from 1 (far) to 11 (close).
@@ -357,18 +357,18 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| forecast_enabled | 0 | 1 turns on the [AerisWeather forecast](#forecasts-aerisweather).
-| forecast_provider | "aeris" | The forecast provider. AerisWeather is the only one.
-| forecast_api_id | "" | Your AerisWeather ID.
-| forecast_api_secret | "" | Your AerisWeather secret.
+| forecast_enabled | 0 | 1 turns on the [Xweather forecast](#forecasts-xweather).
+| forecast_provider | "aeris" | The forecast provider. Xweather (`aeris`, its old name) is the only one.
+| forecast_api_id | "" | Your Xweather client ID.
+| forecast_api_secret | "" | Your Xweather client secret.
 | forecast_units | "us" | `us`, `si`, `ca` or `uk2`. See [Forecast units](#forecast-units).
-| forecast_stale | 3540 | Seconds before a new forecast is downloaded (3540 = 59 minutes). Each download uses 3 of the free tier's 1,000 calls a day, so going much below an hour can get you blocked.
+| forecast_stale | 3540 | Seconds before a new forecast is downloaded (3540 = 59 minutes). Each download costs about 10 Xweather calls (air quality counts 5), so going much below an hour can use up the free tier.
 | forecast_aeris_use_metar | 1 | 1 takes current conditions from airports and official stations; 0 from nearby personal weather stations.
 | forecast_interval_hours | 24 | Which forecast shows when someone opens the site: 1, 3 or 24 hours apart, or 0 to hide the forecast.
 | forecast_alert_enabled | 0 | 1 shows weather alerts (USA and Canada only). They refresh with the forecast.
 | forecast_alert_limit | 1 | How many alerts to show, up to 10.
 | forecast_show_daily_forecast_link | 0 | 1 adds a link under each forecast day to the website in the next option.
-| forecast_daily_forecast_link | "" | The address for those links. `YYYY`, `MM` and `DD` are replaced with the day's date, for example `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`.
+| forecast_daily_forecast_link | "" | The address for those links. `YYYY`, `MM` and `DD` are replaced with the day's date, for example `https://live.xweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`.
 | forecast_show_humidity_dewpoint | 0 | Show humidity (1) or dew point (2) in the forecast. 0 shows neither.
 | aqi_enabled | 0 | 1 shows the Air Quality Index from the nearest station within 50 miles.
 | aqi_location_enabled | 0 | 1 shows where that AQI reading comes from, which may be far away.
@@ -555,7 +555,7 @@ This project took a lot of coffee to create. If you enjoy this skin and find som
 
 ## Credits
 
-* AerisWeather for current conditions and forecasts.
+* Xweather (formerly AerisWeather) for current conditions and forecasts.
 * Windy.com for the embedded radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica for the chart dark mode.

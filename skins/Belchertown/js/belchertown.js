@@ -740,7 +740,7 @@ function moon_icon(moonphase){
 function ajaxforecast() {
     forecast_data = {};
     jQuery.when(
-        // Get the iconlist - original source is // https://www.aerisweather.com/support/docs/api/reference/icon-list/
+        // Get the iconlist - original source is // https://www.xweather.com/docs/weather-api/reference/icon-list
         jQuery.getJSON(get_relative_url() + '/images/aeris-icon-list.json', function(iconlist) {
         icon_dict = iconlist;
             }
@@ -758,7 +758,7 @@ function ajaxforecast() {
 }
 
 function aeris_coded_weather(data, full_observation = false) {
-    // https://www.aerisweather.com/support/docs/api/reference/weather-codes/
+    // https://www.xweather.com/docs/weather-api/reference/weather-codes
     var output = "";
     var coverage_code = data.split(":")[0]
     var intensity_code = data.split(":")[1]
@@ -850,7 +850,7 @@ function aeris_coded_weather(data, full_observation = false) {
 }
 
 function aeris_coded_alerts(data, full_observation = false) {
-    // https://www.aerisweather.com/support/docs/aeris-maps/reference/alert-types/
+    // https://www.xweather.com/docs/maps/reference/alert-types
 
     var alert_dict = {
         "TOE": labels.forecast_alert_code_TOE,
@@ -1059,7 +1059,7 @@ function aeris_coded_alerts(data, full_observation = false) {
 }
 
 function aeris_icon(data) {
-    // https://www.aerisweather.com/support/docs/api/reference/icon-list/
+    // https://www.xweather.com/docs/weather-api/reference/icon-list
     var icon_name = data.split(".")[0]; // Remove .png
         icon_out = icon_dict[icon_name];
         if ( icon_out === undefined ) {

@@ -449,7 +449,7 @@ class getData(SearchList):
         # Set default radar html code, and override with user-specified value
         if self.generator.skin_dict["Extras"].get("radar_html") == "":
             if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
+                radar_html = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.api.xweather.com/{}_{}/flat,water-depth,counties:60,rivers,interstates:60,admin-cities,alerts-severe:50:blend(darken),radar:blend(darken)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
                     radar_width,
                     radar_height,
                     self.generator.skin_dict["Extras"]["forecast_api_id"],
@@ -469,7 +469,7 @@ class getData(SearchList):
 
         if self.generator.skin_dict["Extras"].get("radar_html_dark") == "":
             if self.generator.skin_dict["Extras"].get("aeris_map") == "1":
-                radar_html_dark = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.aerisapi.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
+                radar_html_dark = '<img style="object-fit:cover;width:{}px;height:{}px" src="https://maps.api.xweather.com/{}_{}/flat-dk,water-depth-dk,counties:60,rivers,interstates:60,admin-cities-dk,alerts-severe:50:blend(lighten),radar:blend(lighten)/{}x{}/{},{},{}/current.png" referrerpolicy="no-referrer"></img>'.format(
                     radar_width,
                     radar_height,
                     self.generator.skin_dict["Extras"]["forecast_api_id"],
@@ -1051,7 +1051,7 @@ class getData(SearchList):
             forecast_is_stale = False
 
             def aeris_coded_weather(data):
-                # https://www.aerisweather.com/support/docs/api/reference/weather-codes/
+                # https://www.xweather.com/docs/weather-api/reference/weather-codes
                 output = ""
                 coverage_code = data.split(":")[0]
                 intensity_code = data.split(":")[1]
@@ -1140,7 +1140,7 @@ class getData(SearchList):
                 return output
 
             def aeris_icon(data):
-                # https://www.aerisweather.com/support/docs/api/reference/icon-list/
+                # https://www.xweather.com/docs/weather-api/reference/icon-list
                 iconlist_file_path = os.path.join(
                     self.generator.config_dict["WEEWX_ROOT"],
                     self.generator.skin_dict["SKIN_ROOT"],
@@ -1159,35 +1159,35 @@ class getData(SearchList):
             forecast_lang = self.generator.skin_dict["Extras"]["forecast_lang"].lower()
             if self.generator.skin_dict["Extras"]["forecast_aeris_use_metar"] == "1":
                 forecast_current_url = (
-                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s"
+                    "https://data.api.xweather.com/observations/%s,%s?&format=json&filter=allstations&filter=metar&limit=1&client_id=%s&client_secret=%s"
                     % (latitude, longitude, forecast_api_id, forecast_api_secret)
                 )
             else:
                 forecast_current_url = (
-                    "https://api.aerisapi.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s"
+                    "https://data.api.xweather.com/observations/%s,%s?&format=json&filter=allstations&limit=1&client_id=%s&client_secret=%s"
                     % (latitude, longitude, forecast_api_id, forecast_api_secret)
                 )
             forecast_24hr_url = (
-                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s"
+                "https://data.api.xweather.com/forecasts/%s,%s?&format=json&filter=day&limit=7&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             forecast_3hr_url = (
-                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s"
+                "https://data.api.xweather.com/forecasts/%s,%s?&format=json&filter=3hr&limit=8&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             forecast_1hr_url = (
-                "https://api.aerisapi.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s"
+                "https://data.api.xweather.com/forecasts/%s,%s?&format=json&filter=1hr&limit=16&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             aqi_url = (
-                "https://api.aerisapi.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
+                "https://data.api.xweather.com/airquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&client_id=%s&client_secret=%s"
                 % (latitude, longitude, forecast_api_id, forecast_api_secret)
             )
             if self.generator.skin_dict["Extras"]["forecast_alert_limit"]:
                 forecast_alert_limit = self.generator.skin_dict["Extras"][
                     "forecast_alert_limit"
                 ]
-                forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % (
+                forecast_alerts_url = "https://data.api.xweather.com/alerts/%s,%s?&format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % (
                     latitude,
                     longitude,
                     forecast_alert_limit,
@@ -1197,7 +1197,7 @@ class getData(SearchList):
                 )
             else:
                 # Default to 1 alerts to show if the option is missing. Can go up to 10
-                forecast_alerts_url = "https://api.aerisapi.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % (
+                forecast_alerts_url = "https://data.api.xweather.com/alerts/%s,%s?&format=json&limit=1&lang=%s&client_id=%s&client_secret=%s" % (
                     latitude,
                     longitude,
                     forecast_lang,
@@ -1417,7 +1417,7 @@ class getData(SearchList):
                 aqi_location = ""
                 pass
 
-            # https://www.aerisweather.com/support/docs/api/reference/endpoints/airquality/
+            # https://www.xweather.com/docs/weather-api/endpoints/airquality
             if aqi_category == "good":
                 aqi_category = label_dict["aqi_good"]
             elif aqi_category == "moderate":
