@@ -24,7 +24,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 * [Live updates (MQTT)](#live-updates-mqtt)
 * [Charts](#charts)
 * [All skin options](#all-skin-options)
-* [Raspberry Pi and kiosk displays](#raspberry-pi-and-kiosk-displays)
+* [Wall display (kiosk view)](#wall-display-kiosk-view)
 * [Troubleshooting and FAQ](#troubleshooting-and-faq)
 * [Development version](#development-version)
 * [Donate](#donate) and [Credits](#credits)
@@ -321,8 +321,6 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | highcharts_decimal | "auto" | The decimal point in charts. `"auto"` uses your locale's.
 | highcharts_thousands | "auto" | The thousands separator in charts. `"auto"` uses your locale's.
 | googleAnalyticsId | "" | Your Google Analytics ID, if you use it.
-| pi_kiosk_bold | "false" | `"true"` makes all text bold on the Raspberry Pi page.
-| pi_theme | "auto" | The theme for the Raspberry Pi page: `light`, `dark` or `auto`.
 | webpage_autorefresh | 0 | Without live updates, reload the page this often, in milliseconds (300000 = 5 minutes). 0 turns it off.
 | reload_hook_images | 0 | 1 reloads images in your [home page content](#add-your-own-content-to-the-home-page) on the timers below.
 | reload_images_radar | 300 | Seconds between radar reloads. -1 turns it off.
@@ -397,56 +395,46 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 
 </details>
 
-## Raspberry Pi and kiosk displays
+## Wall display (kiosk view)
 
-The skin includes two pages for wall or desk displays. On both, live updates never time out and keep reconnecting on their own.
+To show your weather on a TV, tablet or a spare monitor, open your home page with `?view=kiosk` added to the end of the address:
+
+```
+http://your-server/weewx/belchertown/?view=kiosk
+```
+
+That shows only the current conditions, sun and moon, radar and forecast, with no menu, records or charts, sized to fit a 1280 × 800 screen without scrolling. Live updates never time out in this view and reconnect on their own. Nothing needs to be turned on; it uses your normal settings.
+
+You can force a theme too, which helps on a screen that's always on:
+
+```
+http://your-server/weewx/belchertown/?view=kiosk&theme=dark
+```
 
 <details>
-<summary><b>Raspberry Pi console</b> (the <code>/pi</code> page, for a 3.5" screen)</summary>
+<summary><b>Start the display automatically on a Raspberry Pi</b></summary>
 
-You'll need a Raspberry Pi, an SD card and a 3.5" screen such as the Adafruit 3.5" TFT hat. Set up the Pi and screen, [put Chromium in kiosk mode](https://web.archive.org/web/20240524031620/https://obrienlabs.net/setup-raspberry-pi-kiosk-chromium/), and point it at your website's `/pi` page.
-
-![Raspberry Pi page in light and dark mode](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
-
-</details>
-
-<details>
-<summary><b>Kiosk page</b> (<code>kiosk.html</code>, for a 1280×800 screen)</summary>
-
-Like the home page, with current conditions and the forecast but no menu, logo or charts. The `index_hook_after_*.inc` sections are commented out in `kiosk.html.tmpl`; remove the comment markers to bring them back.
-
-To open it full screen when a Raspberry Pi starts (desktop Raspberry Pi OS), put this in `/home/pi/.config/lxsession/LXDE-pi/autostart`:
+On Raspberry Pi OS with the LXDE desktop, put this in `/home/pi/.config/lxsession/LXDE-pi/autostart` (change the address to yours):
 
 ```
 @sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
 @sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
-@chromium-browser --start-fullscreen --kiosk --disable-site-isolation-trials --enable-low-end-device-mode --renderer-process-limit=2 --app=http[s]://<localhost|hostname|IP>/[path_to_skin/]kiosk.html
+@chromium-browser --start-fullscreen --kiosk --disable-site-isolation-trials --enable-low-end-device-mode --renderer-process-limit=2 --app=http://your-server/weewx/belchertown/?view=kiosk
 @unclutter -idle 0.1
 ```
 
-The kiosk uses the home page's settings, plus these in `[[[Extras]]]`:
+</details>
+
+<details>
+<summary><b>Use a different MQTT broker for the display</b></summary>
+
+If the display sits on the same network as your MQTT broker, it can connect to it directly instead of through the internet. Add these to `[[[Extras]]]`. Anything left empty uses the normal [live update](#live-updates-mqtt) setting.
 
 | Name | Default | Description
 | ---- | ------- | -----------
-| mqtt_websockets_host_kiosk | "" | A different broker host for the kiosk, such as `localhost`. Empty uses `mqtt_websockets_host` and ignores the other kiosk MQTT settings.
-| mqtt_websockets_port_kiosk | "" | A different port. Empty uses `mqtt_websockets_port`.
-| mqtt_websockets_ssl_kiosk | "" | 1 to use SSL. Empty uses `mqtt_websockets_ssl`.
-| forecast_interval_hours_kiosk | 24 | Which forecast shows first.
-| aqi_enabled_kiosk | 0 | 1 shows air quality. Otherwise the inside temperature and humidity show there, which needs them in `weewx_data.json`, so anyone who can reach your site can read them.
-| radar_html_kiosk | "" | A different map, such as the [NWS radar](https://radar.weather.gov): set it up there, choose "hide menu" and paste the page's address here. Empty uses the home page radar.
-| radar_width_kiosk | 490 | Radar width in pixels.
-| radar_height_kiosk | 362 | Radar height in pixels.
-
-If you show the inside readings, shorter labels fit better:
-
-```
-    [[[Labels]]]
-        [[[[Generic]]]]
-            inTemp = In Temp
-            inHumidity = In Humid
-```
-
-![Kiosk page](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/kiosk.png)
+| mqtt_websockets_host_kiosk | "" | The broker for the display, for example `localhost` or `192.168.1.10`.
+| mqtt_websockets_port_kiosk | "" | Its websockets port.
+| mqtt_websockets_ssl_kiosk | "" | 1 if it uses SSL, 0 if not.
 
 </details>
 

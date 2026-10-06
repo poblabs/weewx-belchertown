@@ -79,8 +79,6 @@ extension_config = """
            # highcharts_decimal = "auto"
            # highcharts_thousands = "auto"
            # googleAnalyticsId = ""
-           # pi_kiosk_bold = "false"
-           # pi_theme = "auto"
            # webpage_autorefresh = 0
            # reload_hook_images = 0
            # reload_images_radar = 300
@@ -127,15 +125,10 @@ extension_config = """
            # facebook_enabled = 0
            # social_share_html = ""
            
-           #--- Kiosk Options ---
-           # radar_html_kiosk = ""
-           # radar_width_kiosk = 490
-           # radar_height_kiosk = 362
+           #--- Kiosk view (?view=kiosk) MQTT broker, if different ---
            # mqtt_websockets_host_kiosk = ""
            # mqtt_websockets_port_kiosk = ""
            # mqtt_websockets_ssl_kiosk = ""
-           # forecast_interval_hours_kiosk = 24
-           # aqi_enabled_kiosk = 0
 
            #-------------------------------------------------------------
            #---
@@ -176,8 +169,6 @@ files=[('bin/user', ['bin/user/belchertown.py'
                               'skins/Belchertown/header.html.tmpl',
                               'skins/Belchertown/index.html.tmpl',
                               'skins/Belchertown/about.inc.example',
-                              'skins/Belchertown/kiosk.html.tmpl',
-                              'skins/Belchertown/kiosk.css',
                               'skins/Belchertown/celestial.inc',
                               'skins/Belchertown/graphs.conf.example',
                               'skins/Belchertown/page-header.inc',
@@ -196,7 +187,6 @@ files=[('bin/user', ['bin/user/belchertown.py'
                                    'skins/Belchertown/NOAA/NOAA-YYYY.txt.tmpl'
                                   ]
         ),
-       ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl']),
        ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
        ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
        ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',

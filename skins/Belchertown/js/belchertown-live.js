@@ -59,37 +59,18 @@ function connect() {
     jQuery(".offlineMarker").hide();
     jQuery(".loadingMarker").show();
 
-    if (extras.mqtt_websockets_host_kiosk !== undefined && extras.mqtt_websockets_host_kiosk !== "") {
-    if (pageName == "kiosk.html") {
-        if (extras.mqtt_websockets_ssl_kiosk === '1') {
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host_kiosk + " " + config.mqtt_websockets_port_kiosk + " (SSL Enabled)");
-        var useSSL = true;
-        } else {
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host_kiosk + " " + config.mqtt_websockets_port_kiosk + " (SSL Disabled)");
-        var useSSL = false;
-        }
-        client = new Paho.Client(extras.mqtt_websockets_host_kiosk, Number(config.mqtt_websockets_port_kiosk), mqttclient);
-    }
-    else {
-        if (extras.mqtt_websockets_ssl === '1') {
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Enabled)");
-        var useSSL = true;
-        } else {
-        belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Disabled)");
-        var useSSL = false;
-        }
-        client = new Paho.Client(extras.mqtt_websockets_host, Number(extras.mqtt_websockets_port), mqttclient);
-    }
+    // A wall display (?view=kiosk) can use its own broker settings, e.g. a broker on the same network
+    if (is_kiosk_view() && extras.mqtt_websockets_host_kiosk) {
+        var host = extras.mqtt_websockets_host_kiosk;
+        var port = config.mqtt_websockets_port_kiosk;
+        var useSSL = config.mqtt_websockets_ssl_kiosk === '1';
     } else {
-    if (extras.mqtt_websockets_ssl === '1') {
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Enabled)");
-    var useSSL = true;
-    } else {
-    belchertown_debug("MQTT: Connecting to MQTT Websockets: " + extras.mqtt_websockets_host + " " + extras.mqtt_websockets_port + " (SSL Disabled)");
-    var useSSL = false;
+        var host = extras.mqtt_websockets_host;
+        var port = extras.mqtt_websockets_port;
+        var useSSL = extras.mqtt_websockets_ssl === '1';
     }
-    client = new Paho.Client(extras.mqtt_websockets_host, Number(extras.mqtt_websockets_port), mqttclient);
-    }
+    belchertown_debug("MQTT: Connecting to MQTT Websockets: " + host + " " + port + (useSSL ? " (SSL Enabled)" : " (SSL Disabled)"));
+    client = new Paho.Client(host, Number(port), mqttclient);
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
@@ -120,11 +101,7 @@ function onConnect() {
     } else {
         updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
-    if (pageName == "pi") {
-        reported = labels.mqtt_websockets_waiting_pi + " " + labels.header_last_updated + " " + updated;
-    } else {
-        reported = labels.mqtt_websockets_waiting + " " + labels.header_last_updated + " " + updated;
-    }
+    reported = labels.mqtt_websockets_waiting + " " + labels.header_last_updated + " " + updated;
     jQuery(".updated").html(reported);
     jQuery(".onlineMarker").hide();
     jQuery(".offlineMarker").hide();
@@ -134,8 +111,8 @@ function onConnect() {
     if (getURLvar("stayconnected") && (getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1")) {
         belchertown_debug("MQTT: stayconnected URL var found: ignoring disconnect_live_website_visitor value");
     } else {
-        if  (pageName == "pi" || pageName == "kiosk.html") {
-            belchertown_debug("MQTT: ignoring disconnect_live_website_visitor value for page: " + pageName);
+        if (is_kiosk_view()) {
+            belchertown_debug("MQTT: kiosk view stays connected; ignoring disconnect_live_website_visitor");
         }
         else {
             var activityTimeout = setTimeout(inactive, Number(extras.disconnect_live_website_visitor)); // Stop automatic ajax refresh
@@ -225,8 +202,8 @@ function update_current_wx(data) {
     if (data.hasOwnProperty("interval_minute")) {
         // Delays are recommended to allow the other skins to complete processing
         belchertown_debug("MQTT: MQTT message indicates this is an archive interval.");
-        if (pageName == "pi" || pageName == "kiosk.html") {
-            belchertown_debug("Skipping chart update for page " + pageName + ", no charts to be updated.");
+        if (is_kiosk_view()) {
+            belchertown_debug("Skipping chart update in the kiosk view, no charts to be updated.");
         }
         else {
             setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts.
@@ -244,11 +221,7 @@ function update_current_wx(data) {
         // Only show the updated time on non-archive packets
         epoch = parseFloat(data["dateTime"]).toFixed(0);
         updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
-        if (pageName == "pi") {
-            updated_text = labels.mqtt_websockets_connected_pi + " " + updated;
-        } else {
-            updated_text = labels.mqtt_websockets_connected + " " + updated;
-        }
+        updated_text = labels.mqtt_websockets_connected + " " + updated;
         jQuery(".updated").html(updated_text);
     }
     // If we're in this function, show the online beacon and hide the others

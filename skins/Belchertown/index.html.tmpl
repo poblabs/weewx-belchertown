@@ -71,10 +71,12 @@
                 var thisPageGraphs = graphgroups_raw[homepage_graphgroup]; // Filter all charts down to the ones we want for this page
                 // Loop through the graph groups for this page and add the graph divs to the page
                 try {
-                    thisPageGraphs.forEach( graphID => {
-                        jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
-                    });
-                    showChart(homepage_graphgroup);
+                    if (!is_kiosk_view()) {
+                        thisPageGraphs.forEach( graphID => {
+                            jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                        });
+                        showChart(homepage_graphgroup);
+                    }
                 } catch(err) {
                     console.log("ERROR: Cannot add graphs from [" + homepage_graphgroup + "] graph group: " + err.message);
                 }
@@ -97,7 +99,9 @@
                             ajaximages(); // Update radar and home page hook "img src" if present
                             connect(); // Restart mqtt after weewx data's re-loaded
                             #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
-                            showChart(homepage_graphgroup);
+                            if (!is_kiosk_view()) {
+                                showChart(homepage_graphgroup);
+                            }
                             #end if
                         }).catch(function(e){
                             console.log(e);

@@ -459,19 +459,6 @@ class getData(SearchList):
         else:
             radar_html_dark = self.generator.skin_dict["Extras"]["radar_html_dark"]
 
-        # If the kiosk radar is different then the homepage one.
-        if self.generator.skin_dict["Extras"].get("radar_html_kiosk") == "":
-            radar_html_kiosk = radar_html
-        else:
-            radar_width_kiosk = self.generator.skin_dict["Extras"]["radar_width_kiosk"]
-            radar_height_kiosk = self.generator.skin_dict["Extras"]["radar_height_kiosk"]
-            radar_html_kiosk = '<iframe width="{}px" height="{}px" src="{}" frameborder="0"></iframe>'.format(
-                radar_width_kiosk,
-                radar_height_kiosk,
-                self.generator.skin_dict["Extras"]["radar_html_kiosk"]
-            )
-
-
         # ==============================================================================
         # Build the all time stats.
         # ==============================================================================
@@ -1913,22 +1900,12 @@ class getData(SearchList):
             social_html = '<div class="wx-stn-share">' + facebook_html + "</div>"
 
         #==============================================================================
-        # MQTT settings for Kiosk page
+        # MQTT settings for the kiosk view; empty means "same as the home page"
         # ==============================================================================
 
-        if self.generator.skin_dict["Extras"]["mqtt_websockets_host_kiosk"] != "":
-            if self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"] != "":
-                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port_kiosk"]
-            else:
-                mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port"]
-            if self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"] != "":
-                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl_kiosk"]
-            else:
-                mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl"]
-        else:
-            mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_host"]
-            mqtt_websockets_port_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_port"]
-            mqtt_websockets_ssl_kiosk = self.generator.skin_dict["Extras"]["mqtt_websockets_ssl"]
+        extras = self.generator.skin_dict["Extras"]
+        mqtt_websockets_port_kiosk = extras.get("mqtt_websockets_port_kiosk") or extras.get("mqtt_websockets_port", "")
+        mqtt_websockets_ssl_kiosk = extras.get("mqtt_websockets_ssl_kiosk") or extras.get("mqtt_websockets_ssl", "")
 
 
 
@@ -1951,7 +1928,6 @@ class getData(SearchList):
             "highcharts_thousands": highcharts_thousands,
             "radar_html": radar_html,
             "radar_html_dark": radar_html_dark,
-            "radar_html_kiosk": radar_html_kiosk,
             "archive_interval_ms": archive_interval_ms,
             "ordinate_names": ordinate_names,
             "charts": json.dumps(charts),

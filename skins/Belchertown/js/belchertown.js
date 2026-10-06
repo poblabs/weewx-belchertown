@@ -8,7 +8,7 @@ var labels = new Proxy(belchertown_config.labels, {
     }
 });
 
-var pages = ["graphs", "records", "reports", "about", "pi"];
+var pages = ["graphs", "records", "reports", "about"];
 var pageName = "";
 // If this page we're on now is listed as a subpage, use ".." to get to the relative root
 function get_relative_url() {
@@ -22,6 +22,11 @@ function get_relative_url() {
     belchertown_debug("URL: Relative URL is: " + relative_url);
 
     return relative_url;
+}
+
+// ?view=kiosk on the home page (the class is set in header.html.tmpl before the page draws)
+function is_kiosk_view() {
+    return document.documentElement.classList.contains("view-kiosk");
 }
 
 // Determine if debug is on via URL var or config setting
@@ -57,13 +62,13 @@ jQuery(document).ready(function() {
 
     // Change theme if a URL variable is set
     if (window.location.search.indexOf('theme')) {
-        if (window.location.search.indexOf('?theme=dark') === 0) {
+        if (getURLvar("theme") == "dark") {
             belchertown_debug("Theme: Setting dark theme because of URL override");
             changeTheme("dark", true);
-        } else if (window.location.search.indexOf('?theme=light') === 0) {
+        } else if (getURLvar("theme") == "light") {
             belchertown_debug("Theme: Setting light theme because of URL override");
             changeTheme("light", true);
-        } else if (window.location.search.indexOf('?theme=auto') === 0) {
+        } else if (getURLvar("theme") == "auto") {
             belchertown_debug("Theme: Setting auto theme because of URL override");
             sessionStorage.setItem('theme', 'auto')
             if (config.almanac_times) {
