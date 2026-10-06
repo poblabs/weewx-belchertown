@@ -8,12 +8,16 @@ Belchertown goes from 1.3.1 straight to 3.0. The 2.x numbers belong to New Belch
 * The static Xweather map option (aeris_map) is gone. It put your Xweather ID and secret in the page for anyone to read, and each map image costs Xweather calls. The radar is the Windy map or your own radar_html. A leftover aeris_map setting is ignored.
 * The kiosk page (kiosk.html) and the Raspberry Pi page (/pi) are replaced by a kiosk view of the home page: add ?view=kiosk to your home page address. The mqtt_websockets_*_kiosk options still work for it. Removed: radar_html_kiosk, radar_width_kiosk, radar_height_kiosk, forecast_interval_hours_kiosk, aqi_enabled_kiosk, pi_theme, pi_kiosk_bold. Indoor temperature and humidity are no longer published in weewx_data.json (they were, on every site, for the kiosk page).
 * moment.js is replaced by Day.js (about 7 KB to download instead of about 80 KB), and jQuery is updated to 3.7.1. Date formats use the same codes, so labels such as time_last_updated = "LL, LTS" keep working, and English, French, Italian, Swedish, Finnish, Czech, Norwegian and Catalan dates come out exactly as before. A few languages differ in small ways: German, Spanish, Dutch and Danish abbreviate some months differently, Brazilian Portuguese month names are lowercase, and Polish month names on charts are fixed. If your own .inc files call moment(), switch them to dayjs().
+* Forecasts work with no setup: forecast_enabled now defaults to 1 and forecast_provider to "auto", which uses Open-Meteo (free, no key, worldwide) unless forecast_api_id is set, in which case it uses Xweather as before. Set forecast_enabled = 0 to keep the forecast off.
+* json/forecast.json has a new format, the same for every provider (described in bin/user/belchertown_forecast.py). Anything else that reads that file needs updating.
 * js/belchertown.js.tmpl is gone. js/belchertown.js is now a static file and your settings reach it through js/belchertown-config.js (generated from js/belchertown-config.js.tmpl). If you customized belchertown.js.tmpl, move those changes into belchertown.js.
 
 ### Changed
 * Removed the Python 2 / weewx 3 and 4 compatibility code (syslog logging, urllib2, StringIO and encode fallbacks).
 * Templates use "option" in $Extras instead of the Python 2 style $Extras.has_key("option").
 * AerisWeather is now Xweather: API calls go to data.api.xweather.com, and the docs and README say Xweather. Option names (forecast_provider = "aeris", forecast_aeris_use_metar) are unchanged, so existing configs keep working.
+* New forecast provider: Open-Meteo, with current conditions, 1-hour, 3-hour and 7-day forecasts and US air quality. Its weather codes use the existing forecast labels, so translations carry over. Weather alerts still need Xweather.
+* Forecast code moved to bin/user/belchertown_forecast.py, one adapter per provider; the browser no longer decodes Xweather codes or loads aeris-icon-list.json. A failed forecast download now logs an error and keeps the last forecast instead of stopping the report.
 * Only the [Extras] options the JavaScript needs are sent to the browser.
 * The radar and image reload timers no longer fail when MQTT is turned off.
 * Charts no longer round observations weewx has no unit for (add-on sensors such as O3) down to 0 (#935).

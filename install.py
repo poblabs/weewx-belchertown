@@ -98,8 +98,8 @@ extension_config = """
            # disconnect_live_website_visitor = 1800000
 
            #--- Forecast Options ---
-           # forecast_enabled = 0
-           # forecast_provider = "aeris"
+           # forecast_enabled = 1
+           # forecast_provider = "auto"   # auto, openmeteo or aeris (Xweather)
            # forecast_api_id = ""
            # forecast_api_secret = ""
            # forecast_units = "us"
@@ -161,7 +161,7 @@ config_dict = configobj.ConfigObj(StringIO(extension_config))
 #        files stanza
 #----------------------------------
 
-files=[('bin/user', ['bin/user/belchertown.py'
+files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.py'
                     ]
         ),
        ('skins/Belchertown', ['skins/Belchertown/favicon.ico',
