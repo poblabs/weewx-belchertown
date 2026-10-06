@@ -926,16 +926,6 @@ p.entry-meta {
     }
    
     
-    .eq-stats-row .col-sm-9 {
-        width: 100%;
-    }
-    
-    .eq-stats-row .earthquake-container { 
-        width: 50%;
-        margin-left:24%;
-        border-left: none !important;
-    }
-    
     .site-container .site-footer {
         text-align: center;
     }
@@ -1841,16 +1831,6 @@ table.celestial td.label {
 	color:#808080;
 }
 
-.earthquake-container {
-	font-size:18px;
-	text-align:center;
-    min-height: 180px;
-}
-
-.earthquake-container .earthquake-distance-outer {
-    min-height: 64px;
-}    
-
 .snapshot-records-text, .eq-title {
     font-size:24px;
     text-align:center;
@@ -2268,17 +2248,6 @@ table.celestial td.label {
         height:auto;
     }
 	
-	.earthquake-container {
-        margin-top: 20px;
-		border-top:1px solid #D7D7D7;
-		padding-bottom:10px;
-	}
-	
-	.stn-quick-stats  {
-		padding-left: 0px !important;
-		padding-right: 0px !important;
-        padding-top: 15px;
-	}
     
     .records-table {
         word-break: break-all;
@@ -2353,18 +2322,19 @@ table.celestial td.label {
 }
 .wx-conditions {
     display: grid;
-    gap: 12px;
-    margin: 12px 0;
+    overflow: hidden;
+    border-top: 1px solid var(--wx-line);
+    border-bottom: 1px solid var(--wx-line);
     grid-template-columns: 4fr 3fr 5fr;
     grid-template-areas:
         "now  readings radar"
         "wind sunmoon  radar";
 }
+/* Thin lines between tiles: each draws one right and below; the outer ones are clipped */
 .wx-tile {
-    border: 1px solid var(--wx-line);
-    border-radius: var(--wx-radius);
     padding: 12px 15px;
     min-width: 0;
+    box-shadow: 1px 0 0 var(--wx-line), 0 1px 0 var(--wx-line);
 }
 .wx-now { grid-area: now; }
 .wx-wind { grid-area: wind; }
@@ -2400,7 +2370,6 @@ table.celestial td.label {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    flex-wrap: wrap;
     gap: 10px;
 }
 .wx-wind .compass {
@@ -2410,6 +2379,8 @@ table.celestial td.label {
     line-height: 1;
 }
 .wx-wind .wind-table {
+    width: auto;
+    min-width: 170px;
     text-align: center;
     line-height: 1.1;
 }
@@ -2432,6 +2403,27 @@ table.celestial td.label {
     min-height: 300px;
     aspect-ratio: 650 / 360;
     border: 0;
+}
+
+/* Wide screens: the radar fills the height of the two rows beside it */
+@media only screen and (min-width: 1200px) {
+    .wx-conditions .wx-radar {
+        display: flex;
+        flex-direction: column;
+    }
+    /* :where() keeps this weaker than any rule that hides a div, such as radar tabs */
+    :where(.wx-radar div) {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .wx-radar iframe {
+        flex: 1 1 0;
+        aspect-ratio: auto;
+        height: auto;
+        min-height: 300px;
+    }
 }
 
 @media only screen and (max-width: 1199px) {
@@ -2669,4 +2661,45 @@ html.view-kiosk {
     .view-radar .wx-radar iframe {
         height: 60vh;
     }
+}
+
+/* Snapshot: today, this month and the latest earthquake as cards */
+.wx-snapshot-cards {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+.wx-snapshot-card {
+    flex: 1 1 320px;
+    padding: 4px 15px 15px;
+    box-shadow: 1px 0 0 var(--wx-line), 0 1px 0 var(--wx-line);
+}
+.wx-snapshot-card .stats-title {
+    font-size: 20px;
+    margin: 6px 0 10px;
+}
+.wx-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 12px;
+    margin: 0;
+}
+.wx-stats dt {
+    font-size: 14px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+.wx-stats dd {
+    font-size: 18px;
+    margin: 0;
+}
+.wx-quake {
+    flex-basis: 260px;
+    text-align: center;
+}
+.wx-quake .earthquake-info {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 6px;
 }
