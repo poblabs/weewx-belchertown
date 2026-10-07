@@ -118,7 +118,7 @@ Highcharts.setOptions({
 
 function showChart(json_file, prepend_renderTo = false) {
     // Relative URL by finding what page we're on currently.
-    jQuery.getJSON(get_relative_url() + '/json/' + json_file + '.json', function(data) {
+    wx_json(get_relative_url() + '/json/' + json_file + '.json').then(function(data) {
         if (units_alt_on()) convert_chart_units(data);
         var group = {
             colors: data.colors.split(","),
@@ -126,11 +126,14 @@ function showChart(json_file, prepend_renderTo = false) {
             credits_url: data.credits_url.split(",")[0],
             credits_position: data.credits_position
         };
-        jQuery.each(data, function(plotname, plot) {
+        Object.keys(data).forEach(function(plotname) {
+            var plot = data[plotname];
             if (plot && plot.options) {
                 render_chart(plot, group, json_file, prepend_renderTo);
             }
         });
+    }).catch(function(e) {
+        console.log(e);
     });
 }
 
@@ -152,7 +155,8 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     belchertown_debug(options.chart.renderTo + ": building a " + opt.type + " chart");
 
     if (opt.css_class) {
-        jQuery("#" + options.chart.renderTo).addClass(opt.css_class);
+        var chart_div = document.getElementById(options.chart.renderTo);
+        if (chart_div) chart_div.classList.add.apply(chart_div.classList, opt.css_class.split(/\s+/).filter(Boolean));
         belchertown_debug(options.chart.renderTo + ": div id is " + options.chart.renderTo + " and adding CSS class: " + opt.css_class);
     }
 
@@ -199,7 +203,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
 
     // Build the series
     var i = 0;
-    jQuery.each(plot.series, function(seriesName, seriesVal) {
+    Object.keys(plot.series).forEach(function(seriesName) {
         observation_type = plot.series[seriesName]["obsType"];
         options.series[i] = plot.series[seriesName];
         i++;
@@ -341,15 +345,15 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     }
 
     // Apply any width, height CSS overrides to the parent div of the chart
-    if (opt.css_height != "") {
-        jQuery("#" + options.chart.renderTo).parent().css({
-            'height': opt.css_height,
-            'padding': '0px 15px',
-            'margin-bottom': '20px'
-        });
+    var chart_parent = document.getElementById(options.chart.renderTo);
+    chart_parent = chart_parent && chart_parent.parentElement;
+    if (opt.css_height != "" && chart_parent) {
+        chart_parent.style.height = opt.css_height;
+        chart_parent.style.padding = '0px 15px';
+        chart_parent.style.marginBottom = '20px';
     }
-    if (opt.css_width != "") {
-        jQuery("#" + options.chart.renderTo).parent().css('width', opt.css_width);
+    if (opt.css_width != "" && chart_parent) {
+        chart_parent.style.width = opt.css_width;
     }
 
     if (group.credits != "highcharts_default") {
@@ -414,7 +418,7 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
 
                                 this.subtitle.update({style: {color: darktheme_textcolor}});
 
-                                this.chartBackground.attr({fill: jQuery(".highcharts-background").css("fill")});
+                                this.chartBackground.attr({fill: getComputedStyle(document.querySelector(".highcharts-background")).fill});
                             } else {
                                 var lighttheme_textcolor = '#666666';
                                 for (var i = this.yAxis.length - 1; i >= 0; i--) {

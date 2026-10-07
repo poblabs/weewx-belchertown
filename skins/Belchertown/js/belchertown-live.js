@@ -15,26 +15,17 @@ function ajaximages(section = false, reload_timer_interval_seconds = false) {
             var radar_img = document.querySelectorAll(".radar-map img")[0].src;
             var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
             document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
-            //var radar_html = jQuery('.radar-map').children('img').attr('src').split('?')[0] // Get the img src and remove everything after "?" so we don't stack ?'s onto the image during updates
-            //jQuery('.radar-map').children('img').attr('src', radar_html + "?" + Math.floor(Math.random() * 999999999));
         }
         // Reload iframe - https://stackoverflow.com/a/4249946/1177153
-        if (document.querySelectorAll(".radar-map iframe").length > 0) {
-            jQuery(".radar-map iframe").each(function() {
-                jQuery(this).attr('src', function(i, val) {return val;});
-            });
-        }
+        wx_all(".radar-map iframe").forEach(function(frame) { frame.src = frame.getAttribute("src"); });
         } else if (!section || section != "radar") {
         belchertown_debug("Updating " + section + " images");
         // Reload images
-        jQuery('.' + section + ' img').each(function() {
-            new_image_url = jQuery(this).attr('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
-            jQuery(this).attr('src', new_image_url);
+        wx_all('.' + section + ' img').forEach(function(img) {
+            img.src = img.getAttribute('src').split('?')[0] + "?" + Math.floor(Math.random() * 999999999);
         });
         // Reload iframes
-        jQuery('.' + section + ' iframe').each(function() {
-            jQuery(this).attr('src', function(i, val) {return val;});
-        });
+        wx_all('.' + section + ' iframe').forEach(function(frame) { frame.src = frame.getAttribute("src"); });
     }
     // Set the new timer
     if (reload_timer_interval_seconds) {
@@ -54,10 +45,10 @@ function connect() {
             updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
         }
     reported = labels.mqtt_websockets_connecting + " " + labels.header_last_updated + " " + updated;
-    jQuery(".updated").html(reported);
-    jQuery(".onlineMarker").hide();
-    jQuery(".offlineMarker").hide();
-    jQuery(".loadingMarker").show();
+    wx_html(".updated", reported);
+    wx_hide(".onlineMarker");
+    wx_hide(".offlineMarker");
+    wx_show(".loadingMarker");
 
     // A wall display (?view=kiosk) can use its own broker settings, e.g. a broker on the same network
     if (is_kiosk_view() && extras.mqtt_websockets_host_kiosk) {
@@ -102,10 +93,10 @@ function onConnect() {
         updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
     reported = labels.mqtt_websockets_waiting + " " + labels.header_last_updated + " " + updated;
-    jQuery(".updated").html(reported);
-    jQuery(".onlineMarker").hide();
-    jQuery(".offlineMarker").hide();
-    jQuery(".loadingMarker").show();
+    wx_html(".updated", reported);
+    wx_hide(".onlineMarker");
+    wx_hide(".offlineMarker");
+    wx_show(".loadingMarker");
     client.subscribe(extras.mqtt_websockets_topic);
     if (extras.disconnect_live_website_visitor !== undefined && extras.disconnect_live_website_visitor !== '0') {
     if (getURLvar("stayconnected") && (getURLvar("stayconnected") == "true" || getURLvar("stayconnected") == "1")) {
@@ -124,9 +115,9 @@ function onConnect() {
 // MQTT Failure
 function onFailure() {
     mqttConnected = false;
-    jQuery(".onlineMarker").hide();
-    jQuery(".offlineMarker").show();
-    jQuery(".loadingMarker").hide();
+    wx_hide(".onlineMarker");
+    wx_show(".offlineMarker");
+    wx_hide(".loadingMarker");
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0); // Convert millis to seconds
     if (client.isConnected()) {
@@ -134,16 +125,16 @@ function onFailure() {
     } else {
         updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
-    jQuery(".updated").html(labels.mqtt_websockets_failed + " " + labels.header_last_updated + " " + updated);
+    wx_html(".updated", labels.mqtt_websockets_failed + " " + labels.header_last_updated + " " + updated);
     console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": Cannot connect to MQTT broker");
 }
 
 // MQTT connection lost
 function onConnectionLost(responseObject) {
     mqttConnected = false;
-    jQuery(".onlineMarker").hide();
-    jQuery(".offlineMarker").show();
-    jQuery(".loadingMarker").hide();
+    wx_hide(".onlineMarker");
+    wx_show(".offlineMarker");
+    wx_hide(".loadingMarker");
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
     if (client.isConnected()) {
@@ -151,7 +142,7 @@ function onConnectionLost(responseObject) {
     } else {
         updated = tzAdjustedMoment(config.current_datetime_raw).format(labels.time_last_updated);
     }
-    jQuery(".updated").html(labels.mqtt_websockets_lost + " " + labels.header_last_updated + " " + updated);
+    wx_html(".updated", labels.mqtt_websockets_lost + " " + labels.header_last_updated + " " + updated);
     if (responseObject.errorCode !== 0) {
         console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": mqtt Connection Lost: " + responseObject.errorMessage);
     }
@@ -160,13 +151,13 @@ function onConnectionLost(responseObject) {
 function inactive() {
     client.disconnect(); // Disconnect mqtt
     belchertown_debug("MQTT: Inactive timer expired. MQTT Disconnected");
-    jQuery(".onlineMarker").hide(); // Hide online beacon
-    jQuery(".offlineMarker").show(); // Show offline beacon
-    jQuery(".loadingMarker").hide(); // Hide loading beacon
+    wx_hide(".onlineMarker"); // Hide online beacon
+    wx_show(".offlineMarker"); // Show offline beacon
+    wx_hide(".loadingMarker"); // Hide loading beacon
     var d = new Date();
     epoch = parseFloat((d / 1000)).toFixed(0);  // Convert millis to seconds
     updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
-    jQuery(".updated").html(labels.mqtt_websockets_stopped + " " + labels.header_last_updated + " " + updated + " <button type='button' class='btn btn-primary restart-interval'>" + labels.mqtt_websockets_continue + "</button>");
+    wx_html(".updated", labels.mqtt_websockets_stopped + " " + labels.header_last_updated + " " + updated + " <button type='button' class='btn btn-primary restart-interval'>" + labels.mqtt_websockets_continue + "</button>");
     reconnect_using_inactive_timestamp = true; // Set a flag to use the inactive timestamp in case we reconnect we have the latest last updated time
     inactive_timestamp = epoch; // Store this timestamp in case we reconnect
 }
@@ -176,7 +167,7 @@ var mqtt_payload = "";
 function onMessageArrived(message) {
     belchertown_debug("MQTT: " + message.payloadString);
     update_current_wx(message.payloadString);
-    mqtt_payload = jQuery.parseJSON(message.payloadString);
+    mqtt_payload = JSON.parse(message.payloadString);
 }
 
 function refreshHooks() {
@@ -186,7 +177,7 @@ function refreshHooks() {
 
 // Handle MQTT message
 function update_current_wx(data) {
-    data = jQuery.parseJSON(data);
+    data = JSON.parse(data);
 
     try {
         refreshHooks();
@@ -222,19 +213,19 @@ function update_current_wx(data) {
         epoch = parseFloat(data["dateTime"]).toFixed(0);
         updated = tzAdjustedMoment(epoch).format(labels.time_last_updated);
         updated_text = labels.mqtt_websockets_connected + " " + updated;
-        jQuery(".updated").html(updated_text);
+        wx_html(".updated", updated_text);
     }
     // If we're in this function, show the online beacon and hide the others
-    jQuery(".onlineMarker").show(); // Show the online beacon
-    jQuery(".offlineMarker").hide();
-    jQuery(".loadingMarker").hide();
+    wx_show(".onlineMarker"); // Show the online beacon
+    wx_hide(".offlineMarker");
+    wx_hide(".loadingMarker");
 
     // Update the station observation box elements
     station_mqtt_data = Object.keys(data); // Turn data (mqtt message) into an object we can forEach
     // Get all span elements within the table. This is setup by Python initially
-    jQuery('.station-observations').find("span").each(function() {
+    wx_all('.station-observations span').forEach(function(span) {
         // The class name is the same as the Extras.station_observations name (weewx schema)
-        thisElementClass = jQuery(this).attr("class")
+        thisElementClass = span.getAttribute("class")
         // Loop through each MQTT payload item
         station_mqtt_data.forEach(mqttdata => {
             if (thisElementClass == "rainWithRainRate") {
@@ -252,7 +243,7 @@ function update_current_wx(data) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
                 // Finally update the element class
-                jQuery("." + thisElementClass).html(html_output);
+                wx_html("." + thisElementClass, html_output);
             }
         });
     });
@@ -267,15 +258,15 @@ function update_current_wx(data) {
         // Help from: https://stackoverflow.com/a/40152286/1177153 and https://stackoverflow.com/a/31581206/1177153
         outTemp = parseFloat(parseFloat(data["outTemp_F"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         get_outTemp_color("degree_F", outTemp);
-        jQuery(".outtemp").html(outTemp);
+        wx_html(".outtemp", outTemp);
 
         // Feels like temp as defined by NOAA's "Apparent Temperature" at: http://www.nws.noaa.gov/ndfd/definitions.htm
         //if ( data["outTemp_F"] <= 50 ) {
-        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["windchill_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //    wx_html(".feelslike",  "Feels like: " + parseFloat(parseFloat(data["windchill_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
         //} else if ( data["outTemp_F"] >= 80 ) {
-        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["heatindex_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //    wx_html(".feelslike",  "Feels like: " + parseFloat(parseFloat(data["heatindex_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
         //} else {
-        //    jQuery(".feelslike").html( "Feels like: " + parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
+        //    wx_html(".feelslike",  "Feels like: " + parseFloat(parseFloat(data["outTemp_F"])).toLocaleString("$system_locale_js", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " $unit.label.outTemp" );
         //}
     }
 
@@ -283,84 +274,83 @@ function update_current_wx(data) {
     if (data.hasOwnProperty("outTemp_C")) {
         outTemp = parseFloat(parseFloat(data["outTemp_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]});
         get_outTemp_color("degree_C", outTemp);
-        jQuery(".outtemp").html(outTemp);
+        wx_html(".outtemp", outTemp);
     }
 
     // Apparent Temperature US
     if (data.hasOwnProperty("appTemp_F")) {
-        jQuery(".feelslike").html(labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
+        wx_html(".feelslike", labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_F"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
     }
 
     // Apparent Temperature Metric
     if (data.hasOwnProperty("appTemp_C")) {
-        jQuery(".feelslike").html(labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
+        wx_html(".feelslike", labels.feels_like + ": " + parseFloat(parseFloat(data["appTemp_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["outTemp"], maximumFractionDigits: unit_rounding_array["outTemp"]}) + " " + config.unit_label.outTemp);
     }
 
     // Wind
     if (data.hasOwnProperty("windDir")) {
         // No toLocaleString() here since there is no float decimal needed.
         rotateThis(data["windDir"]);
-        //jQuery(".wind-arrow").css( "transform", "rotate(" + data["windDir"] + "deg)" );
-        jQuery(".curwinddeg").html(parseFloat(data["windDir"]).toFixed(0) + "&deg;");
-        jQuery(".curwinddir").html(highcharts_tooltip_factory(parseFloat(data["windDir"]).toFixed(0), "windDir"));
+        wx_html(".curwinddeg", parseFloat(data["windDir"]).toFixed(0) + "&deg;");
+        wx_html(".curwinddir", highcharts_tooltip_factory(parseFloat(data["windDir"]).toFixed(0), "windDir"));
     }
 
     // Windspeed US
     if (data.hasOwnProperty("windSpeed_mph")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindspeed", parseFloat(parseFloat(data["windSpeed_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed Metric
     if (data.hasOwnProperty("windSpeed_kph")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindspeed", parseFloat(parseFloat(data["windSpeed_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed METRICWX
     if (data.hasOwnProperty("windSpeed_mps")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindspeed", parseFloat(parseFloat(data["windSpeed_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed Beaufort
     if (data.hasOwnProperty("windSpeed_beaufort")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindspeed", parseFloat(parseFloat(data["windSpeed_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed knots
     if (data.hasOwnProperty("windSpeed_knot")) {
-        jQuery(".curwindspeed").html(parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindspeed", parseFloat(parseFloat(data["windSpeed_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
     // Beaufort
     if (extras.beaufort_category === '1') {
     if (data.hasOwnProperty("beaufort")) {
-        jQuery(".beaufort").html(beaufort_cat(parseFloat(data["beaufort"])));
+        wx_html(".beaufort", beaufort_cat(parseFloat(data["beaufort"])));
     }
     }
 
     // Wind Gust US
     // May not be provided in mqtt, but just in case.
     if (data.hasOwnProperty("windGust_mph")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        wx_html(".curwindgust", parseFloat(parseFloat(data["windGust_mph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust Metric
     if (data.hasOwnProperty("windGust_kph")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        wx_html(".curwindgust", parseFloat(parseFloat(data["windGust_kph"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust METRICWX
     if (data.hasOwnProperty("windGust_mps")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
+        wx_html(".curwindgust", parseFloat(parseFloat(data["windGust_mps"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windGust"], maximumFractionDigits: unit_rounding_array["windGust"]}));
     }
     // Wind Gust Beaufort
     if (data.hasOwnProperty("windGust_beaufort")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindgust", parseFloat(parseFloat(data["windGust_beaufort"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
     // Windspeed knots
     if (data.hasOwnProperty("windGust_knot")) {
-        jQuery(".curwindgust").html(parseFloat(parseFloat(data["windGust_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
+        wx_html(".curwindgust", parseFloat(parseFloat(data["windGust_knot"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windSpeed"], maximumFractionDigits: unit_rounding_array["windSpeed"]}));
     }
 
     // Windchill US
     if (data.hasOwnProperty("windchill")) {
-        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
+        wx_html(".curwindchill", parseFloat(parseFloat(data["windchill"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
     }
     // Windchill Metric
     if (data.hasOwnProperty("windchill_C")) {
-        jQuery(".curwindchill").html(parseFloat(parseFloat(data["windchill_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
+        wx_html(".curwindchill", parseFloat(parseFloat(data["windchill_C"])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["windchill"], maximumFractionDigits: unit_rounding_array["windchill"]}) + config.unit_label.outTemp);
     }
 };

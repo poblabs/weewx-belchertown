@@ -8,6 +8,108 @@ var labels = new Proxy(belchertown_config.labels, {
     }
 });
 
+// Small helpers for what the skin used jQuery for. Each one acts on every element the selector matches.
+function wx_all(selector) {
+    try {
+        return document.querySelectorAll(selector);
+    } catch (e) {
+        // Class names that start with a digit (.24hr_forecasts, .2019bombcyclone) need escaping in CSS; jQuery allowed them
+        return document.querySelectorAll(selector.replace(/\.(\d)/g, function(m, d) { return ".\\3" + d + " "; }));
+    }
+}
+
+// Like jQuery's .html(value): an undefined value leaves the elements alone
+function wx_html(selector, html) {
+    if (html === undefined) return;
+    wx_all(selector).forEach(function(el) { el.innerHTML = html; });
+}
+
+function wx_css(selector, property, value) {
+    wx_all(selector).forEach(function(el) { el.style.setProperty(property, value); });
+}
+
+function wx_hide(selector) {
+    wx_all(selector).forEach(function(el) { el.style.display = "none"; });
+}
+
+// Like jQuery's .show(): back to the element's own display, block or inline by tag if the stylesheet hides it
+var WX_INLINE = ["A", "B", "EM", "I", "IMG", "LABEL", "SMALL", "SPAN", "STRONG", "SUP", "TIME"];
+function wx_show(selector) {
+    wx_all(selector).forEach(function(el) {
+        el.style.display = "";
+        if (getComputedStyle(el).display === "none") el.style.display = WX_INLINE.indexOf(el.tagName) < 0 ? "block" : "inline";
+    });
+}
+
+function wx_ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+}
+
+// JSON that is never served from the browser cache (weewx rewrites these files every archive period)
+async function wx_json(url) {
+    var resp = await fetch(url + (url.indexOf("?") < 0 ? "?" : "&") + "_=" + Date.now());
+    if (!resp.ok) throw new Error("HTTP " + resp.status + " loading " + url);
+    return resp.json();
+}
+
+// Popups and tabs written with Bootstrap 3 markup (data-toggle="modal" / "tab", data-dismiss="modal")
+// work without Bootstrap's JavaScript; the skin and older custom .inc files both use that markup.
+function wx_modal(target, show) {
+    var modal = typeof target === "string" ? document.querySelector(target) : target;
+    if (!modal) return;
+    var backdrop = document.querySelector(".modal-backdrop");
+    if (show) {
+        modal.style.display = "block";
+        modal.offsetWidth;
+        modal.classList.add("in");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+        if (!backdrop) {
+            backdrop = document.createElement("div");
+            backdrop.className = "modal-backdrop fade in";
+            document.body.appendChild(backdrop);
+        }
+        modal.focus();
+    } else if (modal.classList.contains("in")) {
+        modal.classList.remove("in");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        if (!document.querySelector(".modal.in")) {
+            document.body.classList.remove("modal-open");
+            if (backdrop) backdrop.remove();
+        }
+    }
+}
+
+function wx_tab(link) {
+    var pane = document.querySelector(link.dataset.target || link.getAttribute("href"));
+    var item = link.closest("li");
+    if (item) Array.from(item.parentElement.children).forEach(function(li) { li.classList.toggle("active", li === item); });
+    if (pane) Array.from(pane.parentElement.children).forEach(function(p) { p.classList.toggle("active", p === pane); });
+}
+
+document.addEventListener("click", function(e) {
+    // When jquery = auto loaded Bootstrap's own plugins for an older custom file, they handle these clicks
+    if (window.jQuery && jQuery.fn && jQuery.fn.modal) return;
+    var el = e.target.closest('[data-toggle="modal"], [data-dismiss="modal"], [data-toggle="tab"]');
+    if (el && el.dataset.toggle === "modal") {
+        e.preventDefault();
+        wx_modal(el.dataset.target || el.getAttribute("href"), true);
+    } else if (el && el.dataset.dismiss === "modal") {
+        wx_modal(el.closest(".modal"), false);
+    } else if (el && el.dataset.toggle === "tab") {
+        e.preventDefault();
+        wx_tab(el);
+    } else if (e.target.classList.contains("modal")) {
+        wx_modal(e.target, false);
+    }
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") wx_all(".modal.in").forEach(function(m) { wx_modal(m, false); });
+});
+
 var pages = ["graphs", "records", "reports", "about"];
 var pageName = "";
 // If this page we're on now is listed as a subpage, use ".." to get to the relative root
@@ -178,12 +280,7 @@ function belchertown_debug(message) {
     }
 }
 
-jQuery(document).ready(function() {
-
-    // Bootstrap hover tooltips
-    jQuery(function() {
-        jQuery('[data-toggle="tooltip"]').tooltip()
-    })
+wx_ready(function() {
 
     // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
     if (sessionStorage.getItem('theme') == "toggleOverride") {
@@ -213,7 +310,7 @@ jQuery(document).ready(function() {
     try {
         document.getElementById('themeSwitch').addEventListener('click', function() {
             belchertown_debug("Theme: Toggle button clicked");
-            changeTheme(jQuery('body').hasClass('dark') ? "light" : "dark", true);
+            changeTheme(document.body.classList.contains('dark') ? "light" : "dark", true);
         });
     } catch (err) {
         // Silently exit
@@ -221,10 +318,10 @@ jQuery(document).ready(function() {
     }
 
     // After charts are loaded, if an anchor tag is in the URL, let's scroll to it
-    jQuery(window).on('load', function() {
+    window.addEventListener('load', function() {
         var anchor_tag = location.hash.replace('#', '');
         if (anchor_tag != '') {
-            // Scroll the webpage to the chart. The timeout is to let jQuery finish appending the outer div so the height of the page is completed.
+            // The timeout lets the charts finish adding their divs so the page has its full height.
             // scrollIntoView keeps the target below a sticky header (scroll-margin-top in style.css)
             setTimeout(function() {
                 var target = document.getElementById(decodeURIComponent(anchor_tag));
@@ -235,28 +332,25 @@ jQuery(document).ready(function() {
 
     if (extras.back_to_top_button_enabled === '1') {
     // Back to Top Button is visible after 400px
-    jQuery(window).scroll(function() {
-        if (jQuery(this).scrollTop() > 400) {
-            jQuery('#btn-back-to-top').css('transform', 'scale(1)');
-        } else {
-            jQuery('#btn-back-to-top').css('transform', 'scale(0)');
-        }
-    });
+    window.addEventListener('scroll', function() {
+        wx_css('#btn-back-to-top', 'transform', window.scrollY > 400 ? 'scale(1)' : 'scale(0)');
+    }, {passive: true});
 
-    jQuery('#btn-back-to-top').click(function() {
-        jQuery("html, body").animate({
-            scrollTop: 0
-        }, 1000);
-        return false;
+    wx_all('#btn-back-to-top').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
     });
 
     if (extras.back_to_top_button_position === '1') {
     // Button is visible on left side
-    jQuery('#btn-back-to-top').css('left','20px').css('right','auto');
+    wx_css('#btn-back-to-top', 'left', '20px');
+    wx_css('#btn-back-to-top', 'right', 'auto');
     }
 
     if (extras.back_to_top_button_opacity >= '0.1' && extras.back_to_top_button_opacity <= '0.9') {
-    jQuery('#btn-back-to-top').css('opacity',extras.back_to_top_button_opacity);
+    wx_css('#btn-back-to-top', 'opacity', extras.back_to_top_button_opacity);
     }
     }
 
@@ -272,10 +366,6 @@ ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_d
 });
 }
 
-// Disable AJAX caching
-jQuery.ajaxSetup({
-    cache: false
-});
 
 // Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
 function getURLvar(k) {
@@ -358,7 +448,7 @@ function get_outTemp_color(unit, outTemp, returnColor = false) {
     if (returnColor) {
         return outTemp_color;
     } else {
-        jQuery(".outtemp_outer").css("color", outTemp_color);
+        wx_css(".outtemp_outer", "color", outTemp_color);
     }
 }
 
@@ -383,7 +473,7 @@ function get_aqi_color(aqi, returnColor = false) {
     if (returnColor) {
         return aqi_color;
     } else {
-        jQuery(".aqi_outer").css("color", aqi_color);
+        wx_css(".aqi_outer", "color", aqi_color);
     }
 }
 
@@ -546,8 +636,8 @@ function rotateThis(newRotation) {
     if (currentRotation < 180 && (newRotation > (currentRotation + 180))) {finalRotation -= 360;}
     if (currentRotation >= 180 && (newRotation <= (currentRotation - 180))) {finalRotation += 360;}
     finalRotation += (newRotation - currentRotation);
-    jQuery(".wind-arrow").css("transform", "rotate(" + finalRotation + "deg)");
-    jQuery(".arrow").css("transform", "rotate(" + finalRotation + "deg)");
+    wx_css(".wind-arrow", "transform", "rotate(" + finalRotation + "deg)");
+    wx_css(".arrow", "transform", "rotate(" + finalRotation + "deg)");
 }
 
 // Title case strings. https://stackoverflow.com/a/45253072/1177153
@@ -557,13 +647,8 @@ function titleCase(str) {
     }).join(' ');
 }
 
-async function ajaxweewx() {
-    resp = await fetch(get_relative_url() + "/json/weewx_data.json");
-    if (!resp.ok) {
-        throw new Error("HTTP error! Unable to load weewx_data.json");
-    } else {
-        return await resp.json();
-    }
+function ajaxweewx() {
+    return wx_json(get_relative_url() + "/json/weewx_data.json");
 }
 
 // Update weewx data elements
@@ -588,8 +673,8 @@ function update_weewx_data(data) {
     // Daily High Low
     high = data["day"]["outTemp"]["max"];
     low = data["day"]["outTemp"]["min"];
-    jQuery(".high").html(high);
-    jQuery(".low").html(low);
+    wx_html(".high", high);
+    wx_html(".low", low);
 
     try {
         // Barometer trending by finding a negative number
@@ -599,56 +684,56 @@ function update_weewx_data(data) {
     }
 
     if (count >= 1) {
-        jQuery(".pressure-trend").html('<i class="fa fa-arrow-down barometer-down"></i>');
+        wx_html(".pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
     } else {
-        jQuery(".pressure-trend").html('<i class="fa fa-arrow-up barometer-up"></i>');
+        wx_html(".pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
     }
 
     // Daily max gust span
-    jQuery(".dailymaxgust").html(parseFloat(data["day"]["wind"]["max"]).toFixed(1));
+    wx_html(".dailymaxgust", parseFloat(data["day"]["wind"]["max"]).toFixed(1));
 
     // Daily Snapshot Stats Section
     try {
-        jQuery(".snapshot-records-today-header").html(tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_today_header));
-        jQuery(".snapshot-records-month-header").html(tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_month_header));
+        wx_html(".snapshot-records-today-header", tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_today_header));
+        wx_html(".snapshot-records-month-header", tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_month_header));
     } catch (err) {
         // Returned "current" data does not have this value
     }
 
 
-    jQuery(".dailystatshigh").html(data["day"]["outTemp"]["max"]);
-    jQuery(".dailystatslow").html(data["day"]["outTemp"]["min"]);
-    jQuery(".dailystatswindavg").html(data["day"]["wind"]["average"]);
-    jQuery(".dailystatswindmax").html(data["day"]["wind"]["max"]);
-    jQuery(".dailystatsrain").html(data["day"]["rain"]["sum"]);
-    jQuery(".dailystatsrainrate").html(data["day"]["rain"]["max"]);
-    jQuery(".dailywindrun").html(data["day"]["wind"]["windrun"]);
+    wx_html(".dailystatshigh", data["day"]["outTemp"]["max"]);
+    wx_html(".dailystatslow", data["day"]["outTemp"]["min"]);
+    wx_html(".dailystatswindavg", data["day"]["wind"]["average"]);
+    wx_html(".dailystatswindmax", data["day"]["wind"]["max"]);
+    wx_html(".dailystatsrain", data["day"]["rain"]["sum"]);
+    wx_html(".dailystatsrainrate", data["day"]["rain"]["max"]);
+    wx_html(".dailywindrun", data["day"]["wind"]["windrun"]);
 
     // Month Snapshot Stats Section
-    jQuery(".monthstatshigh").html(data["month"]["outTemp"]["max"]);
-    jQuery(".monthstatslow").html(data["month"]["outTemp"]["min"]);
-    jQuery(".monthstatswindavg").html(data["month"]["wind"]["average"]);
-    jQuery(".monthstatswindmax").html(data["month"]["wind"]["max"]);
-    jQuery(".monthstatsrain").html(data["month"]["rain"]["sum"]);
-    jQuery(".monthstatsrainrate").html(data["month"]["rain"]["max"]);
+    wx_html(".monthstatshigh", data["month"]["outTemp"]["max"]);
+    wx_html(".monthstatslow", data["month"]["outTemp"]["min"]);
+    wx_html(".monthstatswindavg", data["month"]["wind"]["average"]);
+    wx_html(".monthstatswindmax", data["month"]["wind"]["max"]);
+    wx_html(".monthstatsrain", data["month"]["rain"]["sum"]);
+    wx_html(".monthstatsrainrate", data["month"]["rain"]["max"]);
 
     // Sunrise and Sunset            
-    jQuery(".sunrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
-    jQuery(".sunset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
-    jQuery(".moonrise-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
-    jQuery(".moonset-value").html(tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    wx_html(".sunrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    wx_html(".sunset-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
+    wx_html(".moonrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    wx_html(".moonset-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
 
     // Moon icon, phase and illumination percent
-    jQuery(".moon-icon").html(moon_icon(data["almanac"]["moon"]["moon_index"]));        
-    jQuery(".moon-phase").html(titleCase(data["almanac"]["moon"]["moon_phase"])); // Javascript function above
-    jQuery(".moon-visible").html("<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> " + labels.moon_visible);
+    wx_html(".moon-icon", moon_icon(data["almanac"]["moon"]["moon_index"]));        
+    wx_html(".moon-phase", titleCase(data["almanac"]["moon"]["moon_phase"])); // Javascript function above
+    wx_html(".moon-visible", "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> " + labels.moon_visible);
     if (config.almanac_has_extras) {
     // Close current modal if open
-    jQuery('#almanac').modal('hide');
-    jQuery(".almanac-extras-modal-body").html(data["almanac"]["almanac_extras_modal_html"]);
+    wx_modal('#almanac', false);
+    wx_html(".almanac-extras-modal-body", data["almanac"]["almanac_extras_modal_html"]);
     try {
         almanac_updated = labels.header_last_updated + " " + tzAdjustedMoment(data["current"]["datetime_raw"]).format(labels.time_last_updated);
-        jQuery(".almanac_last_updated").html(almanac_updated);
+        wx_html(".almanac_last_updated", almanac_updated);
     } catch (err) {
         // Returned "current" data does not have this value
     }

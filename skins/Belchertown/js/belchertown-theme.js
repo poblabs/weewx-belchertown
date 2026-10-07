@@ -61,31 +61,31 @@ function changeTheme(themeName, toggleOverride = false) {
     if (themeName == "dark") {
         // Apply dark theme
         if (config.radar_html_dark !== "None") {
-        jQuery('.radar_image').html(config.radar_html_dark);
+        wx_html('.radar_image', config.radar_html_dark);
         }
-        jQuery('body').addClass("dark");
-        jQuery('body').removeClass("light");
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
         if (extras.theme_toggle_enabled === '1') {
-        jQuery("#themeSwitch i").attr("class", "fa fa-sun-o");
+        wx_all("#themeSwitch i").forEach(function(i) { i.className = "fa fa-sun-o"; });
         }
         if (extras.logo_image_dark !== undefined && extras.logo_image_dark !== "") {
         belchertown_debug("Theme: logo_image_dark is defined.");
-        jQuery("#logo_image").attr("src", extras.logo_image_dark);
+        wx_all("#logo_image").forEach(function(img) { img.src = extras.logo_image_dark; });
         }
         sessionStorage.setItem('currentTheme', 'dark');
     } else if (themeName == "light") {
         // Apply light theme
         if (config.radar_html_dark !== "None") {
-        jQuery('.radar_image').html(config.radar_html);
+        wx_html('.radar_image', config.radar_html);
         }
-        jQuery('body').addClass("light");
-        jQuery('body').removeClass("dark");
+        document.body.classList.add("light");
+        document.body.classList.remove("dark");
         if (extras.theme_toggle_enabled === '1') {
-        jQuery("#themeSwitch i").attr("class", "fa fa-moon-o");
+        wx_all("#themeSwitch i").forEach(function(i) { i.className = "fa fa-moon-o"; });
         }
         if (extras.logo_image !== undefined && extras.logo_image !== "") {
         belchertown_debug("Theme: logo_image is defined.");
-        jQuery("#logo_image").attr("src", extras.logo_image);
+        wx_all("#logo_image").forEach(function(img) { img.src = extras.logo_image; });
         }
         sessionStorage.setItem('currentTheme', 'light');
     }

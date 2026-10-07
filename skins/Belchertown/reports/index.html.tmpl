@@ -5,7 +5,7 @@
     #include "header.html.tmpl"
     
     <script>        
-        jQuery(document).ready(function() {
+        wx_ready(function() {
             var month = getURLvar("mo");
             var year = getURLvar("yr");
             if ( ( year !== undefined ) && ( month !== undefined ) ) {
@@ -17,11 +17,10 @@
             }
             
             // Load the file into the pre
-            //jQuery('#noaa_contents').load( url );
             populatePre( url );
             
             // Change the direct href link
-            jQuery(".noaa_direct_link").attr( "href", url );
+            wx_all(".noaa_direct_link").forEach(function(a) { a.href = url; });
         });
         
         // Change the div to the right NOAA file

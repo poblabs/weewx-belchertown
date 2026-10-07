@@ -1,7 +1,9 @@
 // Forecast (only called when forecast_enabled = 1). json/forecast.json is written by
 // bin/user/belchertown_forecast.py in the same format for every provider.
 function ajaxforecast() {
-    jQuery.getJSON(get_relative_url() + "/json/forecast.json", update_forecast_data);
+    wx_json(get_relative_url() + "/json/forecast.json").then(update_forecast_data).catch(function(e) {
+        console.log(e);
+    });
 }
 
 function aqi_category_label(category) {
@@ -19,7 +21,7 @@ function show_forcast_alert(data) {
     var i, forecast_alert_modal = "", forecast_alerts = [];
 
     // Empty anything that's been appended to the modal from the previous run
-    jQuery(".wx-stn-alert-text").empty();
+    wx_html(".wx-stn-alert-text", "");
 
     (data["alerts"] || []).forEach(function(alert) {
         forecast_alerts.push({
@@ -38,7 +40,7 @@ function show_forcast_alert(data) {
         for (i = 0; i < forecast_alerts.length; i++) {
 
             alert_link = "<i class='fa fa-exclamation-triangle'></i> <a href='#forecast-alert-" + i + "' data-toggle='modal' data-target='#forecast-alert-" + i + "'>" + forecast_alerts[i]["title"] + " " + labels.alert_in_effect + " " + forecast_alerts[i]["expires"] + "</a><br>";
-            jQuery(".wx-stn-alert-text").append(alert_link);
+            wx_all(".wx-stn-alert-text").forEach(function(el) { el.insertAdjacentHTML("beforeend", alert_link); });
 
             forecast_alert_modal += "<!-- Forecast Alert Modal " + i + " -->";
             forecast_alert_modal += "<div class='modal fade' id='forecast-alert-" + i + "' tabindex='-1' role='dialog' aria-labelledby='forecast-alert'>";
@@ -58,12 +60,12 @@ function show_forcast_alert(data) {
             forecast_alert_modal += "</div>";
             forecast_alert_modal += "</div>";
 
-            jQuery(".wx-stn-alert-text").append(forecast_alert_modal);
+            wx_all(".wx-stn-alert-text").forEach(function(el) { el.insertAdjacentHTML("beforeend", forecast_alert_modal); });
         }
-        jQuery(".wx-stn-alert").show();
+        wx_show(".wx-stn-alert");
     } else {
         belchertown_debug("Forecast: There are no forecast alerts");
-        jQuery(".wx-stn-alert").hide();
+        wx_hide(".wx-stn-alert");
     }
 }
 
@@ -73,7 +75,7 @@ function update_forecast_data(data) {
     belchertown_debug(data);
 
     if (extras.forecast_provider == "N/A") {
-        jQuery(".forecastrow").hide();
+        wx_hide(".forecastrow");
         belchertown_debug("Forecast: No provider, hiding forecastrow");
         return;
     }
@@ -84,29 +86,32 @@ function update_forecast_data(data) {
 
     // Current observation text
     if (current["text"]) {
-        jQuery(".current-obs-text").html(current["text"]);
+        wx_html(".current-obs-text", current["text"]);
     }
 
     // AQI
     var aqi = data["aqi"];
     if (aqi && aqi["value"] !== "No Data") {
-        jQuery(".wx-aqi").html(aqi["value"]);
-        jQuery(".wx-aqi-category").html(aqi_category_label(aqi["category"]));
-        if (extras.aqi_location_enabled === "1") jQuery(".aqi_location_outer").html("<br>" + aqi["place"]).css('textTransform', 'capitalize');
+        wx_html(".wx-aqi", aqi["value"]);
+        wx_html(".wx-aqi-category", aqi_category_label(aqi["category"]));
+        if (extras.aqi_location_enabled === "1") {
+            wx_html(".aqi_location_outer", "<br>" + aqi["place"]);
+            wx_css(".aqi_location_outer", "text-transform", "capitalize");
+        }
         get_aqi_color(aqi["value"]);
-        jQuery(".station-observations .aqi").html(aqi["value"]);
+        wx_html(".station-observations .aqi", aqi["value"]);
     } else if (aqi) {
-        jQuery(".wx-aqi").html("No Data");
-        jQuery(".wx-aqi-category").html(aqi_category_label(""));
-        if (extras.aqi_location_enabled === "1") jQuery(".aqi_location_outer").html("");
-        jQuery(".station-observations .aqi").html("No Data");
+        wx_html(".wx-aqi", "No Data");
+        wx_html(".wx-aqi-category", aqi_category_label(""));
+        if (extras.aqi_location_enabled === "1") wx_html(".aqi_location_outer", "");
+        wx_html(".station-observations .aqi", "No Data");
     }
 
     // Visibility text in station observation table
     if (current["visibility"] != null) {
         try {
             visibility_output = parseFloat(current["visibility"]).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array["visibility"], maximumFractionDigits: unit_rounding_array["visibility"]}) + " " + unit_label_array["visibility"];
-            jQuery(".station-observations .visibility").html(visibility_output);
+            wx_html(".station-observations .visibility", visibility_output);
         } catch (err) {
             // Visibility not in the station observation table or any of the unit arrays
         }
@@ -300,17 +305,17 @@ function update_forecast_data(data) {
 
             // Show the forecasts rows
             if (forecast_interval == "forecast_1hr") {
-                jQuery(".1hr_forecasts").html(output_html);
+                wx_html(".1hr_forecasts", output_html);
                 belchertown_debug("html_1hr: " + output_html);
             } else if (forecast_interval == "forecast_3hr") {
-                jQuery(".3hr_forecasts").html(output_html);
+                wx_html(".3hr_forecasts", output_html);
                 belchertown_debug("html_3hr: " + output_html);
             } else if (forecast_interval == "forecast_24hr") {
-                jQuery(".24hr_forecasts").html(output_html);
+                wx_html(".24hr_forecasts", output_html);
                 belchertown_debug("html_24hr: " + output_html);
             }
             // Show the forecast_subtitle
-            jQuery(".forecast-subtitle").html(labels.forecast_last_updated + " " + forecast_subtitle);
+            wx_html(".forecast-subtitle", labels.forecast_last_updated + " " + forecast_subtitle);
         }
 
 
@@ -321,14 +326,14 @@ function update_forecast_data(data) {
 
     // WX icon in temperature box
     if (wxicon) {
-        jQuery("#wxicon").attr("src", wxicon);
+        wx_all("#wxicon").forEach(function(img) { img.src = wxicon; });
     }
 }
 
 //  function to display selected forecast according to value of interval (1, 3 or 24); 0 hides all forecasts
 function forecast_select(interval) {
         if (interval == 0) {
-            jQuery(".forecastrow").hide();
+            wx_hide(".forecastrow");
         } else {
             oldinterval = sessionStorage.getItem("forecastInterval");
             if (interval != oldinterval) {

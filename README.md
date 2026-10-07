@@ -243,6 +243,33 @@ There are also four fixed places for your own content (HTML is fine). Create any
 
 To change the look and keep your changes across upgrades, create a `custom.css` file in your website folder. It's loaded after the skin's own styles.
 
+### Your own scripts and jQuery
+
+Since version 3.0 the skin no longer uses jQuery, so pages load faster. Older custom files (`index_radar.inc`, `index_hook_after_*.inc`, `home_*.inc` and the like) often do use it, so the skin checks your `.inc` files each time it builds the site:
+
+* **None of them use jQuery:** it isn't loaded at all. Nothing to do.
+* **One of them does:** jQuery is loaded for it, so your page keeps working, and the weewx log says which file, for example: `index_radar.inc uses jQuery, so jQuery is loaded for it.` Your site is fine as it is; updating that file just makes the page a little lighter.
+
+Tabs and popups written the Bootstrap way (`data-toggle="tab"`, `data-toggle="modal"`) work without jQuery, so you can leave those as they are. The examples that come with the skin (`index_radar.inc.example`, `records-table.inc.example`) show the jQuery-free way to do the usual things.
+
+<details>
+<summary><b>Updating a file that uses jQuery</b></summary>
+
+These are the most common jQuery lines and what to write instead:
+
+| jQuery | Without jQuery |
+| ------ | -------------- |
+| `jQuery(document).ready(function() { ... });` | `document.addEventListener("DOMContentLoaded", function() { ... });` |
+| `jQuery(".high").html("72°");` | `document.querySelectorAll(".high").forEach(el => el.innerHTML = "72°");` |
+| `jQuery("#cam img").attr("src", url);` | `document.querySelector("#cam img").src = url;` |
+| `jQuery(".box").hide();` / `.show();` | `el.style.display = "none";` / `el.style.display = "";` |
+| `jQuery(".box").css("color", "red");` | `el.style.color = "red";` |
+| `jQuery.getJSON(url, function(data) { ... });` | `fetch(url).then(r => r.json()).then(function(data) { ... });` |
+
+If you'd rather not change anything, that's fine too. To always load jQuery, or never, set `jquery = 1` or `jquery = 0` in `[[[Extras]]]`.
+
+</details>
+
 <details>
 <summary><b>Help search engines find your site (sitemap.xml)</b></summary>
 
@@ -362,6 +389,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses your server's setting. The locale must be installed on your server first.
 | theme | light | `light`, `dark` or `auto` (light at sunrise, dark at sunset).
 | theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
+| jquery | auto | Loads jQuery only when one of your own `.inc` files uses it. 1 always loads it, 0 never does. See [Your own scripts and jQuery](#your-own-scripts-and-jquery).
 | sticky_header | 1 | Keeps the header (logo, menu and buttons) at the top of the screen while scrolling; it slims down once you scroll. 0 lets it scroll away with the page.
 | unit_toggle_enabled | 1 | Shows a units button (°F or °C) so visitors can see the site in the other unit system. See [Units button](#units-button-f-or-c).
 | logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.

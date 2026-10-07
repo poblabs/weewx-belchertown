@@ -17,6 +17,7 @@ import sys
 import time
 from collections import OrderedDict
 from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
+import re
 from re import match
 
 import configobj
@@ -1612,6 +1613,10 @@ class getData(SearchList):
             "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
             "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
             "unit_switch_json": unit_switch_config(self.generator.formatter, self.generator.converter),
+            "jquery_users": jquery_users(
+                os.path.join(self.generator.config_dict["WEEWX_ROOT"], self.generator.skin_dict["SKIN_ROOT"],
+                             self.generator.skin_dict.get("skin", "")),
+                str(self.generator.skin_dict["Extras"].get("jquery", "auto"))),
             # Called by Cheetah only on the page that uses it
             "on_this_day": lambda: on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
             "on_this_day_summary": lambda: on_this_day_summary(
@@ -1620,6 +1625,34 @@ class getData(SearchList):
         }
         # Finally, return our extension as a list:
         return [search_list_extension]
+
+
+# Custom files that still need jQuery: jQuery itself, or Bootstrap's own JavaScript plugins
+# (the skin handles data-toggle="modal" and "tab" by itself, so those don't count)
+JQUERY_USE = re.compile(r"\bjQuery\b|\$\(\s*(?:document|window|this|['\"])|\$\.(?:ajax|get|getJSON|each|parseJSON)\b"
+                        r"|\.(?:modal|tooltip|popover|collapse|dropdown)\(|data-toggle=[\"'](?:collapse|tooltip|popover|dropdown)")
+SKIN_INC_FILES = ("celestial.inc", "page-header.inc")
+_jquery_logged = set()
+
+
+def jquery_users(skin_dir, setting):
+    """The owner's .inc files that use jQuery, which decide whether the page loads it ("auto")."""
+    if setting in ("0", "1"):
+        return ["(jquery = %s)" % setting] if setting == "1" else []
+    users = []
+    for name in sorted(os.listdir(skin_dir)) if os.path.isdir(skin_dir) else []:
+        if name.endswith(".inc") and name not in SKIN_INC_FILES:
+            try:
+                with open(os.path.join(skin_dir, name), encoding="utf-8", errors="replace") as f:
+                    if JQUERY_USE.search(f.read()):
+                        users.append(name)
+            except OSError:
+                continue
+    for name in users:
+        if name not in _jquery_logged:
+            _jquery_logged.add(name)
+            loginf("%s uses jQuery, so jQuery is loaded for it. See 'jQuery' in the Belchertown README to update it." % name)
+    return users
 
 
 UNIT_SWITCH_GROUPS = ("group_temperature", "group_speed", "group_speed2", "group_pressure", "group_rain", "group_rainrate",

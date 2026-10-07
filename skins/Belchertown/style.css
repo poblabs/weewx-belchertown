@@ -2412,6 +2412,10 @@ table.celestial td.label {
         display: flex;
         flex-direction: column;
     }
+    /* Bootstrap shows the active tab as display: block; keep it a column so the radar still fills */
+    .wx-radar .tab-content > .active {
+        display: flex;
+    }
     /* :where() keeps this weaker than any rule that hides a div, such as radar tabs */
     :where(.wx-radar div) {
         display: flex;

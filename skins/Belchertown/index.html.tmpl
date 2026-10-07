@@ -35,7 +35,7 @@
             setTimeout(autoRefreshPage, $Extras.webpage_autorefresh);
             #end if
         
-            jQuery(document).ready(function() {
+            wx_ready(function() {
                 #if "aqi_enabled" in $Extras and $Extras.aqi_enabled == '1'
                 get_aqi_color( "$aqi" );
                 #end if
@@ -43,7 +43,7 @@
                 #if "beaufort_category" in $Extras and $Extras.beaufort_category == '1'
                 // weewx >= 4.2 can convert to Beaufort directly, but to improve backwards compatibility, convert windSpeed to
                 // knots and then use Javascript function to convert to Beaufort
-                jQuery(".beaufort").html( beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
+                wx_html(".beaufort",  beaufort_cat( kts_to_beaufort( "$current.windSpeed.knot.toString(addLabel=False)" ) ) );
                 #end if
 
                 get_outTemp_color( "$unit.unit_type.outTemp", "$current.outTemp.formatted" );
@@ -53,14 +53,14 @@
                 // Update the Last Updated timestamp with moment.js,
                 updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
-                jQuery(".updated").html( updated_text );
+                wx_html(".updated",  updated_text );
             
                 #if 'earthquake_enabled' in $Extras and $Extras.earthquake_enabled == '1'            
                 if ( dayjs.unix( Number("$earthquake_time") ).isValid() ) {
                     // Check that the time is the time (number) and not the "no earthquake available" wording
-                    jQuery(".earthquake-time").html( tzAdjustedMoment( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
+                    wx_html(".earthquake-time",  tzAdjustedMoment( "$earthquake_time" ).format( "$obs.label.time_earthquake" ) );
                 } else {
-                    jQuery(".earthquake-time").html( "$earthquake_time" );
+                    wx_html(".earthquake-time",  "$earthquake_time" );
                 }
                 #end if
             
@@ -71,7 +71,7 @@
                 try {
                     if (home_charts_shown()) {
                         thisPageGraphs.forEach( graphID => {
-                            jQuery(".graph-outer").append('<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                            wx_all(".graph-outer").forEach(function(el) { el.insertAdjacentHTML("beforeend", '<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>'); });
                         });
                         showChart(homepage_graphgroup);
                     }
@@ -86,7 +86,8 @@
                 } else {
                     connect(); // Begin mqtt after weewx initial load
                     // If the Restart button is clicked, reconnect to mqtt and update weewx and forecast data
-                    jQuery(document).on('click', '.restart-interval', function() { 
+                    document.addEventListener('click', function(e) {
+                        if (!e.target.closest('.restart-interval')) return;
                         ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
                             update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
                             belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
@@ -145,15 +146,15 @@
                 if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
                     belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
                     last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
-                    jQuery(".last-updated-alert").html( last_updated_alert_text );
-                    jQuery(".last-updated-alert").show();
+                    wx_html(".last-updated-alert",  last_updated_alert_text );
+                    wx_show(".last-updated-alert");
                 }
                 #end if
                         
                 // Update the Last Updated timestamp with moment.js,
                 updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
-                jQuery(".updated").html( updated_text );
+                wx_html(".updated",  updated_text );
             
                 #end if
             
