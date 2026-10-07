@@ -103,6 +103,13 @@ function leading_number(text) {
     return parseFloat(String(text).replace(",", ".")) || 0;
 }
 
+// <time data-ts="epoch" data-format="label name"> gets its text from that label's date format
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("time[data-ts]").forEach(function(el) {
+        el.textContent = tzAdjustedMoment(Number(el.dataset.ts)).format(labels[el.dataset.format]);
+    });
+});
+
 // The home page charts are drawn only when the charts block is on the page and visible
 function home_charts_shown() {
     return !is_kiosk_view() && document.querySelector(".graph-outer") !== null;

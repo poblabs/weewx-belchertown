@@ -3,109 +3,93 @@
 #set global $page = "records"
 
 #import datetime
-#from datetime import timedelta
 
     #include "header.html.tmpl"
 
-    <script type="text/javascript">
-        
-        jQuery(document).ready(function() {
-            jQuery("#year-outtemp-max-ts").text( tzAdjustedMoment($year.outTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outtemp-max-ts").text( tzAdjustedMoment($alltime.outTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-outtemp-min-ts").text( tzAdjustedMoment($year.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outtemp-min-ts").text( tzAdjustedMoment($alltime.outTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            #if $year.appTemp.has_data
-            jQuery("#year-apptemp-max-ts").text( tzAdjustedMoment($year.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#year-apptemp-min-ts").text( tzAdjustedMoment($year.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            #end if
-            #if $alltime.appTemp.has_data
-            jQuery("#at-apptemp-max-ts").text( tzAdjustedMoment($alltime.appTemp.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-apptemp-min-ts").text( tzAdjustedMoment($alltime.appTemp.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            #end if
-            
-            jQuery("#year-heatindex-max-ts").text( tzAdjustedMoment($year.heatindex.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-heatindex-max-ts").text( tzAdjustedMoment($alltime.heatindex.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-windchill-min-ts").text( tzAdjustedMoment($year.windchill.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-windchill-min-ts").text( tzAdjustedMoment($alltime.windchill.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-outtemp-range-max-ts").text( tzAdjustedMoment($year_outTemp_range_max[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-outtemp-range-max-ts").text( tzAdjustedMoment($at_outTemp_range_max[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            
-            jQuery("#year-outtemp-range-min-ts").text( tzAdjustedMoment($year_outTemp_range_min[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-outtemp-range-min-ts").text( tzAdjustedMoment($at_outTemp_range_min[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            
-            jQuery("#year-windGust-max-ts").text( tzAdjustedMoment($year.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-windGust-max-ts").text( tzAdjustedMoment($alltime.windGust.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            #if $year.windrun.has_data
-            jQuery("#year-windrun-max-ts").text( tzAdjustedMoment($year.windrun.maxsumtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
-            #end if
-            #if $alltime.windrun.has_data
-            jQuery("#at-windrun-max-ts").text( tzAdjustedMoment($alltime.windrun.maxsumtime.raw).format( "$obs.label.time_records_page_month_day_year" ) );
-            #end if
-            
-            jQuery("#year-rainiest-day-ts").text( tzAdjustedMoment($rainiest_day[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            jQuery("#at-rainiest-day-ts").text( tzAdjustedMoment($at_rainiest_day[0]).format( "$obs.label.time_records_page_month_day_year" ) );
-            
-            jQuery("#year-rainRate-max-ts").text( tzAdjustedMoment($year.rainRate.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-rainRate-max-ts").text( tzAdjustedMoment($alltime.rainRate.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-outHumidity-max-ts").text( tzAdjustedMoment($year.outHumidity.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outHumidity-max-ts").text( tzAdjustedMoment($alltime.outHumidity.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-outHumidity-min-ts").text( tzAdjustedMoment($year.outHumidity.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-outHumidity-min-ts").text( tzAdjustedMoment($alltime.outHumidity.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-dewpoint-max-ts").text( tzAdjustedMoment($year.dewpoint.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-dewpoint-max-ts").text( tzAdjustedMoment($alltime.dewpoint.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-dewpoint-min-ts").text( tzAdjustedMoment($year.dewpoint.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-dewpoint-min-ts").text( tzAdjustedMoment($alltime.dewpoint.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-barometer-max-ts").text( tzAdjustedMoment($year.barometer.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-barometer-max-ts").text( tzAdjustedMoment($alltime.barometer.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            jQuery("#year-barometer-min-ts").text( tzAdjustedMoment($year.barometer.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-barometer-min-ts").text( tzAdjustedMoment($alltime.barometer.mintime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            
-            #if $year.radiation.has_data
-            jQuery("#year-radiation-max-ts").text( tzAdjustedMoment($year.radiation.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-radiation-max-ts").text( tzAdjustedMoment($alltime.radiation.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            #end if
-            
-            #if $year.UV.has_data
-            jQuery("#year-uv-max-ts").text( tzAdjustedMoment($year.UV.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            jQuery("#at-uv-max-ts").text( tzAdjustedMoment($alltime.UV.maxtime.raw).format( "$obs.label.time_records_page_full_date" ) );
-            #end if
-            
-            jQuery("#year-days-with-rainfall-ts").text( tzAdjustedMoment($year_days_with_rain[1]).format( "$obs.label.time_records_page_month_day_year" ) );
-            // Take the number of days ($at_days_with_rain[0]) - 1 and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
-            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
-            if ($at_days_with_rain[1] > 0) {
-                var start_day_epoch = $at_days_with_rain[1] - (($at_days_with_rain[0] - 1) * 86400);
-                //jQuery("#at-days-with-rainfall-range-ts").text( tzAdjustedMoment(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + tzAdjustedMoment($at_days_with_rain[1]).format('LL') );
-                jQuery("#at-days-with-rainfall-range-ts").text( tzAdjustedMoment(start_day_epoch).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + tzAdjustedMoment($at_days_with_rain[1]).format('$obs.label.time_records_page_rainfall_range_end') );
-            } else {
-                jQuery("#at-days-with-rainfall-range-ts").text("---");
-            }
+#set $this_year = datetime.date.fromtimestamp($current.dateTime.raw).year
+#set $full = "time_records_page_full_date"
+#set $date = "time_records_page_month_day_year"
+## Each record: label, then this year and all time as (value, timestamp, date format, date text, note)
+#set $groups = []
 
-            jQuery("#year-days-without-rainfall-ts").text( tzAdjustedMoment($year_days_without_rain[1]).format( "$obs.label.time_records_page_month_day_year" ) );
-            // Take the number of days ($at_days_without_rain[0]) - 1 and multiply by 86400 (seconds in a day) to get total seconds. Then subtract from the end epoch to give you the epoch "days ago"
-            // Removed the year with ", YYYY, or "/YYYY" or ".YYYY" or "-YYYY"
-            if ($at_days_without_rain[1] > 0) {
-                var start_day_epoch = $at_days_without_rain[1] - (($at_days_without_rain[0] - 1) * 86400);
-                //jQuery("#at-days-without-rainfall-range-ts").text( tzAdjustedMoment(start_day_epoch).format('LL').replace(/([A-Z])|[, \/\-\.]+\b[0-9]{4}\b/g, '$1') + " - " + tzAdjustedMoment($at_days_without_rain[1]).format('LL') );
-                jQuery("#at-days-without-rainfall-range-ts").text( tzAdjustedMoment(start_day_epoch).format('$obs.label.time_records_page_rainfall_range_begin') + " - " + tzAdjustedMoment($at_days_without_rain[1]).format('$obs.label.time_records_page_rainfall_range_end') );
-            } else {
-                jQuery("#at-days-without-rainfall-range-ts").text("---");
-            }
-            
+#set $items = []
+#silent $items.append({"label": $obs.label.records_high_temp, "y": ($year.outTemp.max, $year.outTemp.maxtime.raw, $full, "", ""), "a": ($alltime.outTemp.max, $alltime.outTemp.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_low_temp, "y": ($year.outTemp.min, $year.outTemp.mintime.raw, $full, "", ""), "a": ($alltime.outTemp.min, $alltime.outTemp.mintime.raw, $full, "", "")})
+#if $year.appTemp.has_data and $alltime.appTemp.has_data
+#silent $items.append({"label": $obs.label.records_high_apptemp, "y": ($year.appTemp.max, $year.appTemp.maxtime.raw, $full, "", ""), "a": ($alltime.appTemp.max, $alltime.appTemp.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_low_apptemp, "y": ($year.appTemp.min, $year.appTemp.mintime.raw, $full, "", ""), "a": ($alltime.appTemp.min, $alltime.appTemp.mintime.raw, $full, "", "")})
+#end if
+#silent $items.append({"label": $obs.label.records_high_heatindex, "y": ($year.heatindex.max, $year.heatindex.maxtime.raw, $full, "", ""), "a": ($alltime.heatindex.max, $alltime.heatindex.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_low_windchill, "y": ($year.windchill.min, $year.windchill.mintime.raw, $full, "", ""), "a": ($alltime.windchill.min, $alltime.windchill.mintime.raw, $full, "", "")})
+#set $t = " " + str($unit.label.outTemp).strip()
+#silent $items.append({"label": $obs.label.records_largest_temp_range, "y": (str($year_outTemp_range_max[1]) + $t, $year_outTemp_range_max[0], $date, "", str($year_outTemp_range_max[2]) + $t + " – " + str($year_outTemp_range_max[3]) + $t), "a": (str($at_outTemp_range_max[1]) + $t, $at_outTemp_range_max[0], $date, "", str($at_outTemp_range_max[2]) + $t + " – " + str($at_outTemp_range_max[3]) + $t)})
+#silent $items.append({"label": $obs.label.records_smallest_temp_range, "y": (str($year_outTemp_range_min[1]) + $t, $year_outTemp_range_min[0], $date, "", str($year_outTemp_range_min[2]) + $t + " – " + str($year_outTemp_range_min[3]) + $t), "a": (str($at_outTemp_range_min[1]) + $t, $at_outTemp_range_min[0], $date, "", str($at_outTemp_range_min[2]) + $t + " – " + str($at_outTemp_range_min[3]) + $t)})
+#silent $groups.append({"title": $obs.label.records_temperature_records, "icon": "wi-thermometer", "items": $items})
 
-        });
-    </script>
+#set $items = []
+#silent $items.append({"label": $obs.label.records_strongest_wind, "y": ($year.windGust.max, $year.windGust.maxtime.raw, $full, "", ""), "a": ($alltime.windGust.max, $alltime.windGust.maxtime.raw, $full, "", "")})
+#if $year.windrun.has_data and $alltime.windrun.has_data
+#silent $items.append({"label": $obs.label.records_daily_windrun, "y": ($year.windrun.maxsum, $year.windrun.maxsumtime.raw, $date, "", ""), "a": ($alltime.windrun.maxsum, $alltime.windrun.maxsumtime.raw, $date, "", "")})
+#end if
+#silent $groups.append({"title": $obs.label.records_wind_records, "icon": "wi-strong-wind", "items": $items})
+
+#set $items = []
+#set $r = " " + str($unit.label.rain).strip()
+#silent $items.append({"label": $obs.label.records_highest_daily_rainfall, "y": (str($rainiest_day[1]) + $r, $rainiest_day[0], $date, "", ""), "a": (str($at_rainiest_day[1]) + $r, $at_rainiest_day[0], $date, "", "")})
+#silent $items.append({"label": $obs.label.records_highest_daily_rainrate, "y": ($year.rainRate.max, $year.rainRate.maxtime.raw, $full, "", ""), "a": ($alltime.rainRate.max, $alltime.rainRate.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_month_high_rainfall, "y": (str($year_rainiest_month[1]) + $r, None, "", $year_rainiest_month[0], ""), "a": (str($at_rainiest_month[1]) + $r, None, "", $at_rainiest_month[0], ""), "new": str($this_year) in str($at_rainiest_month[0])})
+#silent $items.append({"label": $obs.label.records_yearly_rainfall, "y": ($year.rain.sum, None, "", str($this_year), ""), "a": (str($at_rain_highest_year[1]) + $r, None, "", $at_rain_highest_year[0], ""), "new": str($at_rain_highest_year[0]) == str($this_year)})
+#set $wet = $at_days_with_rain
+#set $wet_range = "<time data-ts='%s' data-format='time_records_page_rainfall_range_begin'></time> – <time data-ts='%s' data-format='time_records_page_rainfall_range_end'></time>" % ($wet[1] - ($wet[0] - 1) * 86400, $wet[1]) if $wet[1] > 0 else "---"
+#silent $items.append({"label": $obs.label.records_consec_days_with_rain, "y": (str($year_days_with_rain[0]) + " " + $obs.label.records_days_text, None, "", $obs.label.records_ending + " <time data-ts='%s' data-format='%s'></time>" % ($year_days_with_rain[1], $date), ""), "a": (str($wet[0]) + " " + $obs.label.records_days_text, None, "", $wet_range, ""), "new": $wet[1] > 0 and datetime.date.fromtimestamp($wet[1]).year == $this_year})
+#set $dry = $at_days_without_rain
+#set $dry_range = "<time data-ts='%s' data-format='time_records_page_rainfall_range_begin'></time> – <time data-ts='%s' data-format='time_records_page_rainfall_range_end'></time>" % ($dry[1] - ($dry[0] - 1) * 86400, $dry[1]) if $dry[1] > 0 else "---"
+#silent $items.append({"label": $obs.label.records_consec_days_without_rain, "y": (str($year_days_without_rain[0]) + " " + $obs.label.records_days_text, None, "", $obs.label.records_ending + " <time data-ts='%s' data-format='%s'></time>" % ($year_days_without_rain[1], $date), ""), "a": (str($dry[0]) + " " + $obs.label.records_days_text, None, "", $dry_range, ""), "new": $dry[1] > 0 and datetime.date.fromtimestamp($dry[1]).year == $this_year})
+#silent $groups.append({"title": $obs.label.records_rain_records, "icon": "wi-raindrops", "items": $items})
+
+#set $items = []
+#silent $items.append({"label": $obs.label.records_high_humidity, "y": ($year.outHumidity.max, $year.outHumidity.maxtime.raw, $full, "", ""), "a": ($alltime.outHumidity.max, $alltime.outHumidity.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_lowest_humidity, "y": ($year.outHumidity.min, $year.outHumidity.mintime.raw, $full, "", ""), "a": ($alltime.outHumidity.min, $alltime.outHumidity.mintime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_highest_dewpoint, "y": ($year.dewpoint.max, $year.dewpoint.maxtime.raw, $full, "", ""), "a": ($alltime.dewpoint.max, $alltime.dewpoint.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_lowest_dewpoint, "y": ($year.dewpoint.min, $year.dewpoint.mintime.raw, $full, "", ""), "a": ($alltime.dewpoint.min, $alltime.dewpoint.mintime.raw, $full, "", "")})
+#silent $groups.append({"title": $obs.label.records_humidity_records, "icon": "wi-humidity", "items": $items})
+
+#set $items = []
+#silent $items.append({"label": $obs.label.records_high_barometer, "y": ($year.barometer.max, $year.barometer.maxtime.raw, $full, "", ""), "a": ($alltime.barometer.max, $alltime.barometer.maxtime.raw, $full, "", "")})
+#silent $items.append({"label": $obs.label.records_low_barometer, "y": ($year.barometer.min, $year.barometer.mintime.raw, $full, "", ""), "a": ($alltime.barometer.min, $alltime.barometer.mintime.raw, $full, "", "")})
+#silent $groups.append({"title": $obs.label.records_barometer_records, "icon": "wi-barometer", "items": $items})
+
+#set $items = []
+#if $year.radiation.has_data
+#silent $items.append({"label": $obs.label.records_high_solar_rad, "y": ($year.radiation.max, $year.radiation.maxtime.raw, $full, "", ""), "a": ($alltime.radiation.max, $alltime.radiation.maxtime.raw, $full, "", "")})
+#end if
+#if $year.UV.has_data
+#silent $items.append({"label": $obs.label.records_high_uv, "y": ($year.UV.max, $year.UV.maxtime.raw, $full, "", ""), "a": ($alltime.UV.max, $alltime.UV.maxtime.raw, $full, "", "")})
+#end if
+#if $items
+#silent $groups.append({"title": $obs.label.records_sun_records, "icon": "wi-day-sunny", "items": $items})
+#end if
+
+## An all-time record is new when it was set this year
+#set $new_records = []
+#for $g in $groups
+#for $item in $g["items"]
+#if "new" not in $item
+#silent $item.update({"new": $item["a"][1] is not None and datetime.date.fromtimestamp($item["a"][1]).year == $this_year})
+#end if
+#if $item["new"]
+#silent $new_records.append($item)
+#end if
+#end for
+#end for
+
+#def when($side)
+#if $side[1] is not None
+<time data-ts="$side[1]" data-format="$side[2]"></time>
+#else
+$side[3]
+#end if
+#end def
 
     <div class="site-inner">
         <main class="content">
@@ -113,264 +97,88 @@
 
                 #include "page-header.inc"
 
-                <!-- Begin row -->
-                <div class="row">
-                    <div class="col-sm-12 wx-records-description">
-                        #if os.path.exists("records.inc")
-                        #include "records.inc"
-                        #end if
-                    </div>
+                #if os.path.exists("records.inc")
+                <div class="wx-records-description">
+                    #include "records.inc"
                 </div>
-                <!-- End row -->
+                #end if
 
-                <!-- Records table row -->
-                <div class="row records-table">
+                <section class="rec-section rec-new">
+                    <h2><i class="fa fa-trophy" aria-hidden="true"></i> $obs.label.records_set_this_year $this_year</h2>
+                    #if $new_records
+                    <div class="rec-new-list">
+                        #for $item in $new_records
+                        <div class="rec-new-item">
+                            <div class="rec-label">$item["label"]</div>
+                            <div class="rec-value">$item["a"][0]</div>
+                            <div class="rec-date">$when($item["a"])</div>
+                        </div>
+                        #end for
+                    </div>
+                    #else
+                    <p class="rec-empty">$obs.label.records_none_this_year</p>
+                    #end if
+                </section>
+
+                #set $otd = $on_this_day
+                #if len($otd) > 1
+                <section class="rec-section rec-otd">
+                    <h2><i class="fa fa-calendar" aria-hidden="true"></i> $obs.label.records_on_this_day <time data-ts="$current.dateTime.raw" data-format="time_records_page_rainfall_range_begin"></time></h2>
+                    <div class="rec-otd-rows">
+                        #for $d in reversed($otd)
+                        <div class="rec-otd-row#if $d.today then ' is-today' else ''#">
+                            <span class="rec-otd-year">$d.year#if $d.today then '<small>' + $obs.label.records_so_far + '</small>' else ''#</span>
+                            <span class="rec-otd-low#if $d.coldest then ' is-record' else ''#"#if $d.coldest then ' title="' + $obs.label.records_coldest + '"' else ''#>$d.low</span>
+                            <span class="rec-otd-bar"><span style="left: ${d.bar_left}%; width: ${d.bar_width}%"></span></span>
+                            <span class="rec-otd-high#if $d.warmest then ' is-record' else ''#"#if $d.warmest then ' title="' + $obs.label.records_warmest + '"' else ''#>$d.high</span>
+                            <span class="rec-otd-rain#if $d.wettest then ' is-record' else ''#"#if $d.wettest then ' title="' + $obs.label.records_wettest + '"' else ''#>#if $d.rain is not None then $d.rain else ''#</span>
+                        </div>
+                        #end for
+                    </div>
+                </section>
+                #end if
+
+                #for $g in $groups
+                <section class="rec-section">
+                    <h2><i class="wi $g['icon']" aria-hidden="true"></i> $g["title"]</h2>
+                    <div class="rec-grid">
+                        #for $item in $g["items"]
+                        <div class="rec-card#if $item['new'] then ' is-new' else ''#">
+                            <h3 class="rec-label">$item["label"]#if $item["new"]# <i class="fa fa-trophy" aria-hidden="true" title="$obs.label.records_set_this_year $this_year"></i>#end if#</h3>
+                            <div class="rec-sides">
+                                <div class="rec-side">
+                                    <div class="rec-when-label">$this_year</div>
+                                    <div class="rec-value">$item["y"][0]</div>
+                                    <div class="rec-date">$when($item["y"])</div>
+                                    #if $item["y"][4]
+                                    <div class="rec-note">$item["y"][4]</div>
+                                    #end if
+                                </div>
+                                <div class="rec-side">
+                                    <div class="rec-when-label">$obs.label.records_all_time</div>
+                                    <div class="rec-value">$item["a"][0]</div>
+                                    <div class="rec-date">$when($item["a"])</div>
+                                    #if $item["a"][4]
+                                    <div class="rec-note">$item["a"][4]</div>
+                                    #end if
+                                </div>
+                            </div>
+                        </div>
+                        #end for
+                    </div>
+                </section>
+                #end for
+
+                #if os.path.exists("records-table.inc")
+                <section class="rec-section records-table">
                     <table class="table-striped">
                         <tbody>
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_temperature_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_high_temp</td>
-                                <td class="leftborder">$year.outTemp.max</td>
-                                <td><span id="year-outtemp-max-ts"></span></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.outTemp.max</td>
-                                <td><span id="at-outtemp-max-ts"></span></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_low_temp</td>
-                                <td class="leftborder">$year.outTemp.min</td>
-                                <td id="year-outtemp-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.outTemp.min</td><!-- moment.js -->
-                                <td id="at-outtemp-min-ts"></td><!-- moment.js -->
-                            </tr>
-                            #if $year.appTemp.has_data and $alltime.appTemp.has_data
-                            <tr>
-                                <td>$obs.label.records_high_apptemp</td>
-                                <td class="leftborder">$year.appTemp.max</td>
-                                <td id="year-apptemp-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.appTemp.max</td>
-                                <td id="at-apptemp-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_low_apptemp</td>
-                                <td class="leftborder">$year.appTemp.min</td>
-                                <td id="year-apptemp-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.appTemp.min</td>
-                                <td id="at-apptemp-min-ts"></td><!-- moment.js -->
-                            </tr>
-                            #end if
-                            <tr>
-                                <td>$obs.label.records_high_heatindex</td>
-                                <td class="leftborder">$year.heatindex.max</td>
-                                <td id="year-heatindex-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.heatindex.max</td>
-                                <td id="at-heatindex-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_low_windchill</td>
-                                <td class="leftborder">$year.windchill.min</td>
-                                <td id="year-windchill-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.windchill.min</td>
-                                <td id="at-windchill-min-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_largest_temp_range</td>
-                                <td class="leftborder">$year_outTemp_range_max[1] $unit.label.outTemp</td>
-                                <td><span id="year-outtemp-range-max-ts"></span><br>(Min: $year_outTemp_range_max[2] $unit.label.outTemp - Max: $year_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                <td class="leftborder">$at_outTemp_range_max[1] $unit.label.outTemp</td>
-                                <td><span id="at-outtemp-range-max-ts"></span><br>(Min: $at_outTemp_range_max[2] $unit.label.outTemp - Max: $at_outTemp_range_max[3] $unit.label.outTemp )</td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_smallest_temp_range</td>
-                                <td class="leftborder">$year_outTemp_range_min[1] $unit.label.outTemp</td>
-                                <td><span id="year-outtemp-range-min-ts"></span><br>(Min: $year_outTemp_range_min[2] $unit.label.outTemp - Max: $year_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
-                                <td class="leftborder">$at_outTemp_range_min[1] $unit.label.outTemp</td>
-                                <td><span id="at-outtemp-range-min-ts"></span><br>(Min: $at_outTemp_range_min[2] $unit.label.outTemp - Max: $at_outTemp_range_min[3] $unit.label.outTemp )</td><!-- moment.js -->
-                            </tr>
-
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_wind_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_strongest_wind</td>
-                                <td class="leftborder">$year.windGust.max</td>
-                                <td id="year-windGust-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.windGust.max</td>
-                                <td id="at-windGust-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            #if $year.windrun.has_data and $alltime.windrun.has_data
-                            <tr>
-                                <td>$obs.label.records_daily_windrun</td>
-                                <td class="leftborder">$year.windrun.maxsum</td>
-                                <td id="year-windrun-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.windrun.maxsum</td>
-                                <td id="at-windrun-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            #end if
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_rain_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_highest_daily_rainfall</td>
-                                <td class="leftborder">$rainiest_day[1] $unit.label.rain</td>
-                                <td id="year-rainiest-day-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$at_rainiest_day[1] $unit.label.rain</td>
-                                <td id="at-rainiest-day-ts"></td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_highest_daily_rainrate</td>
-                                <td class="leftborder">$year.rainRate.max</td>
-                                <td id="year-rainRate-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.rainRate.max</td>
-                                <td id="at-rainRate-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_month_high_rainfall</td>
-                                <td class="leftborder">$year_rainiest_month[1] $unit.label.rain</td>
-                                <td>$year_rainiest_month[0]</td>
-                                <td class="leftborder">$at_rainiest_month[1] $unit.label.rain</td>
-                                <td>$at_rainiest_month[0]</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_total_rainfall</td>
-                                <td class="leftborder">$year.rain.sum</td>
-                                <td>$current.dateTime.format("%Y")</td>
-                                <td class="leftborder">$at_rain_highest_year[1] $unit.label.rain</td>
-                                <td>$at_rain_highest_year[0]</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_consec_days_with_rain</td>
-                                <td class="leftborder">$year_days_with_rain[0] $obs.label.records_days_text</td>
-                                <td>$obs.label.records_ending <span id="year-days-with-rainfall-ts"></span></td><!-- moment.js -->
-                                <td class="leftborder">$at_days_with_rain[0] $obs.label.records_days_text</td>
-                                <td id="at-days-with-rainfall-range-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_consec_days_without_rain</td>
-                                <td class="leftborder">$year_days_without_rain[0] $obs.label.records_days_text</td>
-                                <td>$obs.label.records_ending <span id="year-days-without-rainfall-ts"></span></td><!-- moment.js -->
-                                <td class="leftborder">$at_days_without_rain[0] $obs.label.records_days_text</td>
-                                <td id="at-days-without-rainfall-range-ts"></td><!-- moment.js -->
-                            </tr>
-
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_humidity_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_high_humidity</td>
-                                <td class="leftborder">$year.outHumidity.max</td>
-                                <td id="year-outHumidity-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.outHumidity.max</td>
-                                <td id="at-outHumidity-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_lowest_humidity</td>
-                                <td class="leftborder">$year.outHumidity.min</td>
-                                <td id="year-outHumidity-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.outHumidity.min</td>
-                                <td id="at-outHumidity-min-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_highest_dewpoint</td>
-                                <td class="leftborder">$year.dewpoint.max</td>
-                                <td id="year-dewpoint-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.dewpoint.max</td>
-                                <td id="at-dewpoint-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_lowest_dewpoint</td>
-                                <td class="leftborder">$year.dewpoint.min</td>
-                                <td id="year-dewpoint-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.dewpoint.min</td>
-                                <td id="at-dewpoint-min-ts"></td><!-- moment.js -->
-                            </tr>
-
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_barometer_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_high_barometer</td>
-                                <td class="leftborder">$year.barometer.max</td>
-                                <td id="year-barometer-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.barometer.max</td>
-                                <td id="at-barometer-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            <tr>
-                                <td>$obs.label.records_low_barometer</td>
-                                <td class="leftborder">$year.barometer.min</td>
-                                <td id="year-barometer-min-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.barometer.min</td>
-                                <td id="at-barometer-min-ts"></td><!-- moment.js -->
-                            </tr>
-
-                            #if $year.radiation.has_data or $year.UV.has_data
-                            <tr>
-                                <td class="records-header" colspan=5>$obs.label.records_sun_records</td>
-                            </tr>
-                            <tr>
-                                <td colspan=1> </td>
-                                <td class="records-header-year" colspan=2>$current.dateTime.format("%Y")</td>
-                                <td class="records-header-alltime" colspan=2>$obs.label.records_all_time</td>
-                            </tr>
-                            #if $year.radiation.has_data
-                            <tr>
-                                <td>$obs.label.records_high_solar_rad</td>
-                                <td class="leftborder">$year.radiation.max</td>
-                                <td id="year-radiation-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.radiation.max</td>
-                                <td id="at-radiation-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            #end if
-                            #if $year.UV.has_data
-                            <tr>
-                                <td>$obs.label.records_high_uv</td>
-                                <td class="leftborder">$year.UV.max</td>
-                                <td id="year-uv-max-ts"></td><!-- moment.js -->
-                                <td class="leftborder">$alltime.UV.max</td>
-                                <td id="at-uv-max-ts"></td><!-- moment.js -->
-                            </tr>
-                            #end if
-                            #end if
-                                          
-                            <!-- Add new table entries -->
-                            #if os.path.exists("records-table.inc")
                             #include "records-table.inc"
-                            #end if
-                            
                         </tbody>
                     </table>
-                </div>
-                <!-- End records table row -->
-
+                </section>
+                #end if
             </article>
-        </div>
+        </main>
     </div>
-
-
     #include "footer.html.tmpl"

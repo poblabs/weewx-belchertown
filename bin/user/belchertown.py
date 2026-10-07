@@ -1611,9 +1611,46 @@ class getData(SearchList):
             "beaufort12": label_dict["beaufort12"],
             "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
             "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
+            # Called by Cheetah only on the page that uses it
+            "on_this_day": lambda: on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
         }
         # Finally, return our extension as a list:
         return [search_list_extension]
+
+
+def on_this_day(stop_ts, db_lookup, formatter, converter):
+    """Today's calendar date in every year with data: high, low and rain, oldest first."""
+    first = db_lookup().firstGoodStamp()
+    if first is None:
+        return []
+    today = datetime.date.fromtimestamp(stop_ts)
+    years = []
+    for year in range(datetime.date.fromtimestamp(first).year, today.year + 1):
+        try:
+            day = today.replace(year=year)
+        except ValueError:
+            continue
+        noon = time.mktime(day.timetuple()) + 12 * 3600
+        stats = TimespanBinder(archiveDaySpan(noon), db_lookup, context="day", formatter=formatter, converter=converter)
+        if not stats.outTemp.has_data or stats.outTemp.max.raw is None:
+            continue
+        years.append({"year": year, "today": year == today.year, "high": stats.outTemp.max, "low": stats.outTemp.min,
+                      "rain": stats.rain.sum if stats.rain.has_data else None})
+    if not years:
+        return years
+    highs = [y["high"].raw for y in years]
+    lows = [y["low"].raw for y in years]
+    top, bottom = max(highs), min(lows)
+    span = (top - bottom) or 1
+    rains = [y["rain"].raw for y in years if y["rain"] is not None and y["rain"].raw is not None]
+    wettest = max(rains) if rains and max(rains) > 0 else None
+    for y in years:
+        y["warmest"] = y["high"].raw == top
+        y["coldest"] = y["low"].raw == bottom
+        y["wettest"] = wettest is not None and y["rain"] is not None and y["rain"].raw == wettest
+        y["bar_left"] = round(100 * (y["low"].raw - bottom) / span, 1)
+        y["bar_width"] = max(round(100 * (y["high"].raw - y["low"].raw) / span, 1), 1)
+    return years
 
 
 # ======================================================================================

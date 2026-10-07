@@ -8,7 +8,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 * **Charts** you can customize: which observations, what time range, how they're grouped.
 * **Light and dark mode**, switching automatically at sunrise and sunset if you like.
 * **Forecasts, air quality and (in the US) weather alerts** with no setup, from Open-Meteo and the National Weather Service; Xweather optional.
-* **Your nearest recent earthquake**, plus weather records for this year and all time.
+* **Your nearest recent earthquake**, plus weather records for this year and all time, the all-time records broken this year, and how today's date has gone in every year since your station started.
 * Works on phones and tablets, and can be added to a phone's home screen like an app.
 
 ![BelchertownWeather.com home page in light and dark mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)

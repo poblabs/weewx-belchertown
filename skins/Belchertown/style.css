@@ -2705,3 +2705,130 @@ html.view-kiosk {
     gap: 16px;
     margin-top: 6px;
 }
+
+/* Records page */
+.rec-section {
+    margin: 24px 0;
+}
+.rec-section h2 {
+    font-size: 24px;
+    margin: 0 0 12px;
+}
+.rec-section h2 .wi, .rec-section h2 .fa {
+    width: 28px;
+    text-align: center;
+    margin-right: 4px;
+    opacity: 0.8;
+}
+.rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+}
+.rec-card {
+    border: 1px solid var(--wx-line);
+    border-radius: var(--wx-radius);
+    padding: 12px 15px;
+}
+.rec-card.is-new {
+    border-color: #e0a526;
+}
+.rec-card .rec-label {
+    font-size: 18px;
+    margin: 0 0 8px;
+}
+.rec-card .fa-trophy, .rec-new h2 .fa-trophy {
+    color: #e0a526;
+}
+.rec-sides {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.rec-side + .rec-side {
+    border-left: 1px solid var(--wx-line);
+    padding-left: 12px;
+}
+.rec-when-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.65;
+}
+.rec-value {
+    font-size: 24px;
+    line-height: 1.2;
+}
+.rec-date {
+    font-size: 14px;
+}
+.rec-note, .rec-empty {
+    font-size: 14px;
+    opacity: 0.7;
+}
+.rec-new-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+.rec-new-item {
+    border-left: 3px solid #e0a526;
+    padding: 4px 0 4px 12px;
+}
+.rec-new-item .rec-label {
+    font-size: 15px;
+    opacity: 0.8;
+}
+.rec-otd-rows {
+    max-width: 760px;
+}
+.rec-otd-row {
+    display: grid;
+    grid-template-columns: 80px 80px 1fr 80px 80px;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--wx-line);
+}
+.rec-otd-row.is-today {
+    font-weight: 700;
+}
+.rec-otd-row small {
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+.rec-otd-low, .rec-otd-rain {
+    text-align: right;
+}
+.rec-otd-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(127, 127, 127, 0.15);
+}
+.rec-otd-bar span {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #1278c8, #e5554e);
+}
+.rec-otd-row .is-record {
+    font-weight: 700;
+    color: #e0a526;
+}
+@media only screen and (max-width: 767px) {
+    .rec-grid {
+        grid-template-columns: 1fr;
+    }
+    .rec-otd-row {
+        grid-template-columns: 64px 64px 1fr 64px 60px;
+        gap: 8px;
+        font-size: 15px;
+    }
+    .rec-value {
+        font-size: 21px;
+    }
+}
