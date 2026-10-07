@@ -3606,6 +3606,12 @@ html.units-pending body {
     scroll-margin-top: 80px;
 }
 
+/* Highcharts 12+ picks colors with light-dark(), which follows the visitor's system setting; the skin's own
+   light/dark theme decides instead (the dark theme recolors charts below). "body" outranks Highcharts' own rule. */
+body .highcharts-container {
+    color-scheme: light;
+}
+
 /* Chart titles: Highcharts 13 measures them before the web font loads and clips the rest */
 .highcharts-container foreignObject:has(.highcharts-title) {
     overflow: visible;
