@@ -110,6 +110,26 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+// Sticky header: slim once the page has scrolled
+document.addEventListener("DOMContentLoaded", function() {
+    if (!document.body.classList.contains("sticky-header")) return;
+    var header = document.querySelector(".site-header"), ticking = false;
+    // The height it gives up becomes margin, so the page doesn't jump when it slims
+    function update() {
+        var slim = window.scrollY > 60;
+        if (slim !== header.classList.contains("is-slim")) {
+            var full = header.offsetHeight + (parseFloat(header.style.marginBottom) || 0);
+            header.classList.toggle("is-slim", slim);
+            header.style.marginBottom = slim ? (full - header.offsetHeight) + "px" : "";
+        }
+        ticking = false;
+    }
+    window.addEventListener("scroll", function() {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, {passive: true});
+    update();
+});
+
 // The home page charts are drawn only when the charts block is on the page and visible
 function home_charts_shown() {
     return !is_kiosk_view() && document.querySelector(".graph-outer") !== null;
@@ -205,8 +225,10 @@ jQuery(document).ready(function() {
         var anchor_tag = location.hash.replace('#', '');
         if (anchor_tag != '') {
             // Scroll the webpage to the chart. The timeout is to let jQuery finish appending the outer div so the height of the page is completed.
+            // scrollIntoView keeps the target below a sticky header (scroll-margin-top in style.css)
             setTimeout(function() {
-                jQuery('html, body').animate({scrollTop: jQuery('#' + anchor_tag).offset().top}, 500);
+                var target = document.getElementById(decodeURIComponent(anchor_tag));
+                if (target) target.scrollIntoView({behavior: "smooth"});
             }, 500);
         }
     });

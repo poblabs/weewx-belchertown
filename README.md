@@ -362,6 +362,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses your server's setting. The locale must be installed on your server first.
 | theme | light | `light`, `dark` or `auto` (light at sunrise, dark at sunset).
 | theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
+| sticky_header | 1 | Keeps the header (logo, menu and buttons) at the top of the screen while scrolling; it slims down once you scroll. 0 lets it scroll away with the page.
 | unit_toggle_enabled | 1 | Shows a units button (°F or °C) so visitors can see the site in the other unit system. See [Units button](#units-button-f-or-c).
 | logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.
 | logo_image_dark | "" | The **full** web address of a logo for dark mode.

@@ -996,7 +996,8 @@ p.entry-meta {
 
 	/* Global */
 	
-	body, html { overflow-x:hidden; }
+	/* clip, not hidden: hidden makes the page its own scroll box and the sticky header stops sticking */
+	body, html { overflow-x: clip; }
 	body { 
 		padding:5px; 
 		font-size: 16px;
@@ -3001,4 +3002,37 @@ html.units-pending body {
 .wx-unit-button span {
     font-size: 18px;
     font-weight: 700;
+}
+
+/* Sticky header (sticky_header): stays on top, slims down after scrolling.
+   border-image paints its background out to the screen edges without clipping the dropdown menus. */
+.sticky-header .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    background: var(--wx-bg);
+    border-image: conic-gradient(var(--wx-bg) 0 0) fill 0 / / 0 100vmax;
+}
+.sticky-header .site-header.is-slim {
+    min-height: 0;
+    box-shadow: 0 1px 0 var(--wx-line);
+}
+.sticky-header .site-header.is-slim .wrap {
+    padding: 2px 0;
+}
+.sticky-header .site-header.is-slim .header-image .site-title > a,
+.sticky-header .site-header.is-slim .site-title > a {
+    min-height: 0;
+}
+.sticky-header .site-header.is-slim #logo_image {
+    max-height: 44px;
+    width: auto;
+}
+.sticky-header .site-header.is-slim .genesis-nav-menu a {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+/* Jump links land below the header */
+.sticky-header [id] {
+    scroll-margin-top: 80px;
 }
