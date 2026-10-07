@@ -60,10 +60,12 @@
                 var view = (location.search.match(/[?&]view=([a-z]+)/) || [])[1];
                 if (view === "kiosk") { document.documentElement.classList.add("view-kiosk"); return; }
                 #if $page == "home"
-                var views = ["dashboard", "radar", "charts"];
-                if (views.indexOf(view) < 0) { try { view = localStorage.getItem("belchertown_view"); } catch (e) {} }
-                if (views.indexOf(view) < 0) view = "$home_view";
-                document.documentElement.classList.add("view-" + view);
+                var views = ["dashboard", "forecast", "radar", "charts"], root = document.documentElement, source = "url";
+                if (views.indexOf(view) < 0) { source = "saved"; try { view = localStorage.getItem("belchertown_view"); } catch (e) {} }
+                if (views.indexOf(view) < 0) { source = "default"; view = "$home_view"; }
+                root.classList.add("view-" + view);
+                root.dataset.viewSource = source;
+                root.dataset.viewDefault = "$home_view";
                 #end if
             })();
         </script>
@@ -213,6 +215,9 @@
                                         <summary class="wx-icon-button" title="$obs.label.view_toggle_title" aria-label="$obs.label.view_toggle_title"><i class="fa fa-th-large" aria-hidden="true"></i></summary>
                                         <ul class="view-menu">
                                             <li><a href="?view=dashboard" data-view="dashboard"><i class="fa fa-th-large" aria-hidden="true"></i> $obs.label.view_dashboard</a></li>
+                                            #if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
+                                            <li><a href="?view=forecast" data-view="forecast"><i class="fa fa-calendar" aria-hidden="true"></i> $obs.label.view_forecast</a></li>
+                                            #end if
                                             <li><a href="?view=radar" data-view="radar"><i class="fa fa-map-o" aria-hidden="true"></i> $obs.label.view_radar</a></li>
                                             #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
                                             <li><a href="?view=charts" data-view="charts"><i class="fa fa-line-chart" aria-hidden="true"></i> $obs.label.view_charts</a></li>

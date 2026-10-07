@@ -2,7 +2,7 @@
 #import datetime
 #import json
 ## Only these [Extras] options reach the browser; [Extras] also holds API keys.
-#set $js_extras = ["aqi_location_enabled", "back_to_top_button_enabled", "back_to_top_button_opacity", "back_to_top_button_position", "beaufort_category", "disconnect_live_website_visitor", "forecast_alert_enabled", "forecast_daily_forecast_link", "forecast_enabled", "forecast_provider", "forecast_show_daily_forecast_link", "forecast_show_humidity_dewpoint", "forecast_units", "googleAnalyticsId", "logo_image", "logo_image_dark", "mqtt_websockets_host", "mqtt_websockets_host_kiosk", "mqtt_websockets_password", "mqtt_websockets_port", "mqtt_websockets_ssl", "mqtt_websockets_ssl_kiosk", "mqtt_websockets_topic", "mqtt_websockets_username", "theme", "theme_toggle_enabled"]
+#set $js_extras = ["aqi_location_enabled", "back_to_top_button_enabled", "back_to_top_button_opacity", "back_to_top_button_position", "beaufort_category", "disconnect_live_website_visitor", "forecast_alert_enabled", "forecast_daily_forecast_link", "forecast_enabled", "forecast_provider", "forecast_show_daily_forecast_link", "forecast_show_humidity_dewpoint", "forecast_units", "googleAnalyticsId", "logo_image", "logo_image_dark", "mqtt_websockets_host", "mqtt_websockets_host_kiosk", "mqtt_websockets_password", "mqtt_websockets_port", "mqtt_websockets_ssl", "mqtt_websockets_ssl_kiosk", "mqtt_websockets_topic", "mqtt_websockets_username", "storm_view", "theme", "theme_toggle_enabled"]
 #if $almanac.sunrise.raw is not None and $almanac.sunset.raw is not None
 #set $sunrise = datetime.datetime.fromtimestamp($almanac.sunrise.raw)
 #set $sunset = datetime.datetime.fromtimestamp($almanac.sunset.raw)

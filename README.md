@@ -206,6 +206,7 @@ You can also add **your own block**, such as a webcam picture or a note to visit
 Visitors can pick how the home page is laid out with the **layout button** (the four squares next to the sun/moon button):
 
 * **Dashboard**: everything in the order of `home_sections`. This is the normal layout.
+* **Forecast first**: the forecast at the top, with the current conditions under it.
 * **Radar first**: a big radar across the top, with the current conditions under it.
 * **Charts first**: the charts at the top of the page.
 
@@ -215,6 +216,8 @@ The choice is remembered in that visitor's browser, so it's still there next tim
         [[[Extras]]]
             home_view = radar
 ```
+
+**Storm mode** switches to Radar first by itself while it's raining at your station, or while an alert about storms, thunder, tornadoes, floods, hurricanes, rain, snow, sleet or ice is in effect, and switches back afterwards. Alerts about frost, heat, wind, fog or air quality don't trigger it, since the radar doesn't help with those. It only applies to visitors who haven't picked a layout themselves. To turn it off, set `storm_view = 0` in `[[[Extras]]]`.
 
 You can also link straight to a layout by adding `?view=` and its name to your home page address, for example `http://your-server/weewx/belchertown/?view=charts`. The [wall display](#wall-display-kiosk-view) uses the same idea with `?view=kiosk`.
 
@@ -366,7 +369,8 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
 | highcharts_enabled | 1 | 0 hides the charts.
 | home_sections | conditions, forecast, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
-| home_view | dashboard | The home page layout visitors see first: `dashboard`, `radar` or `charts`. See [Home page layouts](#home-page-layouts).
+| home_view | dashboard | The home page layout visitors see first: `dashboard`, `forecast`, `radar` or `charts`. See [Home page layouts](#home-page-layouts).
+| storm_view | 1 | Storm mode: shows the radar first while it's raining or a storm alert is in effect. 0 turns it off. See [Home page layouts](#home-page-layouts).
 | graph_page_show_all_button | 1 | Adds an "All" button on the Graphs page that shows every chart, two per row.
 | graph_page_default_graphgroup | "day" | Which chart group the Graphs page opens with. `"all"` shows them all.
 | highcharts_homepage_graphgroup | "day" | Which chart group the home page shows. See the [chart wiki](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).

@@ -2630,6 +2630,7 @@ html.view-kiosk {
     min-width: 0;
 }
 .view-charts .home-block-charts,
+.view-forecast .home-block-forecast,
 .view-radar .home-block-conditions {
     order: -1;
 }

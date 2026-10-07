@@ -31,6 +31,8 @@ function show_forcast_alert(data) {
     });
 
 
+    storm_alerts(forecast_alerts.map(function(a) { return a.title; }));
+
     if (forecast_alerts.length > 0) {
         belchertown_debug("Forecast: There are " + forecast_alerts.length + " alert(s).");
         for (i = 0; i < forecast_alerts.length; i++) {

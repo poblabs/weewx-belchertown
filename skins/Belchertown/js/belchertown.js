@@ -29,13 +29,18 @@ function is_kiosk_view() {
     return document.documentElement.classList.contains("view-kiosk");
 }
 
-var HOME_VIEWS = ["dashboard", "radar", "charts"];
+var HOME_VIEWS = ["dashboard", "forecast", "radar", "charts"];
 
-function set_home_view(view) {
+function set_home_view(view, save) {
     var root = document.documentElement;
+    if (save) {
+        root.dataset.viewSource = "saved";
+        root.classList.remove("storm-active");
+        try { localStorage.setItem("belchertown_view", view); } catch (e) {}
+    }
+    if (root.classList.contains("view-" + view)) return;
     HOME_VIEWS.forEach(function(v) { root.classList.remove("view-" + v); });
     root.classList.add("view-" + view);
-    try { localStorage.setItem("belchertown_view", view); } catch (e) {}
     mark_home_view();
     if (window.Highcharts) {
         Highcharts.charts.forEach(function(chart) { if (chart) chart.reflow(); });
@@ -58,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var link = e.target.closest(".view-menu a");
         if (!link) return;
         e.preventDefault();
-        set_home_view(link.dataset.view);
+        set_home_view(link.dataset.view, true);
         picker.open = false;
         if (/[?&]view=/.test(location.search)) {
             var url = new URL(location.href);
@@ -73,6 +78,30 @@ document.addEventListener("DOMContentLoaded", function() {
         if (e.key === "Escape" && picker.open) { picker.open = false; picker.querySelector("summary").focus(); }
     });
 });
+
+// Storm mode: radar first while it rains or a precipitation/storm alert is in effect,
+// only for visitors on the default layout (no ?view= and no saved choice)
+var storm_state = {rain: false, alert: false};
+var STORM_ALERT_WORDS = /\b(thunder|tornado|flood|hurricane|tropical|storm|rain|snow|blizzard|sleet|ice|squall)/i;
+
+function storm_update(kind, active) {
+    var root = document.documentElement;
+    if (extras.storm_view === "0" || !root.dataset.viewDefault) return;
+    storm_state[kind] = !!active;
+    if (root.dataset.viewSource !== "default") return;
+    var storm = storm_state.rain || storm_state.alert;
+    root.classList.toggle("storm-active", storm);
+    set_home_view(storm ? "radar" : root.dataset.viewDefault, false);
+}
+
+function storm_alerts(titles) {
+    storm_update("alert", titles.some(function(t) { return STORM_ALERT_WORDS.test(t); }));
+}
+
+// "0,25 mm/h" or "0.25 in/hr" -> 0.25
+function leading_number(text) {
+    return parseFloat(String(text).replace(",", ".")) || 0;
+}
 
 // The home page charts are drawn only when the charts block is on the page and visible
 function home_charts_shown() {
@@ -516,6 +545,7 @@ var weewx_data = "";
 function update_weewx_data(data) {
     belchertown_debug("Updating weewx data");
     weewx_data = data;
+    if (data.current && "rainRate" in data.current) storm_update("rain", leading_number(data.current.rainRate) > 0);
     
     if (extras.theme === 'auto') {
     // Auto theme if enabled

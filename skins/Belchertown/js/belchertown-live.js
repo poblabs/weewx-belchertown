@@ -258,6 +258,9 @@ function update_current_wx(data) {
     });
     // End dynamic station observation box
 
+    var rain_rate_key = Object.keys(data).find(function(k) { return k.startsWith("rainRate"); });
+    if (rain_rate_key) storm_update("rain", parseFloat(data[rain_rate_key]) > 0);
+
     // Temperature F
     if (data.hasOwnProperty("outTemp_F")) {
         // Inside parseFloat converts str to int. Outside parseFloat processes the locale string
