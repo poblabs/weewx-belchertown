@@ -539,22 +539,24 @@ class getData(SearchList):
         # 1. The database query finds the result based off the total column.
         # 2. We need to convert the min, max to the site's requested unit.
         # 3. We need to recalculate the min/max range because the unit may have changed.
+        # Days the station recorded for less than half of are left out: a few readings make a false "smallest range".
+        min_day_count = int(43200000 / archive_interval_ms)
 
         year_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
-            % (year_start_epoch, today_start_epoch)
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total DESC LIMIT 1;"
+            % (year_start_epoch, today_start_epoch, min_day_count)
         )
         year_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
-            % (year_start_epoch, today_start_epoch)
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total ASC LIMIT 1;"
+            % (year_start_epoch, today_start_epoch, min_day_count)
         )
         at_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total DESC LIMIT 1;"
-            % today_start_epoch
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total DESC LIMIT 1;"
+            % (today_start_epoch, min_day_count)
         )
         at_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL ORDER BY total ASC LIMIT 1;"
-            % today_start_epoch
+            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total ASC LIMIT 1;"
+            % (today_start_epoch, min_day_count)
         )
 
         # Find the group_name for outTemp in database
