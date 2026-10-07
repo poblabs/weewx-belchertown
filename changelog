@@ -1,6 +1,8 @@
 3.0.0 (unreleased, on the next branch)
 
-Belchertown goes from 1.3.1 straight to 3.0. The 2.x numbers belong to New Belchertown, a separate fork by uajqq (github.com/uajqq/weewx-belchertown-new), and skipping them keeps the two apart.
+The original Belchertown, rebuilt. 3.0 is a refactor of the original skin from the ground up for weewx 5: lighter and faster pages, new home and records pages, forecasts and alerts with no setup, a units button, a chart builder, and years of old code removed.
+
+Why 3.0: Belchertown goes from 1.3.1 straight to 3.0 because the 2.x numbers belong to New Belchertown, a separate fork by uajqq (github.com/uajqq/weewx-belchertown-new). Skipping them keeps the two apart.
 
 ### By the numbers
 Measured on the home page of the same station, 1.3.1 against 3.0:

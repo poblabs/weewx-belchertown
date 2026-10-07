@@ -16,8 +16,12 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 > [!IMPORTANT]
 > **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
 
+## Belchertown 3.0: the original, rebuilt
+
+This is the original Belchertown skin, back in active development and refactored from the ground up: faster pages, a new home page and records page, forecasts and alerts with no setup, a °F/°C button, and a chart builder, all on weewx 5. See the [changelog](changelog) for everything that changed.
+
 > [!NOTE]
-> **Looking for New Belchertown?** While this skin was quiet, uajqq kept it going as [New Belchertown](https://github.com/uajqq/weewx-belchertown-new), a separate fork with its own features and its own 2.x versions. The two are different skins: this one jumps from 1.3.1 to 3.0 so the version numbers don't overlap. Both are free, so use whichever suits you.
+> **Why 3.0 and not 2.0?** While this skin was quiet, uajqq kept it going as [New Belchertown](https://github.com/uajqq/weewx-belchertown-new), a separate fork with its own 2.x versions. The two are different skins, so this one jumps from 1.3.1 straight to 3.0 to keep the version numbers apart. Both are free; use whichever suits you.
 
 ## Contents
 
