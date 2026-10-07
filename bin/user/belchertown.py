@@ -307,6 +307,8 @@ class getData(SearchList):
             moment_js_tz = self.generator.skin_dict["Units"]["TimeZone"].get("time_zone")
         except KeyError:
             moment_js_tz = ""
+        if not moment_js_tz:
+            moment_js_tz = system_timezone()
 
 # Highcharts UTC offset is the opposite of normal. Positive values are
         # west, negative values are east of UTC.
@@ -1653,6 +1655,21 @@ def jquery_users(skin_dir, setting):
             _jquery_logged.add(name)
             loginf("%s uses jQuery, so jQuery is loaded for it. See 'jQuery' in the Belchertown README to update it." % name)
     return users
+
+
+def system_timezone():
+    """The server's time zone name, such as America/New_York, or "" when it can't be told."""
+    tz = os.environ.get("TZ", "").lstrip(":")
+    if "/" in tz:
+        return tz
+    link = os.path.realpath("/etc/localtime")
+    if "zoneinfo/" in link:
+        return link.split("zoneinfo/", 1)[1]
+    try:
+        with open("/etc/timezone") as f:
+            return f.read().strip()
+    except OSError:
+        return ""
 
 
 UNIT_SWITCH_GROUPS = ("group_temperature", "group_speed", "group_speed2", "group_pressure", "group_rain", "group_rainrate",

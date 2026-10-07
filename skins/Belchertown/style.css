@@ -3040,3 +3040,12 @@ html.units-pending body {
 .sticky-header [id] {
     scroll-margin-top: 80px;
 }
+
+/* Chart titles: Highcharts 13 measures them before the web font loads and clips the rest */
+.highcharts-container foreignObject:has(.highcharts-title) {
+    overflow: visible;
+}
+.highcharts-title {
+    overflow: visible !important;
+    font-weight: normal !important;
+}

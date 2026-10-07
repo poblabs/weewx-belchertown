@@ -102,10 +102,10 @@ function get_gauge_label(value, options) {
 }
 
 Highcharts.setOptions({
-    global: {
-        //useUTC: false
-        timezoneOffset: config.highcharts_timezoneoffset
-    },
+    // Highcharts sizes text relative to the page's root font (10px under Bootstrap 3); 15px gives an 18px title
+    chart: {style: {fontSize: '15px'}},
+    // A time zone name follows daylight saving through the year; the fixed offset is the fallback
+    time: config.moment_js_tz ? {timezone: config.moment_js_tz} : {timezoneOffset: config.highcharts_timezoneoffset},
     lang: {
         months: dayjs.months(),
         shortMonths: dayjs.monthsShort(),
@@ -369,7 +369,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     }
 
     // Finally all options are done, now show the chart
-    var chart = new Highcharts.chart(options);
+    var chart = Highcharts.chart(options);
 
     // If using debug, show a copy paste debug for use with jsfiddle
     belchertown_debug(options);
@@ -459,10 +459,22 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
         },
 
         xAxis: {
+            // Times in the visitor's locale (3:00 PM, 15:00); the date at midnight, as before Highcharts 12
             dateTimeLabelFormats: {
+                minute: {main: {hour: 'numeric', minute: '2-digit'}},
+                hour: {main: {hour: 'numeric', minute: '2-digit'}},
                 day: '%e %b',
                 week: '%e %b',
                 month: '%b %y',
+            },
+            labels: {
+                formatter: function() {
+                    var hourly = this.tickPositionInfo && ["minute", "hour"].indexOf(this.tickPositionInfo.unitName) >= 0;
+                    if (hourly && this.chart.time.dateFormat('%H:%M', this.value) === '00:00') {
+                        return this.chart.time.dateFormat('%e %b', this.value);
+                    }
+                    return this.axis.defaultLabelFormatter.call(this);
+                }
             },
             lineColor: '#555',
             minRange: 900000,
@@ -683,13 +695,16 @@ function gauge_chart(options, observation_type) {
     }
     options.plotOptions = {
         solidgauge: {
+            // A thick ring as before Highcharts 13, given as percents (plain numbers would be pixels)
+            radius: '100%',
+            innerRadius: '60%',
             dataLabels: {
                 useHTML: true,
                 enabled: true,
                 borderWidth: 0,
                 style: {
                     fontWeight: 'bold',
-                    lineHeight: '0.5em',
+                    lineHeight: '1',
                     textAlign: 'center',
                     fontSize: '50px',
                     // Match color if set by user
@@ -803,6 +818,8 @@ function hays_chart(options, observation_type, tooltip_date_format) {
         var range_max = options.series[0].yAxis_softMax;
     }
     options.legend = {"enabled": false}
+    // Two-hour spokes; newer Highcharts would label every hour around the circle
+    options.xAxis.tickInterval = 2 * 3600 * 1000;
     options.yAxis = {
         showFirstLabel: false,
         tickInterval: 2,
