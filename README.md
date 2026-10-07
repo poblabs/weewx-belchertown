@@ -185,10 +185,11 @@ Your About and Records pages can contain your own text (HTML is fine). In the Be
 
 ### Choose what's on the home page, and in what order
 
-The home page is made of four blocks:
+The home page is made of five blocks:
 
 * `conditions`: the current temperature, wind, station readings, sun and moon, and the radar
 * `forecast`: the forecast
+* `onthisday`: today compared with the same date in every past year: the record low and high, the average, and a note when today is unusual, such as "Coldest October 7 on record so far". It appears once your station has data from at least one earlier year.
 * `snapshot`: today's and this month's highs, lows, wind and rain, and the latest nearby earthquake
 * `charts`: the charts
 
@@ -368,7 +369,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | radar_marker | 0 | 1 puts a marker at your station on the windy.com radar.
 | almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
 | highcharts_enabled | 1 | 0 hides the charts.
-| home_sections | conditions, forecast, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
+| home_sections | conditions, forecast, onthisday, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
 | home_view | dashboard | The home page layout visitors see first: `dashboard`, `forecast`, `radar` or `charts`. See [Home page layouts](#home-page-layouts).
 | storm_view | 1 | Storm mode: shows the radar first while it's raining or a storm alert is in effect. 0 turns it off. See [Home page layouts](#home-page-layouts).
 | graph_page_show_all_button | 1 | Adds an "All" button on the Graphs page that shows every chart, two per row.

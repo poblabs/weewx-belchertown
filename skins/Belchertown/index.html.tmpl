@@ -209,8 +209,8 @@
                 ## The home page is built from blocks in the order of home_sections. Each built-in
                 ## block is home/<name>.inc followed by its index_hook_after_*.inc if you have one;
                 ## any other name includes your own home_<name>.inc.
-                #set $hooks = {"conditions": ("index_hook_after_station_info.inc", "index-hook-after-station-info border-bottom"), "forecast": ("index_hook_after_forecast.inc", "index-hook-after-forecast border-bottom"), "snapshot": ("index_hook_after_snapshot.inc", "index-hook-after-snapshot border-bottom"), "charts": ("index_hook_after_charts.inc", "index-hook-after-charts border-top")}
-                #set $sections = $Extras.get("home_sections", ["conditions", "forecast", "snapshot", "charts"])
+                #set $hooks = {"conditions": ("index_hook_after_station_info.inc", "index-hook-after-station-info border-bottom"), "forecast": ("index_hook_after_forecast.inc", "index-hook-after-forecast border-bottom"), "snapshot": ("index_hook_after_snapshot.inc", "index-hook-after-snapshot border-bottom"), "charts": ("index_hook_after_charts.inc", "index-hook-after-charts border-top"), "onthisday": ("", "")}
+                #set $sections = $Extras.get("home_sections", ["conditions", "forecast", "onthisday", "snapshot", "charts"])
                 #if isinstance($sections, str)
                 #set $sections = [s.strip() for s in $sections.split(",") if s.strip()]
                 #end if
@@ -221,7 +221,7 @@
                 #set $block_file = "home/" + $section + ".inc"
                 #include $block_file
                 #set $hook_file = $hooks[$section][0]
-                #if os.path.exists($hook_file)
+                #if $hook_file and os.path.exists($hook_file)
                 <div class="row $hooks[$section][1]">
                     #include $hook_file
                 </div>

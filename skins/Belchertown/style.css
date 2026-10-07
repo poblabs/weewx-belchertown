@@ -2900,3 +2900,96 @@ html.view-kiosk {
         height: auto;
     }
 }
+
+/* Home page "on this day" block */
+.wx-onthisday {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--wx-line);
+}
+.wx-otd-note {
+    font-size: 20px;
+    margin: 0 0 12px;
+    text-align: center;
+}
+.wx-otd-cold_record, .wx-otd-warm_record, .wx-otd-wet_record {
+    color: #e0a526;
+    font-weight: 700;
+}
+.wx-otd-scale {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.wx-otd-end {
+    text-align: center;
+    min-width: 90px;
+}
+.wx-otd-label, .wx-otd-year {
+    font-size: 14px;
+    opacity: 0.7;
+}
+.wx-otd-value {
+    font-size: 22px;
+}
+.wx-otd-track {
+    position: relative;
+    height: 28px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, rgba(18, 120, 200, 0.25), rgba(229, 85, 78, 0.25));
+}
+.wx-otd-track span {
+    position: absolute;
+    border-radius: 14px;
+}
+.wx-otd-average {
+    top: 0;
+    bottom: 0;
+    background: rgba(127, 127, 127, 0.35);
+}
+.wx-otd-today {
+    top: 8px;
+    bottom: 8px;
+    background: linear-gradient(90deg, #1278c8, #e5554e);
+}
+.wx-otd-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 24px;
+    margin-top: 12px;
+    font-size: 16px;
+}
+.wx-otd-key {
+    display: inline-block;
+    width: 22px;
+    height: 10px;
+    border-radius: 5px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.wx-otd-key-today {
+    background: linear-gradient(90deg, #1278c8, #e5554e);
+}
+.wx-otd-key-average {
+    background: rgba(127, 127, 127, 0.35);
+}
+.view-kiosk .wx-onthisday {
+    display: none;
+}
+@media only screen and (max-width: 767px) {
+    .wx-otd-scale {
+        gap: 8px;
+    }
+    .wx-otd-end {
+        min-width: 70px;
+    }
+    .wx-otd-value {
+        font-size: 18px;
+    }
+    .wx-otd-note {
+        font-size: 18px;
+    }
+}

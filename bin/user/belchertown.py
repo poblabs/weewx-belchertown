@@ -1613,6 +1613,9 @@ class getData(SearchList):
             "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
             # Called by Cheetah only on the page that uses it
             "on_this_day": lambda: on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
+            "on_this_day_summary": lambda: on_this_day_summary(
+                on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
+                self.generator.formatter, self.generator.converter),
         }
         # Finally, return our extension as a list:
         return [search_list_extension]
@@ -1651,6 +1654,65 @@ def on_this_day(stop_ts, db_lookup, formatter, converter):
         y["bar_left"] = round(100 * (y["low"].raw - bottom) / span, 1)
         y["bar_width"] = max(round(100 * (y["high"].raw - y["low"].raw) / span, 1), 1)
     return years
+
+
+def on_this_day_summary(years, formatter, converter):
+    """Today against the same date in past years: records, averages and one notable fact."""
+    past = [y for y in years if not y["today"]]
+    today = next((y for y in years if y["today"]), None)
+    if not past:
+        return None
+
+    def mean(vhs):
+        vt = vhs[0].value_t
+        avg = sum(v.raw for v in vhs) / len(vhs)
+        return weewx.units.ValueHelper(weewx.units.ValueTuple(avg, vt[1], vt[2]), "day", formatter, converter)
+
+    def since(key, value, colder):
+        # Most recent past year at least as extreme as today, and whether today beats them all
+        beaten = [y for y in past if (y[key].raw > value if colder else y[key].raw < value)]
+        if len(beaten) == len(past):
+            return "record", None
+        matched = [y["year"] for y in past if y not in beaten]
+        return "since", max(matched)
+
+    high = max(years, key=lambda y: y["high"].raw)
+    low = min(years, key=lambda y: y["low"].raw)
+    rains = [y for y in years if y["rain"] is not None and y["rain"].raw]
+    wettest = max(rains, key=lambda y: y["rain"].raw) if rains else None
+    summary = {"high": high["high"], "high_year": high["year"], "low": low["low"], "low_year": low["year"],
+               "wettest": wettest["rain"] if wettest else None, "wettest_year": wettest["year"] if wettest else None,
+               "avg_high": mean([y["high"] for y in past]), "avg_low": mean([y["low"] for y in past]),
+               "today": today, "note": None, "note_year": None}
+
+    if today:
+        this_year = today["year"]
+        checks = [("cold", since("low", today["low"].raw, True)), ("warm", since("high", today["high"].raw, False))]
+        if today["rain"] is not None and today["rain"].raw:
+            past_rain = [y for y in past if y["rain"] is not None and y["rain"].raw is not None]
+            if past_rain:
+                beaten = [y for y in past_rain if y["rain"].raw < today["rain"].raw]
+                checks.append(("wet", ("record", None) if len(beaten) == len(past_rain)
+                                      else ("since", max(y["year"] for y in past_rain if y not in beaten))))
+        for kind, (how, year) in checks:
+            if how == "record":
+                summary["note"] = kind + "_record"
+                break
+        else:
+            for kind, (how, year) in checks:
+                if year is not None and this_year - year >= 3:
+                    summary["note"], summary["note_year"] = kind + "_since", year
+                    break
+
+    bottom, top = summary["low"].raw, summary["high"].raw
+    span = (top - bottom) or 1
+
+    def bar(lo, hi):
+        return {"left": round(100 * (lo - bottom) / span, 1), "width": max(round(100 * (hi - lo) / span, 1), 1)}
+
+    summary["avg_bar"] = bar(summary["avg_low"].raw, summary["avg_high"].raw)
+    summary["today_bar"] = bar(today["low"].raw, today["high"].raw) if today else None
+    return summary
 
 
 # ======================================================================================

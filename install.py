@@ -187,6 +187,7 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
        ('skins/Belchertown/home', ['skins/Belchertown/home/charts.inc',
                                    'skins/Belchertown/home/conditions.inc',
                                    'skins/Belchertown/home/forecast.inc',
+                                   'skins/Belchertown/home/onthisday.inc',
                                    'skins/Belchertown/home/snapshot.inc'
                                   ]
         ),
