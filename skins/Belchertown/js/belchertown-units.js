@@ -98,10 +98,14 @@ function parse_number(text) {
     return parseFloat(text);
 }
 
-if (units_alt_on()) unit_text_regex = build_unit_text_regex();
+function ensure_unit_regex() {
+    if (!unit_text_regex) unit_text_regex = build_unit_text_regex();
+    return unit_text_regex;
+}
+if (units_alt_on()) ensure_unit_regex();
 
 function convert_unit_text(text, delta) {
-    if (!unit_text_regex) return text;
+    if (!ensure_unit_regex()) return text;
     return text.replace(unit_text_regex, function(match, number, space, label) {
         var from = unit_by_label[label], to = alt_unit(from);
         var value = convert_unit(parse_number(number), from, to, delta);
@@ -109,6 +113,9 @@ function convert_unit_text(text, delta) {
     });
 }
 
+// What each converted text node or bare number said in station units, and what we last wrote into it.
+// Text that differs from what we wrote is new (from MQTT or a refresh) and becomes the new original.
+var unit_orig = new WeakMap();
 var unit_done = new WeakMap();
 var UNIT_SKIP = "script, style, textarea, input, .highcharts-container, [data-units-skip]";
 
@@ -121,6 +128,7 @@ function convert_unit_node(node) {
             return;
         }
         if (unit_done.get(node) === node.nodeValue) return;
+        unit_orig.set(node, node.nodeValue);
         var converted = convert_unit_text(node.nodeValue, !!parent.closest("[data-unit-delta]"));
         if (converted !== node.nodeValue) node.nodeValue = converted;
         unit_done.set(node, node.nodeValue);
@@ -133,20 +141,41 @@ function convert_unit_node(node) {
         return;
     }
     node.querySelectorAll("[data-unit-group]").forEach(convert_bare_number);
-    node.querySelectorAll("[data-unit-label]").forEach(function(el) {
-        var unit = display_unit(el.dataset.unitLabel);
-        el.textContent = units_config.labels[unit];
-    });
+    update_unit_labels(node);
     var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
     var texts = [];
     while (walker.nextNode()) texts.push(walker.currentNode);
     texts.forEach(convert_unit_node);
 }
 
+function update_unit_labels(node) {
+    node.querySelectorAll("[data-unit-label]").forEach(function(el) {
+        el.textContent = units_config.labels[display_unit(el.dataset.unitLabel)];
+    });
+}
+
+// Back to the station's units: every node we converted gets its original text again
+function restore_unit_nodes(node) {
+    var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+        var t = walker.currentNode;
+        if (unit_orig.has(t) && unit_done.get(t) === t.nodeValue) t.nodeValue = unit_orig.get(t);
+        unit_orig.delete(t);
+        unit_done.delete(t);
+    }
+    node.querySelectorAll("[data-unit-group]").forEach(function(el) {
+        if (unit_orig.has(el) && unit_done.get(el) === el.textContent.trim()) el.textContent = unit_orig.get(el);
+        unit_orig.delete(el);
+        unit_done.delete(el);
+    });
+    update_unit_labels(node);
+}
+
 // An element holding just a number whose unit is shown elsewhere, such as the big temperature
 function convert_bare_number(el) {
     var text = el.textContent.trim();
     if (unit_done.get(el) === text) return;
+    unit_orig.set(el, el.textContent);
     var from = units_config.groups[el.dataset.unitGroup], to = alt_unit(from), value = parse_number(text);
     if (to && !isNaN(value)) el.textContent = format_unit_value(convert_unit(value, from, to), to);
     unit_done.set(el, el.textContent.trim());
@@ -235,28 +264,38 @@ function convert_unit_range_text(text) {
 
 // --- The switch ---
 
-// The button shows the temperature unit on screen now
+// The temperature unit on screen now
 function unit_switch_text() {
     return (units_config.labels[display_unit("group_temperature")] || "").trim();
+}
+
+// Chart groups drawn on this page, so a switch can draw them again
+var charts_shown = [];
+
+var unit_observer = new MutationObserver(function(mutations) {
+    if (!units_alt_on()) return;
+    mutations.forEach(function(m) {
+        if (m.type === "characterData") convert_unit_node(m.target);
+        else m.addedNodes.forEach(convert_unit_node);
+    });
+});
+
+function set_units(alt) {
+    try { localStorage.setItem("belchertown_units", alt ? "alt" : "station"); } catch (e) {}
+    if (alt) convert_unit_node(document.body);
+    else restore_unit_nodes(document.body);
+    wx_all("#unitSwitch span").forEach(function(s) { s.textContent = unit_switch_text(); });
+    if (window.forecast_last_data) update_forecast_data(forecast_last_data);
+    charts_shown.forEach(function(args) { showChart(args[0], args[1]); });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
     var button = document.getElementById("unitSwitch");
     if (button) {
         button.querySelector("span").textContent = unit_switch_text();
-        button.addEventListener("click", function() {
-            try { localStorage.setItem("belchertown_units", units_alt_on() ? "station" : "alt"); } catch (e) {}
-            location.reload();
-        });
+        button.addEventListener("click", function() { set_units(!units_alt_on()); });
     }
-    if (units_alt_on()) {
-        convert_unit_node(document.body);
-        new MutationObserver(function(mutations) {
-            mutations.forEach(function(m) {
-                if (m.type === "characterData") convert_unit_node(m.target);
-                else m.addedNodes.forEach(convert_unit_node);
-            });
-        }).observe(document.body, {childList: true, characterData: true, subtree: true});
-    }
+    if (units_alt_on()) convert_unit_node(document.body);
+    unit_observer.observe(document.body, {childList: true, characterData: true, subtree: true});
     document.documentElement.classList.remove("units-pending");
 });

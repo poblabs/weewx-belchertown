@@ -117,6 +117,7 @@ Highcharts.setOptions({
 });
 
 function showChart(json_file, prepend_renderTo = false) {
+    if (!charts_shown.some(function(c) { return c[0] === json_file; })) charts_shown.push([json_file, prepend_renderTo]);
     // Relative URL by finding what page we're on currently.
     wx_json(get_relative_url() + '/json/' + json_file + '.json').then(function(data) {
         if (units_alt_on()) convert_chart_units(data);
@@ -353,7 +354,9 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
         chart_parent.style.marginBottom = '20px';
     }
     if (opt.css_width != "" && chart_parent) {
+        // A chart with its own width gets a row of the chart grid to itself
         chart_parent.style.width = opt.css_width;
+        chart_parent.style.gridColumn = "1 / -1";
     }
 
     if (group.credits != "highcharts_default") {

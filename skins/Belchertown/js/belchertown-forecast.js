@@ -69,7 +69,11 @@ function show_forcast_alert(data) {
     }
 }
 
+// The last forecast as downloaded, so a unit switch can draw it again
+var forecast_last_data = null;
+
 function update_forecast_data(data) {
+    forecast_last_data = data;
     if (units_alt_on()) data = convert_forecast_units(JSON.parse(JSON.stringify(data)));
     belchertown_debug("Forecast: Updating data from " + data["provider"]);
     belchertown_debug(data);
@@ -200,9 +204,9 @@ function update_forecast_data(data) {
                 // Build 1 hour forecast row
                 for (i = 0; i < forecast_row.length; i++) {
                     if (i == 0) {
-                        output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour forecast-today">';
+                        output_html += '<div class="forecast-day forecast-1hour forecast-today">';
                     } else {
-                        output_html += '<div class="col-sm-1-5 forecast-day forecast-1hour border-left">';
+                        output_html += '<div class="forecast-day forecast-1hour border-left">';
                     }
                     output_html += '<span id="weekday">' + forecast_time(i, forecast_interval, forecast_row[i]["weekday"]) + '</span>';
                     output_html += '<br>';
@@ -257,15 +261,15 @@ function update_forecast_data(data) {
                 for (i = 0; i < forecast_row.length; i++) {
                     if (forecast_interval == "forecast_3hr") {
                         if (i == 0) {
-                            output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour forecast-today">';
+                            output_html += '<div class="forecast-day forecast-3hour forecast-today">';
                         } else {
-                            output_html += '<div class="col-sm-1-5 forecast-day forecast-3hour border-left">';
+                            output_html += '<div class="forecast-day forecast-3hour border-left">';
                         }
                     } else if (forecast_interval == "forecast_24hr") {
                         if (i == 0) {
-                            output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour forecast-today">';
+                            output_html += '<div class="forecast-day forecast-24hour forecast-today">';
                         } else {
-                            output_html += '<div class="col-sm-1-5 forecast-day forecast-24hour border-left">';
+                            output_html += '<div class="forecast-day forecast-24hour border-left">';
                         }
                     }
                     output_html += '<span id="weekday">' + forecast_time(i, forecast_interval, forecast_row[i]["weekday"]) + '</span>';

@@ -1216,14 +1216,7 @@ input:hover[type="submit"],
 	/* color: #fff; */
 }
 
-.entry-content .button:hover {
-    /* Removed in favor for dark mode dynamic switching */
-    /* color: #fff; */
-}
 
-.button {
-	display: inline-block;
-}
 
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button {
@@ -1295,17 +1288,7 @@ th {
 	width: 800px;
 }
 
-.content-sidebar .content,
-.content-sidebar-sidebar .content,
-.sidebar-content-sidebar .content {
-	float: left;
-}
 
-.content-sidebar-sidebar .content,
-.sidebar-content-sidebar .content,
-.sidebar-sidebar-content .content {
-	width: 580px;
-}
 
 .full-width-content .content {
 	width: 100%;
@@ -1331,10 +1314,6 @@ th {
 
 
 
-.first {
-	clear: both;
-	margin-left: 0;
-}   
 
 
 /* # Common Classes
@@ -1359,8 +1338,6 @@ th {
 
 
 
-.sticky {
-}
 
 /* # Site Header
 ---------------------------------------------------------------------------------------------------- */
@@ -1383,9 +1360,6 @@ th {
 	width: 330px;
 }
 
-.header-full-width .title-area {
-	width: 100%;
-}
 
 .site-title {
 	font-size: 32px;
@@ -1399,12 +1373,6 @@ th {
 	/* color: #333; */
 }
 
-.header-image .site-title > a {
-	/* background: url('') no-repeat left; */
-	float: left;
-	min-height: 80px;
-	width: 100%;
-}
 
 
 .site-description,
@@ -1412,11 +1380,6 @@ th {
 	margin-bottom: 0;
 }
 
-.header-image .site-description,
-.header-image .site-title {
-	display: block;
-	text-indent: -9999px;
-}
 
 /* ## Widget Area
 --------------------------------------------- */
@@ -1455,79 +1418,24 @@ th {
 	color: #e5554e;
 }
 
-.genesis-nav-menu .sub-menu {
-	left: -9999px;
-	opacity: 0;
-	position: absolute;
-	-webkit-transition: opacity .4s ease-in-out;
-	-moz-transition:    opacity .4s ease-in-out;
-	-ms-transition:     opacity .4s ease-in-out;
-	-o-transition:      opacity .4s ease-in-out;
-	transition:         opacity .4s ease-in-out;
-	width: 200px;
-	z-index: 99;
-}
 
-.genesis-nav-menu .sub-menu a {
-	border: 1px solid #eee;
-	border-top: none;
-	font-size: 14px;
-	padding: 20px;
-	position: relative;
-	width: 200px;
-}
 
-.genesis-nav-menu .sub-menu .sub-menu {
-	margin: -55px 0 0 199px;
-}
 
 .genesis-nav-menu .menu-item:hover {
 	position: static;
 }
 
-.genesis-nav-menu .menu-item:hover > .sub-menu {
-	left: auto;
-	opacity: 1;
-}
 
-.genesis-nav-menu > .first > a {
-	padding-left: 0;
-}
 
-.genesis-nav-menu > .last > a {
-	padding-right: 0;
-}
 
-.genesis-nav-menu > .right {
-	color: #fff;
-	float: right;
-	list-style-type: none;
-	padding: 30px 0;
-}
 
-.genesis-nav-menu > .right > a {
-	display: inline;
-	padding: 0;
-}
 
-.genesis-nav-menu > .rss > a {
-	margin-left: 48px;
-}
 
-.genesis-nav-menu > .search {
-	padding: 10px 0 0;
-}
 
 /* ## Site Header Navigation
 --------------------------------------------- */
 
-.site-header .sub-menu {
-	border-top: 1px solid #eee;
-}
 
-.site-header .sub-menu .sub-menu {
-	margin-top: -56px;
-}
 
 .site-header .genesis-nav-menu li li {
 	margin-left: 0;
@@ -1537,20 +1445,8 @@ th {
 --------------------------------------------- */
 
 
-.nav-primary .genesis-nav-menu a {
-	color: #fff;
-}
 
-.nav-primary .genesis-nav-menu .sub-menu a {
-    /* Removed in favor for dark mode dynamic switching */
-	/* color: #333; */
-}
 
-.nav-primary .genesis-nav-menu a:hover,
-.nav-primary .genesis-nav-menu .current-menu-item > a,
-.nav-primary .genesis-nav-menu .sub-menu .current-menu-item > a:hover {
-	color: #e5554e;
-}
 
 /* ## Secondary Navigation
 --------------------------------------------- */
@@ -1563,14 +1459,7 @@ th {
 /* ## Entries
 --------------------------------------------- */
 
-.entry {
-	margin-bottom: 40px;
-	/* padding: 50px 60px; */
-	padding: 10px;
-}
 
-.content .entry {
-}
 
 .entry-content ol,
 .entry-content ul {
@@ -1642,68 +1531,8 @@ th {
 		width: 620px;
 	}
 
-	.sidebar-content-sidebar .content,
-	.sidebar-sidebar-content .content,
-	.content-sidebar-sidebar .content {
-		width: 400px;
-	}
 
 
-}
-
-/* iPad Landscape */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
-    
-    .wx-stn-info { display:none; }
-    
-    .wx-stn-info-container .col-sm-5 {
-        width: 75%;
-    }
-    
-    .wx-stn-info-container .col-sm-1 {
-        width: 10%;
-    }
-    
-    
-    
-    
-    .temperature-row .station-observations td {
-        min-width: 138px;
-        max-width: 142px;
-    }
-    
-    .station-observations, .weather-obs-bottom {
-        float:left;
-    }  
-    
-    .radar-map {
-        float: right;
-    }
-    
-    .forecasts .forecast-day {
-        width: 165px;
-    }
-    
-    .1hr_forecasts .forecast-1hour {
-        width: 72px;
-    }
-
-    .3hr_forecasts .forecast-3hour {
-        width: 144px;
-    }
-    
-    .24hr_forecasts .forecast-24hour {
-        width: 165px;
-    }
-    
-    .clear {
-        clear: both;
-    }
-   
-    
-    .site-container .site-footer {
-        text-align: center;
-    }
 }
 
 /* Phones */
@@ -1732,9 +1561,6 @@ th {
 		padding: 20px 5%;
 	}
 
-	.header-image .title-area {
-		background-position: center top;
-	}
 
 	.genesis-nav-menu li,
 	.site-header ul.genesis-nav-menu,
@@ -1756,13 +1582,7 @@ th {
 		padding: 20px 16px;
 	}
 
-	.site-header .search-form {
-		margin: 16px auto;
-	}
 
-	.genesis-nav-menu li.right {
-		display: none;
-	}
 
 }
 
@@ -1784,9 +1604,6 @@ th {
 	.title-area {
 		float: none; 
 		width: auto; 
-	}
-	.header-image .site-title > a {
-		width: 100% !important;
 	}
 	
 	.site-header .widget-area {
@@ -1817,9 +1634,6 @@ th {
 
 
 	
-	.search {
-		display:none;
-	}
 
 }
 
@@ -1861,71 +1675,18 @@ th {
 		padding: 12px 0;
 	}
 	
-	.genesis-nav-menu.responsive-menu .menu-item-has-children {
-		cursor: pointer;
-	}
 	
-	.genesis-nav-menu.responsive-menu .menu-item-has-children > a {
-		margin-right: 60px;
-	}
 	
-	.genesis-nav-menu.responsive-menu > .menu-item-has-children:before {
-		content: "\f347";
-		float: right;
-		font: normal 16px/1 'dashicons';
-		height: 16px;
-		padding: 11px 20px;
-		right: 0;
-		text-align: right;
-		z-index: 9999;
-		/* color: #fff; */
-	}
 	
-	.genesis-nav-menu.responsive-menu .menu-open.menu-item-has-children:before {
-		content: "\f343";
-		/* color: pink; */
-	}
 	
-	.genesis-nav-menu.responsive-menu .sub-menu {
-		left: auto;
-		opacity: 1;
-		position: relative;
-		-moz-transition:    opacity .4s ease-in-out;
-		-ms-transition:     opacity .4s ease-in-out;
-		-o-transition:      opacity .4s ease-in-out;
-		-webkit-transition: opacity .4s ease-in-out;
-		transition:         opacity .4s ease-in-out;
-		width: 100%;
-		z-index: 99;
-	}
 	
-	.genesis-nav-menu.responsive-menu .sub-menu .sub-menu {
-		padding-left: 20px;
-		margin: 0;
-	}
 	
-	.genesis-nav-menu.responsive-menu .sub-menu li a,
-	.genesis-nav-menu.responsive-menu .sub-menu li a:hover {
-		border: none;
-		box-shadow: none;
-		padding: 12px 0;
-		position: relative;
-		width: 100%;
-	}
 	
 	.genesis-nav-menu.responsive-menu {
 		/* padding-bottom: 16px; */
 	}
 	
-	.nav-primary .genesis-nav-menu.responsive-menu li a {
-		padding-left:10px;
-		/* background: #231f20; */
-		color: white;
-	}
 	
-	.nav-primary .genesis-nav-menu.responsive-menu li a:hover {
-		color: red;
-	}
 
 }
 
@@ -1943,9 +1704,19 @@ th {
     margin: 0 auto;
 }
 
-.footerLeft { }
+/* Footer: copyright, disclaimer and credit side by side, stacked on phones */
+.footer-columns {
+    display: grid;
+    grid-template-columns: 4fr 5fr 3fr;
+    gap: 0 30px;
+}
 .footerCenter { text-align:center; }
 .footerRight { text-align:right }
+@media only screen and (max-width: 767px) {
+    .footer-columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
 
 /* Custom wx page */
 
@@ -2076,6 +1847,44 @@ th {
     padding-bottom: 10px;
 }
 
+/* Subpage header (page-header.inc): weather icon and temperature, page title, "powered by" on the right */
+.wx-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 20px;
+}
+.wx-page-header .wx-stn-info-current-obs {
+    flex: 0 0 70px;
+}
+.wx-page-header .wx-stn-name {
+    float: none;
+    flex: 0 0 auto;
+}
+/* Beside the title when there's room, otherwise on its own line; right-aligned either way */
+.wx-page-header .wx-page-header-info {
+    flex: 1 1 auto;
+    text-align: right;
+}
+.wx-page-header .wx-stn-info {
+    float: none;
+}
+@media only screen and (max-width: 800px) {
+    .wx-page-header {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .wx-page-header .wx-stn-info-current-obs,
+    .wx-page-header .wx-stn-name {
+        flex-basis: 100%;
+        text-align: center;
+    }
+    .wx-page-header .wx-page-header-info {
+        margin: 0;
+        text-align: center;
+    }
+}
+
 .wx-stn-info-current-obs {
     text-align: center;
 }
@@ -2147,9 +1956,6 @@ th {
 }
 
 
-.current_temp .outtemp_outer {
-	font-size:65px;
-}
 
 
 .outtempunitlabelsuper {
@@ -2465,6 +2271,23 @@ table.celestial td.label {
     margin: 0 auto;
     text-align: center;
 }
+/* Charts two across (one on phones, and on a single chart group's Graphs page) */
+.wx-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 30px;
+}
+.wx-chart-grid-1 {
+    grid-template-columns: minmax(0, 1fr);
+}
+.graphgroup-outer {
+    margin: 25px 0;
+}
+@media only screen and (max-width: 767px) {
+    .wx-chart-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
 
 .highcharts-row {
 	/* border-top:1px solid #D7D7D7; */
@@ -2542,7 +2365,6 @@ table.celestial td.label {
     margin: 0 auto;
 }
 
-/* .col-sm-1-5 { */
 .forecast-day {
     position: relative;
     /* min-height: 250px; DarkSky */
@@ -2660,11 +2482,6 @@ table.celestial td.label {
 @media only screen and (max-width: 800px) {
 	
         
-    .header-image .site-title > a {
-        background-position-x: center;
-        background-position-y: center;
-        margin-bottom: 20px;
-    }
     
 	.site-footer { text-align:center !important; }
 	.footerLeft { 
@@ -2677,9 +2494,6 @@ table.celestial td.label {
     
     
     
-    .current_temp .outtemp_outer {
-        font-size: 55px;
-    }
 	
     
 	
@@ -2860,13 +2674,6 @@ table.celestial td.label {
 		padding-right: 10px; 
 		white-space: nowrap;
 	}
-    
-    .col-sm-1-5 {
-        padding-left: 0px;
-        padding-right: 0px;
-        width: 45%;
-        font-size: 18px;
-    }
     
     .row {
         margin-right: 0px;
@@ -3408,9 +3215,6 @@ html.view-kiosk {
 }
 .wx-section-link {
     font-size: 16px;
-}
-.highcharts-row .wx-section-head {
-    padding: 0 15px;
 }
 .forecast-menu {
     display: flex;

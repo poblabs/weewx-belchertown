@@ -71,7 +71,7 @@
                 try {
                     if (home_charts_shown()) {
                         thisPageGraphs.forEach( graphID => {
-                            wx_all(".graph-outer").forEach(function(el) { el.insertAdjacentHTML("beforeend", '<div class="col-sm-6"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>'); });
+                            wx_all(".graph-outer").forEach(function(el) { el.insertAdjacentHTML("beforeend", '<div class="wx-chart"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>'); });
                         });
                         showChart(homepage_graphgroup);
                     }

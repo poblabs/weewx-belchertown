@@ -28,9 +28,14 @@
 
 #set $items = []
 #silent $items.append({"label": $obs.label.records_strongest_wind, "y": ($year.windGust.max, $year.windGust.maxtime.raw, $full, "", ""), "a": ($alltime.windGust.max, $alltime.windGust.maxtime.raw, $full, "", "")})
+## weewx can only answer this from its daily summaries, which can fail when a new record arrives mid-report
+#try
 #if $year.windrun.has_data and $alltime.windrun.has_data
 #silent $items.append({"label": $obs.label.records_daily_windrun, "y": ($year.windrun.maxsum, $year.windrun.maxsumtime.raw, $date, "", ""), "a": ($alltime.windrun.maxsum, $alltime.windrun.maxsumtime.raw, $date, "", "")})
 #end if
+#except
+#pass
+#end try
 #silent $groups.append({"title": $obs.label.records_wind_records, "icon": "wi-strong-wind", "items": $items})
 
 #set $items = []
