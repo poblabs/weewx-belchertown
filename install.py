@@ -179,7 +179,6 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
                               'skins/Belchertown/records-table.inc.example',
                               'skins/Belchertown/robots.txt',
                               'skins/Belchertown/skin.conf',
-                              'skins/Belchertown/belchertown-dark.min.css',
                               'skins/Belchertown/style.css'
                              ]
         ),

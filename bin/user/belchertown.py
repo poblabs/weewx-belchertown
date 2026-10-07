@@ -1615,6 +1615,10 @@ class getData(SearchList):
             "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
             "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
             "unit_switch_json": unit_switch_config(self.generator.formatter, self.generator.converter),
+            "bootstrap_users": bootstrap_users(
+                os.path.join(self.generator.config_dict["WEEWX_ROOT"], self.generator.skin_dict["SKIN_ROOT"],
+                             self.generator.skin_dict.get("skin", "")),
+                str(self.generator.skin_dict["Extras"].get("bootstrap", "auto"))),
             "jquery_users": jquery_users(
                 os.path.join(self.generator.config_dict["WEEWX_ROOT"], self.generator.skin_dict["SKIN_ROOT"],
                              self.generator.skin_dict.get("skin", "")),
@@ -1670,6 +1674,51 @@ def system_timezone():
             return f.read().strip()
     except OSError:
         return ""
+
+
+# Bootstrap 3 class names; the skin's style.css has only the ones the skin itself uses
+BOOTSTRAP_CLASS = re.compile(
+    r"(col-(xs|sm|md|lg)-.+|container(-fluid)?|row|well.*|panel.*|btn.*|glyphicon.*|label.*|badge|alert.*|list-group.*"
+    r"|table.*|img-.+|pull-(left|right)|center-block|text-.+|hidden.*|visible-.+|clearfix|sr-only.*|jumbotron|navbar.*"
+    r"|nav.*|dropdown.*|input-group.*|form-.+|embed-responsive.*|progress.*|media.*|thumbnail|caret|breadcrumb"
+    r"|pagination|pager|lead|close|collapse.*|modal.*|tab-.+|page-header|bg-.+|has-.+|help-block|checkbox|radio)")
+CLASS_ATTR = re.compile(r"""class\s*=\s*["']([^"']*)["']""")
+
+
+def bootstrap_class_styled(name, css):
+    """Whether style.css styles this Bootstrap class; a grid column needs its own width rule, not just the shared one."""
+    if re.fullmatch(r"col-(xs|sm|md|lg)-\d+", name):
+        return re.search(r"\." + re.escape(name) + r"\s*\{[^}]*width", css) is not None
+    return re.search(r"\." + re.escape(name) + r"(?![\w-])", css) is not None
+
+
+def bootstrap_users(skin_dir, setting):
+    """The owner's .inc files that use Bootstrap classes style.css doesn't define, which load Bootstrap's CSS ("auto")."""
+    if setting in ("0", "1"):
+        return ["(bootstrap = %s)" % setting] if setting == "1" else []
+    try:
+        with open(os.path.join(skin_dir, "style.css"), encoding="utf-8") as f:
+            ours = f.read()
+    except OSError:
+        return []
+    users = []
+    for name in sorted(os.listdir(skin_dir)) if os.path.isdir(skin_dir) else []:
+        if not name.endswith(".inc") or name in SKIN_INC_FILES:
+            continue
+        try:
+            with open(os.path.join(skin_dir, name), encoding="utf-8", errors="replace") as f:
+                text = f.read()
+        except OSError:
+            continue
+        missing = sorted({c for attr in CLASS_ATTR.findall(text) for c in attr.split()
+                          if BOOTSTRAP_CLASS.fullmatch(c) and not bootstrap_class_styled(c, ours)})
+        if missing:
+            users.append(name)
+            if ("bootstrap", name) not in _jquery_logged:
+                _jquery_logged.add(("bootstrap", name))
+                loginf("%s uses Bootstrap classes (%s), so Bootstrap's stylesheet is loaded for it. See 'Bootstrap' in the "
+                       "Belchertown README." % (name, ", ".join(missing[:5])))
+    return users
 
 
 UNIT_SWITCH_GROUPS = ("group_temperature", "group_speed", "group_speed2", "group_pressure", "group_rain", "group_rainrate",
