@@ -68,6 +68,7 @@ function show_forcast_alert(data) {
 }
 
 function update_forecast_data(data) {
+    if (units_alt_on()) data = convert_forecast_units(JSON.parse(JSON.stringify(data)));
     belchertown_debug("Forecast: Updating data from " + data["provider"]);
     belchertown_debug(data);
 
@@ -288,7 +289,7 @@ function update_forecast_data(data) {
                     }
                     output_html += '</div>';
                     output_html += '<div class="forecast-wind">';
-                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + config.unit_label.windSpeed;
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + display_label("group_speed", config.unit_label.windSpeed);
                     output_html += '</div>';
                     if (extras.forecast_show_daily_forecast_link === '1') {
                     output_html += forecast_row[i]["forecast_link"];

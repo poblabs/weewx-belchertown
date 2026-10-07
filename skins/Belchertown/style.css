@@ -2993,3 +2993,12 @@ html.view-kiosk {
         font-size: 18px;
     }
 }
+
+/* Unit switch: the page stays hidden until it has been converted */
+html.units-pending body {
+    visibility: hidden;
+}
+.wx-unit-button span {
+    font-size: 18px;
+    font-weight: 700;
+}

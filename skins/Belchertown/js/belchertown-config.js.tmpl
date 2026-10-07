@@ -25,6 +25,7 @@ var belchertown_config = {
     "almanac_has_extras": $json.dumps(bool($almanac.hasExtras)),
     "unit_label": {"outTemp": $json.dumps(str($unit.label.outTemp)), "windSpeed": $json.dumps(str($unit.label.windSpeed))},
     "unit_type": {"windSpeed": $json.dumps(str($unit.unit_type.windSpeed))},
+    "units": $unit_switch_json,
     "ordinate_names": $json.dumps([str(x) for x in $ordinate_names]),
     ## This label is a JS object literal in skin.conf, so it is written as code, not text.
     "windDir_ordinals": $obs.label.graphs_windDir_ordinals,

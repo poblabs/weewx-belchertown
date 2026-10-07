@@ -8,7 +8,7 @@
                 <img id="wxicon" src="$relative_url/images/$current_obs_icon" alt="">
                 #end if
             </div>
-            <div class="outtemp_outer"><span class="outtemp">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper">$unit.label.outTemp</sup></div><!-- AJAX -->
+            <div class="outtemp_outer"><span class="outtemp" data-unit-group="group_temperature">$current.outTemp.formatted</span><sup class="outtempunitlabelsuper" data-unit-label="group_temperature">$unit.label.outTemp</sup></div><!-- AJAX -->
         </div>
         <div class="wx-now-details">
             <div class="wx-now-text">
@@ -71,11 +71,11 @@
                     <td class="windtext border-left gust">$obs.label.wind_gust</td>
                 </tr>
                 <tr>
-                    <td><span class="curwindspeed">$current.windSpeed.toString(addLabel=False, NONE_string="--")</span></td>
-                    <td class="border-left gust"><span class="curwindgust">$current.windGust.toString(addLabel=False, NONE_string="--")</span></td>
+                    <td><span class="curwindspeed" data-unit-group="group_speed">$current.windSpeed.toString(addLabel=False, NONE_string="--")</span></td>
+                    <td class="border-left gust"><span class="curwindgust" data-unit-group="group_speed">$current.windGust.toString(addLabel=False, NONE_string="--")</span></td>
                 </tr>
                 <tr>
-                    <td class="mph" colspan="2">$unit.label.windSpeed</td>
+                    <td class="mph" colspan="2" data-unit-label="group_speed">$unit.label.windSpeed</td>
                 </tr>
                 #if "beaufort_category" in $Extras and $Extras.beaufort_category == '1'
                 <tr>

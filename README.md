@@ -222,6 +222,12 @@ The choice is remembered in that visitor's browser, so it's still there next tim
 
 You can also link straight to a layout by adding `?view=` and its name to your home page address, for example `http://your-server/weewx/belchertown/?view=charts`. The [wall display](#wall-display-kiosk-view) uses the same idea with `?view=kiosk`.
 
+### Units button (°F or °C)
+
+The header has a units button that shows the temperature unit on screen, such as **°F**. Pressing it shows the whole site in the other system: °F and °C, mph and km/h, inches and millimeters, inHg and hPa, miles and kilometers, feet and meters. Everything on the page changes, including the forecast, the records, live updates and the charts. Each visitor's choice is remembered in their browser; your station keeps its own units, and visitors who never press the button see those.
+
+The NOAA reports on the Reports page stay in your station's units. To hide the button, set `unit_toggle_enabled = 0` in `[[[Extras]]]`.
+
 ### Add your own content to the home page
 
 There are also four fixed places for your own content (HTML is fine). Create any of these files in the Belchertown files folder:
@@ -355,7 +361,8 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | belchertown_debug | 0 | 1 turns on debug messages in the browser console. See [Debug mode](#debug-mode).
 | belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses your server's setting. The locale must be installed on your server first.
 | theme | light | `light`, `dark` or `auto` (light at sunrise, dark at sunset).
-| theme_toggle_enabled | 1 | Shows a switch in the menu so visitors can flip between light and dark.
+| theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
+| unit_toggle_enabled | 1 | Shows a units button (°F or °C) so visitors can see the site in the other unit system. See [Units button](#units-button-f-or-c).
 | logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.
 | logo_image_dark | "" | The **full** web address of a logo for dark mode.
 | site_title | "My Weather Website" | Shown instead of a logo when `logo_image` is empty.

@@ -119,6 +119,7 @@ Highcharts.setOptions({
 function showChart(json_file, prepend_renderTo = false) {
     // Relative URL by finding what page we're on currently.
     jQuery.getJSON(get_relative_url() + '/json/' + json_file + '.json', function(data) {
+        if (units_alt_on()) convert_chart_units(data);
         var group = {
             colors: data.colors.split(","),
             credits: data.credits.split(",")[0],
@@ -700,7 +701,7 @@ function gauge_chart(options, observation_type) {
     } else if (unit_label_array[observation_type] == null) {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
     } else {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + unit_label_array[observation_type] + '</span>'
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, unit_label_array[observation_type]) + '</span>'
         options.plotOptions.solidgauge.dataLabels.y = -25
     }
     options.yAxis = {

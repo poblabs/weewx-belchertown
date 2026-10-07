@@ -1611,6 +1611,7 @@ class getData(SearchList):
             "beaufort12": label_dict["beaufort12"],
             "mqtt_websockets_port_kiosk": mqtt_websockets_port_kiosk,
             "mqtt_websockets_ssl_kiosk": mqtt_websockets_ssl_kiosk,
+            "unit_switch_json": unit_switch_config(self.generator.formatter, self.generator.converter),
             # Called by Cheetah only on the page that uses it
             "on_this_day": lambda: on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
             "on_this_day_summary": lambda: on_this_day_summary(
@@ -1619,6 +1620,23 @@ class getData(SearchList):
         }
         # Finally, return our extension as a list:
         return [search_list_extension]
+
+
+UNIT_SWITCH_GROUPS = ("group_temperature", "group_speed", "group_speed2", "group_pressure", "group_rain", "group_rainrate",
+                      "group_distance", "group_altitude", "group_degree_day", "group_length")
+
+
+def unit_switch_config(formatter, converter):
+    """The station's display units, labels and formats, for the visitor's unit switch in the browser."""
+    labels = {}
+    for unit, label in formatter.unit_label_dict.items():
+        labels[unit] = label[-1] if isinstance(label, (list, tuple)) else label
+    return json.dumps({
+        "groups": {g: u for g, u in converter.group_unit_dict.items() if g in UNIT_SWITCH_GROUPS},
+        "labels": labels,
+        "formats": dict(formatter.unit_format_dict),
+        "obs": {o: g for o, g in weewx.units.obs_group_dict.items() if g in UNIT_SWITCH_GROUPS},
+    })
 
 
 def on_this_day(stop_ts, db_lookup, formatter, converter):
@@ -2260,6 +2278,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     output[chart_group][plotname]["series"][line_name][
                         "yAxis_label"
                     ] = yAxis_label
+                    # The unit the data is in, for the visitor's unit switch
+                    output[chart_group][plotname]["series"][line_name]["unit"] = (
+                        special_target_unit
+                        or self.converter.getTargetUnit("windSpeed" if obs_label == "haysChart" else obs_label, aggregate_type)[0]
+                    )
 
                     # Check for average type:
                     average_type = line_options.get("average_type")

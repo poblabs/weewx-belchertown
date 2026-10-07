@@ -56,6 +56,13 @@
         #set $home_view = $Extras.get("home_view", "dashboard")
         <script>
             // Home page layout: ?view= in the address, else the visitor's last choice, else home_view (see style.css)
+            // Visitors who switched units: hide the page until belchertown-units.js has converted it
+            try {
+                if (localStorage.getItem("belchertown_units") === "alt") {
+                    document.documentElement.classList.add("units-pending");
+                    setTimeout(function() { document.documentElement.classList.remove("units-pending"); }, 3000);
+                }
+            } catch (e) {}
             (function() {
                 var view = (location.search.match(/[?&]view=([a-z]+)/) || [])[1];
                 if (view === "kiosk") { document.documentElement.classList.add("view-kiosk"); return; }
@@ -132,6 +139,7 @@
         #set $js_version = int(time.time())
         <script type='text/javascript' src='$relative_url/js/belchertown-config.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-units.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-theme.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-forecast.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-live.js?$js_version'></script>
@@ -224,6 +232,9 @@
                                             #end if
                                         </ul>
                                     </details>
+                                    #end if
+                                    #if $Extras.get("unit_toggle_enabled", "1") == "1"
+                                    <button type="button" id="unitSwitch" class="wx-icon-button wx-unit-button" title="$obs.label.unit_toggle_title" aria-label="$obs.label.unit_toggle_title"><span></span></button>
                                     #end if
                                     #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
                                     <button type="button" id="themeSwitch" class="wx-icon-button" title="$obs.label.theme_toggle_title" aria-label="$obs.label.theme_toggle_title"><i class="fa $themeIcon" aria-hidden="true"></i></button>

@@ -22,8 +22,8 @@
 #silent $items.append({"label": $obs.label.records_high_heatindex, "y": ($year.heatindex.max, $year.heatindex.maxtime.raw, $full, "", ""), "a": ($alltime.heatindex.max, $alltime.heatindex.maxtime.raw, $full, "", "")})
 #silent $items.append({"label": $obs.label.records_low_windchill, "y": ($year.windchill.min, $year.windchill.mintime.raw, $full, "", ""), "a": ($alltime.windchill.min, $alltime.windchill.mintime.raw, $full, "", "")})
 #set $t = " " + str($unit.label.outTemp).strip()
-#silent $items.append({"label": $obs.label.records_largest_temp_range, "y": (str($year_outTemp_range_max[1]) + $t, $year_outTemp_range_max[0], $date, "", str($year_outTemp_range_max[2]) + $t + " – " + str($year_outTemp_range_max[3]) + $t), "a": (str($at_outTemp_range_max[1]) + $t, $at_outTemp_range_max[0], $date, "", str($at_outTemp_range_max[2]) + $t + " – " + str($at_outTemp_range_max[3]) + $t)})
-#silent $items.append({"label": $obs.label.records_smallest_temp_range, "y": (str($year_outTemp_range_min[1]) + $t, $year_outTemp_range_min[0], $date, "", str($year_outTemp_range_min[2]) + $t + " – " + str($year_outTemp_range_min[3]) + $t), "a": (str($at_outTemp_range_min[1]) + $t, $at_outTemp_range_min[0], $date, "", str($at_outTemp_range_min[2]) + $t + " – " + str($at_outTemp_range_min[3]) + $t)})
+#silent $items.append({"label": $obs.label.records_largest_temp_range, "delta": True, "y": (str($year_outTemp_range_max[1]) + $t, $year_outTemp_range_max[0], $date, "", str($year_outTemp_range_max[2]) + $t + " – " + str($year_outTemp_range_max[3]) + $t), "a": (str($at_outTemp_range_max[1]) + $t, $at_outTemp_range_max[0], $date, "", str($at_outTemp_range_max[2]) + $t + " – " + str($at_outTemp_range_max[3]) + $t)})
+#silent $items.append({"label": $obs.label.records_smallest_temp_range, "delta": True, "y": (str($year_outTemp_range_min[1]) + $t, $year_outTemp_range_min[0], $date, "", str($year_outTemp_range_min[2]) + $t + " – " + str($year_outTemp_range_min[3]) + $t), "a": (str($at_outTemp_range_min[1]) + $t, $at_outTemp_range_min[0], $date, "", str($at_outTemp_range_min[2]) + $t + " – " + str($at_outTemp_range_min[3]) + $t)})
 #silent $groups.append({"title": $obs.label.records_temperature_records, "icon": "wi-thermometer", "items": $items})
 
 #set $items = []
@@ -148,7 +148,7 @@ $side[3]
                             <div class="rec-sides">
                                 <div class="rec-side">
                                     <div class="rec-when-label">$this_year</div>
-                                    <div class="rec-value">$item["y"][0]</div>
+                                    <div class="rec-value"#if $item.get("delta") then ' data-unit-delta' else ''#>$item["y"][0]</div>
                                     <div class="rec-date">$when($item["y"])</div>
                                     #if $item["y"][4]
                                     <div class="rec-note">$item["y"][4]</div>
@@ -156,7 +156,7 @@ $side[3]
                                 </div>
                                 <div class="rec-side">
                                     <div class="rec-when-label">$obs.label.records_all_time</div>
-                                    <div class="rec-value">$item["a"][0]</div>
+                                    <div class="rec-value"#if $item.get("delta") then ' data-unit-delta' else ''#>$item["a"][0]</div>
                                     <div class="rec-date">$when($item["a"])</div>
                                     #if $item["a"][4]
                                     <div class="rec-note">$item["a"][4]</div>
