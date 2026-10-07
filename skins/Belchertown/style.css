@@ -1533,7 +1533,6 @@ th {
 .site-header .widget-area {
     float: right;
     text-align: right;
-    width: 800px;
 }
 
 /* # Site Navigation
@@ -1630,35 +1629,20 @@ th {
 /* # Media Queries
    ---------------------------------------------------------------------------------------------------- */
 
-@media only screen and (max-width: 1196px) {
-    .site-inner,
-    .wrap {
-        max-width: 960px;
-    }
-
-    .content,
-    .site-header .widget-area {
-        width: 620px;
-    }
+/* clip, not hidden: hidden makes the page its own scroll box and the sticky header stops sticking */
+body,
+html {
+    overflow-x: clip;
 }
 
-/* Phones */
+/* Page width: up to 1200px, with side margins on smaller screens */
+.site-inner,
+.wrap {
+    width: calc(100% - 48px);
+}
 
-@media only screen and (max-width: 960px) {
-    .site-inner,
-    .wrap {
-        max-width: 800px;
-    }
-
-    .content,
-    .content-sidebar-sidebar .content,
-    .content-sidebar-sidebar .content-sidebar-wrap,
-    .sidebar-content-sidebar .content,
-    .sidebar-content-sidebar .content-sidebar-wrap,
-    .sidebar-primary,
-    .sidebar-secondary,
-    .sidebar-sidebar-content .content,
-    .sidebar-sidebar-content .content-sidebar-wrap,
+/* Tablets: the logo above the menu, both centered */
+@media only screen and (max-width: 991px) {
     .site-header .widget-area,
     .title-area {
         width: 100%;
@@ -1669,40 +1653,27 @@ th {
     }
 
     .genesis-nav-menu li,
-    .site-header ul.genesis-nav-menu,
-    .site-header .search-form {
+    .site-header ul.genesis-nav-menu {
         float: none;
     }
 
     .genesis-nav-menu,
-    .site-description,
     .site-header .title-area,
-    .site-header .search-form,
     .site-title {
         text-align: center;
     }
 
-    .genesis-nav-menu a,
-    .genesis-nav-menu > .first > a,
-    .genesis-nav-menu > .last > a {
+    .genesis-nav-menu a {
         padding: 20px 16px;
     }
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 767px) {
     /* POB Styles */
 
     /* Global */
 
-    /* clip, not hidden: hidden makes the page its own scroll box and the sticky header stops sticking */
-
-    body,
-    html {
-        overflow-x: clip;
-    }
-
     body {
-        padding: 5px;
         font-size: 16px;
     }
 
@@ -1725,17 +1696,9 @@ th {
 
     .site-inner,
     .wrap {
-        padding-left: 5%;
-        padding-right: 5%;
+        width: calc(100% - 32px);
     }
 
-    .archive-description,
-    .author-box,
-    .comment-respond,
-    .entry,
-    .entry-comments,
-    .entry-pings,
-    .sidebar .widget,
     .site-header {
         padding: 0;
     }
@@ -1750,7 +1713,7 @@ th {
 /* # Media Queries
    ---------------------------------------------------------------------------------------------------- */
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
     .genesis-nav-menu.responsive-menu > .menu-item > .sub-menu,
     .genesis-nav-menu.responsive-menu {
         display: none;
@@ -1945,7 +1908,7 @@ th {
     float: none;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 767px) {
     .wx-page-header {
         flex-wrap: wrap;
         justify-content: center;
@@ -2520,7 +2483,7 @@ table.celestial td.label {
     font-weight: 700;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 767px) {
     .site-footer {
         text-align: center;
     }
@@ -2866,7 +2829,7 @@ table.celestial td.label {
     display: none;
 }
 
-@media only screen and (min-width: 769px) {
+@media only screen and (min-width: 768px) {
     .menu-toggle-state {
         display: none;
     }
@@ -2883,7 +2846,7 @@ table.celestial td.label {
     --wx-bg: #222;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
     .site-header {
         position: relative;
     }
