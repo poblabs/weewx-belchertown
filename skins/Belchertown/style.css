@@ -2749,12 +2749,17 @@ html.view-kiosk {
     font-size: 14px;
     opacity: 0.7;
 }
+.rec-new h2, .rec-otd h2, .rec-new .rec-empty {
+    text-align: center;
+}
 .rec-new-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 24px;
 }
 .rec-new-item {
+    flex: 0 1 220px;
     border-left: 3px solid #e0a526;
     padding: 4px 0 4px 12px;
 }
@@ -2764,6 +2769,7 @@ html.view-kiosk {
 }
 .rec-otd-rows {
     max-width: 760px;
+    margin: 0 auto;
 }
 .rec-otd-row {
     display: grid;
