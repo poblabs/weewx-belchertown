@@ -202,12 +202,14 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
         ),
        ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
        ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
+       ('skins/Belchertown/chart-builder', ['skins/Belchertown/chart-builder/index.html.tmpl']),
        ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',
                                  'skins/Belchertown/js/belchertown.js',
                                  'skins/Belchertown/js/belchertown-charts.js',
                                  'skins/Belchertown/js/belchertown-forecast.js',
                                  'skins/Belchertown/js/belchertown-live.js',
                                  'skins/Belchertown/js/belchertown-units.js',
+                                 'skins/Belchertown/js/belchertown-chart-builder.js',
                                  'skins/Belchertown/js/belchertown-theme.js',
                                  'skins/Belchertown/js/index.html'
                                 ]

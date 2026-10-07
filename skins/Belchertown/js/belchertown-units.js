@@ -287,6 +287,7 @@ function set_units(alt) {
     wx_all("#unitSwitch span").forEach(function(s) { s.textContent = unit_switch_text(); });
     if (window.forecast_last_data) update_forecast_data(forecast_last_data);
     charts_shown.forEach(function(args) { showChart(args[0], args[1]); });
+    document.dispatchEvent(new Event("wx-units"));
 }
 
 document.addEventListener("DOMContentLoaded", function() {

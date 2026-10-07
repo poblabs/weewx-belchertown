@@ -2553,6 +2553,50 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             with open(chart_json_filename, mode="w") as cjf:
                 cjf.write(json.dumps(self.chart_dict, indent=4))
 
+        if to_bool(self.skin_dict["Extras"].get("chart_builder_enabled", True)):
+            try:
+                self.write_chart_builder_data(label_dict)
+            except Exception as e:
+                logerr("HighchartsJsonGenerator: chart builder data not written: %s" % e)
+
+    # The chart builder page previews charts from this file: each observation with data in the last 30 days,
+    # over four spans, in display units. Rain-type observations are summed, the rest averaged.
+    CHART_BUILDER_SPANS = (("day", 86400, None), ("week", 7 * 86400, 3600), ("month", 31 * 86400, 6 * 3600),
+                           ("year", 365 * 86400, 86400))
+
+    def write_chart_builder_data(self, label_dict):
+        dest = os.path.join(self.config_dict["WEEWX_ROOT"], self.skin_dict["HTML_ROOT"], "json", "chart_builder.json")
+        if os.path.isfile(dest) and time.time() - os.path.getmtime(dest) < 3540:
+            return
+        binding = self.config_dict["StdReport"].get("data_binding", "wx_binding")
+        archive = self.db_binder.get_manager(binding)
+        stop = archive.lastGoodStamp()
+        if stop is None:
+            return
+        out = {"generated": stop, "observations": OrderedDict()}
+        for obs in archive.sqlkeys:
+            if obs in ("dateTime", "usUnits", "interval"):
+                continue
+            count = archive.getSql("SELECT COUNT(`%s`) FROM %s WHERE dateTime > ?" % (obs, archive.table_name), (stop - 30 * 86400,))
+            if not count or not count[0]:
+                continue
+            group = weewx.units.obs_group_dict.get(obs, "")
+            summed = group in ("group_rain", "group_energy", "group_count")
+            entry = {"label": label_dict[obs], "group": group, "aggregate": "sum" if summed else "avg", "spans": {}}
+            for name, length, interval in self.CHART_BUILDER_SPANS:
+                aggregate = ("sum" if summed else "avg") if interval else None
+                start_vt, stop_vt, data_vt = weewx.xtypes.get_series(obs, TimeSpan(stop - length, stop), archive, aggregate, interval)
+                data_vt = self.converter.convert(data_vt)
+                decimals = re.search(r"\.(\d+)f", self.formatter.unit_format_dict.get(data_vt[1], "%.2f") or "")
+                places = int(decimals.group(1)) if decimals else 0
+                entry["spans"][name] = [[int(t) * 1000, None if v is None else round(v, places)]
+                                        for t, v in zip(stop_vt[0], data_vt[0])]
+                entry["unit"] = data_vt[1]
+            entry["unit_label"] = self.formatter.get_label_string(entry["unit"]).strip() if entry.get("unit") else ""
+            out["observations"][obs] = entry
+        with open(dest, mode="w") as f:
+            json.dump(out, f, separators=(",", ":"))
+
     def get_observation_data(
         self,
         binding,

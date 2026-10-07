@@ -4519,3 +4519,132 @@ body.dark {
 .dark .belchertown-polar .highcharts-point {
     stroke: initial !important;
 }
+
+/* Chart builder page (chart-builder/): the form beside the preview, the graphs.conf text below */
+
+.cb-intro {
+    font-size: 18px;
+}
+
+.cb-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) 3fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.cb-form fieldset {
+    margin-bottom: 20px;
+}
+
+.cb-form legend {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.cb-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+    font-weight: normal;
+}
+
+.cb-form input[type="text"],
+.cb-form select,
+#cb-output {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 16px;
+    color: inherit;
+    background: var(--wx-bg);
+    border: 1px solid var(--wx-line);
+    border-radius: 4px;
+}
+
+.cb-line {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 8px 16px;
+    padding: 12px 0;
+}
+
+.cb-line + .cb-line {
+    border-top: 1px solid var(--wx-line);
+}
+
+.cb-line .cb-obs,
+.cb-line label:first-of-type {
+    grid-column: 1 / -1;
+}
+
+.cb-line label {
+    margin-bottom: 0;
+}
+
+.cb-form .cb-check {
+    flex-direction: row;
+    align-items: center;
+    align-self: center;
+}
+
+.cb-line input[type="color"] {
+    width: 60px;
+    height: 34px;
+    padding: 2px;
+    background: var(--wx-bg);
+    border: 1px solid var(--wx-line);
+}
+
+.cb-remove {
+    align-self: center;
+    padding: 4px 12px;
+    font-size: 18px;
+    color: inherit;
+    background: none;
+    border: 1px solid var(--wx-line);
+    border-radius: 4px;
+}
+
+.cb-preview {
+    position: sticky;
+    top: 90px;
+}
+
+#cb-chart {
+    min-height: 400px;
+}
+
+.cb-note {
+    font-size: 16px;
+    opacity: 0.75;
+}
+
+.cb-result {
+    margin-top: 30px;
+}
+
+.cb-steps li {
+    margin-bottom: 6px;
+}
+
+#cb-output {
+    font-family: monospace;
+    margin: 10px 0;
+}
+
+#cb-copied {
+    margin-left: 12px;
+}
+
+@media only screen and (max-width: 991px) {
+    .cb-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .cb-preview {
+        position: static;
+        order: -1;
+    }
+}

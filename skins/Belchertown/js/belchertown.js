@@ -110,7 +110,7 @@ document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") wx_all(".modal.in").forEach(function(m) { wx_modal(m, false); });
 });
 
-var pages = ["graphs", "records", "reports", "about"];
+var pages = ["graphs", "records", "reports", "about", "chart-builder"];
 var pageName = "";
 // If this page we're on now is listed as a subpage, use ".." to get to the relative root
 function get_relative_url() {

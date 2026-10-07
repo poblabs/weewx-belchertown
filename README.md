@@ -378,6 +378,17 @@ When weewx saves a new archive record, the page also reloads its forecast, earth
 
 You control which charts appear, what they show and over what time range, in a `graphs.conf` file. The skin ships with four to start from. Everything you can do is on the [chart wiki page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 
+### Chart builder
+
+The easiest way to add a chart is the chart builder: a page on your own site where you pick what to show and see the chart drawn from your station's data as you go. It gives you the text to paste into `graphs.conf`.
+
+1. Open `chart-builder/` on your site, for example `https://www.example.com/chart-builder/` (or `https://www.example.com/weather/chart-builder/` if your weather pages live in a folder). It isn't in the menu, so bookmark it.
+2. Give the chart a title, then choose the kind of chart, how much time it covers and how much detail. Under Lines, choose what to plot; Add a line puts more on the same chart. Tick Right-hand scale for a line measured in something different, such as rain on a temperature chart.
+3. Under Where it goes, pick the page of charts it belongs on, or A new page of charts.
+4. Press Copy and follow the steps under the text: paste it into `graphs.conf` (in your Belchertown skin folder), save, and the chart shows up after the next report. There's no need to restart weewx.
+
+The page only reads your data and can't change anything on your server, so it needs no password. Search engines are asked not to list it. The data behind it (`json/chart_builder.json`) is written by the first report and refreshed once an hour. To turn it off, set `chart_builder_enabled = 0`.
+
 ## All skin options
 
 These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#make-it-yours)). Click a group to open it.
@@ -393,6 +404,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
 | jquery | auto | Loads jQuery only when one of your own `.inc` files uses it. 1 always loads it, 0 never does. See [Your own scripts, jQuery and Bootstrap](#your-own-scripts-jquery-and-bootstrap).
 | bootstrap | auto | Loads Bootstrap's stylesheet only when one of your own `.inc` files uses Bootstrap classes the skin doesn't style. 1 always loads it, 0 never does.
+| chart_builder_enabled | 1 | Writes the data for the [chart builder](#chart-builder) page once an hour. 0 turns it off.
 | sticky_header | 1 | Keeps the header (logo, menu and buttons) at the top of the screen while scrolling; it slims down once you scroll. 0 lets it scroll away with the page.
 | unit_toggle_enabled | 1 | Shows a units button (°F or °C) so visitors can see the site in the other unit system. See [Units button](#units-button-f-or-c).
 | logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.

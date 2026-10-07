@@ -78,7 +78,7 @@
         </script>
 
         <meta name="description" content="$head_desc"/>
-        <meta name="robots" content="noodp"/>
+        <meta name="robots" content="#if $page == "chartbuilder" then "noindex" else "noodp"#"/>
         #if $station.station_url
         #set $canonical_url = ($station.station_url+"/"+$filename).replace("/index.html","/")
         <link rel="canonical" href="$canonical_url" />
@@ -143,7 +143,7 @@
         <script type='text/javascript' src='$highcharts/modules/solid-gauge.js'></script>
         <script type='text/javascript' src='$highcharts/modules/exporting.js'></script>
         <script type='text/javascript' src='$highcharts/modules/accessibility.js'></script>
-        #set $js_version = int(time.time())
+        #set global $js_version = int(time.time())
         <script type='text/javascript' src='$relative_url/js/belchertown-config.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-units.js?$js_version'></script>
