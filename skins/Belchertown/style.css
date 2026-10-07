@@ -773,7 +773,8 @@ button.close {
     left: 0;
     z-index: 1050;
     display: none;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     outline: 0;
 }
@@ -1828,15 +1829,16 @@ th {
 }
 
 .border-top {
-    border-top: 1px solid #D7D7D7 !important;
+    border-top: 1px solid #D7D7D7;
 }
 
 .border-bottom {
-    border-bottom: 1px solid #D7D7D7 !important;
+    border-bottom: 1px solid #D7D7D7;
 }
 
-.border-left {
-    border-left: 1px solid #D7D7D7 !important;
+.border-left,
+.weewx .border-left {
+    border-left: 1px solid #D7D7D7;
 }
 
 .updated-wrapper {
@@ -1987,7 +1989,7 @@ th {
 }
 
 .wx-stn-share iframe {
-    max-width: initial !important;
+    max-width: initial;
 }
 
 .wx-stn-alert {
@@ -2048,7 +2050,7 @@ th {
 }
 
 .wind-arrow {
-    font-size: 50px !important;
+    font-size: 50px;
     padding: 3px 18px 0px 15px;
     border-radius: 50%;
     width: 60px;
@@ -2120,7 +2122,7 @@ th {
 }
 
 .wind-table td {
-    text-align: center !important;
+    text-align: center;
     width: 50%;
 }
 
@@ -2133,9 +2135,10 @@ th {
     font-size: 30px;
 }
 
-.mph {
-    padding-top: 10px !important;
-    font-size: 18px !important;
+.mph,
+.weewx .mph {
+    padding-top: 10px;
+    font-size: 18px;
 }
 
 .wind-table .beaufort {
@@ -2153,7 +2156,7 @@ th {
 
 .sun,
 .moon {
-    padding: 0px !important;
+    padding: 0px;
 }
 
 .sunrise-set-image {
@@ -2189,7 +2192,7 @@ th {
 }
 
 .light .label {
-    color: #333 !important;
+    color: #333;
 }
 
 .celestial_body {
@@ -2198,17 +2201,12 @@ th {
 }
 
 table.celestial td.label {
-    min-width: 140px !important;
+    min-width: 140px;
     display: inline-block;
     text-align: left;
     font-size: initial;
 }
 
-/* Scroll issue in dark mode https://stackoverflow.com/a/54196631/1177153 */
-
-.modal {
-    overflow-y: auto !important;
-}
 
 .moon-container {
     font-size: 15px;
@@ -2223,9 +2221,6 @@ table.celestial td.label {
     font-size: 20px;
 }
 
-.radar-map {
-    padding: 5px 5px 0px 5px !important;
-}
 
 .forecastrow {
     text-align: center;
@@ -2235,7 +2230,7 @@ table.celestial td.label {
     text-align: left;
     font-size: 25px;
     margin-bottom: 5px;
-    padding-right: 0 !important;
+    padding-right: 0;
 }
 
 .forecast-subtitle {
@@ -2246,7 +2241,7 @@ table.celestial td.label {
     display: inline-block;
     position: relative;
     height: 40px;
-    padding-left: 0 !important;
+    padding-left: 0;
     text-align: right;
     font-size: 16px;
 }
@@ -2284,7 +2279,8 @@ table.celestial td.label {
 .forecast-temp-graph {
     font-size: 20px;
     font-weight: 250;
-    height: 179px;
+    padding-top: var(--wx-graph-offset, 0);
+    height: var(--wx-graph-height, 179px);
 }
 
 .forecast-precip,
@@ -2526,7 +2522,7 @@ table.celestial td.label {
 
 @media only screen and (max-width: 800px) {
     .site-footer {
-        text-align: center !important;
+        text-align: center;
     }
 
     .footerLeft {
@@ -2542,8 +2538,9 @@ table.celestial td.label {
         font-size: 27px;
     }
 
-    .border-left {
-        border-left: 0px !important;
+    .border-left,
+    .weewx .border-left {
+        border-left: 0px;
     }
 
     .wx-stn-info-container {
@@ -2566,7 +2563,7 @@ table.celestial td.label {
     .wx-stn-share,
     .wx-stn-info {
         display: none;
-        float: none !important;
+        float: none;
         text-align: center;
     }
 
@@ -2607,7 +2604,7 @@ table.celestial td.label {
 
     .forecast-day {
         font-size: 28px;
-        min-height: 175px !important;
+        min-height: 175px;
         padding-bottom: 15px;
         margin-bottom: 15px;
     }
@@ -2625,16 +2622,16 @@ table.celestial td.label {
     }
 
     .forecast-1hour {
-        width: 25% !important;
+        width: 25%;
     }
 
     .forecast-temp-graph {
-        padding-top: 0px !important;
-        height: 75px !important;
+        padding-top: 0;
+        height: 75px;
     }
 
-    .forecast-temp-graph img {
-        width: 50% !important;
+    .wx-forecast-days .forecast-day .forecast-temp-graph #icon {
+        width: 50%;
         height: auto;
     }
 
@@ -2663,38 +2660,6 @@ table.celestial td.label {
     .records table {
         table-layout: fixed;
         width: 100%;
-    }
-
-    /* Responsive tables from: https://css-tricks.com/responsive-data-tables/ */
-
-    /* Force table to not be like tables anymore */
-
-    /* Hide table headers (but not display: none;, for accessibility) */
-
-    thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    tr {
-        border: 0px;
-    }
-
-    td {
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 50%;
-    }
-
-    td:before {
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        width: 45%;
-        padding-right: 10px;
-        white-space: nowrap;
     }
 
     .row {
@@ -2752,7 +2717,7 @@ table.celestial td.label {
 
 .wx-radar {
     grid-area: radar;
-    padding: 6px;
+    padding: 5px 5px 0 5px;
     overflow: hidden;
 }
 
@@ -3007,7 +2972,7 @@ html.view-kiosk {
 .view-kiosk [class*="index-hook-after"],
 .view-kiosk .site-footer,
 .view-kiosk #btn-back-to-top {
-    display: none !important;
+    display: none;
 }
 
 /* Tightened so a 1280x800 screen fits without scrolling */
@@ -3393,8 +3358,8 @@ html.view-kiosk {
 .wx-forecast-days > .forecast-day {
     flex: 1 1 0;
     min-width: 0;
-    width: auto !important;
-    min-height: 0 !important;
+    width: auto;
+    min-height: 0;
     float: none;
     margin: 0;
     padding: 0 6px 10px;
@@ -3615,6 +3580,8 @@ body .highcharts-container {
     overflow: visible !important;
     font-weight: normal !important;
 }
+
+/* Chart rules below keep !important: they override styles Highcharts writes on each element. */
 
 /* Dark theme. Based on Bootswatch Darkly v3.4.1 (http://bootswatch.com), Copyright 2012-2019 Thomas Park,
    * MIT License; Highcharts Dark Unica; and the skin's own dark overrides. */
@@ -4141,7 +4108,6 @@ button.close {
     left: 0;
     z-index: 1050;
     display: none;
-    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     outline: 0;
 }
@@ -4540,13 +4506,13 @@ body.dark {
 }
 
 .dark ::-moz-selection {
-    background-color: #fff !important;
-    color: #000 !important;
+    background-color: #fff;
+    color: #000;
 }
 
 .dark ::selection {
-    background-color: #fff !important;
-    color: #000 !important;
+    background-color: #fff;
+    color: #000;
 }
 
 .dark .genesis-nav-menu a {
@@ -4555,7 +4521,7 @@ body.dark {
 
 .dark .compass,
 .dark .moon-container {
-    color: #fff !important;
+    color: #fff;
 }
 
 .dark .records table {

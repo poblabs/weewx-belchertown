@@ -213,14 +213,13 @@ function update_forecast_data(data) {
                     output_html += '<div class="forecast-conditions"';
                     if (extras.forecast_show_humidity_dewpoint > '0') {
                     output_html += ' style="min-height:155px">'
-                    output_html += '<div class="forecast-temp-graph" style="padding-top:';
-                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 76 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
+                    // The icon sits lower the colder the hour; CSS reads the offset (phones ignore it)
+                    output_html += '<div class="forecast-temp-graph" style="--wx-graph-offset:';
                     output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 76 / (rangeTemp)) + 'px';
-                    output_html += '; height:155px">'
+                    output_html += '; --wx-graph-height:155px">'
                     } else {
                     output_html += '>'
-                    output_html += '<div class="forecast-temp-graph" style="padding-top:';
-                    //  padding = ( ( highTemp - forecast_row[i]["avgTemp"] = offset ) * 100 / ( rangeTemp) ) where 100 ~ max calculated space available for padding
+                    output_html += '<div class="forecast-temp-graph" style="--wx-graph-offset:';
                     output_html += parseInt((highTemp - forecast_row[i]["avgTemp"] + offset) * 100 / (rangeTemp)) + 'px">';
                     }
                     output_html += '<div class="forecast-image">';
