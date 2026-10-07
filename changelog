@@ -2,6 +2,14 @@
 
 Belchertown goes from 1.3.1 straight to 3.0. The 2.x numbers belong to New Belchertown, a separate fork by uajqq (github.com/uajqq/weewx-belchertown-new), and skipping them keeps the two apart.
 
+### By the numbers
+Measured on the home page of the same station, 1.3.1 against 3.0:
+* JavaScript the browser has to load and run: 1,301 KB -> 817 KB (-37%), with Highcharts 13 and its accessibility module included.
+* Stylesheets: 361 KB in 6 files -> 146 KB in 4 (-60%).
+* Everything the page downloads: 2,773 KB -> 1,997 KB (-28%); about 796 KB -> 682 KB over a compressed connection.
+* Requests: 36 -> 41 (Day.js arrives as seven small files and the skin's script is split into seven).
+* Gone: jQuery, Bootstrap's JavaScript and stylesheet, moment.js and moment-timezone, belchertown-dark.min.css, the kiosk and Raspberry Pi pages, the Twitter button and the static Xweather map.
+
 ### Breaking Changes
 * Requires weewx 5.0 or newer. On weewx 3 or 4, stay on 1.3.1; the installer and the extension both refuse to run on older weewx.
 * The Twitter share button is gone (twitter_enabled, twitter_text, twitter_owner, twitter_hashtags). Leftover settings are ignored.
