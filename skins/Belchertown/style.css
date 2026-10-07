@@ -2444,39 +2444,8 @@ table.celestial td.label {
     .wx-now .outtemp_outer {
         font-size: 56px;
     }
-    /* Forecast: one row to swipe through, about three days on screen */
-    .forecastrow [class~="1hr_forecasts"],
-    .forecastrow [class~="3hr_forecasts"],
-    .forecastrow [class~="24hr_forecasts"] {
-        display: flex;
-        flex-wrap: nowrap;
-        float: none;
-        margin: 0;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-    }
-    .forecastrow .forecast-day {
-        flex: 0 0 31%;
-        width: auto !important;
-        min-height: 0 !important;
-        margin: 0;
-        padding: 0 6px 10px;
-        font-size: 16px;
-        scroll-snap-align: start;
-    }
-    .forecastrow .forecast-1hour {
-        flex-basis: 22%;
-    }
-    .forecastrow .forecast-day #icon {
-        width: 56px;
-        height: auto;
-    }
     .wx-now .feelslike, .wx-now .current-obs-text, .wx-now .aqi_outer {
         font-size: 17px;
-    }
-    .forecastrow .forecast-day::after {
-        display: none;
     }
 }
 
@@ -2589,6 +2558,16 @@ html.view-kiosk {
 .view-kiosk .forecast-day,
 .view-kiosk .forecast-conditions {
     min-height: 0;
+}
+.view-kiosk .wx-section-head {
+    margin: 4px 0;
+}
+.view-kiosk .forecast-menu {
+    display: none;
+}
+.view-kiosk .forecast-day #icon {
+    width: 72px;
+    height: auto;
 }
 
 /* Back to top button */
@@ -2710,11 +2689,11 @@ html.view-kiosk {
 .rec-section {
     margin: 24px 0;
 }
-.rec-section h2 {
+.rec-section h2, .wx-section-title {
     font-size: 24px;
     margin: 0 0 12px;
 }
-.rec-section h2 .wi, .rec-section h2 .fa {
+.rec-section h2 .wi, .rec-section h2 .fa, .wx-section-title .wi, .wx-section-title .fa {
     width: 28px;
     text-align: center;
     margin-right: 4px;
@@ -2722,8 +2701,12 @@ html.view-kiosk {
 }
 .rec-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+}
+.rec-section + .rec-section {
+    border-top: 1px solid var(--wx-line);
+    padding-top: 20px;
 }
 .rec-card {
     border: 1px solid var(--wx-line);
@@ -2820,9 +2803,6 @@ html.view-kiosk {
     color: #e0a526;
 }
 @media only screen and (max-width: 767px) {
-    .rec-grid {
-        grid-template-columns: 1fr;
-    }
     .rec-otd-row {
         grid-template-columns: 64px 64px 1fr 64px 60px;
         gap: 8px;
@@ -2830,5 +2810,87 @@ html.view-kiosk {
     }
     .rec-value {
         font-size: 21px;
+    }
+}
+
+/* Section headings on the home page: title left, link or buttons right */
+.wx-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin: 16px 0 10px;
+    text-align: left;
+}
+.wx-section-head .wx-section-title {
+    margin: 0;
+}
+.wx-section-head .forecast-subtitle {
+    font-size: 14px;
+    opacity: 0.75;
+}
+.wx-section-link {
+    font-size: 16px;
+}
+.highcharts-row .wx-section-head {
+    padding: 0 15px;
+}
+.forecast-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: auto;
+    font-size: 16px;
+}
+.forecast-button {
+    margin: 0;
+    padding: 2px 10px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    border: 2px hidden var(--wx-line);
+    border-radius: 5px;
+}
+
+/* Forecast periods share the width equally; phones swipe through them */
+.wx-forecast-days {
+    display: flex;
+    overflow-x: auto;
+}
+.wx-forecast-days > .forecast-day.forecast-1hour {
+    min-width: 66px;
+}
+.wx-forecast-days > .forecast-day {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto !important;
+    min-height: 0 !important;
+    float: none;
+    margin: 0;
+    padding: 0 6px 10px;
+}
+.wx-forecast-days > .forecast-day::after {
+    display: none;
+}
+@media only screen and (max-width: 767px) {
+    .rec-grid {
+        grid-template-columns: 1fr;
+    }
+    .wx-forecast-days {
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    .wx-forecast-days > .forecast-day {
+        flex: 0 0 31%;
+        font-size: 16px;
+        scroll-snap-align: start;
+    }
+    .wx-forecast-days > .forecast-1hour {
+        flex-basis: 22%;
+    }
+    .wx-forecast-days > .forecast-day #icon {
+        width: 56px;
+        height: auto;
     }
 }

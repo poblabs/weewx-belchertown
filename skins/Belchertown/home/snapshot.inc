@@ -1,7 +1,8 @@
 ## Home page block "snapshot" (see home_sections in skin.conf)
 <section class="eq-stats-row wx-snapshot">
-    <div class="snapshot-records-text">
-        $obs.label.weather_snapshots <a href="$relative_url/records">$obs.label.weather_snapshots_link</a>
+    <div class="wx-section-head">
+        <h2 class="wx-section-title"><i class="fa fa-trophy" aria-hidden="true"></i> #echo str($obs.label.weather_snapshots).strip().rstrip(".")#</h2>
+        <a class="wx-section-link" href="$relative_url/records">$obs.label.weather_snapshots_link</a>
     </div>
     <div class="wx-snapshot-cards">
         <div class="wx-snapshot-card">
