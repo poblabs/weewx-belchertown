@@ -17,7 +17,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 ![The home page on a phone, light and dark](assets/phone_light_dark.jpg)
 
 > [!IMPORTANT]
-> **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
+> **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1). Coming from 1.3.1? The wiki has an [upgrade guide](https://github.com/poblabs/weewx-belchertown/wiki/Upgrading-to-Belchertown-3).
 
 ## Belchertown 3.0: the original, rebuilt
 
@@ -380,6 +380,8 @@ When weewx saves a new archive record, the page also reloads its forecast, earth
 * [HiveMQ public broker](http://www.mqtt-dashboard.com)
 * [test.mosquitto.org](http://test.mosquitto.org)
 * [This list of public brokers](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
+
+The wiki has a step-by-step guide to [setting up live updates with your own Mosquitto broker](https://github.com/poblabs/weewx-belchertown/wiki/Live-Updates-with-MQTT), including the https case and a troubleshooting list, and a page on [public brokers](https://github.com/poblabs/weewx-belchertown/wiki/Public-MQTT-Brokers) with ready-to-paste settings.
 
 ## Charts
 
