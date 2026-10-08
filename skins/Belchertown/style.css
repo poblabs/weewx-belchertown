@@ -3465,7 +3465,10 @@ html.view-kiosk {
     vertical-align: middle;
 }
 
-.wx-otd-legend-today {
+.wx-otd-today-line {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 18px;
     font-weight: 700;
 }
 

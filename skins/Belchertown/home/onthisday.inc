@@ -11,6 +11,9 @@
     #set $note = str($obs.label["onthisday_" + $otd.note]).replace("{date}", $otd_date).replace("{year}", str($otd.note_year))
     <p class="wx-otd-note wx-otd-$otd.note">$note</p>
     #end if
+    #if $otd.today
+    <p class="wx-otd-today-line"><i class="wx-otd-key wx-otd-key-today"></i>$obs.label.onthisday_today: $otd.today.low – $otd.today.high</p>
+    #end if
     <div class="wx-otd-scale">
         <div class="wx-otd-end wx-otd-cold">
             <div class="wx-otd-label">$obs.label.onthisday_record_low</div>
@@ -30,9 +33,6 @@
         </div>
     </div>
     <div class="wx-otd-legend">
-        #if $otd.today
-        <span class="wx-otd-legend-today"><i class="wx-otd-key wx-otd-key-today"></i>$obs.label.onthisday_today: $otd.today.low – $otd.today.high</span>
-        #end if
         <span><i class="wx-otd-key wx-otd-key-average"></i>$obs.label.onthisday_average: $otd.avg_low – $otd.avg_high</span>
         #if $otd.wettest
         <span><i class="wi wi-raindrop" aria-hidden="true"></i> $obs.label.onthisday_wettest: $otd.wettest ($otd.wettest_year)</span>
