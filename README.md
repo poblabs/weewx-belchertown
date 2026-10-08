@@ -4,6 +4,7 @@
 
 A skin (website theme) for the [weewx weather software](https://weewx.com), modeled after my website [BelchertownWeather.com](https://belchertownweather.com).
 
+* **A chart builder**: pick what to plot and see the chart drawn from your own data, then copy the settings into your charts file. No more writing chart configuration by hand ([see Chart builder](#chart-builder)).
 * **Live updates** on the home page without reloading, if you set up MQTT ([see Live updates](#live-updates-mqtt)).
 * **Charts** you can customize: which observations, what time range, how they're grouped.
 * **Light and dark mode**, switching automatically at sunrise and sunset if you like.
@@ -18,7 +19,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 ## Belchertown 3.0: the original, rebuilt
 
-This is the original Belchertown skin, back in active development and refactored from the ground up: faster pages, a new home page and records page, forecasts and alerts with no setup, a °F/°C button, and a chart builder, all on weewx 5. See the [changelog](changelog) for everything that changed.
+This is the original Belchertown skin, back in active development and refactored from the ground up: a chart builder that writes your chart settings for you, faster pages, a new home page and records page, forecasts and alerts with no setup, and a °F/°C button, all on weewx 5. See the [changelog](changelog) for everything that changed.
 
 > [!NOTE]
 > **Why 3.0 and not 2.0?** While this skin was quiet, uajqq kept it going as [New Belchertown](https://github.com/uajqq/weewx-belchertown-new), a separate fork with its own 2.x versions. The two are different skins, so this one jumps from 1.3.1 straight to 3.0 to keep the version numbers apart. Both are free; use whichever suits you.
@@ -40,12 +41,12 @@ This is the original Belchertown skin, back in active development and refactored
 
 These steps get you a working site. Everything after this section is optional.
 
-**1. Download** the latest `weewx-belchertown-x.x.tar.gz` from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
+**1. Download** the latest `weewx-belchertown-x.x.x.tar.gz` from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
 
-**2. Install it.** Replace `x.x` with the version you downloaded:
+**2. Install it.** Replace `x.x.x` with the version you downloaded:
 
 ```
-weectl extension install weewx-belchertown-x.x.tar.gz
+weectl extension install weewx-belchertown-x.x.x.tar.gz
 ```
 
 **3. Check your station's location.** Open your `weewx.conf` (see the table below) and make sure the `[Station]` section has your `latitude` and `longitude`. The forecast, earthquakes and sunrise/sunset all use them.
@@ -120,7 +121,7 @@ Every piece of text on the site is a "label" you can change or translate. To cha
 | footer_copyright_text | "My Weather Website" | Text after the year in the footer's copyright
 | footer_disclaimer_text | "Never make important decisions from this website." | Disclaimer in the footer
 
-The skin also ships in Catalan, German and Italian: add `lang = ca`, `lang = de` or `lang = it` under `[[Belchertown]]`.
+The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`.
 
 <details>
 <summary><b>Dates and times in your language</b></summary>
@@ -427,6 +428,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | radar_height | 360 | Height of the windy.com radar, in pixels.
 | radar_zoom | 8 | How far the radar starts zoomed in, from 1 (far) to 11 (close).
 | radar_marker | 0 | 1 puts a marker at your station on the windy.com radar.
+| radar_overlay | radar | What the windy.com map shows: `radar`, `wind`, `gust`, `rain`, `temp`, `clouds`, `satellite`, `pressure`, `rh`, `snowcover`, `thunder` and the other layer names windy.com offers.
 | almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
 | highcharts_enabled | 1 | 0 hides the charts.
 | home_sections | conditions, forecast, onthisday, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).

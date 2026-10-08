@@ -1,16 +1,16 @@
-3.0.0 (unreleased, on the next branch)
+3.0.0 October 8, 2026
 
-The original Belchertown, rebuilt. 3.0 is a refactor of the original skin from the ground up for weewx 5: lighter and faster pages, new home and records pages, forecasts and alerts with no setup, a units button, a chart builder, and years of old code removed.
+The original Belchertown, rebuilt. 3.0 is a refactor of the original skin from the ground up for weewx 5: a chart builder that writes your graphs.conf for you, lighter and faster pages, new home and records pages, forecasts and alerts with no setup, a units button, and years of old code removed.
 
 Why 3.0: Belchertown goes from 1.3.1 straight to 3.0 because the 2.x numbers belong to New Belchertown, a separate fork by uajqq (github.com/uajqq/weewx-belchertown-new). Skipping them keeps the two apart.
 
 ### By the numbers
 Measured on the home page of the same station, 1.3.1 against 3.0:
-* JavaScript the browser has to load and run: 1,301 KB -> 817 KB (-37%), with Highcharts 13 and its accessibility module included.
-* Stylesheets: 361 KB in 6 files -> 146 KB in 4 (-60%).
-* Everything the page downloads: 2,773 KB -> 1,997 KB (-28%); about 796 KB -> 682 KB over a compressed connection.
-* Requests: 36 -> 41 (Day.js arrives as six or seven small files and the skin's script is split into seven).
-* The skin's own code (page templates, stylesheets, JavaScript and Python): 665 KB -> 535 KB (-20%). Page templates 2,936 -> 2,089 lines; stylesheets 171 KB in 3 files -> 76 KB in 1. Six files removed (belchertown-dark.min.css, kiosk.css, kiosk.html.tmpl, pi/index.html.tmpl, js/responsive-menu.js, js/belchertown.js.tmpl); most of the 15 new ones are the old home page and script split into one file per job.
+* JavaScript the browser has to load and run: 1,301 KB -> 822 KB (-37%), with Highcharts 13 and its accessibility module included.
+* Stylesheets: 361 KB in 6 files -> 149 KB in 4 (-59%).
+* Everything the page downloads: 2,773 KB -> 1,959 KB (-29%); about 796 KB -> 687 KB over a compressed connection.
+* Requests: 36 -> 42 (Day.js arrives as six or seven small files and the skin's script is split into seven).
+* The skin's own code (page templates, stylesheets, JavaScript and Python): 665 KB -> 543 KB (-18%). Page templates 2,936 -> 2,107 lines; stylesheets 171 KB in 3 files -> 77 KB in 1. Six files removed (belchertown-dark.min.css, kiosk.css, kiosk.html.tmpl, pi/index.html.tmpl, js/responsive-menu.js, js/belchertown.js.tmpl); most of the 15 new ones are the old home page and script split into one file per job.
 * Gone: jQuery, Bootstrap's JavaScript and stylesheet, moment.js and moment-timezone, belchertown-dark.min.css, the kiosk and Raspberry Pi pages, the Twitter button and the static Xweather map.
 
 ### Breaking Changes
@@ -47,6 +47,8 @@ Measured on the home page of the same station, 1.3.1 against 3.0:
 * jQuery and Bootstrap's JavaScript are gone from the skin (about 40 KB less to download per page, 127 KB unpacked). New option jquery = auto (default) still loads jQuery, with Bootstrap's scripts, when one of your own .inc files uses it and says which file in the weewx log; 1 always loads it, 0 never. Tabs and popups written with Bootstrap markup (data-toggle="tab" / "modal") keep working without it. index_radar.inc.example and records-table.inc.example are rewritten without jQuery (the records example also used moment.js, which 3.0 had already removed). If your custom JavaScript calls jQuery, it keeps working with jquery = auto; the README shows how to update it.
 * Chart builder: a page at chart-builder/ on your site (not in the menu) where you choose observations, time range, detail, colors and the page they go on, see the chart drawn from your own data, and copy the matching graphs.conf text, with steps for where to paste it. It is read-only and needs no password. Its data, json/chart_builder.json, is written once an hour (new option chart_builder_enabled, on by default).
 * Sticky header (new option sticky_header, on by default): the header stays at the top while you scroll and slims down to one bar, so the menu, layout, units and light/dark buttons are always in reach. Links to a spot on a page (a chart, On this day) land below it. Set sticky_header = 0 for the old header that scrolls away.
+* New option radar_overlay chooses what the windy.com map shows (radar, wind, rain, temp, clouds, satellite, ...); idea from WernerKr (#1009).
+* French translation, lang/fr.conf, by trollix (#1008).
 * Units button (new option unit_toggle_enabled, on by default): shows the temperature unit on screen and switches the whole site between US and metric units for that visitor, in place without reloading the page (temperature, wind, rain, pressure, distance, height), including the forecast, records, live MQTT updates and every chart. Chart JSON series now say which unit their data is in. NOAA reports stay in the station's units.
 * The light/dark switch is now a moon or sun button. The phone menu opens with CSS alone; js/responsive-menu.js is gone.
 * The home page is built from blocks (home/conditions.inc, forecast.inc, snapshot.inc, charts.inc) in the order of the new home_sections option. Leave a block out to hide it, or add your own home_<name>.inc.
@@ -59,6 +61,7 @@ Measured on the home page of the same station, 1.3.1 against 3.0:
 * README rewritten: a quick start first, where weewx.conf lives, plain-language steps, and the option tables, Pi/kiosk and FAQ folded into expandable sections. DarkSky and other outdated material removed.
 
 ### Fixed
+* The consecutive days with rain and without rain records are counted from the daily rain totals and end at any gap in the data (#1001; the fix comes from michaelundwd in the New Belchertown fork).
 * The Catalan and Italian language files did not load (a stray quote in ca.conf, a duplicate key in it.conf), so lang = ca or lang = it stopped the whole skin. Two German words left in ca.conf are now Catalan.
 * Records page: the heat index, wind chill, wind gust, rain rate, humidity, dew point and barometer records are left out when the database has no such column, instead of the page failing.
 * The daily temperature range records measure "half a day of readings" against the longest archive interval the station ever used, so history recorded at a slower interval still counts.

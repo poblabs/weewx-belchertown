@@ -192,6 +192,7 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
         ),
        ('skins/Belchertown/lang', ['skins/Belchertown/lang/ca.conf',
                                    'skins/Belchertown/lang/de.conf',
+                                   'skins/Belchertown/lang/fr.conf',
                                    'skins/Belchertown/lang/it.conf'
                                   ]
         ),
