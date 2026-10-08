@@ -2,215 +2,143 @@
 
 [![Latest Stable Version](https://img.shields.io/github/v/release/poblabs/weewx-belchertown.svg?style=flat-square)](https://github.com/poblabs/weewx-belchertown/releases) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://paypal.me/pobhq)
 
-This skin (or theme, or template) is for the [weewx weather software](http://weewx.com) and is modeled after my website [BelchertownWeather.com](https://belchertownweather.com). I originally developed that website with custom coded features but always used weewx as the backend archive software. It was a good fit to remove my customizations and port the site to a weewx skin that anyone can use.
+A skin (website theme) for the [weewx weather software](https://weewx.com), modeled after my website [BelchertownWeather.com](https://belchertownweather.com).
 
-Features include:
-* Real-time streaming updates on the front page of the webpage without neededing to reload the website. (weewx-mqtt extension required and an MQTT server with Websockets required.)
-* Extensive graphing system with full customized control on observations, historical timescale, grouping and more. Graphs also update automatically without needing to reload the website.
-* Light and Dark Mode with automatic switching based on sunset and sunrise.
-* Forecast data updated every hour without needing to reload the website. (A free AerisWeather API key required. You qualify for a free key by submitting weather observations to pwsweather.)
-* Information on your closest Earthquake updated automatically.
-* Weather records for the current year, and for all time. 
-* Responsive design. Mobile and iPad landscape ready! Use your mobile phone or iPad in landscape mode as an additional live console display.
-* Progressive webapp ready enabling the "Add to homescreen" option so your website feels like an app on your mobile devices. 
+* **A chart builder**: pick what to plot and see the chart drawn from your own data, then copy the settings into your charts file. No more writing chart configuration by hand ([see Chart builder](#chart-builder)).
+* **Live updates** on the home page without reloading, if you set up MQTT ([see Live updates](#live-updates-mqtt)).
+* **Charts** you can customize: which observations, what time range, how they're grouped.
+* **Light and dark mode**, switching automatically at sunrise and sunset if you like.
+* **Forecasts, air quality and (in the US) weather alerts** with no setup, from Open-Meteo and the National Weather Service; Xweather optional.
+* **Your nearest recent earthquake**, plus weather records for this year and all time, the all-time records broken this year, and how today's date has gone in every year since your station started.
+* Works on phones and tablets, and can be added to a phone's home screen like an app.
 
-![BelchertownWeather.com Homepage in Light and Dark Mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)
-Screenshot of light and dark modes
+![BelchertownWeather.com home page in light and dark mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)
 
-## Table of Contents
+> [!IMPORTANT]
+> **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
 
-- [Belchertown weewx skin](#belchertown-weewx-skin)
-  * [Table of Contents](#table-of-contents)
-  * [Install weewx-belchertown](#install-weewx-belchertown)
-  * [Requirements](#requirements)
-    + [weewx.conf](#weewxconf)
-    + [weewx database requirements](#database)
-    + [AerisWeather Forecast API (optional)](#aerisweather-forecast-api-optional)
-    + [Forecast Units](#forecast-units)
-    + [Forecast Translation](#forecast-translation)
-    + [MQTT and MQTT Websockets (optional)](#mqtt-and-mqtt-websockets-optional)
-    + [MQTT Brokers](#mqtt-brokers)
-      - [Install your own MQTT Broker](#install-your-own-mqtt-broker)
-      - [Use a Public Broker](#use-a-public-broker)
-  * [Chart System](#chart-system)
-  * [Belchertown Skin as Default Skin](#belchertown-skin-as-default-skin)
-  * [Using Metric](#using-metric)
-  * [Dark Mode Theme Options](#dark-mode-theme-options)
-    + [Theme Override with URL Option](#theme-override-with-url-option)
-  * [Custom CSS](#custom-css)
-  * [Skin Options](#skin-options)
-    + [General Options](#general-options)
-    + [MQTT Websockets (for Real Time Streaming) Options](#mqtt-websockets-for-real-time-streaming-options)
-    + [Forecast Options](#forecast-options)
-    + [Earthquake Options](#earthquake-options)
-    + [Social Options](#social-options)
-  * [Creating About Page and Records Page](#creating-about-page-and-records-page)
-  * [Creating a sitemap.xml File](#creating-a-sitemapxml-file)
-  * [Add Custom Content to the Front Page](#add-custom-content-to-the-front-page)
-  * [Translating the Skin](#translating-the-skin)
-  * [A Note About Date and Time Formatting in Your Locale](#a-note-about-date-and-time-formatting-in-your-locale)
-  * [How to use debug](#how-to-use-debug)
-  * [How to install the development version](#how-to-install-the-development-version)
-  * [Frequently Asked Questions](#frequently-asked-questions)
-  * [Raspberry Pi Console](#raspberry-pi-console)
-    * [Kiosk Page](#kiosk-page)
-  * [Donate](#donate)
-  * [Credits](#credits)
+## Belchertown 3.0: the original, rebuilt
 
-## Install weewx-belchertown
+This is the original Belchertown skin, back in active development and refactored from the ground up: a chart builder that writes your chart settings for you, faster pages, a new home page and records page, forecasts and alerts with no setup, and a °F/°C button, all on weewx 5. See the [changelog](changelog) for everything that changed.
 
----
+> [!NOTE]
+> **Why 3.0 and not 2.0?** While this skin was quiet, uajqq kept it going as [New Belchertown](https://github.com/uajqq/weewx-belchertown-new), a separate fork with its own 2.x versions. The two are different skins, so this one jumps from 1.3.1 straight to 3.0 to keep the version numbers apart. Both are free; use whichever suits you.
 
-### ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) You must be running weewx 3.9 or newer!
+## Contents
 
----
+* [Quick start](#quick-start)
+* [Make it yours](#make-it-yours): site title and text, metric units, logo, theme, what's on the home page, your own pages and content
+* [Forecasts](#forecasts)
+* [Live updates (MQTT)](#live-updates-mqtt)
+* [Charts](#charts)
+* [All skin options](#all-skin-options)
+* [Wall display (kiosk view)](#wall-display-kiosk-view)
+* [Troubleshooting and FAQ](#troubleshooting-and-faq)
+* [Development version](#development-version)
+* [Donate](#donate) and [Credits](#credits)
 
-1) Download [the latest release](https://github.com/poblabs/weewx-belchertown/releases).
+## Quick start
 
-2) Run the installer as below. Replace `x.x` with the version number that you've downloaded.
+These steps get you a working site. Everything after this section is optional.
+
+**1. Download** the latest `weewx-belchertown-x.x.x.tar.gz` from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
+
+**2. Install it.** Replace `x.x.x` with the version you downloaded:
 
 ```
-sudo wee_extension --install weewx-belchertown-x.x.tar.gz
+weectl extension install weewx-belchertown-x.x.x.tar.gz
 ```
 
-3) Edit your `weewx.conf` to [add the required information](https://github.com/poblabs/weewx-belchertown#weewxconf). 
+**3. Check your station's location.** Open your `weewx.conf` (see the table below) and make sure the `[Station]` section has your `latitude` and `longitude`. The forecast, earthquakes and sunrise/sunset all use them.
 
-4) Tailor the skin to meet your needs using the [custom option variables. There's a lot of them](https://github.com/poblabs/weewx-belchertown#skin-options).
+**Where's my weewx.conf?** It depends on how you installed weewx:
 
-5) Restart weewx:
+| How weewx was installed | weewx.conf | Belchertown files | weewx's website folder |
+| --- | --- | --- | --- |
+| Package (`apt`, `yum`, `dnf`) | `/etc/weewx/weewx.conf` | `/etc/weewx/skins/Belchertown` | `/var/www/html/weewx` |
+| `pip` | `~/weewx-data/weewx.conf` | `~/weewx-data/skins/Belchertown` | `~/weewx-data/public_html` |
 
-```
-sudo /etc/init.d/weewx stop
-sudo /etc/init.d/weewx start
-```
-
-6) Wait for an archive period, or run `sudo wee_reports` to force an update
-
-7) Browse to your website to see the skin. It may be in a belchertown subdirectory.
-
-## Requirements 
-
-### weewx.conf
-These settings need to be enabled in order for the skin to work. Within `weewx.conf`, under `[Station]` make sure you have: 
-* `latitude` - used for forecasting and earthquake data
-* `longitude` - used for forecasting and earthquake data
-
-### database
-Belchertown assumes that the weewx database uses the 'wview-extended' schema that has been the weewx default since v4 was released in April 2020.  Users whose database was created using the original wview compatible schema prior to weewx v4 may see significant performance issues processing the Belchertown skin after they upgrade to weewx v5.  This is due to a change in weewx behavior in which it will now calculate elements referenced in a skin that are not in the actual weewx database.
-
-This change in weewx behavior is documented at some length in many weewx-user google group threads and in Issue 924 [(link)](https://github.com/poblabs/weewx-belchertown/issues/924) here. The simplest way to deal with this is to add the 'appTemp' element to your database if it is missing, or alternately run "weectl station reconfigure" and switch to the v4 and above default 'wview-extended' schema that contains the required database elements.   For details and some ways to do so, please see the issue 924 link above.
-
-### AerisWeather Forecast API (optional)
-AerisWeather's Forecast API is where the current observations and forecast data comes from. The skin will work without this integration, however it is used to show current weather observations and icons as well as the forecast. 
-
-**You must sign up to use their service.** This skin does not provide any forecast data. You need to join their website and get a free developer key. In order to get a free developer key, you have to send your weather data to pwsweather.com - which is an integration built into weewx. You just need to activate it! Once enabled, by default the skin will download and cache every hour.
-
-* If you haven't already; sign up for pwsweather at [https://www.pwsweather.com/register](https://www.pwsweather.com/register)
-* Add a new station, and configure your weewx.conf to start sending your weather data to pwsweather.
-* Then sign up for a free AerisWeather developer account by linking your pwsweather account here [https://www.aerisweather.com/signup/pws](https://www.aerisweather.com/signup/pws/)
-* Once you are logged in, you should make a Demo Project as part of the sign up process, then go to [https://www.aerisweather.com/account/apps](https://www.aerisweather.com/account/apps) and and save these keys as `forecast_api_id` and `forecast_api_secret`.
-* The rest of the options can be found below in the [Forecast Options](#forecast-options) table.
-
-### DarkSky API (optional, no longer accepting new applications)
-**DarkSky has been shut down, but if you still have an API key, you can continue using it until DarkSky shuts your API key down.**
-
-### Forecast Units
-AerisWeather provides all units in 1 API call which is great but the skin still needs a way to determine what units you want it to show. This is why I've decided to keep the Dark Sky unit method so you can determine which units you'd like AerisWeather to show. **All of the unit determination is now being done within the skin, not the API.** 
-
-Here's the differences and what's available.
-
-*   `us`: Imperial units (the default)
-*   `ca`: same as  `si`, except that  `wind speed`  and  `wind gust`  are in kilometers per hour
-*   `uk2`: same as  `si`, except that `visibility`  is in miles, and  `wind speed`  and  `wind gust`  in miles per hour
-*   `si`: SI units
-
-SI units are as follows:
-
--   `chance of precipitation`: Centimeters.
--   `temperature`: Degrees Celsius.
--   `temperature min`: Degrees Celsius.
--   `temperature max`: Degrees Celsius.
--   `wind speed`: Meters per second.
--   `wind gust`: Meters per second.
--   `visibility`: Kilometers.
-
-### Forecast Translation
-AerisWeather provides the observations in "weather codes" which allows you to translate these codes to your language. Take a look at the skin.conf and all the `forecast_` labels. As with anything in skin.conf, it's advised to copy this to weewx.conf so your changes aren't lost on upgrades. See how to do this in the [Translating the Skin](#translating-the-skin) section.
-
-### MQTT and MQTT Websockets (optional)
-MQTT is a publish / subscribe system. Mostly used for IoT devices, but it works great for a live weather website. 
-
-MQTT Websockets allows websites such as this to connect to the MQTT broker to subscribe to a topic and get updates. 
-
-You will need to use an [MQTT broker](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) (aka server) to publish your data to. You can [install your own broker pretty easily](https://github.com/poblabs/weewx-belchertown#install-your-own-mqtt-broker), or use a [public one](https://github.com/poblabs/weewx-belchertown#use-a-public-broker) (some free, some paid). 
-
-Your weewx server will **publish** it's weather data to a broker (using the [weewx-mqtt](https://github.com/weewx/weewx/wiki/mqtt) extension) and visitors to your website will **subscribe** to those updates using MQTT Websockets built in to this skin. When data is published the subscribers get that data immediately by way of the website updating without reloading. 
-
-With the [`weewx-mqtt` extension](https://github.com/weewx/weewx/wiki/mqtt) installed, everytime weewx generates a LOOP it'll automatically publish that data to MQTT which will update your website in real time. Once ARCHIVE is published, your website will reload the forecast data, earthquake data and graphs automatically.
-
-A sample `weewx-MQTT` extension config is below. Update the `server_url`, `topic`, and `unit_system` to suit your needs. Keep `binding` as archive and loop. Remove the tls section if your broker is not using SSL/TLS. Update the `unit_system` if needed.
-
-```
-    [[MQTT]]
-        server_url = mqtt://username:password@mqtt.hostname:port/
-        topic = the/topic/to/publish/to
-        unit_system = US
-        binding = archive, loop
-        aggregation = aggregate
-        [[[tls]]]
-            tls_version = tlsv1
-            ca_certs = /etc/ssl/certs/ca-certificates.crt
-```
-
-**Note: I did not write the MQTT extension, so please direct any questions or problems about it to the [user forums](https://groups.google.com/forum/#!forum/weewx-user).**
-
-### MQTT Brokers
-
-#### Install your own MQTT Broker
-If you want to run your own MQTT broker, you can [follow these instructions that I've put together](https://web.archive.org/web/20240412180952/https://obrienlabs.net/how-to-setup-your-own-mqtt-broker). 
-
-Setting up an MQTT server on DigitalOcean is quick and easy. BelchertownWeather.com runs on DigitalOcean. Click this **referral** link to get started on DigitalOcean with a free credit!
-
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg)](https://www.digitalocean.com/?refcode=f79cac0e591d&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
-
-#### Use a Public Broker
-These public brokers have been tested as working with MQTT and Websockets. If you have others to add the to the list, let me know.
-
-* [HiveMQ Public Broker](http://www.mqtt-dashboard.com)
-* [test.mosquitto.org](http://test.mosquitto.org)
-* [You can also try some from this list](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
-
-## Chart System
-
-Starting in version 1.0 you have full control over the charts. Version 1.0 comes with 4 charts by default to get you started. There are so many options and things you can do that it's best to read the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation). 
-
-### [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation). 
-
-## Belchertown Skin as Default Skin
-
-This is what worked for me to make Belchertown the default skin for your site. This is an **example config** and may need a little fine-tuning site-per-site.
-
-I changed it so the standard skin would be in a subfolder, and the main folder has my skin files. So when you go to my website you're seeing the Belchertown skin, with the default skin under `/weewx`.
-
-1. Edit `weewx.conf`, then look for `[StdReport]` and under it change `HTML_ROOT` to be `/var/www/html/weewx`. Note, your HTML directory may be `/home/weewx/public_html`, so you'd want `/home/weewx/public_html/weewx`.
-
-2. Then modify the Belchertown skin options with these minimal updates. Note, you may need to change the path as mentioned above.
+**4. Choose where the site goes.** The installer sets `HTML_ROOT = belchertown` in the `[[Belchertown]]` section, which puts the site in a `belchertown` folder next to `weewx.conf`, where your web server probably can't see it. Change it to a folder inside your website, for example:
 
 ```
     [[Belchertown]]
-        HTML_ROOT = /var/www/html
         skin = Belchertown
+        HTML_ROOT = /var/www/html/weewx/belchertown
 ```
 
-3. This is optional, but advised: Delete all contents of the `HTML_ROOT` folder and let Belchertown create an entire new site. This prevents stale duplicate data.
+**5. Restart weewx:**
 
-4. Restart weewx and let it generate the files upon the next archive interval.
+```
+sudo systemctl restart weewx
+```
 
-## Using Metric
+**6. Wait** for the next archive period (how often weewx saves a record, usually every 5 minutes), or build the site right away with:
 
-If you want to use metric units in your website,you can display the metric values in the skin. Just like with the Standard weewx skins, [there are group units available to switch to](http://weewx.com/docs/customizing.htm#[Units]). 
+```
+weectl report run
+```
 
-If your weewx version is 3.9.1 or newer, to change your site to metric you would modify `weewx.conf` `[StdReport]` section. Here's an example:
+**7. Open your website** at the matching address, for example `http://your-server/weewx/belchertown`. To make it your main page, see [Make Belchertown your main website](#make-belchertown-your-main-website).
+
+## Make it yours
+
+Most settings go in `weewx.conf`, in the `[[Belchertown]]` section under `[StdReport]`. Put them there rather than in the skin's own `skin.conf`, because **`skin.conf` is replaced when you upgrade the skin** and your changes would be lost.
+
+Here is a complete example. `[[[Extras]]]` holds options and `[[[Labels]]]` holds text:
+
+```
+[StdReport]
+    [[Belchertown]]
+        skin = Belchertown
+        HTML_ROOT = /var/www/html/weewx/belchertown
+        [[[Extras]]]
+            logo_image = "https://example.com/my-logo.png"
+            theme = auto
+            forecast_enabled = 1
+            forecast_api_id = "your_id"
+            forecast_api_secret = "your_secret_key"
+            earthquake_enabled = 1
+        [[[Labels]]]
+            [[[[Generic]]]]
+                home_page_header = "Belchertown Weather Conditions"
+                footer_copyright_text = "My Weather Website"
+```
+
+Restart weewx after any change. Every option is listed in [All skin options](#all-skin-options).
+
+### Change the site title and other text
+
+Every piece of text on the site is a "label" you can change or translate. To change one, copy it into `[[[Labels]]]` → `[[[[Generic]]]]` as in the example above. The full list is in `skin.conf` under `[Labels]` → `[[Generic]]`. The most common ones:
+
+| Label | Default | What it is
+| ---- | ------- | -----------
+| home_page_header | "My Station Weather Conditions" | Heading on the Home page
+| graphs_page_header | "Weather Observation Graphs" | Heading on the Graphs page
+| reports_page_header | "Weather Observation Reports" | Heading on the Reports page
+| records_page_header | "Weather Observation Records" | Heading on the Records page
+| about_page_header | "About This Weather Station" | Heading on the About page
+| powered_by | "Observations are powered by a Personal Weather Station" | Text in the header
+| footer_copyright_text | "My Weather Website" | Text after the year in the footer's copyright
+| footer_disclaimer_text | "Never make important decisions from this website." | Disclaimer in the footer
+
+The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`.
+
+<details>
+<summary><b>Dates and times in your language</b></summary>
+
+Dates and times are formatted in the browser by [Day.js](https://day.js.org/docs/en/display/format), using your server's locale and timezone. Day.js uses the same format codes as moment.js, which earlier versions of the skin used, so formats you set before still work. The formats are labels too (look for the moment.js section under `[Labels]` in `skin.conf`). If a date looks wrong for your locale, set the right locale and timezone on your weewx server and restart it, or write the format out yourself. For example, `Wednesday 15 May 20:25` is `dddd DD MMM HH:mm`:
+
+* `dddd` is the full day name (Saturday); `ddd` is the short one (Sat)
+* `DD` is the day with a leading zero (05); `D` without (5)
+* `MMM` is the short month (Jan); `MMMM` the full one (January)
+* `HH` is the 24-hour hour with a leading zero (02); `H` without
+* `mm` is the minute with a leading zero (08); `m` without
+
+</details>
+
+### Use metric units
+
+Belchertown uses whatever units weewx is set to. To switch everything to metric, add this to `weewx.conf` and restart weewx:
 
 ```
 [StdReport]
@@ -227,364 +155,434 @@ If your weewx version is 3.9.1 or newer, to change your site to metric you would
                 group_speed2 = meter_per_second2
                 group_temperature = degree_C
 ```
-Restart weewx when you've made these changes.
 
-If your weewx version is **older than 3.9.1 (not recommended)**, to change the site to metric you would need a configuration in `weewx.conf`, like below. Restart weewx when you have made the changes.
+The [weewx documentation](https://weewx.com/docs/) lists the other units you can choose. The forecast has its own unit setting: see [Forecast units](#forecast-units).
+
+### Add your logo
+
+Set `logo_image` (and optionally `logo_image_dark` for dark mode) in `[[[Extras]]]` to the **full** web address of your logo. About 330 pixels wide by 80 pixels high fits best. Without a logo, the site shows `site_title` instead.
+
+### Light, dark or automatic theme
+
+Set `theme` in `[[[Extras]]]` to `light`, `dark` or `auto`. Auto switches to light at sunrise and dark at sunset, using your station's latitude and longitude.
+
+Visitors can flip between light and dark with the switch next to the menu. That choice lasts until they close the tab, even when your theme is `auto`. You can also force a theme with the address: add `?theme=dark`, `?theme=light` or `?theme=auto` to the end, for example `http://your-server/weewx/belchertown/?theme=dark`.
+
+### Make Belchertown your main website
+
+To make Belchertown the main site and move weewx's standard pages into a `weewx` subfolder:
+
+1. In `weewx.conf`, under `[StdReport]`, change `HTML_ROOT` to `/var/www/html/weewx` (or wherever your website lives, plus `/weewx`).
+2. Under `[[Belchertown]]`, set `HTML_ROOT` to your website's main folder:
 
 ```
-[StdReport]
     [[Belchertown]]
         skin = Belchertown
-        HTML_ROOT = belchertown
-        [[[Units]]]
-            [[[[Groups]]]]
-                group_altitude = meter
-                group_degree_day = degree_C_day
-                group_pressure = mbar
-                group_rain = mm
-                group_rainrate = mm_per_hour
-                group_speed = meter_per_second
-                group_speed2 = meter_per_second2
-                group_temperature = degree_C
+        HTML_ROOT = /var/www/html
 ```
 
-## Dark Mode Theme Options
+3. Optional but recommended: empty the website folder so Belchertown starts clean.
+4. Restart weewx and wait for the next archive period.
 
-There are 3 options for a theme with the skin. **Dark, Light and Auto** modes. Dark mode will set your site in dark mode always. Light mode will set your site in light mode always. Auto mode will use the sunset, and sunrise times in your location (based on `latitude`, `longitude` in your weewx.conf) to automatically change the website from light to dark. Automatic dark mode happens at the sunset hour and automatic light mode happens at the sunrise hour. 
+### About and Records pages
 
-At the top of the website next to the menu bar is a toggle button. This will toggle the site from light to dark modes. 
+Your About and Records pages can contain your own text (HTML is fine). In the Belchertown files folder ([where is it?](#quick-start)), copy `about.inc.example` to `about.inc` and `records.inc.example` to `records.inc`, edit them, and wait for the next archive period. Upgrades don't overwrite these files, but keep a backup anyway.
 
-**A note about auto mode, and the toggle slider**: If you have auto mode enabled for your site, and a visitor clicks the toggle slider, auto mode is disabled for that visitor for their session. To have the visitor restore auto mode, they will need to close the tab and re-open the tab. 
+### Choose what's on the home page, and in what order
 
-This way when a visitor is on your site and they don't want auto mode but want dark mode always, by using the toggle button to go dark mode 100% it will keep the site on dark mode even after sunrise. Same idea for light mode if a visitor wants only light mode. **Visitors can override your auto setting using the toggle switch.** Closing the tab or the browser, or adding `?theme=auto` to the end of your URL will remove this override if the visitor wants to go back to auto mode. 
+The home page is made of five blocks:
 
-#### Theme Override with URL Option
+* `conditions`: the current temperature, wind, station readings, sun and moon, and the radar
+* `forecast`: the forecast
+* `onthisday`: today compared with the same date in every past year: the record low and high, the average, and a note when today is unusual, such as "Coldest October 7 on record so far". It appears once your station has data from at least one earlier year.
+* `snapshot`: today's and this month's highs, lows, wind and rain, and the latest nearby earthquake
+* `charts`: the charts
 
-You can also override the theme using a URL setting. Simply add `?theme=dark` or `?theme=light` at the end of the website URL to force a theme. For example: https://belchertownweather.com/?theme=dark will force my website to dark mode. **Using a URL override will also disable auto theme mode.** To reset back to normal auto theme mode, you can add `?theme=auto` to the URL, or the tab or browser must be closed and re-opened. 
-
-## Custom CSS
-
-If you have custom CSS you want to persist across upgrades, simply create a `custom.css` file in your `HTML_DIR`. Any overrides here will be present on the site right away and will persist across upgrades of the skin.
-
-## Skin Options
-
-The Belchertown skin will work as a very basic skin once installed using the default values in the table below.
-
-To override a default setting add the setting name and value to the Extras section for the skin by opening `weewx.conf` and look for `[StdReport]`. Under will be `[[Belchertown]]`. Add `[[[Extras]]]` (with 3 brackets) and then add your values. For example:
+`home_sections` lists them in the order they appear. To reorder them, change the order; to hide one, leave it out. For example, to put the forecast first and drop the snapshot, add this to `[[[Extras]]]` in `weewx.conf`:
 
 ```
-[StdReport]
-    [[Belchertown]]
-        skin = Belchertown
-        HTML_ROOT = belchertown
         [[[Extras]]]
-            logo_image = "https://belchertownweather.com/images/content/btownwx-logo-slim.png"
-            footer_copyright_text = "BelchertownWeather.com"
-            forecast_enabled = 1
-            forecast_api_id = "your_id"
-            forecast_api_secret = "your_secret_key"
-            earthquake_enabled = 1
-            earthquake_server = USGS
-            twitter_enabled = 1
+            home_sections = forecast, conditions, charts
 ```
 
-The benefit to adding these values to `weewx.conf` is that they persist after skin upgrades, whereas `skin.conf` could get replaced on skin upgrades. Always have a backup of `weewx.conf` and `skin.conf` just in case! 
+You can also add **your own block**, such as a webcam picture or a note to visitors. Make up a name, put it in `home_sections`, and create a file called `home_` plus that name plus `.inc` in the Belchertown files folder. For example, with `home_sections = conditions, webcam, forecast, snapshot, charts`, the skin shows the contents of `home_webcam.inc` between the conditions and the forecast. HTML is fine, and weewx tags such as `$current.outTemp` work too.
 
-Restart weewx once you add your custom options and wait for an archive period to see the results.
+### Home page layouts
 
-For ease of readability I have broken them out into separate tables. However you just add the overrides to the config just like the example above. 
+Visitors can pick how the home page is laid out with the **layout button** (the four squares next to the sun/moon button):
 
-### General Options
+* **Dashboard**: everything in the order of `home_sections`. This is the normal layout.
+* **Forecast first**: the forecast at the top, with the current conditions under it.
+* **Radar first**: a big radar across the top, with the current conditions under it.
+* **Charts first**: the charts at the top of the page.
 
-| Name | Default | Description
-| ---- | ------- | ----------
-| belchertown_debug | 0 | Set this to 1 to enable this to turn on skin specific debug information.
-| belchertown_locale | "auto" | The locale to have the skin run with. Locale affects the language in certain fields, decimal identifier in the charts and time formatting. A setting of `"auto"` sets the locale to what the server is set to. If you want to override the server setting you can change this but it must be in `locale.encoding` format. For example: `"en_US.UTF-8"` or `"de_DE.UTF-8"`. The locale you want to use **must be installed on your server first** and how to install locales is **outside of the scope of Belchertown support**.  
-| theme | light | Options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
-| theme_toggle_enabled | 1 | This places a toggle button in your navigation menu which allows visitors to toggle between light and dark modes.
-| logo_image | "" | The **full** URL to your logo image. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
-| logo_image_dark | "" | The **full** URL to your logo image to be used when the dark theme is active. 330 pixels wide by 80 pixels high works best. Anything outside of this would need custom CSS. Using the full URL to your image makes sure it works on all pages.
-| site_title | "My Weather Website" | If `logo_image` is not defined, then the `site_title` will be used. Define and change this to what you want your site title to be.
- |station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | This defines which observations you want displayed next to the radar. You can add, remove and re-order these observations. Options here **must** be weewx database schema names, except for `aqi`, `visibility`, `cloud_cover`, and `rainWithRainRate`, which are custom options. `visibility`, `aqi`, and `cloud_cover` gets data from AerisWeather (if enabled and available), and `rainWithRainRate` is the Rain Total and Rain Rate observations combined on 1 line.<br><br>**As of 1.1** you can specify the database binding if applicable. Just add `(data_binding=X)` next to the observation. For example `leafTemp2(data_binding=sdr_binding)` Note: if this custom observation is not in the LOOP and you're using MQTT updates, then this observation will not get updated automatically. Instead it will be available on page refresh only. All observations need to be in the LOOP for MQTT to update them automatically.
-| beaufort_category | 0 | If enabled, displays the current Beaufort category underneath wind speed (for example, "calm," "strong breeze," "gale," etc.). If live weather station data are available, the Beaufort category updates along with current wind speed. **IMPORTANT:** to make this work correctly, make sure `beaufort = prefer_hardware` appears under `[StdWXCalculate][[Calculations]]` in your weewx.conf file--this makes weewx report a Beaufort scale calculation with every MQTT packet.
-| manifest_name | "My Weather Website" | Progressive Webapp: This is the name of your site when adding it as an app to your mobile device.
-| manifest_short_name | "MWW" | Progressive Webapp: This is the name of the icon on your mobile device for your website's app.
-| aeris_map | 0 | If set to 1, a static map from AerisWeather is displayed that does not require sharing location. The map switches from light to dark mode automatically, unless one of the overrides below is set. Aeris API keys must be set; see the "Forecast" section.
-| radar_html | A windy.com iFrame | Full HTML Allowed. Recommended size 650 pixels wide by 360 pixels high. This URL will be used as the radar iFrame or image hyperlink in light mode, or in both light and dark mode if no dark mode option is set. If you are using windy.com for live radar, they have instructions on how to embed their maps. Go to windy.com, click on Weather Radar on the right, then click on embed widget on page. Make sure you use the sizes recommended earier in this description.
-| radar_html_dark | None | Full HTML allowed. Overrides the default dark mode radar image.
-| radar_zoom | 8 | Initial zoom level for radar. 11 = highest zoom, 1 = lowest zoom.
-| radar_marker | 0 | Shows a marker on the radar indicating the position of the weather station, if using the Windy.com radar. 1 = enable, 0 = disable.
-| almanac_extras | 1 | Show the extra almanac details if available. **Requires pyephem to be installed on your machine.** Refer to the weewx user guide on more information.
-| highcharts_enabled | 1 | Show the charts on the website. 1 = enable, 0 = disable.
-| graph_page_show_all_button | 1 | Setting to 1 will enable an "All" button which will allow visitors to see all your graphs on one page in a condensed format with 2 graphs on a row (like the home page).
-| graph_page_default_graphgroup | "day" | This is the graph group that will load when visitors go to your Graphs page and have not clicked on a button to select a specific group. You can select "all" here and it will load all your graph groups within graphs.conf
-| highcharts_homepage_graphgroup | "day" | This allows you to have a different graph group on the front page. Please see the [Chart Wiki Page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
-| highcharts_decimal | "auto" | This allows you to specify a custom decimal point. If set to auto or missing, the default locale decimal point will be used. 
-| highcharts_thousands | "auto" | This allows you to specify a custom thousands separator. If set to auto or missing, the default locale thousands separator will be used. 
-| googleAnalyticsId | "" | Enter your Google Analytics ID if you are using one
-| pi_kiosk_bold | "false" | If you use a Raspberry Pi with a 3.5" screen, this allows you to set the full page's content to bold ("true") or not ("false"). 
-| pi_theme | "auto" | Just as with the `theme` option, options are: light, dark, auto. This defines which theme your site will use. Light is a white theme. Dark is a charcoal theme. Auto mode automatically changes your theme to light at the sunrise hour and dark at the sunset hour.
-| webpage_autorefresh | 0 | If you are not using MQTT Websockets, you can define when to automatically reload the website on a set interval. The time is in milliseconds. Example: 300000 is 5 minutes. Set to 0 to disable this option. 
-| reload_hook_images | 0 | Enable or disable the refreshing of images within the hook areas.
-| reload_images_radar | 300 | Seconds to reload the radar image if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
-| reload_images_hook_asi | -1 | Seconds to reload images within the `index_hook_after_station_info.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
-| reload_images_hook_af | -1 | Seconds to reload images within the `index_hook_after_forecast.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
-| reload_images_hook_as | -1 | Seconds to reload images within the `index_hook_after_snapshot.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
-| reload_images_hook_ac | -1 | Seconds to reload images within the `index_hook_after_charts.inc` if `reload_hook_images` is enabled and MQTT Websockets are enabled. -1 disables this option.
-| show_last_updated_alert | 0 | Enable the alert banner that will show if MQTT Websockets are disabled, and the weewx hasn't updated the website information beyond the threshold (see next option)
-| last_updated_alert_threshold | 1800 | Number of seconds before considering the information on the page stale and showing an alert in the header. `show_last_updated_alert` must be enabled, and MQTT Websockets disabled. 
+The choice is remembered in that visitor's browser, so it's still there next time. To change what everyone sees on their first visit, set `home_view` in `[[[Extras]]]`:
 
+```
+        [[[Extras]]]
+            home_view = radar
+```
 
-### Common Titles under Labels Section to Change
-| Name | Default | Description
-| ---- | ------- | -----------
-| home_page_header | "My Station Weather Conditions" | The header text to show on the Home page
-| graphs_page_header | "Weather Observation Graphs" | The header text to show on the Graphs page
-| reports_page_header | "Weather Observation Reports" | The header text to show on the Reports page
-| records_page_header | "Weather Observation Records" | The header text to show on the Records page
-| about_page_header | "About This Site" | The header text to show on the About page
-| powered_by | `"Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>"` | This allows you to customize the text in the header to your preference.
-| footer_copyright_text | "My Weather Website" | This is the text to show after the year in the copyright. 
-| footer_disclaimer_text | "Never make important decisions based on info from this website." | This is the text in the footer that displays the weather information disclaimer.
+**Storm mode** switches to Radar first by itself while it's raining at your station, or while an alert about storms, thunder, tornadoes, floods, hurricanes, rain, snow, sleet or ice is in effect, and switches back afterwards. Alerts about frost, heat, wind, fog or air quality don't trigger it, since the radar doesn't help with those. It only applies to visitors who haven't picked a layout themselves. To turn it off, set `storm_view = 0` in `[[[Extras]]]`.
 
+You can also link straight to a layout by adding `?view=` and its name to your home page address, for example `http://your-server/weewx/belchertown/?view=charts`. The [wall display](#wall-display-kiosk-view) uses the same idea with `?view=kiosk`.
 
+### Units button (°F or °C)
 
-### MQTT Websockets (for Real Time Streaming) Options
+The header has a units button that shows the temperature unit on screen, such as **°F**. Pressing it shows the whole site in the other system: °F and °C, mph and km/h, inches and millimeters (rain, rain rate and snow), inHg and hPa, miles and kilometers, feet and meters, and degree days. Everything on the page changes, including the forecast, the records, live updates and the charts. Each visitor's choice is remembered in their browser; your station keeps its own units, and visitors who never press the button see those.
 
-| Name | Default | Description
-| ---- | ------- | -----------
-| mqtt_websockets_enabled | 0 | Set to 1 to enable the real-time streaming website updates from your MQTT Websockets broker (server). **Versions 0.8.2 and prior** this option is called `mqtt_enabled`
-| mqtt_websockets_host | "" | The MQTT broker hostname or IP. **Versions 0.8.2 and prior** this option is called `mqtt_host`
-| mqtt_websockets_port | 8080 | The port of the MQTT broker's **Websockets** port. Check your broker's documentation. **Versions 0.8.2 and prior** this option is called `mqtt_port`
-| mqtt_websockets_username | None | user name to connect to the MQTT broker (if required)
-| mqtt_websockets_password | None | password to connect to the MQTT broker (if required)
-| mqtt_websockets_ssl | 0 | Set to 1 if your broker is using SSL. **Versions 0.8.2 and prior** this option is called `mqtt_ssl`
-| mqtt_websockets_topic | "" | The topic to subscribe to for your weather data. Typically this should end in `/loop`. (e.g. `weather/loop`) depending on your [MQTT] extension settings.  **Versions 0.8.2 and prior** this option is called `mqtt_topic`
-| disconnect_live_website_visitor | 1800000 | The number of seconds after a visitor has loaded your page that we disconnect them from the live streaming updates. The idea here is to save your broker from a streaming connection that never ends. Time is in milliseconds. 0 = disabled. 300000 = 5 minutes. 1800000 = 30 minutes
+The NOAA reports on the Reports page stay in your station's units. To hide the button, set `unit_toggle_enabled = 0` in `[[[Extras]]]`.
 
+### Add your own content to the home page
 
-### Forecast Options
+There are also four fixed places for your own content (HTML is fine). Create any of these files in the Belchertown files folder:
 
-| Name | Default | Description
-| ---- | ------- | -----------
-| forecast_enabled | 0 | 1 = enable, 0 = disable. Enables the forecast data from AerisWeather Forecast API.
-| forecast_provider | "aeris" | The weather forecast provider. Options currently are "aeris" or "darksky"
-| forecast_api_id | "" | Your AerisWeather API ID
-| forecast_api_secret | "" | Your AerisWeather API secret
-| forecast_units | "us" | The units to use for the AerisWeather forecast. I have chosen to keep the Dark Sky unit system going forward with the skin. Other unit options options are: `us`, `si`, `ca` and `uk2`. Check the [Forecast Units](#forecast-units) section for an explanation of the differences.
-| forecast_lang | "en" | **Only applies to DarkSky Weather** Change the language used in the DarkSky forecast. Read the DarkSky API for valid language options.
-| forecast_stale | 3540 | The number of seconds before the skin will download a new forecast update. Default is 59 minutes so that on the next archive interval at 60 minutes it will download a new file (based on 5 minute archive intervals (see weewx.conf, archive_interval)). ***WARNING*** 1 hour is recommended. Setting this too low will result in being blocked by AerisWeather. Their free tier gives you 1,000 downloads a day, but **the skin uses 3 downloads per interval to download all the data it needs**. Use at your own risk. 3540 seconds = 59 minutes. 3600 seconds = 1 hour. 1800 seconds = 30 minutes. 900 = 15 minutes.
-| forecast_aeris_use_metar | 1 | **AerisWeather Only** The metar option gets observations located at airports or permanent weather stations. If you select this to 0 to disable METAR, then Aeris will get your weather conditions data from local personal weather stations instead.
-| forecast_interval_hours | 24 | **AerisWeather Only** Determines which forecast is displayed when a new browser session is opened.  It can take one of four values: 0,1,3,24.  If 0 it has the effect of hiding all forecasts.  1, 3 or 24 specify the interval between forecasts.  If forecast_interval_hours is not included in skin.conf and forecast_enabled = 1, a 24 hour interval forecast is displayed with no user options.
-| forecast_alert_enabled | 0 | **AerisWeather Alerts are only supported for USA and Canada**. Set to 1 to enable weather alerts that are included with the AerisWeather or DarkSky data. If you are using MQTT for automatic page updates, the alerts will appear and disappear as they are refreshed with the forecast update interval via `forecast_stale`. 
-| forecast_alert_limit | 1 | **Only applies to AerisWeather Alerts**. The number of alerts to show for your location. Max of 10.
-| forecast_show_daily_forecast_link | 0 | Show a link beneath each forecast day to an external website with more details of the forecast.
-| forecast_daily_forecast_link | "" | **Only applies to AerisWeather Alerts**. The actual link to the external detailed forecast site of your choosing. You must provide all relevant URL links like location, lat/lon, etc., but you can use `YYYY` to specify the 4 digit year, `MM` to specify the 2 digit month and `DD` to specify the 2 digit day of the forecast link. For example: `https://wx.aerisweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`
-|forecast_show_humidity_dewpoint| 0 | **AerisWeather Only** 0 = disabled, 1 = humidity, 2 = dew point. 
-| aqi_enabled | 0 | Enables display of Air Quality Index from AerisWeather. Defaults to off. Turn on by setting this to `1`. AQI is read from the nearest reporting station within 50 miles. If no stations are available within 50 miles, no value will be available.
-| aqi_location_enabled | 0 | Enables display of the AQI reporting station underneath AQI. Use this option to display where the AQI is being read from--it may be very far away, depending on your location.
+* Below the station info: `index_hook_after_station_info.inc`
+* Below the forecast: `index_hook_after_forecast.inc`
+* Below the records snapshot: `index_hook_after_snapshot.inc`
+* Below the charts: `index_hook_after_charts.inc`
 
+![Where the custom content goes](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
-### Earthquake Options
+### Custom CSS
 
-| Name | Default | Description
-| ---- | ------- | -----------
-| earthquake_enabled | 0 | 1 = enable, 0 = disable. Show the earthquake data on the front page
-| earthquake_maxradiuskm | 1000 | The radius in kilometers from your weewx.conf's latitude and longitude to search for the most recent earthquake.
-| earthquake_stale | 10740 | The number of seconds after which the skin will download new earthquake data from USGS. Recommended setting is every 3 hours to be kind to the USGS servers. 10800 seconds = 3 hours. 10740 = 2 hours 59 minutes
-| earthquake_server | USGS | USGS for USGS website (best for North American Users), GeoNet for NZ GeoNet website (best for NZ users) or ReNaSS for Réseau National de Surveillance Sismique website (best for European Users).
-| geonet_mmi | 4 | Sets the filter for earthquake intensity (GeoNet only). For example, 4 will show all quakes with MMI 4 or greater (light+). Valid values are -1-8.
+To change the look and keep your changes across upgrades, create a `custom.css` file in your website folder. It's loaded after the skin's own styles.
 
+### Your own scripts, jQuery and Bootstrap
 
-### Social Options
+Since version 3.0 the skin no longer uses jQuery, so pages load faster. Older custom files (`index_radar.inc`, `index_hook_after_*.inc`, `home_*.inc` and the like) often do use it, so the skin checks your `.inc` files each time it builds the site:
 
-These are the options for the social media sharing section at the top right of each page. This does not link your site to anything, instead it gives your visitors a way to spread the word about your page on social media. 
+* **None of them use jQuery:** it isn't loaded at all. Nothing to do.
+* **One of them does:** jQuery and Bootstrap's scripts are loaded for it, so your page keeps working, and the weewx log says which file, for example: `index_radar.inc uses jQuery, so jQuery is loaded for it.` Your site is fine as it is; updating that file just makes the page a little lighter.
 
-| Name | Default | Description
-| ---- | ------- | -----------
-| facebook_enabled | 0 | Enable the Facebook Share button
-| twitter_enabled | 0 | Enable the Twitter Share button
-| twitter_owner | "" | Your Twitter handle which will be mentioned when the share button is pressed
-| twitter_hashtags | "weewx #weather" | The hashtags to include in the share button's text. 
-| social_share_html | "" | This is the URL which users who click on your social share will be sent back to. Typically set this to your homepage.
-| twitter_text | "Check out my website: My Weather Website Weather Conditions" | **Located under the labels section** - This is the text which will get auto-generated for the Twitter share button
-| twitter_owner | "YourTwitterUsernameHere" | **Located under the labels section** - This is the username or owner of the Twitter account that will be mentioned in shares
-| twitter_hashtags | "weewx #weather" | **Located under the labels section** - The hashtags to include in the Twitter share. Do not include the first hashtag since it is already provided as part of the share code.
+Tabs and popups written the Bootstrap way (`data-toggle="tab"`, `data-toggle="modal"`) work without jQuery, so you can leave those as they are.
 
-## Creating About Page and Records Page
+The skin no longer loads the Bootstrap stylesheet either; it has its own copy of the few Bootstrap styles it uses. If one of your `.inc` files uses other Bootstrap classes (such as `col-md-4`, `text-center`, `img-responsive` or `panel`), the full Bootstrap stylesheet is loaded for it and the weewx log names the file and the classes, the same way as for jQuery. To always load it, or never, set `bootstrap = 1` or `bootstrap = 0` in `[[[Extras]]]`. The examples that come with the skin (`index_radar.inc.example`, `records-table.inc.example`) show the jQuery-free way to do the usual things.
 
-The About Page and Records Page offer some areas for custom HTML to be run. To create or edit these pages, go to the `skins/Belchertown` folder. These files should not be overwritten during skin upgrdades, but it's always best to have a backup just in case!
+<details>
+<summary><b>Updating a file that uses jQuery</b></summary>
 
-* Create (or edit) the `skins/Belchertown/about.inc` and `skins/Belchertown/records.inc` files with your text editor, such as Notepad or Nano.
-    * These files take full HTML, so you can get fancy if you want. 
-    * You can view, and use the sample file [`about.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/about.inc.example) and [`records.inc.example`](https://github.com/poblabs/weewx-belchertown/blob/master/skins/Belchertown/records.inc.example). Just rename to remove the `.example`, edit and you should be good to go. 
-* Wait for an archive interval for the pages to be generated.
+These are the most common jQuery lines and what to write instead:
 
-## Creating a sitemap.xml File
+| jQuery | Without jQuery |
+| ------ | -------------- |
+| `jQuery(document).ready(function() { ... });` | `document.addEventListener("DOMContentLoaded", function() { ... });` |
+| `jQuery(".high").html("72°");` | `document.querySelectorAll(".high").forEach(el => el.innerHTML = "72°");` |
+| `jQuery("#cam img").attr("src", url);` | `document.querySelector("#cam img").src = url;` |
+| `jQuery(".box").hide();` / `.show();` | `el.style.display = "none";` / `el.style.display = "";` |
+| `jQuery(".box").css("color", "red");` | `el.style.color = "red";` |
+| `jQuery.getJSON(url, function(data) { ... });` | `fetch(url).then(r => r.json()).then(function(data) { ... });` |
 
-Sitemap files are part of the SEO strategy which helps the Search Engine crawlers index your site more efficiently. The result (in addition with other SEO practices) helps visitors find your website through web searches.
+If you'd rather not change anything, that's fine too. To always load jQuery (with Bootstrap's scripts), or never, set `jquery = 1` or `jquery = 0` in `[[[Extras]]]`.
 
-Currently with the way that weewx creates websites there is no built-in method which can create a sitemap file automatically.
+</details>
 
-I have [forked and updated a sitemap generator script which will crawl your website and generate the sitemap.xml for you](https://github.com/poblabs/sitemap-generator). Run it on the same server as your webserver, and add it to your crontab for automatic sitemap.xml updates.
+<details>
+<summary><b>Help search engines find your site (sitemap.xml)</b></summary>
 
-There's also the option to use one of the many [online sitemap.xml generator tools](https://www.xml-sitemaps.com) to create one for you. They will do the same thing by crawling your website and creating a sitemap.xml file that you download and place into your `HTML_ROOT`  directory.
+weewx can't build a sitemap by itself. My [sitemap generator](https://github.com/poblabs/sitemap-generator) crawls your site and writes one; run it on your web server from cron to keep it current. Online tools such as [xml-sitemaps.com](https://www.xml-sitemaps.com) work too. The NOAA reports change often, so update the sitemap regularly if search ranking matters to you.
 
-**Note:** Since the NOAA reports update frequently, you may need to determine a process that works for you to update the sitemap.xml if SEO is important to you. 
-
-You can then submit the full URL to your sitemap to search engine tools. Example:
-
-* [Google](https://www.google.com/webmasters/tools/sitemap-list)
-* [Bing](http://www.bing.com/toolbox/webmaster)
-* [Yandex](https://webmaster.yandex.com/)
-* [Baidu](http://zhanzhang.baidu.com/)
-
-Then insert the following line at the bottom of the `skins/Belchertown/robots.txt` file, specifying the URL path to your sitemap. 
+Submit the sitemap's address to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters), then add this line to the bottom of the skin's `robots.txt` and restart weewx:
 
 ```
 Sitemap: http://YOURWEBSITE/sitemap.xml
 ```
 
-Restart weewx for the changes to robots.txt to update.
+</details>
 
-## Add Custom Content to the Front Page
+## Forecasts
 
-There are 4 locations on the front page where you can add your own content. Full HTML is supported. To add content, create a new file in `skins/Belchertown` with the naming convention below. Wait for an archive period for the content to update. 
+**The forecast works out of the box.** With no setup at all, the current conditions, the 7-day, 3-hour and 1-hour forecasts and the air quality come from [Open-Meteo](https://open-meteo.com), which is free, needs no account and covers the whole world.
 
-* Below the station info: `skins/Belchertown/index_hook_after_station_info.inc`
-* Below the forecast: `skins/Belchertown/index_hook_after_forecast.inc`
-* Below the records snapshot: `skins/Belchertown/index_hook_after_snapshot.inc`
-* Below the charts: `skins/belchertown/index_hook_after_charts.inc`
+**Weather alerts** (watches and warnings) also work with no setup **in the US**: they come from the National Weather Service. Outside the US there are no alerts unless you use Xweather.
 
-Check out this visual representation:
+**Other forecast sources** are optional:
 
-![Belchertown Skin Custom Content](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
+* **National Weather Service** (US only, free, no key): set `forecast_provider = nws` to use the NWS forecast itself, the one on weather.gov.
+* **[Xweather](https://www.xweather.com)** (formerly AerisWeather): needs a free key, and brings its own alerts, including outside the US where Xweather covers them. There are two ways to get a key:
+  * **Xweather's free tier** (US and Canada): the first 15,000 calls each month are free, with no credit card. The skin uses roughly 7,000 a month with everything turned on. [Sign up here](https://www.xweather.com/pricing/weather-api-pay-as-you-go).
+  * **The PWSweather contributor plan** (anywhere): free if you send your station's data to [PWSweather](https://www.pwsweather.com/register), which weewx can do for you with the `[[PWSweather]]` section under `[StdRESTful]` in `weewx.conf`. [Sign up here](https://signup.xweather.com/pws-contributor) with your PWSweather login.
 
-## Translating the Skin
-
-The skin uses the "default labels" for every text and title on the page. This allows you to translate, or simply just change the words to something else easily. You can either edit the `[Labels]` `[[Generic]]` section within skin.conf, or (**preferred**) **copy** these labels to your `[Belchertown]` skin settings within weewx.conf's. If you edit them within skin.conf, your **changes will be lost on upgrades**. Here is a sample weewx.conf config:
+  Then copy your client ID and secret from your Xweather account into `[[[Extras]]]`. As soon as a key is there, the skin uses Xweather instead of Open-Meteo:
 
 ```
-    [[Belchertown]]
-        skin = Belchertown
-        HTML_ROOT = belchertown
         [[[Extras]]]
-            forecast_enabled = 1
-            ... other Extras options here ...
-        [[[Labels]]]
-            [[[[Generic]]]]
-                home_page_header = "Belchertown Weather Conditions"
-                twitter_owner = PatOBrienPhoto
-                twitter_hashtags = "PWS #weewx #weather #wx"
-                rain = My Custom Rain Label
-                graphs_page_day_button = Today
+            forecast_api_id = "your_id"
+            forecast_api_secret = "your_secret_key"
 ```
 
-## A Note About Date and Time Formatting in Your Locale
+The skin downloads a new forecast about once an hour. `forecast_provider` chooses the source: `auto` (the default: Xweather when a key is set, otherwise Open-Meteo), `openmeteo`, `nws` or `aeris` (Xweather). `forecast_alert_provider` does the same for alerts: `auto` (Xweather's alerts with Xweather, otherwise the National Weather Service), `nws`, `aeris` or `none`. Air quality comes from Xweather with Xweather, and from Open-Meteo otherwise. To turn the forecast off, set `forecast_enabled = 0`; to turn only the alerts off, set `forecast_alert_enabled = 0`. More settings are under "Forecast options" in [All skin options](#all-skin-options).
 
-In version 0.9 of the skin I decided to move most of the date and time formats to [moment.js](https://momentjs.com/docs/#/parsing/string-format/) using JavaScript. [You can read my thoughts, comments and commits here.](https://github.com/poblabs/weewx-belchertown/issues/56) I feel that moment.js formats the date and time a lot more elegantly than Python. There are so many areas in this skin that use date and time that I've made the decision to let moment.js format these automatically based on your server's locale and timezone. 
+<details>
+<summary><b>For developers: the forecast.json file</b></summary>
 
-You can modify the moment.js string formats using the skin.conf Labels section and look for the moment.js section beneath. For a list of all string formats that moment.js can use, check https://momentjs.com/docs/#/parsing/string-format/
+The skin writes the forecast to `json/forecast.json` in the same format whatever the source, so other programs can read it. Values are already in the units `forecast_units` asks for (listed under `units`); wind is also given in knots. The format is described at the top of `bin/user/belchertown_forecast.py`, and `belchertown_forecast` is its version number (3).
 
-If you notice that there are date, time and timezone formatting that looks wrong for your locale, you can set the proper locale and timezone on your weewx server, and restart your server, or don't use moment.js locale aware string formats and use a manual definition instead. For example if you want `Wednesday 15 May 20:25` you would use this formatting: `dddd DD MMM HH:mm`. 
+</details>
 
-Explanation (this comes right from the moment.js documentation):
+### Forecast units
 
-* `dddd` gives you full day name, like Saturday. `ddd` would give you short day name like Sat
-* `DD` would give you the day's date as a number with a leading 0, like 05. If you want just 5 it would be `D`
-* `MMM` gives you the short name of the month like "Jan". If you want "January" it'd be `MMMM`
-* `HH` is the hour in 24 hour format with a leading 0, like 02. If you don't want the leading 0 it would be `H`.
-* `mm` is the minute with a leading 0, like 08. If you don't want the leading 0, use `m`.
+The forecast's units are set separately with `forecast_units`:
 
-## Raspberry Pi Console
-Belchertown skin comes with a smaller website tailored for the Raspberry Pi 3.5" TFT screen. I personally use this as a second console, and it works great. When used with MQTT Websockets, the timeout is disabled by default so it's always connected. If there's a connection error, the Pi page will keep retrying to connect to the MQTT Websocket server. This means once you're setup you can set it and forget it. 
+* `us`: US units (the default)
+* `si`: metric. Temperature in °C, wind in meters per second, visibility in kilometers
+* `ca`: same as `si`, but wind in kilometers per hour
+* `uk2`: same as `si`, but wind in miles per hour and visibility in miles
 
-If you're interested in this type of setup, you'll need these items:
-* A Raspberry Pi. I'm using the [Raspberry Pi 3 B+](https://amzn.to/2MReZhz) model
-* An [SD Card for your Raspberry Pi](https://amzn.to/2IjxVRN)
-* The [Adafruit 3.5" Raspberry Pi TFT Screen Hat](https://amzn.to/2KiZxso) (other models may work, your experience may vary)
-* Get the Raspberry Pi setup with the easy NOOBS installer and get it updated.
-* Once it's setup and the screen is also setup [run this tutorial for getting it into Kiosk mode](https://web.archive.org/web/20240524031620/https://obrienlabs.net/setup-raspberry-pi-kiosk-chromium/). 
-* Point your new Raspberry Pi Kiosk to your weather website's `/pi` page, and you should be good to go!
+### Forecast in your language
 
-![raspberry pi light and dark themes](https://user-images.githubusercontent.com/3484775/59552332-7fc22c00-8f53-11e9-8a84-7c3335f47249.png)
+The forecast arrives as weather codes, and each code has a label, so the forecast can be translated like any other text. Look for the `forecast_` labels in `skin.conf` and copy the ones you want to change into `weewx.conf` ([how](#change-the-site-title-and-other-text)).
 
-### Kiosk Page
-The Kiosk page is similar to the Pi Console page, but with a bit more information, as it is designed to be displayed on a 1280x800 resolution screen. It can be run from the display of Raspberry Pi (connected via HDMI), a laptop, or as part of a "Home Information Center".  Just like the Pi Console page, when used with MQTT Websockets, the timeout is disabled by default.
+## Live updates (MQTT)
 
-It looks similar to the layout of the homepage, but the only has the current observations, and forecast, as it is designed for a 1280x800 resolution screen.  As such, does not include the navigation bar, logo, the `header.inc` file, or any charts.  The `index_hook_after_*.inc` checks are also commented out, remove the comment markers from `kiosk.html.tmpl` if you wish to re-enabled them. 
+Normally the site updates once per archive period. With live updates, the home page changes every few seconds without reloading.
 
-To have a Raspberry Pi display this page on reboot, you can either follow the tutorial above, or put the following into `/home/pi/.config/lxsession/LXDE-pi/autostart` if running the desktop version (or have lxde installed on the lite version) of Raspberry Pi OS.
+It works with **MQTT**, a small messaging system. weewx sends each new reading to an MQTT server (a "broker"), and visitors' browsers listen to the broker over **websockets** (a connection that stays open). You need:
+
+1. **A broker.** Run your own or use a public one; see [Brokers](#brokers) below.
+2. **The [weewx-mqtt extension](https://github.com/weewx/weewx/wiki/mqtt)**, so weewx sends its data to the broker. A sample configuration for it (change `server_url`, `topic` and `unit_system`; delete the `[[[tls]]]` part if your broker doesn't use SSL):
+
 ```
-@sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
-@sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
-@chromium-browser --start-fullscreen --kiosk --disable-site-isolation-trials --enable-low-end-device-mode --renderer-process-limit=2 --app=http[s]://<localhost|hostname|IP>/[path_to_skin/]kiosk.html
-@unclutter -idle 0.1
+    [[MQTT]]
+        server_url = mqtt://username:password@mqtt.hostname:port/
+        topic = the/topic/to/publish/to
+        unit_system = US
+        binding = archive, loop
+        aggregation = aggregate
+        [[[tls]]]
+            tls_version = tlsv1
+            ca_certs = /etc/ssl/certs/ca-certificates.crt
 ```
-For the most part, the Kiosk page will follow the same settings as the main homepage.  Below are the settings specific to the Kiosk page, they go under the `[Extras]` section of the skin config in `weewx.conf`.
+
+3. **The skin settings**, in `[[[Extras]]]`. The port here is the broker's *websockets* port, not its regular MQTT port:
+
+```
+        [[[Extras]]]
+            mqtt_websockets_enabled = 1
+            mqtt_websockets_host = "mqtt.hostname"
+            mqtt_websockets_port = 8080
+            mqtt_websockets_ssl = 1
+            mqtt_websockets_topic = "the/topic/to/publish/to/loop"
+```
+
+When weewx saves a new archive record, the page also reloads its forecast, earthquake and chart data. Questions about the weewx-mqtt extension itself go to the [weewx-user group](https://groups.google.com/forum/#!forum/weewx-user); I didn't write it.
+
+### Brokers
+
+**Run your own.** [These are my instructions for setting up a broker](https://web.archive.org/web/20240412180952/https://obrienlabs.net/how-to-setup-your-own-mqtt-broker). A small DigitalOcean server is a quick and easy place to run one, and signing up with this **referral** link gets you free credit and helps pay for my server:
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg)](https://www.digitalocean.com/?refcode=f79cac0e591d&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+**Use a public one.** These have worked with MQTT and websockets (if you know others, let me know):
+
+* [HiveMQ public broker](http://www.mqtt-dashboard.com)
+* [test.mosquitto.org](http://test.mosquitto.org)
+* [This list of public brokers](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers)
+
+## Charts
+
+You control which charts appear, what they show and over what time range, in a `graphs.conf` file. The skin ships with five groups of charts to start from (home page, today, this week, this month, this year). Everything you can do is on the [chart wiki page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
+
+### Chart builder
+
+The easiest way to add a chart is the chart builder: a page on your own site where you pick what to show and see the chart drawn from your station's data as you go. It gives you the text to paste into `graphs.conf`.
+
+1. Open `chart-builder/` on your site, for example `https://www.example.com/chart-builder/` (or `https://www.example.com/weather/chart-builder/` if your weather pages live in a folder). It isn't in the menu, so bookmark it.
+2. Give the chart a title, then choose the kind of chart, how much time it covers and how much detail. Under Lines, choose what to plot; Add a line puts more on the same chart. Tick Right-hand scale for a line measured in something different, such as rain on a temperature chart.
+3. Under Where it goes, pick the page of charts it belongs on, or A new page of charts.
+4. Press Copy and follow the steps under the text: paste it into `graphs.conf` (in your Belchertown skin folder), save, and the chart shows up after the next report. There's no need to restart weewx.
+
+The page only reads your data and can't change anything on your server, so it needs no password. Search engines are asked not to list it. The data behind it (`json/chart_builder.json`) is written by the first report and refreshed once an hour. To turn it off, set `chart_builder_enabled = 0`.
+
+## All skin options
+
+These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#make-it-yours)). Click a group to open it.
+
+<details>
+<summary><b>General options</b></summary>
+
+| Name | Default | Description
+| ---- | ------- | ----------
+| belchertown_debug | 0 | 1 turns on debug messages in the browser console. See [Debug mode](#debug-mode).
+| belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses your server's setting. The locale must be installed on your server first.
+| theme | light | `light`, `dark` or `auto` (light at sunrise, dark at sunset).
+| theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
+| jquery | auto | Loads jQuery only when one of your own `.inc` files uses it. 1 always loads it, 0 never does. See [Your own scripts, jQuery and Bootstrap](#your-own-scripts-jquery-and-bootstrap).
+| bootstrap | auto | Loads Bootstrap's stylesheet only when one of your own `.inc` files uses Bootstrap classes the skin doesn't style. 1 always loads it, 0 never does.
+| chart_builder_enabled | 1 | Writes the data for the [chart builder](#chart-builder) page once an hour. 0 turns it off.
+| back_to_top_button_enabled | 0 | 1 shows a "back to top" button once the page is scrolled.
+| back_to_top_button_position | 0 | 0 puts the button on the right, 1 on the left.
+| back_to_top_button_opacity | 0.8 | How solid the button is, from 0.1 (faint) to 1.0.
+| sticky_header | 1 | Keeps the header (logo, menu and buttons) at the top of the screen while scrolling; it slims down once you scroll. 0 lets it scroll away with the page.
+| unit_toggle_enabled | 1 | Shows a units button (°F or °C) so visitors can see the site in the other unit system. See [Units button](#units-button-f-or-c).
+| logo_image | "" | The **full** web address of your logo. About 330 × 80 pixels fits best.
+| logo_image_dark | "" | The **full** web address of a logo for dark mode.
+| site_title | "My Weather Website" | Shown instead of a logo when `logo_image` is empty.
+| station_observations | "barometer", "dewpoint", "outHumidity", "rainWithRainRate" | Which observations are listed next to the radar, in order. Use weewx database names, plus `aqi`, `visibility` and `cloud_cover` (from the forecast provider) and `rainWithRainRate` (rain total and rate on one line). To read from another database, add the binding, for example `leafTemp2(data_binding=sdr_binding)`; if that observation isn't in the live MQTT data it only updates when the page reloads.
+| beaufort_category | 0 | Shows the Beaufort category ("calm", "gale", ...) under wind speed. For live updates, add `beaufort = prefer_hardware` under `[StdWXCalculate]` → `[[Calculations]]` in `weewx.conf`.
+| manifest_name | "My Weather Website" | Your site's name when someone adds it to their phone's home screen.
+| manifest_short_name | "MWW" | The name under its home screen icon.
+| radar_html | "" (a windy.com map) | The radar for light mode (and dark mode, if `radar_html_dark` isn't set). Any HTML, about 650 × 360 pixels. To make your own from windy.com, open Weather Radar there and choose "embed widget on page".
+| radar_html_dark | "" | The radar for dark mode. Any HTML.
+| radar_width | 650 | Width of the windy.com radar, in pixels. Your own `radar_html` sets its own size.
+| radar_height | 360 | Height of the windy.com radar, in pixels.
+| radar_zoom | 8 | How far the radar starts zoomed in, from 1 (far) to 11 (close).
+| radar_marker | 0 | 1 puts a marker at your station on the windy.com radar.
+| radar_overlay | radar | What the windy.com map shows: `radar`, `wind`, `gust`, `rain`, `temp`, `clouds`, `satellite`, `pressure`, `rh`, `snowcover`, `thunder` and the other layer names windy.com offers.
+| almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
+| highcharts_enabled | 1 | 0 hides the charts.
+| home_sections | conditions, forecast, onthisday, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
+| home_view | dashboard | The home page layout visitors see first: `dashboard`, `forecast`, `radar` or `charts`. See [Home page layouts](#home-page-layouts).
+| storm_view | 1 | Storm mode: shows the radar first while it's raining or a storm alert is in effect. 0 turns it off. See [Home page layouts](#home-page-layouts).
+| graph_page_show_all_button | 1 | Adds an "All" button on the Graphs page that shows every chart, two per row.
+| graph_page_default_graphgroup | "day" | Which chart group the Graphs page opens with. `"all"` shows them all.
+| highcharts_homepage_graphgroup | "homepage" | Which chart group the home page shows. See the [chart wiki](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
+| highcharts_decimal | "auto" | The decimal point in charts. `"auto"` uses your locale's.
+| highcharts_thousands | "auto" | The thousands separator in charts. `"auto"` uses your locale's.
+| googleAnalyticsId | "" | Your Google Analytics ID, if you use it.
+| webpage_autorefresh | 0 | Without live updates, reload the page this often, in milliseconds (300000 = 5 minutes). 0 turns it off.
+| reload_hook_images | 0 | 1 reloads images in your [home page content](#add-your-own-content-to-the-home-page) on the timers below.
+| reload_images_radar | 300 | Seconds between radar reloads. -1 turns it off.
+| reload_images_hook_asi | -1 | Seconds between reloads of images in `index_hook_after_station_info.inc`. -1 turns it off.
+| reload_images_hook_af | -1 | Seconds between reloads of images in `index_hook_after_forecast.inc`. -1 turns it off.
+| reload_images_hook_as | -1 | Seconds between reloads of images in `index_hook_after_snapshot.inc`. -1 turns it off.
+| reload_images_hook_ac | -1 | Seconds between reloads of images in `index_hook_after_charts.inc`. -1 turns it off.
+| show_last_updated_alert | 0 | Without live updates, shows a warning banner when the data is older than the next setting.
+| last_updated_alert_threshold | 1800 | Seconds before the data counts as old for that banner.
+
+</details>
+
+<details>
+<summary><b>Live update (MQTT) options</b></summary>
 
 | Name | Default | Description
 | ---- | ------- | -----------
-|mqtt_websockets_host_kiosk | "" | If the kiosk will be running on the local machine, you can put `localhost` here, or any other host needed. If left empty, the `mqtt_websockets_host` value will be used, and all other MQTT settings for the kiosk page will be ignored.
-|mqtt_websockets_port_kiosk | "" | If the MQTT port needs different, set it here, if left empty, the `mqtt_websockets_port` value will be used.
-|mqtt_websockets_ssl_kiosk | "" | Set to `1` if ssl should be used, if left empty, the `mqtt_websockets_ssl` value will be used.
-| forecast_interval_hours_kiosk  | 24 |  **AerisWeather Only** Determines which forecast is displayed when a new browser session is opened.
-| aqi_enabled_kiosk | 0 | Enable AQI for the kiosk page. If disabled, then in place of the AQI will be the current inside temperature and humidity reading. <br><br> **Please note:**<br>Displaying the inside temperature and humidity requires that those readings are in the `weewx_data.json`.  If your site is publicly accessable, anyone on the internet could see your inside data, from the json file, even if you don't allow access to the kiosk page from the public internet.
-| radar_html_kiosk | "" | If you want to use the [NWS radar](https://radar.weather.gov), or the AerisWeather map, put the URL of it here (it will be a very long string), or leave blank if you want to use the same radar as the homepage. <br><br>  After going to the site, select what setting you would like. If you select "weather for location" you will get a color overlay of watches and warnings for your area, you can also change the base layer to match your default theme ("Satellite" or "Dark Canvas" for the dark, any of the others for light), then click on "hide menu", next copy the url in the address bar to your `weeewx.conf` file.
-| radar_width_kiosk | 490 | Width of the radar.
-| radar_height_kiosk | 362 | Height of the radar.
+| mqtt_websockets_enabled | 0 | 1 turns on [live updates](#live-updates-mqtt).
+| mqtt_websockets_host | "" | Your broker's hostname or IP address.
+| mqtt_websockets_port | 1883 | Your broker's **websockets** port. (1883 is the usual plain MQTT port; websockets is often 9001 or 8080. Check your broker.)
+| mqtt_websockets_username | "" | Username for the broker, if it needs one.
+| mqtt_websockets_password | "" | Password for the broker, if it needs one. Visitors' browsers receive it, so use a read-only account.
+| mqtt_websockets_ssl | 0 | 1 if your broker uses SSL.
+| mqtt_websockets_topic | "" | The topic to listen to, usually ending in `/loop` (for example `weather/loop`), to match your weewx-mqtt settings.
+| disconnect_live_website_visitor | 1800000 | Stop a visitor's live updates after this many milliseconds, so idle tabs don't stay connected forever. 1800000 = 30 minutes. 0 never disconnects.
 
-It is also suggested, if you are going to display the inside temperature and humidity, to shorten the labels for `inTemp` and `inHumidity`.
+</details>
+
+<details>
+<summary><b>Forecast options</b></summary>
+
+| Name | Default | Description
+| ---- | ------- | -----------
+| forecast_enabled | 1 | 1 shows the [forecast](#forecasts). 0 turns it off.
+| forecast_provider | "auto" | Where the forecast comes from: `openmeteo` (free, no key, worldwide), `nws` (National Weather Service, US only, no key), `aeris` (Xweather, needs a key), or `auto` (Xweather when `forecast_api_id` is set, otherwise Open-Meteo).
+| forecast_api_id | "" | Your Xweather client ID.
+| forecast_api_secret | "" | Your Xweather client secret.
+| forecast_units | "us" | `us`, `si`, `ca` or `uk2`. See [Forecast units](#forecast-units).
+| forecast_stale | 3540 | Seconds before a new forecast is downloaded (3540 = 59 minutes). Each download costs about 10 Xweather calls (air quality counts 5), so going much below an hour can use up the free tier.
+| forecast_aeris_use_metar | 1 | Xweather only: 1 takes current conditions from airports and official stations; 0 from nearby personal weather stations.
+| forecast_interval_hours | 24 | Which forecast shows when someone opens the site: 1, 3 or 24 hours apart, or 0 to hide the forecast.
+| forecast_alert_enabled | 1 | 1 shows weather alerts (watches and warnings). They refresh with the forecast. 0 turns them off.
+| forecast_alert_provider | "auto" | Where alerts come from: `nws` (National Weather Service, US only, no key), `aeris` (Xweather), `none`, or `auto` (Xweather's alerts when the forecast is from Xweather, otherwise the National Weather Service).
+| forecast_alert_limit | 1 | How many alerts to show.
+| forecast_lang | "en" | The language of Xweather alert text (an Xweather language code). The forecast itself uses the skin's labels.
+| forecast_show_daily_forecast_link | 0 | 1 adds a link under each forecast day to the website in the next option.
+| forecast_daily_forecast_link | "" | The address for those links. `YYYY`, `MM` and `DD` are replaced with the day's date, for example `https://live.xweather.com/local/us/ma/belchertown/forecast/YYYY/MM/DD`.
+| forecast_show_humidity_dewpoint | 0 | Show humidity (1) or dew point (2) in the forecast. 0 shows neither.
+| aqi_enabled | 0 | 1 shows the Air Quality Index: from the nearest station within 50 miles with Xweather, otherwise modeled for your location by Open-Meteo.
+| aqi_location_enabled | 0 | Xweather only: 1 shows where that AQI reading comes from, which may be far away.
+
+</details>
+
+<details>
+<summary><b>Earthquake options</b></summary>
+
+| Name | Default | Description
+| ---- | ------- | -----------
+| earthquake_enabled | 0 | 1 shows your nearest recent earthquake on the home page.
+| earthquake_maxradiuskm | 1000 | How far from your station to look, in kilometers.
+| earthquake_stale | 10740 | Seconds before downloading new earthquake data (10740 = just under 3 hours). Please keep it around 3 hours to be kind to the servers.
+| earthquake_server | USGS | `USGS` (best for North America), `GeoNet` (New Zealand) or `ReNaSS` (Europe).
+| geonet_mmi | 4 | GeoNet only: the smallest intensity to show (MMI, -1 to 8). 4 shows light quakes and stronger.
+
+</details>
+
+<details>
+<summary><b>Social sharing options</b></summary>
+
+| Name | Default | Description
+| ---- | ------- | -----------
+| facebook_enabled | 0 | 1 shows a Facebook share button at the top of each page.
+| social_share_html | "http://yourwebsite" | The address people share, usually your home page. Set it, or the buttons share a dead link.
+
+</details>
+
+## Wall display (kiosk view)
+
+To show your weather on a TV, tablet or a spare monitor, open your home page with `?view=kiosk` added to the end of the address:
+
 ```
-    [[[Labels]]]
-        [[[[Generic]]]]
-            inTemp = In Temp
-            inHumidity = In Humid
+http://your-server/weewx/belchertown/?view=kiosk
 ```
-![kiosk page](https://raw.githubusercontent.com/poblabs/weewx-belchertown/master/assets/kiosk.png)
-## How to use debug
 
-Debug information will show a lot of useful information for troubleshooting a problem. Information such as MQTT messages, to skin theme and time settings to re-creating a chart for external debugging. If you need to use debug to find a problem with the skin, there are 2 ways to do this. 
+That shows only the current conditions, sun and moon, radar and forecast, with no menu, records or charts, sized to fit a 1280 × 800 screen without scrolling. Live updates never time out in this view and reconnect on their own. Nothing needs to be turned on; it uses your normal settings.
 
-1. Preferred method: Add `/?debug=true` to your website's URL to enable it on adhoc. Example: http://example.com/?debug=true
-2. Set the skin option `belchertown_debug` to 1 and restart weewx.
+You can force a theme too, which helps on a screen that's always on:
 
-In both cases, you'll need to open the browsers console to find the debug information. [Refer to this to find the developer console for your browser](https://webmasters.stackexchange.com/a/77337).
-
-## How to install the development version
-
-If you want to try out the latest features the skin has to offer, you can [install the master branch](https://github.com/poblabs/weewx-belchertown/tree/master). To start download the [master zip file](https://github.com/poblabs/weewx-belchertown/archive/master.zip). Then you can 
-
-1. upload it to your weewx system and install it using `wee_extension --install master.zip` 
-
-or
-
-2. manually replace the files from the zip file with your weewx Belchertown skin files. 
-
-Either way, we need to overwrite your current Belchertown skin install in the `skins` folder and the `bin/user` foler with the development files. Then you can configure the new features you want and restart weewx when done. 
-
-## Frequently Asked Questions
-
-* Q: How do I change my site title and page headers? I don't want to be called "My Weather Website"...
-* A: As of version 1.0, the skin has a lot of labels which are used for [Translating the Skin](#translating-the-skin). As a result certain Extras options which were all text are now under Labels so that they are more in line with the other text items which can be translated. Take a look in skin.conf and you'll find all the text items which can be translated under `Labels` --> `Generic`. My advice would be to **copy** the labels you want to change to weewx.conf under `[Belchertown]` so that they are not lost during upgrades since skin.conf gets erased and reinstalled on upgrades. Here's how you do that in weewx.conf:
 ```
-    [[Belchertown]]
-        skin = Belchertown
-        HTML_ROOT = belchertown
-        [[[Extras]]]
-            forecast_enabled = 1
-            ... other Extras options here ...
-        [[[Labels]]]
-            [[[[Generic]]]]
-                home_page_header = "Belchertown Weather Conditions"
-                twitter_owner = PatOBrienPhoto
-                twitter_hashtags = "PWS #weewx #weather #wx"
-                rain = My Custom Rain Label
-                graphs_page_day_button = Today
+http://your-server/weewx/belchertown/?view=kiosk&theme=dark
 ```
----
-* Q: My units are wrong in the station observation or other MQTT enabled field.
-* A: You need to configure your MQTT extension to send the units you want. For example if you're using METRIC and your rain in MQTT is in centimeters, but you want to show rain as MM, you need to use the code below as an example:
+
+<details>
+<summary><b>Start the display automatically on a Raspberry Pi</b></summary>
+
+On Raspberry Pi OS with the LXDE desktop, put this in `/home/pi/.config/lxsession/LXDE-pi/autostart` (change the address to yours):
+
+```
+@sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
+@sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
+@chromium-browser --start-fullscreen --kiosk --disable-site-isolation-trials --enable-low-end-device-mode --renderer-process-limit=2 --app=http://your-server/weewx/belchertown/?view=kiosk
+@unclutter -idle 0.1
+```
+
+</details>
+
+<details>
+<summary><b>Use a different MQTT broker for the display</b></summary>
+
+If the display sits on the same network as your MQTT broker, it can connect to it directly instead of through the internet. Add these to `[[[Extras]]]`. Anything left empty uses the normal [live update](#live-updates-mqtt) setting.
+
+| Name | Default | Description
+| ---- | ------- | -----------
+| mqtt_websockets_host_kiosk | "" | The broker for the display, for example `localhost` or `192.168.1.10`.
+| mqtt_websockets_port_kiosk | "" | Its websockets port.
+| mqtt_websockets_ssl_kiosk | "" | 1 if it uses SSL, 0 if not.
+
+</details>
+
+## Troubleshooting and FAQ
+
+### Debug mode
+
+Debug mode writes details about live updates, the theme, times and charts to your browser's console. Add `?debug=true` to the end of your site's address (for example `http://example.com/?debug=true`), or set `belchertown_debug = 1` and restart weewx. Then [open your browser's developer console](https://webmasters.stackexchange.com/a/77337) to read it.
+
+### The skin is slow after upgrading to weewx 5
+
+Belchertown expects the `wview-extended` database layout that weewx has used since version 4. A database created before weewx 4 may be missing `appTemp`, and weewx 5 then calculates it on the fly, which is slow. Back up your database, then add the column and fill it in with `weectl database add-column appTemp` and `weectl database calc-missing`. [Issue 924](https://github.com/poblabs/weewx-belchertown/issues/924) has the details.
+
+### Questions
+
+<details>
+<summary>Do I have to use live updates, forecasts, earthquakes, the radar or the charts?</summary>
+
+No. Everything beyond the basic install is optional. Leave a feature off and the site still works; it just updates once per archive period instead of live.
+
+</details>
+
+<details>
+<summary>The units are wrong on the live-updated values.</summary>
+
+The live values come from the weewx-mqtt extension, so set the units there. For example, to send today's rain in millimeters:
+
 ```
 [[MQTT]]
         [[[inputs]]]
@@ -592,76 +590,77 @@ Either way, we need to overwrite your current Belchertown skin install in the `s
                         name = dayRain_mm
                         units = mm
 ```
----
-* Q: How do I make this skin my default website?
-* A: [Click here to take a look at this section of the readme file which explains how to set this up](https://github.com/poblabs/weewx-belchertown#belchertown-skin-as-default-skin). 
----
-* Q: My NOAA reports are blank.
-* A: If this is right after you installed the skin, give weewx an archive interval (or two, or three...) in order to populate this data
----
-* Q: I see errors like these:
-    * `No such file or directory '/home/weewx/skins/Belchertown/about.inc'` 
-    * `No such file or directory '/home/weewx/skins/Belchertown/records.inc'`
-* A: You probably skipped the step [Creating About Page and Records Page](https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page). Please give that a try. 
----
-* Q: Do I have to use MQTT?
-* A: Nope! If you disable the MQTT option, then weewx will still create a website for you, it just will be done on the archive interval. weewx will still generate these pages for you if you have MQTT enabled, the benefit is that you do not have to reload the website. 
----
-* Q: What MQTT broker should I use?
-* A: [Check the MQTT Brokers section of this page which has more information](https://github.com/poblabs/weewx-belchertown#mqtt-brokers) on a free one that works, as well as **running your own secure broker**. If you want to use a free one, there are a number of them out there and they all have different limitations. Check their terms to make sure it will suite your needs. 
----
-* Q: Do I have to use forecasts?
-* A: You do not need to use forecasts, but it is recommended to use forecasts so you take advantage of the theme's design with icons and observations.
----
-* Q: Do I have to use earthquake data?
-* A: Nope! If you leave it disabled, it won't show on the site nor will any data be downloaded. 
----
-* Q: Do I have to use the radar?
-* A: Nope! If you leave it disabled you'll just have a big blank box on the website. But [windy.com](https://windy.com) provides a free animated radar, so why not include it? :)
----
-* Q: Do I have to use the graphs?
-* A: Nope! If you have it disabled we will hide those portions of the site. It comes packaged with this theme already though, so you can leave it enabled. 
----
-* Q: Why does the skin take a while to generate sometimes?
-* A: This is because of the graph system. That file goes through your archive's day, week, month and year values, and all time values to generate the graphs. Depending on how big your database, and how slow your system is (like a Raspberry Pi) is this could take a little longer. If you want to speed it up you can disable the charts or upgrade to better hardware. 
----
-* Q: How come the forecast's "Last Updated" time jumps when I load the page?
-* A: This is because the page loads with the default Python's format for your locale. When it connects to MQTT websockets, moment.js updates that timestamp to it's format of your locale. This locale format fragmentation is hard to avoid when using locale formatting.
----
-* Q: I noticed my graphs don't update right away on an archive period. How come?
-* A: Because the highcharts can take a few extra seconds, I've put in a 30 second delay on the graphs automatic update. This way it's loading the newest data.
----
-* Q: Do the charts on the Graphs page update automatically with MQTT?
-* A: No, only the front page is automatically updated. All the other pages are normal pages that need to be refreshed to see new information.
----
-* Q: How do I change my about page, or records page?
-* A: [See above on how to do that.](https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page)
----
-* Q: How can I tell if the skin downloaded new forecast or earthquake data?
-* A: Check your system log file. You should see the skin output something along the lines of "New forecast file downloaded" or "New earthquake file downloaded". It will also display errors and what the error was if there was a failure. 
----
-* Q: How come I'm seeing `NAN` in some areas?
-* A: This is because weewx hasn't gathered enough data from your station yet. Give it a few more archive intervals. 
----
-* Q: I'm seeing `cheetahgenerator: **** Reason: could not convert string to float: N/A`, how do I fix this?
-* A: Upgrade to 0.8.1 or newer which resolves this error
----
-* Q: How do I uninstall this skin?
-* A: `sudo wee_extension --uninstall Belchertown`
----
-* Q: Why is Belchertown so slow after upgrading to weewx v5 ?
-* A: [See above.](#database)
+
+</details>
+
+<details>
+<summary>My NOAA reports are blank.</summary>
+
+Right after installing, give weewx a few archive periods to fill them in.
+
+</details>
+
+<details>
+<summary>I see NAN in some places.</summary>
+
+weewx hasn't collected enough data yet. Give it a few more archive periods.
+
+</details>
+
+<details>
+<summary>Why does the skin take a while to build?</summary>
+
+The charts read your whole database, from today back to the first record. A big database or a slow computer (like a Raspberry Pi) takes longer. Turning the charts off or using faster hardware helps.
+
+</details>
+
+<details>
+<summary>The charts don't update right away after an archive period.</summary>
+
+That's on purpose: the home page waits 30 seconds so the new chart data is ready. Only the home page updates live; the other pages show new data when reloaded.
+
+</details>
+
+<details>
+<summary>The forecast's "Last Updated" time changes format when the page loads.</summary>
+
+The page is built with your server's date format, and the browser then reformats it with Day.js. The two formats can differ slightly for some locales.
+
+</details>
+
+<details>
+<summary>How can I tell whether new forecast or earthquake data was downloaded?</summary>
+
+Check the weewx log for "forecast downloaded". Errors show up there too; earthquake downloads only appear with debug on.
+
+</details>
+
+<details>
+<summary>How do I uninstall the skin?</summary>
+
+```
+weectl extension uninstall Belchertown
+```
+
+</details>
+
+## Development version
+
+To try the newest changes before they're released, download the [`next` branch](https://github.com/poblabs/weewx-belchertown/archive/next.zip) and install it with `weectl extension install next.zip`, or copy its files over your `skins/Belchertown` and `bin/user` folders. Then restart weewx. The `next` branch is where the 3.0 rewrite happens, so expect rough edges.
 
 ## Donate
+
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&amp;logo=paypal&amp;colorA=aaaaaa)](https://paypal.me/pobhq)
 
 This project took a lot of coffee to create. If you enjoy this skin and find some value from it, [click here to buy me another cup of coffee](https://paypal.me/pobhq) :)
 
 ## Credits
-* AerisWeather API for current weather conditions and weather forecasts.
-* Windy.com for the iFrame embedded weather radar.
+
+* Open-Meteo, the US National Weather Service and Xweather (formerly AerisWeather) for current conditions, forecasts, air quality and alerts.
+* Windy.com for the embedded radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
-* Highcharts Dark Unica CSS for the Highcharts dark mode.
-* Gary for the initial Highcharts help from skin version 0.1 through to 0.9.1. 
-* Brian at [weather34.com](http://weather34.com) for the weather icons from the simplicty 2015 theme. Used with agreement.
+* Highcharts Dark Unica for the chart dark mode.
+* Gary, for help with the charts from version 0.1 through 0.9.1.
+* Brian at weather34.com for the weather icons from the Simplicity 2015 theme, used with agreement.
 * Some icons remixed by michaelundwd. Thanks!
+* uajqq and the [New Belchertown](https://github.com/uajqq/weewx-belchertown-new) contributors, for keeping Belchertown alive between 2024 and 2026. Fixes from that fork are credited where they were used, such as michaelundwd's consecutive rain days fix.

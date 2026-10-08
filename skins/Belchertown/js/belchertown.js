@@ -1,0 +1,782 @@
+// Settings come from belchertown-config.js (js/belchertown-config.js.tmpl), loaded just before this file.
+var config = belchertown_config;
+// A time zone name the browser doesn't know would break every date, so it is checked once; the UTC offset is the fallback
+var wx_tz = (function() {
+    try {
+        if (config.moment_js_tz) new Intl.DateTimeFormat("en", {timeZone: config.moment_js_tz});
+        return config.moment_js_tz || "";
+    } catch (e) {
+        return "";
+    }
+})();
+var extras = belchertown_config.extras;
+// Like $obs.label in a template: an unknown label returns its own name.
+var labels = new Proxy(belchertown_config.labels, {
+    get: function(target, key) {
+        return (typeof key === "string" && !(key in target)) ? key : target[key];
+    }
+});
+
+// Small helpers for what the skin used jQuery for. Each one acts on every element the selector matches.
+function wx_all(selector) {
+    try {
+        return document.querySelectorAll(selector);
+    } catch (e) {
+        // Class names that start with a digit (.24hr_forecasts, .2019bombcyclone) need escaping in CSS; jQuery allowed them
+        return document.querySelectorAll(selector.replace(/\.(\d)/g, function(m, d) { return ".\\3" + d + " "; }));
+    }
+}
+
+// Like jQuery's .html(value): an undefined value leaves the elements alone
+function wx_html(selector, html) {
+    if (html === undefined) return;
+    wx_all(selector).forEach(function(el) { el.innerHTML = html; });
+}
+
+function wx_css(selector, property, value) {
+    wx_all(selector).forEach(function(el) { el.style.setProperty(property, value); });
+}
+
+function wx_hide(selector) {
+    wx_all(selector).forEach(function(el) { el.style.display = "none"; });
+}
+
+// Like jQuery's .show(): back to the element's own display, block or inline by tag if the stylesheet hides it
+var WX_INLINE = ["A", "B", "EM", "I", "IMG", "LABEL", "SMALL", "SPAN", "STRONG", "SUP", "TIME"];
+function wx_show(selector) {
+    wx_all(selector).forEach(function(el) {
+        el.style.display = "";
+        if (getComputedStyle(el).display === "none") el.style.display = WX_INLINE.indexOf(el.tagName) < 0 ? "block" : "inline";
+    });
+}
+
+function wx_ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+}
+
+// JSON that is never served from the browser cache (weewx rewrites these files every archive period)
+async function wx_json(url) {
+    var resp = await fetch(url + (url.indexOf("?") < 0 ? "?" : "&") + "_=" + Date.now());
+    if (!resp.ok) throw new Error("HTTP " + resp.status + " loading " + url);
+    return resp.json();
+}
+
+// Popups and tabs written with Bootstrap 3 markup (data-toggle="modal" / "tab", data-dismiss="modal")
+// work without Bootstrap's JavaScript; the skin and older custom .inc files both use that markup.
+function wx_modal(target, show) {
+    var modal = typeof target === "string" ? document.querySelector(target) : target;
+    if (!modal) return;
+    var backdrop = document.querySelector(".modal-backdrop");
+    if (show) {
+        modal.style.display = "block";
+        modal.offsetWidth;
+        modal.classList.add("in");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+        if (!backdrop) {
+            backdrop = document.createElement("div");
+            backdrop.className = "modal-backdrop fade in";
+            document.body.appendChild(backdrop);
+        }
+        modal.focus();
+    } else if (modal.classList.contains("in")) {
+        modal.classList.remove("in");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        if (!document.querySelector(".modal.in")) {
+            document.body.classList.remove("modal-open");
+            if (backdrop) backdrop.remove();
+        }
+    }
+}
+
+function wx_tab(link) {
+    var pane = document.querySelector(link.dataset.target || link.getAttribute("href"));
+    var item = link.closest("li");
+    if (item) Array.from(item.parentElement.children).forEach(function(li) { li.classList.toggle("active", li === item); });
+    if (pane) Array.from(pane.parentElement.children).forEach(function(p) { p.classList.toggle("active", p === pane); });
+}
+
+document.addEventListener("click", function(e) {
+    // When jquery = auto loaded Bootstrap's own plugins for an older custom file, they handle these clicks
+    if (window.jQuery && jQuery.fn && jQuery.fn.modal) return;
+    var el = e.target.closest('[data-toggle="modal"], [data-dismiss="modal"], [data-toggle="tab"]');
+    if (el && el.dataset.toggle === "modal") {
+        e.preventDefault();
+        wx_modal(el.dataset.target || el.getAttribute("href"), true);
+    } else if (el && el.dataset.dismiss === "modal") {
+        wx_modal(el.closest(".modal"), false);
+    } else if (el && el.dataset.toggle === "tab") {
+        e.preventDefault();
+        wx_tab(el);
+    } else if (e.target.classList.contains("modal")) {
+        wx_modal(e.target, false);
+    }
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") wx_all(".modal.in").forEach(function(m) { wx_modal(m, false); });
+});
+
+var pages = ["graphs", "records", "reports", "about", "chart-builder"];
+var pageName = "";
+// If this page we're on now is listed as a subpage, use ".." to get to the relative root
+function get_relative_url() {
+    var sPath = window.location.pathname.replace(/\/$/, "");
+    pageName = sPath.substring(sPath.lastIndexOf('/') + 1);
+    if (pages.includes(pageName)) {
+        var relative_url = "..";
+    } else {
+        var relative_url = ".";
+    }
+    belchertown_debug("URL: Relative URL is: " + relative_url);
+
+    return relative_url;
+}
+
+// ?view=kiosk on the home page (the class is set in header.html.tmpl before the page draws)
+function is_kiosk_view() {
+    return document.documentElement.classList.contains("view-kiosk");
+}
+
+var HOME_VIEWS = ["dashboard", "forecast", "radar", "charts"];
+
+function set_home_view(view, save) {
+    var root = document.documentElement;
+    if (save) {
+        root.dataset.viewSource = "saved";
+        root.classList.remove("storm-active");
+        try { localStorage.setItem("belchertown_view", view); } catch (e) {}
+    }
+    if (root.classList.contains("view-" + view)) return;
+    HOME_VIEWS.forEach(function(v) { root.classList.remove("view-" + v); });
+    root.classList.add("view-" + view);
+    mark_home_view();
+    if (window.Highcharts) {
+        Highcharts.charts.forEach(function(chart) { if (chart) chart.reflow(); });
+    }
+}
+
+function mark_home_view() {
+    document.querySelectorAll(".view-menu a").forEach(function(a) {
+        var on = document.documentElement.classList.contains("view-" + a.dataset.view);
+        a.classList.toggle("active", on);
+        if (on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var picker = document.querySelector(".view-picker");
+    if (!picker) return;
+    mark_home_view();
+    picker.addEventListener("click", function(e) {
+        var link = e.target.closest(".view-menu a");
+        if (!link) return;
+        e.preventDefault();
+        set_home_view(link.dataset.view, true);
+        picker.open = false;
+        if (/[?&]view=/.test(location.search)) {
+            var url = new URL(location.href);
+            url.searchParams.delete("view");
+            history.replaceState(null, "", url);
+        }
+    });
+    document.addEventListener("click", function(e) {
+        if (picker.open && !picker.contains(e.target)) picker.open = false;
+    });
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && picker.open) { picker.open = false; picker.querySelector("summary").focus(); }
+    });
+});
+
+// Storm mode: radar first while it rains or a precipitation/storm alert is in effect,
+// only for visitors on the default layout (no ?view= and no saved choice)
+var storm_state = {rain: false, alert: false};
+var STORM_ALERT_WORDS = /\b(thunder|tornado|flood|hurricane|tropical|storm|rain|snow|blizzard|sleet|ice|squall)/i;
+
+function storm_update(kind, active) {
+    var root = document.documentElement;
+    if (extras.storm_view === "0" || !root.dataset.viewDefault) return;
+    storm_state[kind] = !!active;
+    if (root.dataset.viewSource !== "default") return;
+    var storm = storm_state.rain || storm_state.alert;
+    root.classList.toggle("storm-active", storm);
+    set_home_view(storm ? "radar" : root.dataset.viewDefault, false);
+}
+
+function storm_alerts(titles) {
+    storm_update("alert", titles.some(function(t) { return STORM_ALERT_WORDS.test(t); }));
+}
+
+// "0,25 mm/h" or "0.25 in/hr" -> 0.25
+function leading_number(text) {
+    return parseFloat(String(text).replace(",", ".")) || 0;
+}
+
+// <time data-ts="epoch" data-format="label name"> gets its text from that label's date format
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("time[data-ts]").forEach(function(el) {
+        var ts = Number(el.dataset.ts);
+        el.textContent = isNaN(ts) || !el.dataset.ts ? "---" : tzAdjustedMoment(ts).format(labels[el.dataset.format]);
+    });
+});
+
+// Sticky header: slim once the page has scrolled
+document.addEventListener("DOMContentLoaded", function() {
+    if (!document.body.classList.contains("sticky-header")) return;
+    var header = document.querySelector(".site-header"), ticking = false;
+    // The height it gives up becomes margin, so the page doesn't jump when it slims
+    function update() {
+        var slim = window.scrollY > 60;
+        if (slim !== header.classList.contains("is-slim")) {
+            var full = header.offsetHeight + (parseFloat(header.style.marginBottom) || 0);
+            header.classList.toggle("is-slim", slim);
+            header.style.marginBottom = slim ? (full - header.offsetHeight) + "px" : "";
+        }
+        ticking = false;
+    }
+    window.addEventListener("scroll", function() {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, {passive: true});
+    update();
+});
+
+// The home page charts are drawn only when the charts block is on the page and visible
+function home_charts_shown() {
+    return !is_kiosk_view() && document.querySelector(".graph-outer") !== null;
+}
+
+// Determine if debug is on via URL var or config setting
+if (getURLvar("debug") && (getURLvar("debug") == "true" || getURLvar("debug") == "1")) {
+    var belchertown_debug_config = true;
+    belchertown_debug("Debug: URL debug variable enabled");
+} else {
+    var belchertown_debug_config = config.belchertown_debug;
+    belchertown_debug("Debug: skin.conf belchertown_debug enabled");
+}
+
+// Dates are formatted with Day.js, which takes the same format codes as moment.js (LLL, dddd, ...)
+["utc", "timezone", "localizedFormat", "advancedFormat", "localeData"].forEach(function(plugin) {
+    dayjs.extend(window["dayjs_plugin_" + plugin]);
+});
+fix_dayjs_catalan();
+dayjs.locale(config.dayjs_locale);
+
+// Day.js's Catalan capitalizes names and drops "de"/"d'" ("6 Octubre de 2026");
+// use moment.js's wording ("6 d'octubre de 2026"), which the skin had before 2.0.
+function fix_dayjs_catalan() {
+    var ca = dayjs.Ls.ca;
+    if (!ca) {
+        return;
+    }
+    var standalone = "gener_febrer_març_abril_maig_juny_juliol_agost_setembre_octubre_novembre_desembre".split("_");
+    var after_day = "de gener_de febrer_de març_d'abril_de maig_de juny_de juliol_d'agost_de setembre_d'octubre_de novembre_de desembre".split("_");
+    var months = function(date, format) {
+        // After a day number; advancedFormat has already turned Do into text such as "6è"
+        return /(D[oD]?|\d+\S*)(\[[^\[\]]*\]|\s)+MMMM/.test(format) ? after_day[date.month()] : standalone[date.month()];
+    };
+    months.s = standalone;
+    months.f = after_day;
+    ca.months = months;
+    ca.monthsShort = "gen._febr._març_abr._maig_juny_jul._ag._set._oct._nov._des.".split("_");
+    ca.weekdays = "diumenge_dilluns_dimarts_dimecres_dijous_divendres_dissabte".split("_");
+    ca.weekdaysShort = "dg._dl._dt._dc._dj._dv._ds.".split("_");
+}
+
+function belchertown_debug(message) {
+    if (belchertown_debug_config > 0) {
+        console.log(message);
+    }
+}
+
+wx_ready(function() {
+
+    // If the visitor has overridden the theme, keep that theme going throughout the full site and their visit.
+    if (sessionStorage.getItem('theme') == "toggleOverride") {
+        belchertown_debug("Theme: sessionStorage override in place.");
+        changeTheme(sessionStorage.getItem('currentTheme'));
+    }
+
+    // Change theme if a URL variable is set
+    if (window.location.search.indexOf('theme')) {
+        if (getURLvar("theme") == "dark") {
+            belchertown_debug("Theme: Setting dark theme because of URL override");
+            changeTheme("dark", true);
+        } else if (getURLvar("theme") == "light") {
+            belchertown_debug("Theme: Setting light theme because of URL override");
+            changeTheme("light", true);
+        } else if (getURLvar("theme") == "auto") {
+            belchertown_debug("Theme: Setting auto theme because of URL override");
+            sessionStorage.setItem('theme', 'auto')
+            if (config.almanac_times) {
+                autoTheme(config.almanac_times.sunset_hour, config.almanac_times.sunset_minute, config.almanac_times.sunrise_hour, config.almanac_times.sunrise_minute);
+            }
+        }
+    }
+
+    if (extras.theme_toggle_enabled === '1') {
+    // Light/dark button: a moon in light mode, a sun in dark mode
+    try {
+        document.getElementById('themeSwitch').addEventListener('click', function() {
+            belchertown_debug("Theme: Toggle button clicked");
+            changeTheme(document.body.classList.contains('dark') ? "light" : "dark", true);
+        });
+    } catch (err) {
+        // Silently exit
+    }
+    }
+
+    // After charts are loaded, if an anchor tag is in the URL, let's scroll to it
+    window.addEventListener('load', function() {
+        var anchor_tag = location.hash.replace('#', '');
+        if (anchor_tag != '') {
+            // The timeout lets the charts finish adding their divs so the page has its full height.
+            // scrollIntoView keeps the target below a sticky header (scroll-margin-top in style.css)
+            setTimeout(function() {
+                var target = document.getElementById(decodeURIComponent(anchor_tag));
+                if (target) target.scrollIntoView({behavior: "smooth"});
+            }, 500);
+        }
+    });
+
+    if (extras.back_to_top_button_enabled === '1') {
+    // Back to Top Button is visible after 400px
+    window.addEventListener('scroll', function() {
+        wx_css('#btn-back-to-top', 'transform', window.scrollY > 400 ? 'scale(1)' : 'scale(0)');
+    }, {passive: true});
+
+    wx_all('#btn-back-to-top').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    });
+
+    if (extras.back_to_top_button_position === '1') {
+    // Button is visible on left side
+    wx_css('#btn-back-to-top', 'left', '20px');
+    wx_css('#btn-back-to-top', 'right', 'auto');
+    }
+
+    if (extras.back_to_top_button_opacity >= '0.1' && extras.back_to_top_button_opacity <= '0.9') {
+    wx_css('#btn-back-to-top', 'opacity', extras.back_to_top_button_opacity);
+    }
+    }
+
+});
+
+if (extras.theme === 'auto') {
+// Run this on every page for dark mode if skin theme is auto
+ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+    update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+    belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+}).catch(function(e) {
+    console.log(e);
+});
+}
+
+
+// Get the URL variables. Source: https://stackoverflow.com/a/26744533/1177153
+function getURLvar(k) {
+    var p = {};
+    location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(s, k, v) {p[k] = v});
+    return k ? p[k] : p;
+}
+
+
+// Change the color of the outTemp_F variable
+function get_outTemp_color(unit, outTemp, returnColor = false) {
+    outTemp = parseFloat(outTemp).toFixed(0); // Convert back to decimal literal
+    if (unit == "degree_F") {
+        if (outTemp <= 0) {
+            var outTemp_color = "#1278c8";
+        } else if (outTemp <= 25) {
+            var outTemp_color = "#30bfef";
+        } else if (outTemp <= 32) {
+            var outTemp_color = "#1fafdd";
+        } else if (outTemp <= 40) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if (outTemp <= 50) {
+            var outTemp_color = "#71bc3c";
+        } else if (outTemp <= 55) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if (outTemp <= 65) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if (outTemp <= 70) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if (outTemp <= 75) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if (outTemp <= 80) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if (outTemp <= 85) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if (outTemp <= 90) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if (outTemp <= 95) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if (outTemp <= 110) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if (outTemp >= 111) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
+    } else if (unit == "degree_C") {
+        if (outTemp <= 0) {
+            var outTemp_color = "#1278c8";
+        } else if (outTemp <= -3.8) {
+            var outTemp_color = "#30bfef";
+        } else if (outTemp <= 0) {
+            var outTemp_color = "#1fafdd";
+        } else if (outTemp <= 4.4) {
+            var outTemp_color = "rgba(0,172,223,1)";
+        } else if (outTemp <= 10) {
+            var outTemp_color = "#71bc3c";
+        } else if (outTemp <= 12.7) {
+            var outTemp_color = "rgba(90,179,41,0.8)";
+        } else if (outTemp <= 18.3) {
+            var outTemp_color = "rgba(131,173,45,1)";
+        } else if (outTemp <= 21.1) {
+            var outTemp_color = "rgba(206,184,98,1)";
+        } else if (outTemp <= 23.8) {
+            var outTemp_color = "rgba(255,174,0,0.9)";
+        } else if (outTemp <= 26.6) {
+            var outTemp_color = "rgba(255,153,0,0.9)";
+        } else if (outTemp <= 29.4) {
+            var outTemp_color = "rgba(255,127,0,1)";
+        } else if (outTemp <= 32.2) {
+            var outTemp_color = "rgba(255,79,0,0.9)";
+        } else if (outTemp <= 35) {
+            var outTemp_color = "rgba(255,69,69,1)";
+        } else if (outTemp <= 43.3) {
+            var outTemp_color = "rgba(255,104,104,1)";
+        } else if (outTemp >= 43.4) {
+            var outTemp_color = "rgba(218,113,113,1)";
+        }
+    }
+
+    // Return the color value if requested, otherwise just set the div color
+    if (returnColor) {
+        return outTemp_color;
+    } else {
+        wx_css(".outtemp_outer", "color", outTemp_color);
+    }
+}
+
+// Change the color of the aqi variable according to US-EPA standards
+// (adjusted to match skin colors better)
+function get_aqi_color(aqi, returnColor = false) {
+    if (aqi >= 301) {
+        var aqi_color = "#cc241d";
+    } else if (aqi >= 201) {
+        var aqi_color = "#b16286";
+    } else if (aqi >= 151) {
+        var aqi_color = "rgba(255,69,69,1)";
+    } else if (aqi >= 101) {
+        var aqi_color = "rgba(255,127,0,1)";
+    } else if (aqi >= 51) {
+        var aqi_color = "rgba(255,174,0,0.9)";
+    } else if (aqi < 51) {
+        var aqi_color = "#71bc3c";
+    }
+
+    // Return the color value if requested, otherwise just set the div color
+    if (returnColor) {
+        return aqi_color;
+    } else {
+        wx_css(".aqi_outer", "color", aqi_color);
+    }
+}
+
+function kts_to_beaufort(windspeed) {
+    // Given windspeed in knots, converts to Beaufort scale
+    if (windspeed <= 1) {
+        return 0
+    } else if (windspeed <= 3) {
+        return 1
+    } else if (windspeed <= 6) {
+        return 2
+    } else if (windspeed <= 10) {
+        return 3
+    } else if (windspeed <= 15) {
+        return 4
+    } else if (windspeed <= 21) {
+        return 5
+    } else if (windspeed <= 27) {
+        return 6
+    } else if (windspeed <= 33) {
+        return 7
+    } else if (windspeed <= 40) {
+        return 8
+    } else if (windspeed <= 47) {
+        return 9
+    } else if (windspeed <= 55) {
+        return 10
+    } else if (windspeed <= 63) {
+        return 11
+    } else if (windspeed > 63) {
+        return 12
+    }
+}
+
+function beaufort_cat(beaufort) {
+    // Given Beaufort number, returns category description
+    switch (beaufort) {
+        case 0:
+            return labels.beaufort0
+        case 1:
+            return labels.beaufort1
+        case 2:
+            return labels.beaufort2
+        case 3:
+            return labels.beaufort3
+        case 4:
+            return labels.beaufort4
+        case 5:
+            return labels.beaufort5
+        case 6:
+            return labels.beaufort6
+        case 7:
+            return labels.beaufort7
+        case 8:
+            return labels.beaufort8
+        case 9:
+            return labels.beaufort9
+        case 10:
+            return labels.beaufort10
+        case 11:
+            return labels.beaufort11
+        case 12:
+            return labels.beaufort12
+    }
+}
+
+function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = false, rounding, mirrored = false, numberFormat) {
+    // Mirrored values have the negative sign removed
+    if (mirrored) {
+        obsvalue = Math.abs(obsvalue);
+    }
+
+    if (point_obsType == "windDir") {
+        if (obsvalue >= 0 && obsvalue <= 11.25) {
+            ordinal = config.ordinate_names[0]; // N
+        } else if (obsvalue >= 11.26 && obsvalue <= 33.75) {
+            ordinal = config.ordinate_names[1]; // NNE
+        } else if (obsvalue >= 33.76 && obsvalue <= 56.25) {
+            ordinal = config.ordinate_names[2]; // NE
+        } else if (obsvalue >= 56.26 && obsvalue <= 78.75) {
+            ordinal = config.ordinate_names[3]; // ENE
+        } else if (obsvalue >= 78.76 && obsvalue <= 101.25) {
+            ordinal = config.ordinate_names[4]; // E
+        } else if (obsvalue >= 101.26 && obsvalue <= 123.75) {
+            ordinal = config.ordinate_names[5]; // ESE
+        } else if (obsvalue >= 123.76 && obsvalue <= 146.25) {
+            ordinal = config.ordinate_names[6]; // SE
+        } else if (obsvalue >= 146.26 && obsvalue <= 168.75) {
+            ordinal = config.ordinate_names[7]; // SSE
+        } else if (obsvalue >= 168.76 && obsvalue <= 191.25) {
+            ordinal = config.ordinate_names[8]; // S
+        } else if (obsvalue >= 191.26 && obsvalue <= 213.75) {
+            ordinal = config.ordinate_names[9]; // SSW
+        } else if (obsvalue >= 213.76 && obsvalue <= 236.25) {
+            ordinal = config.ordinate_names[10]; // SW
+        } else if (obsvalue >= 236.26 && obsvalue <= 258.75) {
+            ordinal = config.ordinate_names[11]; // WSW
+        } else if (obsvalue >= 258.76 && obsvalue <= 281.25) {
+            ordinal = config.ordinate_names[12]; // W
+        } else if (obsvalue >= 281.26 && obsvalue <= 303.75) {
+            ordinal = config.ordinate_names[13]; // WNW
+        } else if (obsvalue >= 303.76 && obsvalue <= 326.25) {
+            ordinal = config.ordinate_names[14]; // NW
+        } else if (obsvalue >= 326.26 && obsvalue <= 348.75) {
+            ordinal = config.ordinate_names[15]; // NNW
+        } else if (obsvalue >= 348.76 && obsvalue <= 360) {
+            ordinal = config.ordinate_names[0]; // N
+        }
+
+        // highchartsReturn returns the full wind direction string for highcharts tooltips. e.g "NNW (337)"
+        if (highchartsReturn) {
+            output = ordinal + " (" + Math.round(obsvalue) + "\xBA)";
+        } else {
+            output = ordinal;
+        }
+    } else {
+        try {
+            // Setup any graphs.conf overrides on formatting
+            var {decimals, decimalPoint, thousandsSep} = numberFormat;
+
+            // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf StringFormats.
+            // -1 is set from Python to notate no rounding data available and decimals from graphs.conf is undefined.
+            if (rounding == "-1" && typeof decimals === "undefined") {
+                output = Highcharts.numberFormat(obsvalue);
+            } else {
+                // If the amount of decimal is defined, use that instead since rounding is provided to the function.
+                if (typeof decimals !== "undefined") {
+                    rounding = decimals;
+                }
+                // If decimalPoint is undefined, use the auto detect from the skin since this comes from the skin.
+                if (typeof decimalPoint === "undefined") {
+                    decimalPoint = config.highcharts_decimal;
+                }
+                // If thousandsSep is undefined, use the auto detect from the skin since this comes from the skin.
+                if (typeof thousandsSep === "undefined") {
+                    thousandsSep = config.highcharts_thousands;
+                }
+
+                output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
+            }
+        } catch (err) {
+            // Fall back to just returning the highcharts point number value, which is a best guess.
+            output = Highcharts.numberFormat(obsvalue);
+        }
+    }
+
+    return output;
+}
+
+// Handle wind arrow rotation with the ability to "rollover" past 0 
+// without spinning back around. e.g 350 to 3 would normally spin back around
+// https://stackoverflow.com/a/19872672/1177153
+function rotateThis(newRotation) {
+    if (newRotation == "N/A") {return;}
+    belchertown_debug("rotateThis: rotating to " + newRotation);
+    var currentRotation;
+    finalRotation = finalRotation || 0; // if finalRotation undefined or 0, make 0, else finalRotation
+    currentRotation = finalRotation % 360;
+    if (currentRotation < 0) {currentRotation += 360;}
+    if (currentRotation < 180 && (newRotation > (currentRotation + 180))) {finalRotation -= 360;}
+    if (currentRotation >= 180 && (newRotation <= (currentRotation - 180))) {finalRotation += 360;}
+    finalRotation += (newRotation - currentRotation);
+    wx_css(".wind-arrow", "transform", "rotate(" + finalRotation + "deg)");
+    wx_css(".arrow", "transform", "rotate(" + finalRotation + "deg)");
+}
+
+// Title case strings. https://stackoverflow.com/a/45253072/1177153
+function titleCase(str) {
+    return str.toLowerCase().split(' ').map(function(word) {
+        return word.replace(word[0], word[0].toUpperCase());
+    }).join(' ');
+}
+
+function ajaxweewx() {
+    return wx_json(get_relative_url() + "/json/weewx_data.json");
+}
+
+// Update weewx data elements
+//var station_obs_array = "";
+var unit_rounding_array = "";
+var unit_label_array = "";
+var weewx_data = "";
+function update_weewx_data(data) {
+    belchertown_debug("Updating weewx data");
+    weewx_data = data;
+    if (data.current && "rainRate" in data.current) storm_update("rain", leading_number(data.current.rainRate) > 0);
+    
+    if (extras.theme === 'auto') {
+    // Auto theme if enabled
+    autoTheme(data["almanac"]["sunset_hour"], data["almanac"]["sunset_minute"], data["almanac"]["sunrise_hour"], data["almanac"]["sunrise_minute"]);
+    }
+
+    //station_obs_array = data["station_observations"];
+    unit_rounding_array = data["unit_rounding"];
+    unit_label_array = data["unit_label"];
+
+    // Daily High Low
+    high = data["day"]["outTemp"]["max"];
+    low = data["day"]["outTemp"]["min"];
+    wx_html(".high", high);
+    wx_html(".low", low);
+
+    try {
+        // Barometer trending by finding a negative number
+        count = (data["current"]["barometer_trend"].match(/-/g) || []).length
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
+
+    if (count >= 1) {
+        wx_html(".pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
+    } else {
+        wx_html(".pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
+    }
+
+    // Daily max gust span
+    wx_html(".dailymaxgust", parseFloat(data["day"]["wind"]["max"]).toFixed(1));
+
+    // Daily Snapshot Stats Section
+    try {
+        wx_html(".snapshot-records-today-header", tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_today_header));
+        wx_html(".snapshot-records-month-header", tzAdjustedMoment(data["current"]["epoch"]).format(labels.time_snapshot_records_month_header));
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
+
+
+    wx_html(".dailystatshigh", data["day"]["outTemp"]["max"]);
+    wx_html(".dailystatslow", data["day"]["outTemp"]["min"]);
+    wx_html(".dailystatswindavg", data["day"]["wind"]["average"]);
+    wx_html(".dailystatswindmax", data["day"]["wind"]["max"]);
+    wx_html(".dailystatsrain", data["day"]["rain"]["sum"]);
+    wx_html(".dailystatsrainrate", data["day"]["rain"]["max"]);
+    wx_html(".dailywindrun", data["day"]["wind"]["windrun"]);
+
+    // Month Snapshot Stats Section
+    wx_html(".monthstatshigh", data["month"]["outTemp"]["max"]);
+    wx_html(".monthstatslow", data["month"]["outTemp"]["min"]);
+    wx_html(".monthstatswindavg", data["month"]["wind"]["average"]);
+    wx_html(".monthstatswindmax", data["month"]["wind"]["max"]);
+    wx_html(".monthstatsrain", data["month"]["rain"]["sum"]);
+    wx_html(".monthstatsrainrate", data["month"]["rain"]["max"]);
+
+    // Sunrise and Sunset            
+    wx_html(".sunrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    wx_html(".sunset-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
+    wx_html(".moonrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
+    wx_html(".moonset-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
+
+    // Moon icon, phase and illumination percent
+    wx_html(".moon-icon", moon_icon(data["almanac"]["moon"]["moon_index"]));        
+    wx_html(".moon-phase", titleCase(data["almanac"]["moon"]["moon_phase"])); // Javascript function above
+    wx_html(".moon-visible", "<strong>" + data["almanac"]["moon"]["moon_fullness"] + "%</strong> " + labels.moon_visible);
+    if (config.almanac_has_extras) {
+    // Close current modal if open
+    wx_modal('#almanac', false);
+    wx_html(".almanac-extras-modal-body", data["almanac"]["almanac_extras_modal_html"]);
+    try {
+        almanac_updated = labels.header_last_updated + " " + tzAdjustedMoment(data["current"]["datetime_raw"]).format(labels.time_last_updated);
+        wx_html(".almanac_last_updated", almanac_updated);
+    } catch (err) {
+        // Returned "current" data does not have this value
+    }
+    }
+}
+
+//  function returns html for moon-icon according to moonphase value and currentTheme setting
+function moon_icon(moonphase){
+    
+    var moon_icon_dict = {
+        "0": "<div class='wi wi-moon-new'></div>",
+        "1": "<div class='wi wi-moon-waxing-crescent-3 " + config.hemisphere + "'></div>",
+        "2": "<div class='wi wi-moon-first-quarter " + config.hemisphere + "'></div>",
+        "3": "<div class='wi wi-moon-waxing-gibbous-3 " + config.hemisphere + "'></div>",
+        "4": "<div class='wi wi-moon-full'></div>",
+        "5": "<div class='wi wi-moon-waning-gibbous-3 " + config.hemisphere + "'></div>",
+        "6": "<div class='wi wi-moon-third-quarter " + config.hemisphere + "'></div>",
+        "7": "<div class='wi wi-moon-waning-crescent-4 " + config.hemisphere + "'></div>",
+    }
+    
+    var output = moon_icon_dict[moonphase];
+    if (sessionStorage.getItem('currentTheme') === 'dark') {
+        return output;
+    } else {
+        return output.replace('-moon-','-moon-alt-');
+    }
+}
+
+function tzAdjustedMoment(input) {
+    let tz = wx_tz;
+    if (!tz) {
+        return dayjs.unix(Number(input)).utcOffset(config.moment_js_utc_offset);
+    } else {
+        return dayjs.unix(Number(input)).tz(tz);
+    }
+}

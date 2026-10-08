@@ -1,19 +1,16 @@
 # Installer for Belchertown weewx skin
 # Pat O'Brien, 2018
 
-import configobj
-from setup import ExtensionInstaller
+import sys
+from io import StringIO
 
-try:
-    # Python 2
-    from StringIO import StringIO
-except ImportError:
-    # Python 3
-    from io import StringIO
+import configobj
+import weewx
+from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
-VERSION      = "1.3.1"
+VERSION      = "3.0.0"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -22,6 +19,11 @@ AUTHOR_EMAIL = "https://github.com/poblabs/weewx-belchertown"
 #-------- main loader -----------
 
 def loader():
+    # Belchertown 3 needs weewx 5; older weewx stays on Belchertown 1.3.1.
+    if int(weewx.__version__.split(".")[0]) < 5:
+        sys.exit("Belchertown 3 requires weewx 5.0 or newer (found weewx %s). "
+                 "On older weewx, install Belchertown 1.3.1."
+                 % weewx.__version__)
     return BelchertownInstaller()
 
 class BelchertownInstaller(ExtensionInstaller):
@@ -65,7 +67,6 @@ extension_config = """
            # beaufort_category = 0
            # manifest_name = "My Weather Website"
            # manifest_short_name = "MWW"
-           # aeris_map = 0
            # radar_html = ''   #  (default seems to center on your lat/lon)
            # radar_html_dark = None
            # radar_zoom = 8
@@ -78,8 +79,6 @@ extension_config = """
            # highcharts_decimal = "auto"
            # highcharts_thousands = "auto"
            # googleAnalyticsId = ""
-           # pi_kiosk_bold = "false"
-           # pi_theme = "auto"
            # webpage_autorefresh = 0
            # reload_hook_images = 0
            # reload_images_radar = 300
@@ -99,8 +98,8 @@ extension_config = """
            # disconnect_live_website_visitor = 1800000
 
            #--- Forecast Options ---
-           # forecast_enabled = 0
-           # forecast_provider = "aeris"
+           # forecast_enabled = 1
+           # forecast_provider = "auto"   # auto, openmeteo, nws or aeris (Xweather)
            # forecast_api_id = ""
            # forecast_api_secret = ""
            # forecast_units = "us"
@@ -108,7 +107,8 @@ extension_config = """
            # forecast_stale = 3540
            # forecast_aeris_use_metar = 1
            # forecast_interval_hours = 24
-           # forecast_alert_enabled = 0
+           # forecast_alert_enabled = 1
+           # forecast_alert_provider = "auto"   # auto, nws, aeris (Xweather) or none
            # forecast_alert_limit = 1
            # forecast_show_daily_forecast_link = 0
            # forecast_daily_forecast_link = ""
@@ -124,19 +124,12 @@ extension_config = """
 
            #--- Social Options ---
            # facebook_enabled = 0
-           # twitter_enabled = 0
-           # twitter_hashtags = "weewx #weather"
            # social_share_html = ""
            
-           #--- Kiosk Options ---
-           # radar_html_kiosk = ""
-           # radar_width_kiosk = 490
-           # radar_height_kiosk = 362
+           #--- Kiosk view (?view=kiosk) MQTT broker, if different ---
            # mqtt_websockets_host_kiosk = ""
            # mqtt_websockets_port_kiosk = ""
            # mqtt_websockets_ssl_kiosk = ""
-           # forecast_interval_hours_kiosk = 24
-           # aqi_enabled_kiosk = 0
 
            #-------------------------------------------------------------
            #---
@@ -162,11 +155,6 @@ extension_config = """
                 # about_page_header = "About This Site"
                 # powered_by = 'Observations are powered by a <a href="/about" target="_blank">Personal Weather Station</a>'
 
-                #-- Twitter Social Share --
-                # twitter_text = "Check out my website: My Weather Website Weather Conditions"
-                # twitter_owner = "YourTwitterUsernameHere"
-                # twitter_hashtags = "weewx #weather"
-
 """
 config_dict = configobj.ConfigObj(StringIO(extension_config))
 
@@ -174,7 +162,7 @@ config_dict = configobj.ConfigObj(StringIO(extension_config))
 #        files stanza
 #----------------------------------
 
-files=[('bin/user', ['bin/user/belchertown.py'
+files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.py'
                     ]
         ),
        ('skins/Belchertown', ['skins/Belchertown/favicon.ico',
@@ -182,32 +170,49 @@ files=[('bin/user', ['bin/user/belchertown.py'
                               'skins/Belchertown/header.html.tmpl',
                               'skins/Belchertown/index.html.tmpl',
                               'skins/Belchertown/about.inc.example',
-                              'skins/Belchertown/kiosk.html.tmpl',
-                              'skins/Belchertown/kiosk.css',
                               'skins/Belchertown/celestial.inc',
                               'skins/Belchertown/graphs.conf.example',
                               'skins/Belchertown/page-header.inc',
                               'skins/Belchertown/manifest.json.tmpl',
+                              'skins/Belchertown/index_radar.inc.example',
                               'skins/Belchertown/records.inc.example',
                               'skins/Belchertown/records-table.inc.example',
                               'skins/Belchertown/robots.txt',
                               'skins/Belchertown/skin.conf',
-                              'skins/Belchertown/belchertown-dark.min.css',
                               'skins/Belchertown/style.css'
                              ]
         ),
        ('skins/Belchertown/about', ['skins/Belchertown/about/index.html.tmpl']),
+       ('skins/Belchertown/home', ['skins/Belchertown/home/charts.inc',
+                                   'skins/Belchertown/home/conditions.inc',
+                                   'skins/Belchertown/home/forecast.inc',
+                                   'skins/Belchertown/home/onthisday.inc',
+                                   'skins/Belchertown/home/snapshot.inc'
+                                  ]
+        ),
+       ('skins/Belchertown/lang', ['skins/Belchertown/lang/ca.conf',
+                                   'skins/Belchertown/lang/de.conf',
+                                   'skins/Belchertown/lang/fr.conf',
+                                   'skins/Belchertown/lang/it.conf'
+                                  ]
+        ),
        ('skins/Belchertown/graphs', ['skins/Belchertown/graphs/index.html.tmpl']),
        ('skins/Belchertown/NOAA', ['skins/Belchertown/NOAA/NOAA-YYYY-MM.txt.tmpl',
                                    'skins/Belchertown/NOAA/NOAA-YYYY.txt.tmpl'
                                   ]
         ),
-       ('skins/Belchertown/pi', ['skins/Belchertown/pi/index.html.tmpl']),
        ('skins/Belchertown/records', ['skins/Belchertown/records/index.html.tmpl']),
        ('skins/Belchertown/reports', ['skins/Belchertown/reports/index.html.tmpl']),
-       ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown.js.tmpl',
-                                 'skins/Belchertown/js/index.html',
-                                 'skins/Belchertown/js/responsive-menu.js'
+       ('skins/Belchertown/chart-builder', ['skins/Belchertown/chart-builder/index.html.tmpl']),
+       ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',
+                                 'skins/Belchertown/js/belchertown.js',
+                                 'skins/Belchertown/js/belchertown-charts.js',
+                                 'skins/Belchertown/js/belchertown-forecast.js',
+                                 'skins/Belchertown/js/belchertown-live.js',
+                                 'skins/Belchertown/js/belchertown-units.js',
+                                 'skins/Belchertown/js/belchertown-chart-builder.js',
+                                 'skins/Belchertown/js/belchertown-theme.js',
+                                 'skins/Belchertown/js/index.html'
                                 ]
         ),
        ('skins/Belchertown/json', ['skins/Belchertown/json/index.html',

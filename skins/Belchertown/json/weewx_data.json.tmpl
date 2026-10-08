@@ -109,13 +109,6 @@
         "outTemp": "$current.outTemp",
         "outTemp_formatted": "$current.outTemp.formatted",
         "outHumidity": "$current.outHumidity",
-        ## TODO: Move inside data to it's own json file, and update ajax functions to correctly pull and parse data.
-        #if $Extras.has_key("aqi_enabled_kiosk") and $Extras.aqi_enabled_kiosk == '0'
-        "inTemp": "$current.inTemp",
-        "inTemp_formatted": "$current.inTemp.formatted",
-        "inHumidity": "$current.inHumidity",
-        "inHumidity_formatted": "$current.inHumidity.formatted",
-        #end if
         #if $day.appTemp.has_data
         "appTemp": "$current.appTemp",
         #end if

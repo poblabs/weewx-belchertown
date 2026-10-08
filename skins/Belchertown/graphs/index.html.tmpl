@@ -16,13 +16,13 @@
                     }
                     var thisPageGraphs = graphgroups_raw[graph];
                     
-                    jQuery(document).ready(function() {
+                    wx_ready(function() {
                         if (graph == "all") { 
                             // Build all graphs
                             var i = 0;
                             for (var graphgroup in graphgroups_raw) {
                                 // Rename the graph-outer div to remove CSS
-                                jQuery(".graph-outer").attr("class", "graph-outer-all");
+                                wx_all(".graph-outer").forEach(function(el) { el.className = "graph-outer-all"; });
                                 
                                 var page_content = "";
                                 if ( graphpage_content[graphgroup] ) {
@@ -30,23 +30,23 @@
                                 }
                                 
                                 // Loop through every graph group defined and add a title section
-                                jQuery(".graph-outer-all").append('\
-                                    <div class="' + graphgroup + '_outer row" style="margin:25px 0px 25px 0px;clear:both;">\
+                                wx_all(".graph-outer-all").forEach(function(el) { el.insertAdjacentHTML("beforeend", '\
+                                    <div class="' + graphgroup + '_outer graphgroup-outer">\
                                         <div class="graphpage-title wx-buttons-description">\
                                             <a href="./?graph='+graphgroup+'">'+ graphgroups_titles[graphgroup] +'</a>\
                                         </div>\
-                                        <div class="graphpage-content col-sm-12">'+page_content+'</div>\
-                                        <div class="' + graphgroup + '"></div>\
+                                        <div class="graphpage-content">'+page_content+'</div>\
+                                        <div class="' + graphgroup + ' wx-chart-grid"></div>\
                                     </div>\
-                                ');
+                                '); });
                                 
                                 if ( i > 0 ) {
-                                    jQuery("." + graphgroup + "_outer").css("border-top", "1px solid #ccc");
+                                    wx_css("." + CSS.escape(graphgroup + "_outer"), "border-top", "1px solid #ccc");
                                 }
                                 
                                 // Within each title section add the chart divs with the graph group prepending to avoid conflicts
                                 graphgroups_raw[graphgroup].forEach( graphID => {
-                                    jQuery("."+graphgroup).append('<div class="col-sm-6"><div id="' + graphgroup + "_" + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                                    wx_all("." + CSS.escape(graphgroup)).forEach(function(el) { el.insertAdjacentHTML("beforeend", '<div class="wx-chart"><div id="' + graphgroup + "_" + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>'); });
                                 });
                                 
                                 // Render the charts with the prepend_renderTo set to true
@@ -58,14 +58,14 @@
                             // Loop through the graph group for this page and add the graph divs to the page
                             try {
                                 thisPageGraphs.forEach( graphID => {
-                                    jQuery(".graph-outer").append('<div class="col-sm-12"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>');
+                                    wx_all(".graph-outer").forEach(function(el) { el.insertAdjacentHTML("beforeend", '<div class="wx-chart"><div id="' + graphID + '" style="width:100%;height:100%;margin-top:20px;"></div></div>'); });
                                 });
                                 
                                 // Set page title
-                                jQuery(".graphpage-title").html(graphgroups_titles[graph]);
+                                wx_html(".graphpage-title", graphgroups_titles[graph]);
                                 
                                 // Set page content
-                                jQuery(".graphpage-content").html(graphpage_content[graph]);
+                                wx_html(".graphpage-content", graphpage_content[graph]);
                                 
                                 // Render the charts
                                 showChart(graph);
@@ -78,23 +78,19 @@
                 
                 #include "page-header.inc"
 
-                <!-- Begin row -->
-                <div class="row">
-                    <div class="col-sm-12 wx-buttons">
-                        #if $Extras.has_key("graph_page_show_all_button") and $Extras.graph_page_show_all_button == '1'
+                <div class="wx-buttons">
+                        #if "graph_page_show_all_button" in $Extras and $Extras.graph_page_show_all_button == '1'
                         <a href="./?graph=all"><button type="button" class="btn btn-primary wx-btn-year">$obs.label.graphs_page_all_button</button></a>
                         #end if
                         $graph_page_buttons
-                    </div>
-                    <div class="col-sm-12 wx-buttons-description">
-                        <span class='graphpage-title'></span>
-                    </div>
                 </div>
-                <!-- End row -->
-                
-                <div class="graphpage-content col-sm-12"></div><!-- JS populated -->
-                
-                <div class="graph-outer"></div><!-- JS populated -->
+                <div class="wx-buttons-description">
+                    <span class='graphpage-title'></span>
+                </div>
+
+                <div class="graphpage-content"></div><!-- JS populated -->
+
+                <div class="graph-outer wx-chart-grid wx-chart-grid-1"></div><!-- JS populated -->
                 
                 <div class="clear"></div>
                 

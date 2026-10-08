@@ -2,27 +2,28 @@
 ## Determine initial skin theme CSS class from config
 ## Auto theme setting determines which CSS class to use based on the hour
 #set $bodyTheme = ""
-#set $themeSwitchChecked = ""
-#if $Extras.theme == "dark" or $Extras.pi_theme == "dark"
+#set $themeIcon = "fa-moon-o"
+#if $Extras.theme == "dark"
     #set $bodyTheme = "dark"
-    #set $themeSwitchChecked = "checked"
-#elif $Extras.theme == "light" or $Extras.pi_theme == "light"
+    #set $themeIcon = "fa-sun-o"
+#elif $Extras.theme == "light"
     #set $bodyTheme = "light"
-    #set $themeSwitchChecked = ""
-#elif $Extras.theme == "auto" or $Extras.pi_theme == "auto"
+    #set $themeIcon = "fa-moon-o"
+#elif $Extras.theme == "auto"
     #import datetime
     #set $now = datetime.datetime.now()
     #set $nowHour = $now.hour
-    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
-    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
+    ## No sunrise or sunset today (polar latitudes): stay light
+    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H') if $almanac.sunrise.raw is not None else "00"
+    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H') if $almanac.sunset.raw is not None else "24"
         ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
         #if int($sunrise_hour) <= int($nowHour) and int($nowHour) < int($sunset_hour)
             #set $bodyTheme = "light"
-            #set $themeSwitchChecked = ""
+            #set $themeIcon = "fa-moon-o"
         #else
             ## Night time, use dark mode
             #set $bodyTheme = "dark"
-            #set $themeSwitchChecked = "checked"
+            #set $themeIcon = "fa-sun-o"
         #end if
 #end if
 
@@ -40,7 +41,7 @@
 #end if
 
 ## Setup the relative URLs. Use . for homepage and .. for anything in a subfolder. 
-#if $page == "home" or $page == "kiosk"
+#if $page == "home"
 #set global $relative_url = "."
 #else
 #set global $relative_url = ".."
@@ -53,9 +54,32 @@
         <meta charset="UTF-8" />
         <title>$head_title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        #set $home_view = $Extras.get("home_view", "dashboard")
+        <script>
+            // Home page layout: ?view= in the address, else the visitor's last choice, else home_view (see style.css)
+            // Visitors who switched units: hide the page until belchertown-units.js has converted it
+            try {
+                if (localStorage.getItem("belchertown_units") === "alt") {
+                    document.documentElement.classList.add("units-pending");
+                    setTimeout(function() { document.documentElement.classList.remove("units-pending"); }, 3000);
+                }
+            } catch (e) {}
+            (function() {
+                var view = (location.search.match(/[?&]view=([a-z]+)/) || [])[1];
+                if (view === "kiosk") { document.documentElement.classList.add("view-kiosk"); return; }
+                #if $page == "home"
+                var views = ["dashboard", "forecast", "radar", "charts"], root = document.documentElement, source = "url";
+                if (views.indexOf(view) < 0) { source = "saved"; try { view = localStorage.getItem("belchertown_view"); } catch (e) {} }
+                if (views.indexOf(view) < 0) { source = "default"; view = "$home_view"; }
+                root.classList.add("view-" + view);
+                root.dataset.viewSource = source;
+                root.dataset.viewDefault = "$home_view";
+                #end if
+            })();
+        </script>
 
         <meta name="description" content="$head_desc"/>
-        <meta name="robots" content="noodp"/>
+        <meta name="robots" content="#if $page == "chartbuilder" then "noindex" else "noodp"#"/>
         #if $station.station_url
         #set $canonical_url = ($station.station_url+"/"+$filename).replace("/index.html","/")
         <link rel="canonical" href="$canonical_url" />
@@ -69,9 +93,7 @@
         #end if
         <meta property="og:site_name" content="$head_title" />
 
-        #if $page != "kiosk"
-        <link rel='dns-prefetch' href='//code.highcharts.com' />
-        #end if
+        <link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
         <link rel='dns-prefetch' href='//stackpath.bootstrapcdn.com' />
         <link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
@@ -79,12 +101,11 @@
         <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Roboto%3A300%2C400%2C700&#038;ver=1.0' type='text/css' media='all' />
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css?ver=4.7.4' type='text/css' media='all' />
+        #if $bootstrap_users
+        ## Only for your own .inc files that use Bootstrap classes the skin doesn't style itself (bootstrap = auto)
         <link rel='stylesheet' href='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='$relative_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
-        <link rel='stylesheet' href='$relative_url/belchertown-dark.min.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
-        #if $page == "kiosk"
-        <link rel='stylesheet' href='$relative_url/kiosk.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownCustomStyle" />
         #end if
+        <link rel='stylesheet' href='$relative_url/style.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownStyle" />
         #if $custom_css_exists
         <link rel='stylesheet' href='$relative_url/custom.css?ver=#echo int( time.time() ) #' type='text/css' media='all' id="belchertownCustomStyle" />
         #end if
@@ -101,31 +122,36 @@
         <!--[if lt IE 9]>
         <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js'></script>
         <![endif]-->
-        <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
-        <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
-        #if $page == "pi" or $page == "home" or $page == "kiosk" and $Extras.has_key("mqtt_websockets_enabled") and $Extras.mqtt_websockets_enabled == '1'
+        #if $jquery_users
+        ## Only for your own .inc files that still use jQuery (jquery = auto); the skin doesn't need it
+        <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
+        #end if
+        #set $dayjs = "https://cdnjs.cloudflare.com/ajax/libs/dayjs/" + $dayjs_version
+        <script type='text/javascript' src="$dayjs/dayjs.min.js"></script>
+        #for $plugin in ["utc", "timezone", "localizedFormat", "advancedFormat", "localeData"]
+        <script type='text/javascript' src="$dayjs/plugin/${plugin}.min.js"></script>
+        #end for
+        #if $dayjs_locale != "en"
+        <script type='text/javascript' src="$dayjs/locale/${dayjs_locale}.min.js"></script>
+        #end if
+        #if $page == "home" and "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
         #end if
-        #if $page != "kiosk"
-        <script type='text/javascript' src='//code.highcharts.com/stock/10/highstock.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/10/highcharts-more.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/10/modules/exporting.js'></script>
-        <script type='text/javascript' src='//code.highcharts.com/10/modules/solid-gauge.js'></script>
-        #end if
-        <script type='text/javascript' src='//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
-        <script type='text/javascript' src='$relative_url/js/belchertown.js?#echo int( time.time() )#'></script>
-        #if $page == "pi"
-        <script>
-            // Set the session variables for the theme
-            if ( sessionStorage.getItem('pi_theme') === null ) {
-                sessionStorage.setItem('pi_theme', '$Extras.theme');
-            }
-            if ( sessionStorage.getItem('pi_currentTheme') === null ) {
-                sessionStorage.setItem('pi_currentTheme', '$bodyTheme');
-            }
-        </script>
-        #else
+        #set $highcharts = "https://cdn.jsdelivr.net/npm/highcharts@13"
+        <script type='text/javascript' src='$highcharts/highstock.js'></script>
+        <script type='text/javascript' src='$highcharts/highcharts-more.js'></script>
+        <script type='text/javascript' src='$highcharts/modules/solid-gauge.js'></script>
+        <script type='text/javascript' src='$highcharts/modules/exporting.js'></script>
+        <script type='text/javascript' src='$highcharts/modules/accessibility.js'></script>
+        #set global $js_version = int(time.time())
+        <script type='text/javascript' src='$relative_url/js/belchertown-config.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-units.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-theme.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-forecast.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-live.js?$js_version'></script>
+        <script type='text/javascript' src='$relative_url/js/belchertown-charts.js?$js_version'></script>
         <script>
             // Set the session variables for the theme
             if ( sessionStorage.getItem('theme') === null ) {
@@ -135,7 +161,6 @@
                 sessionStorage.setItem('currentTheme', '$bodyTheme');
             }
         </script>
-        #end if
         
         #if $station.station_url
         <link rel='shortlink' href="$station.station_url" />
@@ -143,7 +168,7 @@
                 
         <link rel="icon" href="$relative_url/favicon.ico" />
         
-        #if $Extras.has_key('googleAnalyticsId') and $page != "kiosk"
+        #if 'googleAnalyticsId' in $Extras
         <!-- Global Site Tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=$Extras.googleAnalyticsId"></script>
         <script>
@@ -154,35 +179,31 @@
         </script>
         #end if
 
-        #if os.path.exists("header.inc") and $page != "kiosk"
+        #if os.path.exists("header.inc")
         #include "header.inc"
         #end if
 
     </head>
     
-    #if $page == "pi"
-    <body class="pi page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
-        <div class="site-container">
-    #else
-    <body class="page-template-default page full-width-content $bodyTheme" itemscope itemtype="https://schema.org/WebPage">
-        #if $Extras.has_key("back_to_top_button_enabled") and $Extras.back_to_top_button_enabled == '1'
+    #set $stickyHeader = "sticky-header" if $Extras.get("sticky_header", "1") == "1" else ""
+    <body class="page-template-default page full-width-content $bodyTheme $stickyHeader" itemscope itemtype="https://schema.org/WebPage">
+        #if "back_to_top_button_enabled" in $Extras and $Extras.back_to_top_button_enabled == '1'
          <!-- Back to top button -->
         <button type="button" class="btn btn-danger" id="btn-back-to-top">
             <i class="fa fa-arrow-up fa-2x"></i>
         </button>
         #end if
         <div class="site-container">
-        #if $page != "kiosk"
             <header class="site-header">
                 <div class="wrap">
                     <div class="title-area">
                         <p class="site-title" itemprop="headline">
                             <a href="$relative_url/">
-                                #if $Extras.has_key("logo_image_dark") and $Extras.logo_image_dark != '' and $bodyTheme == "dark"
+                                #if "logo_image_dark" in $Extras and $Extras.logo_image_dark != '' and $bodyTheme == "dark"
                                 <img src="$Extras.logo_image_dark" id="logo_image" title="$head_title" alt="$head_title">
-                                #elif $Extras.has_key("logo_image") and $Extras.logo_image != ''
+                                #elif "logo_image" in $Extras and $Extras.logo_image != ''
                                 <img src="$Extras.logo_image" id="logo_image" title="$head_title" alt="$head_title">
-                                #else if $Extras.has_key("site_title") and $Extras.site_title != ''
+                                #else if "site_title" in $Extras and $Extras.site_title != ''
                                 $Extras.site_title
                                 #end if
                             </a>
@@ -192,27 +213,44 @@
                         <section id="nav_menu">
                             <div class="widget-wrap">
                                 <nav class="nav-header" itemscope itemtype="https://schema.org/SiteNavigationElement">
-                                    <ul id="menu-menu" class="menu genesis-nav-menu">
+                                    <input type="checkbox" id="menu-toggle" class="menu-toggle-state">
+                                    <label for="menu-toggle" class="menu-toggle" title="$obs.label.menu_toggle_title" aria-label="$obs.label.menu_toggle_title"><i class="fa fa-bars" aria-hidden="true"></i></label>
+                                    <ul id="menu-menu" class="menu genesis-nav-menu responsive-menu">
                                         <!-- class = current-menu-item -->
                                         <li class="menu-item menu-item-home"><a href="$relative_url" itemprop="url"><span itemprop="name">$obs.label.nav_home</span></a></li>
-                                        #if $Extras.has_key('highcharts_enabled') and $Extras.highcharts_enabled == '1'
+                                        #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
                                         <li class="menu-item menu-item-1"><a href="$relative_url/graphs/" itemprop="url"><span itemprop="name">$obs.label.nav_graphs</span></a></li>
                                         #end if
                                         <li class="menu-item menu-item-2"><a href="$relative_url/records/" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
                                         <li class="menu-item menu-item-3"><a href="$relative_url/reports/" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$relative_url/about/" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
-                                        #if $Extras.has_key('theme_toggle_enabled') and $Extras.theme_toggle_enabled == '1'
-                                        <label class="themeSwitchLabel">
-                                            <input type="checkbox" id="themeSwitch" $themeSwitchChecked>
-                                            <span class="slider round"></span>
-                                        </label>
-                                        #end if
                                     </ul>
                                 </nav>
+                                <div class="header-toggles">
+                                    #if $page == "home"
+                                    <details class="view-picker">
+                                        <summary class="wx-icon-button" title="$obs.label.view_toggle_title" aria-label="$obs.label.view_toggle_title"><i class="fa fa-th-large" aria-hidden="true"></i></summary>
+                                        <ul class="view-menu">
+                                            <li><a href="?view=dashboard" data-view="dashboard"><i class="fa fa-th-large" aria-hidden="true"></i> $obs.label.view_dashboard</a></li>
+                                            #if "forecast_enabled" in $Extras and $Extras.forecast_enabled == '1'
+                                            <li><a href="?view=forecast" data-view="forecast"><i class="fa fa-calendar" aria-hidden="true"></i> $obs.label.view_forecast</a></li>
+                                            #end if
+                                            <li><a href="?view=radar" data-view="radar"><i class="fa fa-map-o" aria-hidden="true"></i> $obs.label.view_radar</a></li>
+                                            #if 'highcharts_enabled' in $Extras and $Extras.highcharts_enabled == '1'
+                                            <li><a href="?view=charts" data-view="charts"><i class="fa fa-line-chart" aria-hidden="true"></i> $obs.label.view_charts</a></li>
+                                            #end if
+                                        </ul>
+                                    </details>
+                                    #end if
+                                    #if $Extras.get("unit_toggle_enabled", "1") == "1"
+                                    <button type="button" id="unitSwitch" class="wx-icon-button wx-unit-button" title="$obs.label.unit_toggle_title" aria-label="$obs.label.unit_toggle_title"><span></span></button>
+                                    #end if
+                                    #if 'theme_toggle_enabled' in $Extras and $Extras.theme_toggle_enabled == '1'
+                                    <button type="button" id="themeSwitch" class="wx-icon-button" title="$obs.label.theme_toggle_title" aria-label="$obs.label.theme_toggle_title"><i class="fa $themeIcon" aria-hidden="true"></i></button>
+                                    #end if
+                                </div>
                             </div>
                         </section>
                     </div>
                 </div>
             </header>
-            #end if
-    #end if
