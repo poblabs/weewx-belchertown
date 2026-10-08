@@ -19,15 +19,21 @@
 #silent $items.append({"label": $obs.label.records_high_apptemp, "y": ($year.appTemp.max, $year.appTemp.maxtime.raw, $full, "", ""), "a": ($alltime.appTemp.max, $alltime.appTemp.maxtime.raw, $full, "", "")})
 #silent $items.append({"label": $obs.label.records_low_apptemp, "y": ($year.appTemp.min, $year.appTemp.mintime.raw, $full, "", ""), "a": ($alltime.appTemp.min, $alltime.appTemp.mintime.raw, $full, "", "")})
 #end if
+#if $year.heatindex.has_data and $alltime.heatindex.has_data
 #silent $items.append({"label": $obs.label.records_high_heatindex, "y": ($year.heatindex.max, $year.heatindex.maxtime.raw, $full, "", ""), "a": ($alltime.heatindex.max, $alltime.heatindex.maxtime.raw, $full, "", "")})
+#end if
+#if $year.windchill.has_data and $alltime.windchill.has_data
 #silent $items.append({"label": $obs.label.records_low_windchill, "y": ($year.windchill.min, $year.windchill.mintime.raw, $full, "", ""), "a": ($alltime.windchill.min, $alltime.windchill.mintime.raw, $full, "", "")})
+#end if
 #set $t = " " + str($unit.label.outTemp).strip()
 #silent $items.append({"label": $obs.label.records_largest_temp_range, "delta": True, "y": (str($year_outTemp_range_max[1]) + $t, $year_outTemp_range_max[0], $date, "", str($year_outTemp_range_max[2]) + $t + " – " + str($year_outTemp_range_max[3]) + $t), "a": (str($at_outTemp_range_max[1]) + $t, $at_outTemp_range_max[0], $date, "", str($at_outTemp_range_max[2]) + $t + " – " + str($at_outTemp_range_max[3]) + $t)})
 #silent $items.append({"label": $obs.label.records_smallest_temp_range, "delta": True, "y": (str($year_outTemp_range_min[1]) + $t, $year_outTemp_range_min[0], $date, "", str($year_outTemp_range_min[2]) + $t + " – " + str($year_outTemp_range_min[3]) + $t), "a": (str($at_outTemp_range_min[1]) + $t, $at_outTemp_range_min[0], $date, "", str($at_outTemp_range_min[2]) + $t + " – " + str($at_outTemp_range_min[3]) + $t)})
 #silent $groups.append({"title": $obs.label.records_temperature_records, "icon": "wi-thermometer", "items": $items})
 
 #set $items = []
+#if $year.windGust.has_data and $alltime.windGust.has_data
 #silent $items.append({"label": $obs.label.records_strongest_wind, "y": ($year.windGust.max, $year.windGust.maxtime.raw, $full, "", ""), "a": ($alltime.windGust.max, $alltime.windGust.maxtime.raw, $full, "", "")})
+#end if
 ## weewx can only answer this from its daily summaries, which can fail when a new record arrives mid-report
 #try
 #if $year.windrun.has_data and $alltime.windrun.has_data
@@ -41,7 +47,9 @@
 #set $items = []
 #set $r = " " + str($unit.label.rain).strip()
 #silent $items.append({"label": $obs.label.records_highest_daily_rainfall, "y": (str($rainiest_day[1]) + $r, $rainiest_day[0], $date, "", ""), "a": (str($at_rainiest_day[1]) + $r, $at_rainiest_day[0], $date, "", "")})
+#if $year.rainRate.has_data and $alltime.rainRate.has_data
 #silent $items.append({"label": $obs.label.records_highest_daily_rainrate, "y": ($year.rainRate.max, $year.rainRate.maxtime.raw, $full, "", ""), "a": ($alltime.rainRate.max, $alltime.rainRate.maxtime.raw, $full, "", "")})
+#end if
 #silent $items.append({"label": $obs.label.records_month_high_rainfall, "y": (str($year_rainiest_month[1]) + $r, None, "", $year_rainiest_month[0], ""), "a": (str($at_rainiest_month[1]) + $r, None, "", $at_rainiest_month[0], ""), "new": str($this_year) in str($at_rainiest_month[0])})
 #silent $items.append({"label": $obs.label.records_yearly_rainfall, "y": ($year.rain.sum, None, "", str($this_year), ""), "a": (str($at_rain_highest_year[1]) + $r, None, "", $at_rain_highest_year[0], ""), "new": str($at_rain_highest_year[0]) == str($this_year)})
 #set $wet = $at_days_with_rain
@@ -53,15 +61,21 @@
 #silent $groups.append({"title": $obs.label.records_rain_records, "icon": "wi-raindrops", "items": $items})
 
 #set $items = []
+#if $year.outHumidity.has_data and $alltime.outHumidity.has_data
 #silent $items.append({"label": $obs.label.records_high_humidity, "y": ($year.outHumidity.max, $year.outHumidity.maxtime.raw, $full, "", ""), "a": ($alltime.outHumidity.max, $alltime.outHumidity.maxtime.raw, $full, "", "")})
 #silent $items.append({"label": $obs.label.records_lowest_humidity, "y": ($year.outHumidity.min, $year.outHumidity.mintime.raw, $full, "", ""), "a": ($alltime.outHumidity.min, $alltime.outHumidity.mintime.raw, $full, "", "")})
+#end if
+#if $year.dewpoint.has_data and $alltime.dewpoint.has_data
 #silent $items.append({"label": $obs.label.records_highest_dewpoint, "y": ($year.dewpoint.max, $year.dewpoint.maxtime.raw, $full, "", ""), "a": ($alltime.dewpoint.max, $alltime.dewpoint.maxtime.raw, $full, "", "")})
 #silent $items.append({"label": $obs.label.records_lowest_dewpoint, "y": ($year.dewpoint.min, $year.dewpoint.mintime.raw, $full, "", ""), "a": ($alltime.dewpoint.min, $alltime.dewpoint.mintime.raw, $full, "", "")})
+#end if
 #silent $groups.append({"title": $obs.label.records_humidity_records, "icon": "wi-humidity", "items": $items})
 
 #set $items = []
+#if $year.barometer.has_data and $alltime.barometer.has_data
 #silent $items.append({"label": $obs.label.records_high_barometer, "y": ($year.barometer.max, $year.barometer.maxtime.raw, $full, "", ""), "a": ($alltime.barometer.max, $alltime.barometer.maxtime.raw, $full, "", "")})
 #silent $items.append({"label": $obs.label.records_low_barometer, "y": ($year.barometer.min, $year.barometer.mintime.raw, $full, "", ""), "a": ($alltime.barometer.min, $alltime.barometer.mintime.raw, $full, "", "")})
+#end if
 #silent $groups.append({"title": $obs.label.records_barometer_records, "icon": "wi-barometer", "items": $items})
 
 #set $items = []

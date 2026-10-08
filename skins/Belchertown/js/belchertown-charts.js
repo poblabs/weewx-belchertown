@@ -5,6 +5,13 @@ var graphpage_content = config.graphpage_content;
 // http://stackoverflow.com/a/14887961/1177153
 var weatherdirection = config.windDir_ordinals;
 
+// The unit label from the live data, or from the series itself on pages without live data
+function gauge_unit_label(obs, series) {
+    if (unit_label_array[obs] != null) return unit_label_array[obs];
+    if (series.unit && units_config.labels[series.unit] !== undefined) return units_config.labels[series.unit].trim();
+    return null;
+}
+
 function get_gauge_color(value, options) {
     if (options.color1) {
         // Failsafe in case value drops below the lowest color position user has set.
@@ -105,7 +112,7 @@ Highcharts.setOptions({
     // Highcharts sizes text relative to the page's root font (10px under Bootstrap 3); 15px gives an 18px title
     chart: {style: {fontSize: '15px'}},
     // A time zone name follows daylight saving through the year; the fixed offset is the fallback
-    time: config.moment_js_tz ? {timezone: config.moment_js_tz} : {timezoneOffset: config.highcharts_timezoneoffset},
+    time: wx_tz ? {timezone: wx_tz} : {timezoneOffset: config.highcharts_timezoneoffset},
     lang: {
         months: dayjs.months(),
         shortMonths: dayjs.monthsShort(),
@@ -720,10 +727,10 @@ function gauge_chart(options, observation_type) {
     if (get_gauge_label(options.series[0].data[1]["y"], options.series[0])) {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
         options.plotOptions.solidgauge.dataLabels.y = -25
-    } else if (unit_label_array[observation_type] == null) {
+    } else if (gauge_unit_label(observation_type, options.series[0]) == null) {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
     } else {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, unit_label_array[observation_type]) + '</span>'
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
         options.plotOptions.solidgauge.dataLabels.y = -25
     }
     options.yAxis = {

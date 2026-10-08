@@ -1,5 +1,14 @@
 // Settings come from belchertown-config.js (js/belchertown-config.js.tmpl), loaded just before this file.
 var config = belchertown_config;
+// A time zone name the browser doesn't know would break every date, so it is checked once; the UTC offset is the fallback
+var wx_tz = (function() {
+    try {
+        if (config.moment_js_tz) new Intl.DateTimeFormat("en", {timeZone: config.moment_js_tz});
+        return config.moment_js_tz || "";
+    } catch (e) {
+        return "";
+    }
+})();
 var extras = belchertown_config.extras;
 // Like $obs.label in a template: an unknown label returns its own name.
 var labels = new Proxy(belchertown_config.labels, {
@@ -208,7 +217,8 @@ function leading_number(text) {
 // <time data-ts="epoch" data-format="label name"> gets its text from that label's date format
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll("time[data-ts]").forEach(function(el) {
-        el.textContent = tzAdjustedMoment(Number(el.dataset.ts)).format(labels[el.dataset.format]);
+        var ts = Number(el.dataset.ts);
+        el.textContent = isNaN(ts) || !el.dataset.ts ? "---" : tzAdjustedMoment(ts).format(labels[el.dataset.format]);
     });
 });
 
@@ -763,7 +773,7 @@ function moon_icon(moonphase){
 }
 
 function tzAdjustedMoment(input) {
-    let tz = config.moment_js_tz;
+    let tz = wx_tz;
     if (!tz) {
         return dayjs.unix(Number(input)).utcOffset(config.moment_js_utc_offset);
     } else {

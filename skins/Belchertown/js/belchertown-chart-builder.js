@@ -110,7 +110,7 @@ function cb_preview(s) {
                                      unit: source.unit, rounding: 2, yAxis: line.right ? 1 : 0,
                                      yAxis_label: name + (source.unit_label ? " (" + source.unit_label.trim() + ")" : "")};
     });
-    var plot = {options: {renderTo: "cb-chart", title: s.title, subtitle: "", type: s.type, gapsize: 0, connectNulls: "false",
+    var plot = {options: {renderTo: "cb-chart", title: cb_esc(s.title), subtitle: "", type: s.type, gapsize: 0, connectNulls: "false",
                           xAxis_categories: [], plot_tooltip_date_format: "LLL", css_class: "", css_height: "", css_width: "",
                           legend: "true", exporting: "false"},
                 series: series};
@@ -119,18 +119,26 @@ function cb_preview(s) {
     render_chart(plot, {colors: CB_COLORS, credits: "highcharts_default", credits_url: "", credits_position: "{}"}, "chart_builder", false);
 }
 
-// A section name graphs.conf accepts, unique among the charts already in that group
-function cb_chart_id(s) {
-    var base = s.title.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "chart";
-    var taken = (config.charts[s.group] || []);
+// Section names graphs.conf accepts: a slug of the title, kept clear of the group's own keys and of names already in use
+var CB_RESERVED = ["title", "show_button", "button_text", "page_content"];
+
+function cb_slug(text, fallback) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || fallback;
+}
+
+function cb_unique(base, taken) {
     var id = base, n = 2;
     while (taken.indexOf(id) >= 0) id = base + "_" + n++;
     return id;
 }
 
+function cb_chart_id(s) {
+    return cb_unique(cb_slug(s.title, "chart"), (config.charts[s.group] || []).concat(CB_RESERVED));
+}
+
 function cb_conf(s) {
     var out = [], new_group = s.group === "";
-    var group = new_group ? (s.group_title.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "mycharts") : s.group;
+    var group = new_group ? cb_unique(cb_slug(s.group_title, "mycharts"), Object.keys(config.charts)) : s.group;
     if (new_group) {
         out.push("[" + group + "]");
         out.push('    title = "' + s.group_title + '"');

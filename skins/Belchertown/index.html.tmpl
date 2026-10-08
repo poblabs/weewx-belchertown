@@ -50,7 +50,7 @@
             
                 rotateThis( "$current.windDir.formatted" );
 
-                // Update the Last Updated timestamp with moment.js,
+                // Update the Last Updated timestamp with Day.js,
                 updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
                 wx_html(".updated",  updated_text );
@@ -151,7 +151,7 @@
                 }
                 #end if
                         
-                // Update the Last Updated timestamp with moment.js,
+                // Update the Last Updated timestamp with Day.js,
                 updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
                 updated_text = "$obs.label.header_last_updated " + updated;
                 wx_html(".updated",  updated_text );
@@ -195,13 +195,13 @@
                             <span class="onlineMarker" style="display:none"></span>
                             <span class="offlineMarker" style="display:none"></span>
                         </div>
-                        <div class="updated"></div><!-- AJAX moment.js -->
+                        <div class="updated"></div><!-- AJAX Day.js -->
                     </div>
                     #if $social_html != ""
                     $social_html
                     #end if
                     <div class="clear"></div>
-                    <div class="last-updated-alert" style="display:none;"></div><!-- AJAX moment.js -->
+                    <div class="last-updated-alert" style="display:none;"></div><!-- AJAX Day.js -->
                     #if "forecast_alert_enabled" in $Extras and $Extras.forecast_alert_enabled == '1'
                     <div class="wx-stn-alert"><span class="wx-stn-alert-text"></span></div><!-- AJAX -->
                     #end if

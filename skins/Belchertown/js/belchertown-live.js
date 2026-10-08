@@ -13,7 +13,8 @@ function ajaximages(section = false, reload_timer_interval_seconds = false) {
     // Reload images
         if (document.querySelectorAll(".radar-map img").length > 0) {
             var radar_img = document.querySelectorAll(".radar-map img")[0].src;
-            var new_radar_img = radar_img + "&t=" + Math.floor(Math.random() * 999999999);
+            var base_radar_img = radar_img.replace(/[?&]t=\d+$/, "");
+            var new_radar_img = base_radar_img + (base_radar_img.indexOf("?") >= 0 ? "&" : "?") + "t=" + Math.floor(Math.random() * 999999999);
             document.querySelectorAll(".radar-map img")[0].src = new_radar_img;
         }
         // Reload iframe - https://stackoverflow.com/a/4249946/1177153

@@ -13,8 +13,9 @@
     #import datetime
     #set $now = datetime.datetime.now()
     #set $nowHour = $now.hour
-    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H')
-    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H')
+    ## No sunrise or sunset today (polar latitudes): stay light
+    #set $sunrise_hour = datetime.datetime.fromtimestamp($almanac.sunrise.raw).strftime('%H') if $almanac.sunrise.raw is not None else "00"
+    #set $sunset_hour = datetime.datetime.fromtimestamp($almanac.sunset.raw).strftime('%H') if $almanac.sunset.raw is not None else "24"
         ##if $sunrise_hour <= $nowHour < $sunset_hour ## This works but to keep it inline with JavaScript the below works too
         #if int($sunrise_hour) <= int($nowHour) and int($nowHour) < int($sunset_hour)
             #set $bodyTheme = "light"

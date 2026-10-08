@@ -2934,6 +2934,7 @@ html.view-kiosk {
 .view-kiosk .highcharts-row,
 .view-kiosk [class*="index-hook-after"],
 .view-kiosk .site-footer,
+.view-kiosk .home-custom,
 .view-kiosk #btn-back-to-top {
     display: none;
 }
@@ -4329,7 +4330,7 @@ textarea:focus {
     stroke-width: 1px !important;
 }
 
-.dark .dark .highcharts-axis-title,
+.dark .highcharts-axis-title,
 .dark .highcharts-axis-labels,
 .dark .highcharts-axis-labels text,
 .dark .highcharts-axis-title text {

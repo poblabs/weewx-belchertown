@@ -110,9 +110,9 @@
         #end if
         <div class="wx-sunmoon-row">
             <div class="sun">
-                <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png" alt=""></span><span class="sunrise-value"></span><!-- moment.js -->
+                <span class="sunrise-set-image"><img src="$relative_url/images/sunrise.png" alt=""></span><span class="sunrise-value"></span><!-- Day.js -->
                 <br>
-                <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png" alt=""></span><span class="sunset-value"></span><!-- moment.js -->
+                <span class="sunrise-set-image"><img src="$relative_url/images/sunset.png" alt=""></span><span class="sunset-value"></span><!-- Day.js -->
             </div>
             <div class="moon">
                 <div class="moon-container">
@@ -127,14 +127,14 @@
         </div>
         #if "almanac_extras" in $Extras and $Extras.almanac_extras == '1' and $almanac.hasExtras
         <div class="sun-moon-modal"><a href="#almanac" data-toggle="modal" data-target="#almanac">$obs.label.almanac_more_details</a></div>
-        <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac" aria-hidden="true">
+        <div class="modal fade" id="almanac" tabindex="-1" role="dialog" aria-labelledby="almanac-title" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="almanac">$obs.label.almanac_modal_title</h4>
+                        <h4 class="modal-title" id="almanac-title">$obs.label.almanac_modal_title</h4>
                     </div>
                     <div class="almanac-extras-modal-body modal-body">
                         #include "celestial.inc"

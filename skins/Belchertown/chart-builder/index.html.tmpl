@@ -10,6 +10,9 @@
 
                 #include "page-header.inc"
 
+                #if str($Extras.get("chart_builder_enabled", "1")) == "0"
+                <p class="cb-intro">$obs.label.chart_builder_off</p>
+                #else
                 <p class="cb-intro">$obs.label.chart_builder_intro</p>
 
                 <div class="cb-layout">
@@ -86,11 +89,14 @@
                     <button type="button" class="btn btn-primary" id="cb-copy">$obs.label.chart_builder_copy</button>
                     <span id="cb-copied" class="cb-note"></span>
                 </section>
+                #end if
 
             </article>
         </main>
     </div>
 
+    #if str($Extras.get("chart_builder_enabled", "1")) != "0"
     <script type="text/javascript" src="$relative_url/js/belchertown-chart-builder.js?$js_version"></script>
+    #end if
 
     #include "footer.html.tmpl"

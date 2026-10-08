@@ -33,7 +33,7 @@ UNITS = {
 def provider_for(extras):
     """aeris/xweather, openmeteo, or auto: Xweather when its keys are set, else Open-Meteo."""
     provider = extras.get("forecast_provider", "auto").lower()
-    if provider in ("aeris", "xweather"):
+    if provider in ("aeris", "xweather") or "forecast_dev_file" in extras:
         return "xweather"
     if provider == "auto":
         return "xweather" if extras.get("forecast_api_id") else "openmeteo"
@@ -55,7 +55,7 @@ def is_stale(path, stale_seconds):
 
 
 def get_json(url):
-    with urlopen(Request(url, None, {"User-Agent": USER_AGENT}), timeout=30) as response:
+    with urlopen(Request(url, None, {"User-Agent": USER_AGENT}), timeout=15) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -107,6 +107,11 @@ def xweather_download(extras, lat, lon):
 
 
 def xweather_convert(raw, extras, labels, icons):
+    for name in ("current", "forecast_24hr", "forecast_3hr", "forecast_1hr"):
+        reply = (raw.get(name) or [{}])[0]
+        if reply.get("success") is False or not reply.get("response"):
+            error = reply.get("error") or {}
+            raise RuntimeError("Xweather %s: %s %s" % (name, error.get("code", "no data"), error.get("description", "")))
     units = UNITS.get(extras.get("forecast_units", "us").lower(), UNITS["us"])
     metric_temp = units["temp"] == "C"
 
@@ -518,6 +523,15 @@ def nws_convert(raw, extras, labels):
     }
 
 
+def in_us(lat, lon):
+    """Roughly the US, its territories included, where NWS alerts apply."""
+    try:
+        lat, lon = float(lat), float(lon)
+    except (TypeError, ValueError):
+        return True
+    return (17 <= lat <= 72 and -180 <= lon <= -64) or (12 <= lat <= 21 and 143 <= lon <= 147) or (-15 <= lat <= -10 and -172 <= lon <= -168)
+
+
 def nws_alerts(lat, lon):
     """Active NWS alerts for the station; an empty list outside the US."""
     try:
@@ -546,12 +560,33 @@ def alert_provider_for(extras, provider):
     return "xweather" if choice == "aeris" else choice
 
 
+RETRY_HOLD = 600
+_last_failure = [0]
+
+
 def update(path, extras, lat, lon, labels, icon_list_path):
-    """Refresh forecast.json if it's stale; return the forecast either way."""
+    """Refresh forecast.json if it's stale; return the forecast either way.
+    After a failed download the next try waits RETRY_HOLD seconds, so a dead network doesn't stall every report."""
     provider = provider_for(extras)
+    cached = None
+    if os.path.isfile(path):
+        try:
+            with open(path) as f:
+                cached = json.load(f)
+        except (ValueError, OSError):
+            cached = None
     if not is_stale(path, extras.get("forecast_stale", 3540)):
-        with open(path) as f:
-            return json.load(f), False
+        return cached, False
+    if time.time() - _last_failure[0] < RETRY_HOLD:
+        return cached, False
+    try:
+        return download(path, extras, lat, lon, labels, icon_list_path, provider)
+    except Exception:
+        _last_failure[0] = time.time()
+        raise
+
+
+def download(path, extras, lat, lon, labels, icon_list_path, provider):
     if provider == "xweather":
         with open(icon_list_path) as f:
             icons = json.load(f)
@@ -572,13 +607,14 @@ def update(path, extras, lat, lon, labels, icon_list_path):
     alert_provider = alert_provider_for(extras, provider)
     if extras.get("forecast_alert_enabled") != "1" or alert_provider == "none":
         forecast["alerts"] = []
-    elif alert_provider == "nws":
+    elif alert_provider == "nws" and (in_us(lat, lon) or extras.get("forecast_alert_provider", "auto").lower() == "nws"):
         forecast["alerts"] = nws_alerts(lat, lon)[:int(extras.get("forecast_alert_limit") or 10)]
         forecast["alert_provider"] = "nws"
 
     forecast["utc_offset"] = utc_offset(forecast.get("timezone"))
     with open(path, "w") as f:
         json.dump(forecast, f)
+    _last_failure[0] = 0
     return forecast, True
 
 

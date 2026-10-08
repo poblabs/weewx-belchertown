@@ -106,7 +106,8 @@ if (units_alt_on()) ensure_unit_regex();
 
 function convert_unit_text(text, delta) {
     if (!ensure_unit_regex()) return text;
-    return text.replace(unit_text_regex, function(match, number, space, label) {
+    return text.replace(unit_text_regex, function(match, number, space, label, offset, whole) {
+        if (/^[a-z]+$/.test(label) && /^\s+[a-z]/.test(whole.slice(offset + match.length))) return match;
         var from = unit_by_label[label], to = alt_unit(from);
         var value = convert_unit(parse_number(number), from, to, delta);
         return format_unit_value(value, to) + space + units_config.labels[to].trim();
@@ -188,7 +189,8 @@ var FORECAST_UNITS = {F: "degree_F", C: "degree_C", mph: "mile_per_hour", "km/h"
 function convert_forecast_units(data) {
     var u = data.units || {}, temp = FORECAST_UNITS[u.temp], wind = FORECAST_UNITS[u.wind], snow = FORECAST_UNITS[u.snow];
     var temp_to = display_unit("group_temperature"), wind_to = display_unit("group_speed");
-    var snow_to = snow === "inch" ? "cm" : "inch";
+    var snow_to = display_unit("group_rain") === "inch" ? "inch" : "cm";
+    if (snow_to === snow) snow = null;
     if (temp_to === temp) temp_to = null;
     if (wind_to === wind || ["knot", "beaufort"].indexOf(units_config.groups.group_speed) >= 0) wind_to = null;
     ["daily", "three_hourly", "hourly"].forEach(function(key) {
@@ -229,6 +231,10 @@ function convert_chart_units(data) {
                 s.range_unit_label = units_config.labels[to];
             }
             if (s.unit) s.unit = to;
+            ["yAxis_min", "yAxis_max", "yAxis_softMin", "yAxis_softMax"].forEach(function(key) {
+                if (s[key] !== undefined && s[key] !== null && s[key] !== "" && s[key] !== "undefined") s[key] = convert_unit(parseFloat(s[key]), from, to);
+            });
+            if (s.yAxis_tickInterval) s.yAxis_tickInterval = convert_unit(parseFloat(s.yAxis_tickInterval), from, to, true);
         });
     });
     return data;

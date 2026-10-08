@@ -28,6 +28,7 @@ import weewx.reportengine
 import weewx.station
 import weewx.tags
 import weewx.units
+import weewx.xtypes
 from weeutil.weeutil import (
     TimeSpan,
     archiveDaySpan,
@@ -540,7 +541,8 @@ class getData(SearchList):
         # 2. We need to convert the min, max to the site's requested unit.
         # 3. We need to recalculate the min/max range because the unit may have changed.
         # Days the station recorded for less than half of are left out: a few readings make a false "smallest range".
-        min_day_count = int(43200000 / archive_interval_ms)
+        # Measured against the longest archive interval ever used, so old days from a slower interval still count.
+        min_day_count = int(43200 / (max_archive_interval(wx_manager) * 60))
 
         year_outTemp_max_range_query = wx_manager.getSql(
             "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total DESC LIMIT 1;"
@@ -1527,8 +1529,9 @@ class getData(SearchList):
         # ==============================================================================
 
         extras = self.generator.skin_dict["Extras"]
-        mqtt_websockets_port_kiosk = extras.get("mqtt_websockets_port_kiosk") or extras.get("mqtt_websockets_port", "")
-        mqtt_websockets_ssl_kiosk = extras.get("mqtt_websockets_ssl_kiosk") or extras.get("mqtt_websockets_ssl", "")
+        kiosk_host = extras.get("mqtt_websockets_host_kiosk")
+        mqtt_websockets_port_kiosk = (kiosk_host and extras.get("mqtt_websockets_port_kiosk")) or extras.get("mqtt_websockets_port", "")
+        mqtt_websockets_ssl_kiosk = (kiosk_host and extras.get("mqtt_websockets_ssl_kiosk")) or extras.get("mqtt_websockets_ssl", "")
 
 
 
@@ -1538,6 +1541,14 @@ class getData(SearchList):
         custom_css_exists = os.path.isfile(custom_css_file)
 
         # Build the search list with the new values
+        # The On this day years are built once per report; the home block and the records page both read them
+        otd_cache = []
+
+        def otd_years():
+            if not otd_cache:
+                otd_cache.append(on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter))
+            return otd_cache[0]
+
         search_list_extension = {
             "belchertown_version": VERSION,
             "belchertown_debug": belchertown_debug,
@@ -1626,9 +1637,9 @@ class getData(SearchList):
                              self.generator.skin_dict.get("skin", "")),
                 str(self.generator.skin_dict["Extras"].get("jquery", "auto"))),
             # Called by Cheetah only on the page that uses it
-            "on_this_day": lambda: on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
+            "on_this_day": lambda: otd_years(),
             "on_this_day_summary": lambda: on_this_day_summary(
-                on_this_day(timespan.stop, db_lookup, self.generator.formatter, self.generator.converter),
+                otd_years(),
                 self.generator.formatter, self.generator.converter),
         }
         # Finally, return our extension as a list:
@@ -1663,6 +1674,21 @@ def jquery_users(skin_dir, setting):
     return users
 
 
+_max_interval = [0, 5]  # checked at, minutes
+
+
+def max_archive_interval(manager):
+    """The longest archive interval in the database, in minutes; looked up once a day."""
+    if time.time() - _max_interval[0] > 86400:
+        try:
+            row = manager.getSql("SELECT MAX(`interval`) FROM %s" % manager.table_name)
+            _max_interval[:] = [time.time(), int(row[0]) if row and row[0] else 5]
+        except Exception as e:
+            logdbg("Could not read the archive interval, assuming 5 minutes: %s" % e)
+            _max_interval[0] = time.time()
+    return _max_interval[1]
+
+
 def system_timezone():
     """The server's time zone name, such as America/New_York, or "" when it can't be told."""
     tz = os.environ.get("TZ", "").lstrip(":")
@@ -1670,11 +1696,12 @@ def system_timezone():
         return tz
     link = os.path.realpath("/etc/localtime")
     if "zoneinfo/" in link:
-        return link.split("zoneinfo/", 1)[1]
+        return re.sub(r"^(posix|right)/", "", link.split("zoneinfo/", 1)[1])
     try:
         with open("/etc/timezone") as f:
             return f.read().strip()
     except OSError:
+        logdbg("No time zone name found (TZ, /etc/localtime, /etc/timezone); charts use the UTC offset")
         return ""
 
 
@@ -2576,25 +2603,58 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         for obs in archive.sqlkeys:
             if obs in ("dateTime", "usUnits", "interval"):
                 continue
-            count = archive.getSql("SELECT COUNT(`%s`) FROM %s WHERE dateTime > ?" % (obs, archive.table_name), (stop - 30 * 86400,))
-            if not count or not count[0]:
+            try:
+                entry = self.chart_builder_entry(archive, obs, stop, label_dict)
+            except Exception as e:
+                logdbg("HighchartsJsonGenerator: chart builder skips %s: %s" % (obs, e))
                 continue
-            group = weewx.units.obs_group_dict.get(obs, "")
-            summed = group in ("group_rain", "group_energy", "group_count")
-            entry = {"label": label_dict[obs], "group": group, "aggregate": "sum" if summed else "avg", "spans": {}}
-            for name, length, interval in self.CHART_BUILDER_SPANS:
-                aggregate = ("sum" if summed else "avg") if interval else None
-                start_vt, stop_vt, data_vt = weewx.xtypes.get_series(obs, TimeSpan(stop - length, stop), archive, aggregate, interval)
-                data_vt = self.converter.convert(data_vt)
-                decimals = re.search(r"\.(\d+)f", self.formatter.unit_format_dict.get(data_vt[1], "%.2f") or "")
-                places = int(decimals.group(1)) if decimals else 0
-                entry["spans"][name] = [[int(t) * 1000, None if v is None else round(v, places)]
-                                        for t, v in zip(stop_vt[0], data_vt[0])]
-                entry["unit"] = data_vt[1]
-            entry["unit_label"] = self.formatter.get_label_string(entry["unit"]).strip() if entry.get("unit") else ""
-            out["observations"][obs] = entry
+            if entry:
+                out["observations"][obs] = entry
         with open(dest, mode="w") as f:
             json.dump(out, f, separators=(",", ":"))
+
+    def chart_builder_entry(self, archive, obs, stop, label_dict):
+        count = archive.getSql("SELECT COUNT(`%s`) FROM %s WHERE dateTime > ?" % (obs, archive.table_name), (stop - 30 * 86400,))
+        if not count or not count[0]:
+            return None
+        group = weewx.units.obs_group_dict.get(obs, "")
+        summed = group in ("group_rain", "group_energy", "group_count")
+        how = "sum" if summed else "avg"
+        unit, unit_group = weewx.units.getStandardUnitType(archive.std_unit_system, obs, how)
+        entry = {"label": label_dict[obs], "group": group, "aggregate": how, "spans": {}}
+        places = 2
+        for name, length, interval in self.CHART_BUILDER_SPANS:
+            rows = self.chart_builder_rows(archive, obs, stop - length, stop, interval, how)
+            points = []
+            for t, v in rows:
+                if v is not None:
+                    v, unit_out, _ = self.converter.convert(weewx.units.ValueTuple(float(v), unit, unit_group))
+                    decimals = re.search(r"\.(\d+)f", self.formatter.unit_format_dict.get(unit_out, "%.2f") or "")
+                    places = int(decimals.group(1)) if decimals else 0
+                    entry["unit"] = unit_out
+                    v = round(v, places)
+                points.append([int(t) * 1000, v])
+            entry["spans"][name] = points
+        entry["unit_label"] = self.formatter.get_label_string(entry["unit"]).strip() if entry.get("unit") else ""
+        return entry
+
+    @staticmethod
+    def chart_builder_rows(archive, obs, start, stop, interval, how):
+        """(timestamp, value) rows: every record, or one per interval labeled by its end like weewx does.
+        Day-size intervals come from the daily summaries, which follow the local calendar day."""
+        col = "`%s`" % obs
+        if not interval:
+            return archive.genSql("SELECT dateTime, %s FROM %s WHERE dateTime > ? AND dateTime <= ? ORDER BY dateTime"
+                                  % (col, archive.table_name), (start, stop))
+        if interval >= 86400:
+            value = "sum" if how == "sum" else "sum / count"
+            return archive.genSql("SELECT dateTime + 86400, %s FROM %s_day_%s WHERE dateTime >= ? AND dateTime < ? AND count > 0 "
+                                  "ORDER BY dateTime" % (value, archive.table_name, obs), (start, stop))
+        # The MySQL driver formats the statement with %, so the modulo operator has to be doubled there
+        mod = "%%" if getattr(archive.connection, "dbtype", "") == "mysql" else "%"
+        bucket = "(dateTime - 1) - (dateTime - 1) %s %d + %d" % (mod, interval, interval)
+        return archive.genSql("SELECT %s, %s(%s) FROM %s WHERE dateTime > ? AND dateTime <= ? AND %s IS NOT NULL GROUP BY %s ORDER BY %s"
+                              % (bucket, how.upper(), col, archive.table_name, col, bucket, bucket), (start, stop))
 
     def get_observation_data(
         self,
