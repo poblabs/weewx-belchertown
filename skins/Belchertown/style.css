@@ -3392,14 +3392,35 @@ html.view-kiosk {
     min-width: 90px;
 }
 
-.wx-otd-label,
+.wx-otd-label {
+    font-size: 15px;
+}
+
 .wx-otd-year {
     font-size: 14px;
     opacity: 0.7;
 }
 
+/* The ends are the records for this date, not today's numbers: colored, and smaller than the legend's today */
 .wx-otd-value {
-    font-size: 22px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.wx-otd-cold .wx-otd-value {
+    color: #1278c8;
+}
+
+.wx-otd-warm .wx-otd-value {
+    color: #d8433c;
+}
+
+.dark .wx-otd-cold .wx-otd-value {
+    color: #5aa9e6;
+}
+
+.dark .wx-otd-warm .wx-otd-value {
+    color: #f07a73;
 }
 
 .wx-otd-track {
@@ -3444,6 +3465,10 @@ html.view-kiosk {
     vertical-align: middle;
 }
 
+.wx-otd-legend-today {
+    font-weight: 700;
+}
+
 .wx-otd-key-today {
     background: linear-gradient(90deg, #1278c8, #e5554e);
 }
@@ -3457,16 +3482,27 @@ html.view-kiosk {
 }
 
 @media only screen and (max-width: 767px) {
+    /* Phones: the bar gets the full width, the two records sit under its ends */
     .wx-otd-scale {
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
     }
 
-    .wx-otd-end {
-        min-width: 70px;
+    .wx-otd-track {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .wx-otd-cold {
+        text-align: left;
+    }
+
+    .wx-otd-warm {
+        text-align: right;
     }
 
     .wx-otd-value {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .wx-otd-note {
