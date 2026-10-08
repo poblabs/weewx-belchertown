@@ -34,9 +34,6 @@
     </div>
     <div class="wx-otd-legend">
         <span><i class="wx-otd-key wx-otd-key-average"></i>$obs.label.onthisday_average: $otd.avg_low – $otd.avg_high</span>
-        #if $otd.wettest
-        <span><i class="wi wi-raindrop" aria-hidden="true"></i> $obs.label.onthisday_wettest: $otd.wettest ($otd.wettest_year)</span>
-        #end if
     </div>
 </section>
 #end if

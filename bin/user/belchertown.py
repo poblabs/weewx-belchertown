@@ -1797,10 +1797,7 @@ def on_this_day_summary(years, formatter, converter):
 
     high = max(years, key=lambda y: y["high"].raw)
     low = min(years, key=lambda y: y["low"].raw)
-    rains = [y for y in years if y["rain"] is not None and y["rain"].raw]
-    wettest = max(rains, key=lambda y: y["rain"].raw) if rains else None
     summary = {"high": high["high"], "high_year": high["year"], "low": low["low"], "low_year": low["year"],
-               "wettest": wettest["rain"] if wettest else None, "wettest_year": wettest["year"] if wettest else None,
                "avg_high": mean([y["high"] for y in past]), "avg_low": mean([y["low"] for y in past]),
                "today": today, "note": None, "note_year": None}
 
