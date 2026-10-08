@@ -12,7 +12,9 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 * **Your nearest recent earthquake**, plus weather records for this year and all time, the all-time records broken this year, and how today's date has gone in every year since your station started.
 * Works on phones and tablets, and can be added to a phone's home screen like an app.
 
-![BelchertownWeather.com home page in light and dark mode](https://raw.githubusercontent.com/poblabs/weewx-belchertown/57618035bd6da988b7dc2d96c5ab04511d9d44a1/assets/light_dark_modes.jpg)
+![The home page in light and dark mode](assets/light_dark_modes.jpg)
+
+![The home page on a phone, light and dark](assets/phone_light_dark.jpg)
 
 > [!IMPORTANT]
 > **Belchertown 3 requires weewx 5.0 or newer.** On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1).
@@ -384,6 +386,8 @@ When weewx saves a new archive record, the page also reloads its forecast, earth
 You control which charts appear, what they show and over what time range, in a `graphs.conf` file. The skin ships with five groups of charts to start from (home page, today, this week, this month, this year). Everything you can do is on the [chart wiki page](https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation).
 
 ### Chart builder
+
+![The chart builder: settings on the left, the chart drawn from your data on the right, and the graphs.conf text to copy below](assets/chart_builder.png)
 
 The easiest way to add a chart is the chart builder: a page on your own site where you pick what to show and see the chart drawn from your station's data as you go. It gives you the text to paste into `graphs.conf`.
 
