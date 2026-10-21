@@ -726,12 +726,12 @@ function gauge_chart(options, observation_type) {
     }
     if (get_gauge_label(options.series[0].data[1]["y"], options.series[0])) {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
-        options.plotOptions.solidgauge.dataLabels.y = -25
+        options.plotOptions.solidgauge.dataLabels.y = 0
     } else if (gauge_unit_label(observation_type, options.series[0]) == null) {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
     } else {
         options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
-        options.plotOptions.solidgauge.dataLabels.y = -25
+        options.plotOptions.solidgauge.dataLabels.y = 0
     }
     options.yAxis = {
         min: 0,
@@ -777,15 +777,18 @@ function aqi_chart(options) {
     }
     options.plotOptions = {
         solidgauge: {
+            // Same ring and label as gauge_chart: a 0.5em line height, or a label lifted above center, puts the number under the ring
+            radius: '100%',
+            innerRadius: '60%',
             dataLabels: {
                 useHTML: true,
                 enabled: true,
-                y: -30,
+                y: 0,
                 borderWidth: 0,
                 format: '<span style="text-align:center">{y}</span><br><span style="font-size:14px;text-align:center">' + options.series[0].data[1]['category'] + '</span>',
                 style: {
                     fontWeight: 'bold',
-                    lineHeight: '0.5em',
+                    lineHeight: '1',
                     textAlign: 'center',
                     fontSize: '50px',
                     color: options.series[0].data[1].color,
