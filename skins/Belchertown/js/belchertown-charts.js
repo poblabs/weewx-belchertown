@@ -113,14 +113,14 @@ Highcharts.setOptions({
     chart: {style: {fontSize: '15px'}},
     // A time zone name follows daylight saving through the year; the fixed offset is the fallback
     time: wx_tz ? {timezone: wx_tz} : {timezoneOffset: config.highcharts_timezoneoffset},
-    lang: {
+    lang: Object.assign({
         months: dayjs.months(),
         shortMonths: dayjs.monthsShort(),
         weekdays: dayjs.weekdays(),
         shortWeekdays: dayjs.weekdaysShort(),
         decimalPoint: config.highcharts_decimal,
         thousandsSep: config.highcharts_thousands
-    }
+    }, config.highcharts_lang)
 });
 
 function showChart(json_file, prepend_renderTo = false) {

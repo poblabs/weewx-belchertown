@@ -2,12 +2,12 @@
 #set $YM="%Y %m"
 #set $D="  %d"
 #set $M=" %b"
-#set $NODAY=" N/A"
+#set $NODAY="%4s" % $obs.label.noaa_no_value
 #set $Temp="%6.1f"
 #set $Wind="%6.1f"
 #set $Dir="%6.0f"
 #set $Count="%6d"
-#set $NONE="   N/A"
+#set $NONE="%6s" % $obs.label.noaa_no_value
 #if $unit.unit_type_dict.group_temperature == "degree_F"
 #set $Hot     =(90.0,"degree_F")
 #set $Cold    =(32.0,"degree_F")
@@ -39,18 +39,18 @@ $("%6d" % $T[0])#slurp
 #def ShowFloat($R)
 $("%6.2f" % $R[0])#slurp
 #end def
-                     CLIMATOLOGICAL SUMMARY for year $year_name
+                     $obs.label.noaa_year_title $year_name
 
 
-NAME: $station.location                  
-ELEV: $station.altitude    LAT: $station.latitude[0]-$station.latitude[1] $station.latitude[2]    LONG: $station.longitude[0]-$station.longitude[1] $station.longitude[2]
+$obs.label.noaa_name $station.location                  
+$obs.label.noaa_elev $station.altitude    $obs.label.noaa_lat $station.latitude[0]-$station.latitude[1] $station.latitude[2]    $obs.label.noaa_long $station.longitude[0]-$station.longitude[1] $station.longitude[2]
 
 
-                                       TEMPERATURE ($unit.label.outTemp.strip())
+                                       $obs.label.noaa_temperature ($unit.label.outTemp.strip())
 
-                              HEAT    COOL                              MAX    MAX    MIN    MIN
-          MEAN   MEAN         DEG     DEG                                >=     <=     <=     <=
- YR  MO   MAX    MIN    MEAN  DAYS    DAYS      HI  DAY     LOW  DAY $ShowInt($Hot) $ShowInt($Cold) $ShowInt($Cold) $ShowInt($VeryCold)
+$obs.label.noaa_year_temp_header_1
+$obs.label.noaa_year_temp_header_2
+$obs.label.noaa_year_temp_header_3 $ShowInt($Hot) $ShowInt($Cold) $ShowInt($Cold) $ShowInt($VeryCold)
 ------------------------------------------------------------------------------------------------
 #for $month in $year.months
 #if $month.outTemp.count.raw
@@ -63,11 +63,11 @@ $month.dateTime.format($YM)
         $year.outTemp.meanmax.format($Temp,$NONE,add_label=False) $year.outTemp.meanmin.format($Temp,$NONE,add_label=False) $year.outTemp.avg.format($Temp,$NONE,add_label=False) $year.heatdeg.sum.format($Temp,$NONE,add_label=False) $year.cooldeg.sum.format($Temp,$NONE,add_label=False)  $year.outTemp.max.format($Temp,$NONE,add_label=False) $year.outTemp.maxtime.format($M,$NODAY)  $year.outTemp.min.format($Temp,$NONE,add_label=False) $year.outTemp.mintime.format($M,$NODAY) $year.outTemp.max_ge($Hot).format($Count,$NONE,add_label=False) $year.outTemp.max_le($Cold).format($Count,$NONE,add_label=False) $year.outTemp.min_le($Cold).format($Count,$NONE,add_label=False) $year.outTemp.min_le($VeryCold).format($Count,$NONE,add_label=False)
 
 
-                  PRECIPITATION ($unit.label.rain.strip())
+                  $obs.label.noaa_precipitation ($unit.label.rain.strip())
 
-                  MAX         ---DAYS OF RAIN---
-                  OBS.               OVER
- YR  MO  TOTAL    DAY  DATE $ShowFloat(Trace) $ShowFloat($SomeRain) $ShowFloat($Soak)
+$obs.label.noaa_year_rain_header_1
+$obs.label.noaa_year_rain_header_2
+$obs.label.noaa_year_rain_header_3 $ShowFloat(Trace) $ShowFloat($SomeRain) $ShowFloat($Soak)
 ------------------------------------------------
 #for $month in $year.months
 #if $month.rain.count.raw

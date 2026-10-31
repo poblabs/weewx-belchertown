@@ -1,3 +1,19 @@
+Unreleased
+
+### Changed
+* The lang option now also sets the date and number format, unless belchertown_locale is set. Before, a site with lang = de on an English server had German text with English dates and numbers. lang = en is left alone, because every new weewx.conf has it.
+* Charts work out the "auto" highcharts_decimal and highcharts_thousands in the browser, so they match the rest of the page when the locale isn't installed on the server.
+* The [Texts] [[Highcharts]] section of the language files is now used, so the chart menu and the reset zoom button follow the language.
+* Chart titles and series names in graphs.conf can be translated: the title is looked up as a label by its own text. This also covers a graphs.conf copied from graphs.conf.example.
+* New labels for the default page title and description, the footer, the missing air quality index, an invalid observation name and the NOAA reports, which were fixed English text.
+* German is complete, including the Chart Builder, the alerts and the NOAA reports.
+
+### Fixed
+* A server with no usable locale ("C") no longer produces lang="C" on every page, which broke the units button and live updates with "Invalid language tag: C". The site falls back to en_US.
+* A belchertown_locale with no encoding, such as "nl_NL", no longer stops the report when that locale isn't installed.
+* A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
+* The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
+
 3.0.0 October 8, 2026
 
 The original Belchertown, rebuilt. 3.0 is a refactor of the original skin from the ground up for weewx 5: a chart builder that writes your graphs.conf for you, lighter and faster pages, new home and records pages, forecasts and alerts with no setup, a units button, and years of old code removed.
