@@ -108,6 +108,26 @@
                     });
                 }
             
+                #else
+                // MQTT Websockets not enabled
+
+                #if "show_last_updated_alert" in $Extras and $Extras.show_last_updated_alert == '1'
+                // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
+                if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
+                    belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
+                    last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
+                    wx_html(".last-updated-alert",  last_updated_alert_text );
+                    wx_show(".last-updated-alert");
+                }
+                #end if
+                        
+                // Update the Last Updated timestamp with Day.js,
+                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
+                updated_text = "$obs.label.header_last_updated " + updated;
+                wx_html(".updated",  updated_text );
+            
+                #end if
+            
                 #if "reload_hook_images" in $Extras and $Extras.reload_hook_images == '1'
                 // Update any images in the radar section or hooks
         
@@ -135,26 +155,6 @@
                     var reload_ac_timer = $Extras.reload_images_hook_ac * 1000; // convert to millis
                     setTimeout(function() { ajaximages("index-hook-after-charts", $Extras.reload_images_hook_ac); }, reload_ac_timer);
                 #end if
-            
-                #end if
-            
-                #else
-                // MQTT Websockets not enabled
-
-                #if "show_last_updated_alert" in $Extras and $Extras.show_last_updated_alert == '1'
-                // Check if we need to alert on old information - if time now, minus the last update is greater than the threshold, show an alert.
-                if ( ( Math.floor(new Date().getTime()/1000.0) - $Extras.last_updated_alert_threshold ) > $current.dateTime.raw ) {
-                    belchertown_debug("Last Updated Alert: The weewx report timestamp is "+$current.dateTime.raw+". The current timestamp is "+Math.floor(new Date().getTime()/1000.0)+". The threshold is "+$Extras.last_updated_alert_threshold+". Report timestamp is greater than threshold of current time, showing no update alert.");
-                    last_updated_alert_text = "<i class='fa fa-exclamation-triangle' style='color:red;'></i> $obs.label.header_last_updated_alert";
-                    wx_html(".last-updated-alert",  last_updated_alert_text );
-                    wx_show(".last-updated-alert");
-                }
-                #end if
-                        
-                // Update the Last Updated timestamp with Day.js,
-                updated = tzAdjustedMoment( $current.dateTime.raw ).format("$obs.label.time_last_updated");
-                updated_text = "$obs.label.header_last_updated " + updated;
-                wx_html(".updated",  updated_text );
             
                 #end if
             
