@@ -38,8 +38,14 @@ function ajaximages(section = false, reload_timer_interval_seconds = false) {
 var reconnect_using_inactive_timestamp = false;
 var inactive_timestamp = "";
 
+// How long to wait before the next try after a failed connect. It doubles up to a minute.
+var MQTT_RETRY_FIRST = 5000;
+var mqtt_retry_delay = MQTT_RETRY_FIRST;
+var mqtt_retry_timer = null;
+
 // MQTT connect
 function connect() {
+    clearTimeout(mqtt_retry_timer);
     if (reconnect_using_inactive_timestamp) {
             updated = tzAdjustedMoment(inactive_timestamp).format(labels.time_last_updated);
         } else {
@@ -62,7 +68,7 @@ function connect() {
         var useSSL = extras.mqtt_websockets_ssl === '1';
     }
     belchertown_debug("MQTT: Connecting to MQTT Websockets: " + host + " " + port + (useSSL ? " (SSL Enabled)" : " (SSL Disabled)"));
-    client = new Paho.Client(host, Number(port), mqttclient);
+    var this_client = client = new Paho.Client(host, Number(port), mqttclient);
     client.onConnectionLost = onConnectionLost;
     client.onMessageArrived = onMessageArrived;
     var options = {
@@ -75,7 +81,10 @@ function connect() {
         mqttVersionExplicit: false,
         reconnect: true,
         onSuccess: onConnect,
-        onFailure: onFailure
+        // The answer to an old client can arrive after the Continue button started a new one
+        onFailure: function() {
+            if (this_client === client) onFailure();
+        }
     }
     if (extras.mqtt_websockets_username && extras.mqtt_websockets_password) {
         options.userName = extras.mqtt_websockets_username;
@@ -87,6 +96,8 @@ function connect() {
 // MQTT connect callback
 function onConnect() {
     mqttConnected = true;
+    clearTimeout(mqtt_retry_timer);
+    mqtt_retry_delay = MQTT_RETRY_FIRST;
     belchertown_debug("MQTT: MQTT Connected. Subscribing.");
     if (reconnect_using_inactive_timestamp) {
         updated = tzAdjustedMoment(inactive_timestamp).format(labels.time_last_updated);
@@ -128,6 +139,10 @@ function onFailure() {
     }
     wx_html(".updated", labels.mqtt_websockets_failed + " " + labels.header_last_updated + " " + updated);
     console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": Cannot connect to MQTT broker");
+    // Paho's reconnect option only takes over once a connection was up. A broker that can't be
+    // reached while the page loads would otherwise leave a wall display dead until someone reloads it.
+    mqtt_retry_timer = setTimeout(connect, mqtt_retry_delay);
+    mqtt_retry_delay = Math.min(mqtt_retry_delay * 2, 60000);
 }
 
 // MQTT connection lost
@@ -167,8 +182,13 @@ var mqtt_payload = "";
 // New message from mqtt, process it
 function onMessageArrived(message) {
     belchertown_debug("MQTT: " + message.payloadString);
-    update_current_wx(message.payloadString);
-    mqtt_payload = JSON.parse(message.payloadString);
+    // Paho drops the connection when this callback throws, and the packet is lost
+    try {
+        mqtt_payload = JSON.parse(message.payloadString);
+        update_current_wx(message.payloadString);
+    } catch (e) {
+        console.log("MQTT: Cannot process message: " + e.message);
+    }
 }
 
 function refreshHooks() {
@@ -200,15 +220,19 @@ function update_current_wx(data) {
         else {
             setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts.
         }
-        ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
-            setTimeout(update_weewx_data.bind(null, weewx_data), 10000); // Initial call to update (date, daily high, low, etc)
-            setTimeout(belchertown_debug.bind(null, weewx_data), 10000); // Make weewx_data.json available in debugging console
-        if (extras.forecast_enabled === '1') {
-            setTimeout(ajaxforecast, 10000); // Update forecast data
-        }
-        }).catch(function(e) {
-            console.log(e);
-        });
+        // weewx publishes this packet before it runs the reports, so the files have to be fetched
+        // later. Fetched right away, they would be the ones of the last archive interval.
+        setTimeout(function() {
+            ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
+                update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
+                belchertown_debug(weewx_data); // Make weewx_data.json available in debugging console
+                if (extras.forecast_enabled === '1') {
+                    ajaxforecast(); // Update forecast data
+                }
+            }).catch(function(e) {
+                console.log(e);
+            });
+        }, 30000);
     } else {
         // Only show the updated time on non-archive packets
         epoch = parseFloat(data["dateTime"]).toFixed(0);
@@ -233,14 +257,14 @@ function update_current_wx(data) {
                 // Force dayRain since that's the MQTT payload name
                 thisElementClass = "dayRain";
             }
-            if (thisElementClass == "barometer" || thisElementClass == "pressure" || thisElementClass == "altimeter" || thisElementClass == "cloudbase") {
-                // Do not group number into thousands,hundreds format
+            if (thisElementClass in units_config.obs) {
+                // Do not group number into thousands,hundreds format. The server doesn't either, and the units button has to read both
                 localeStringUseGrouping = false;
             } else {
                 localeStringUseGrouping = true;
             }
-            // If this MQTT payload key begins with the name of the span class name, update the info. Can also use mqttdata.includes(thisElementClass) if weewx-mqtt changes in future
-            if (mqttdata.startsWith(thisElementClass)) {
+            // weewx-mqtt names a payload key after the observation and its unit, as in outTemp_C. The whole name has to match: windGust isn't windGustDir.
+            if (mqttdata === thisElementClass || mqttdata.startsWith(thisElementClass + "_")) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
                 // Finally update the element class
