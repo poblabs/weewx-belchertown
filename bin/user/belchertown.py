@@ -3579,6 +3579,16 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 }
             return data
 
+        # A direction can't be averaged as a number: 350 and 10 degrees are both a north wind, but
+        # their mean is 180, a south wind. weewx only has the vector mean on its "wind" type, where
+        # it also works on a SQLite without math functions. A graphs.conf that says avg gets it too.
+        # That type reads windSpeed, so a data_binding without that column can only have the plain mean.
+        if obs_lookup == "windDir" and aggregate_type in ("avg", "vecdir"):
+            if "windSpeed" in archive.sqlkeys:
+                obs_lookup, aggregate_type = "wind", "vecdir"
+            else:
+                aggregate_type = "avg"
+
         # Begin standard observation lookups
         try:
             (time_start_vt, time_stop_vt, obs_vt) = weewx.xtypes.get_series(

@@ -18,8 +18,10 @@ Unreleased
 * Records: a temperature range with no complete day yet shows the no-value text instead of 0.0, and doesn't count as a new record. A station with no rain yet no longer shows a rain streak as a new record, or a date range that runs backwards.
 * Records: a rain streak across a change to daylight saving time starts on the right day.
 * Rain streaks are no longer cut to a day at UTC+12 (New Zealand in winter, Fiji), where they ended at every record.
-* NOAA reports keep their columns when a sensor is missing, and the yearly report uses the noaa_wind_speed label.
+* NOAA reports keep their columns when a sensor is missing.
 * The wind rose no longer drops records that fall between two speed bands, 3 to 18% of them depending on the wind unit.
+* The wind direction in the week, month and year charts is a vector mean. A wind around north showed as 180, a south wind. A time chart in graphs.conf that says aggregate_type = avg on windDir gets it too. xAxis_groupby charts and the Chart Builder preview still average the numbers.
+* The month chart in graphs.conf.example uses calendar days, so its daily values match the records and NOAA pages. They were 24 hour windows that moved with the report time.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
 
