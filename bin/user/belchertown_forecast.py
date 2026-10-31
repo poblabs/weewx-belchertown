@@ -582,8 +582,6 @@ def update(path, extras, lat, lon, labels, icon_list_path):
     """Refresh forecast.json if it's stale; return the forecast either way.
     After a failed download the next try waits RETRY_HOLD seconds, so a dead network doesn't stall every report."""
     provider = provider_for(extras)
-    # The file of an older version is no forecast. It stays on disk until a download replaces it,
-    # but the caller must not get it while downloads are failing.
     cached = read_cache(path)
     if not is_stale(path, extras.get("forecast_stale", 3540)):
         return cached, False
@@ -627,7 +625,7 @@ def download(path, extras, lat, lon, labels, icon_list_path, provider):
             forecast["alerts"] = []
 
     forecast["utc_offset"] = utc_offset(forecast.get("timezone"))
-    # The first report of a new install gets here before the generators have made the json folder
+    # The first report of a new install runs before the json folder exists
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(forecast, f)

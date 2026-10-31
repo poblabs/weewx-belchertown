@@ -205,18 +205,7 @@ class getData(SearchList):
         SearchList.__init__(self, generator)
 
     def download_earthquake(self, url):
-        """Fetch url with urllib, or with curl if urllib fails.
-
-        Args:
-            url (str): The earthquake server's query.
-
-        Returns:
-            bytes: The reply.
-
-        Raises:
-            OSError: curl isn't installed.
-            subprocess.SubprocessError: curl failed as well.
-        """
+        """Fetch url with urllib, or with curl if urllib fails. Raises OSError or SubprocessError if both do."""
         try:
             from urllib.request import Request, urlopen
 
@@ -235,8 +224,7 @@ class getData(SearchList):
                     "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
                     "Full error: %s" % urllib_error
                 )
-        # --fail turns an HTTP error into an exit code instead of printing the error page. Without
-        # --max-time a server that accepts the connection and never answers stops the report.
+        # Treat an HTTP error as a failure, and don't let a silent server stop the report
         result = subprocess.run(
             ["curl", "-L", "--silent", "--fail", "--max-time", "15", url],
             stdout=subprocess.PIPE,
@@ -1202,16 +1190,12 @@ class getData(SearchList):
                 # File doesn't exist, download a new copy
                 earthquake_is_stale = True
 
-            # File is stale, download a new copy. A failed download keeps the old file, which leaves
-            # it stale, so every template of the report would try again. Each attempt can wait for
-            # a timeout, hence the pause after a failure.
+            # File is stale, download a new copy. It stays stale after a failure, so every template would retry
             if (earthquake_is_stale
                     and time.time() - _earthquake_failure.get(earthquake_file, 0) >= EARTHQUAKE_RETRY_HOLD):
                 try:
                     page = self.download_earthquake(earthquake_url)
-                    # Only a valid reply may replace the cache: an error page written over it
-                    # would hide the last known earthquake until earthquake_stale runs out. An
-                    # empty reply is valid. USGS sends one, as 204, when nothing has happened.
+                    # Only a valid reply may replace the cache. USGS sends an empty 204 when nothing has happened.
                     if page and "features" not in json.loads(page):
                         raise ValueError("The reply has no features")
                     os.makedirs(os.path.dirname(earthquake_file), exist_ok=True)
