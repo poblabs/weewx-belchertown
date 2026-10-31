@@ -390,7 +390,7 @@ function getURLvar(k) {
 
 // Change the color of the outTemp_F variable
 function get_outTemp_color(unit, outTemp, returnColor = false) {
-    outTemp = parseFloat(outTemp).toFixed(0); // Convert back to decimal literal
+    outTemp = parseFloat(String(outTemp).replace("\u2212", "-")).toFixed(0); // Convert back to decimal literal
     if (unit == "degree_F") {
         if (outTemp <= 0) {
             var outTemp_color = "#1278c8";
@@ -424,7 +424,7 @@ function get_outTemp_color(unit, outTemp, returnColor = false) {
             var outTemp_color = "rgba(218,113,113,1)";
         }
     } else if (unit == "degree_C") {
-        if (outTemp <= 0) {
+        if (outTemp <= -17.7) {
             var outTemp_color = "#1278c8";
         } else if (outTemp <= -3.8) {
             var outTemp_color = "#30bfef";

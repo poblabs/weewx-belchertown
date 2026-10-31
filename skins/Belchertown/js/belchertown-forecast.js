@@ -75,6 +75,9 @@ var forecast_last_data = null;
 function update_forecast_data(data) {
     forecast_last_data = data;
     if (units_alt_on()) data = convert_forecast_units(JSON.parse(JSON.stringify(data)));
+    // The wind is in forecast_units, except for knots and Beaufort, which are worked out below
+    var wind_follows_station = units_alt_on() || config.unit_type.windSpeed == "knot" || config.unit_type.windSpeed == "beaufort";
+    var forecast_wind_label = wind_follows_station ? display_label("group_speed", config.unit_label.windSpeed) : " " + data["units"]["wind"];
     belchertown_debug("Forecast: Updating data from " + data["provider"]);
     belchertown_debug(data);
 
@@ -297,7 +300,7 @@ function update_forecast_data(data) {
                     }
                     output_html += '</div>';
                     output_html += '<div class="forecast-wind">';
-                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + display_label("group_speed", config.unit_label.windSpeed);
+                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + forecast_wind_label;
                     output_html += '</div>';
                     if (extras.forecast_show_daily_forecast_link === '1') {
                     output_html += forecast_row[i]["forecast_link"];

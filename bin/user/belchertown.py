@@ -1476,15 +1476,12 @@ class getData(SearchList):
                 # Something's wrong. Continue this loop to ignore this group
                 # (like group_dust or something non-standard)
                 continue
-            try:
-                # Find the number of decimals to round to based on group name
-                obs_round = self.generator.skin_dict["Units"]["StringFormats"].get(
-                    obs_unit, "0"
-                )[2]
-            except:
-                obs_round = self.generator.skin_dict["Units"]["StringFormats"].get(
-                    obs_unit, "0"
-                )
+            # Find the number of decimals to round to based on group name, 0 for a format like %d
+            decimals = re.search(
+                r"\.(\d+)f",
+                self.generator.skin_dict["Units"]["StringFormats"].get(obs_unit, "0"),
+            )
+            obs_round = decimals.group(1) if decimals else "0"
             # Add to the rounding array
             if obs not in all_obs_rounding_json:
                 all_obs_rounding_json[obs] = str(obs_round)
@@ -1773,6 +1770,7 @@ def unit_switch_config(formatter, converter):
         "groups": {g: u for g, u in converter.group_unit_dict.items() if g in UNIT_SWITCH_GROUPS},
         "labels": labels,
         "formats": dict(formatter.unit_format_dict),
+        "decimal_point": locale.localeconv()["decimal_point"],
         "obs": {o: g for o, g in weewx.units.obs_group_dict.items() if g in UNIT_SWITCH_GROUPS},
     })
 
@@ -2518,9 +2516,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         try:
                             obs_group = weewx.units.obs_group_dict[rounding_obs_lookup]
                             obs_unit = self.converter.group_unit_dict[obs_group]
-                            obs_round = self.skin_dict["Units"]["StringFormats"].get(
-                                obs_unit, "0"
-                            )[2]
+                            decimals = re.search(
+                                r"\.(\d+)f",
+                                self.skin_dict["Units"]["StringFormats"].get(obs_unit, "0"),
+                            )
+                            obs_round = decimals.group(1) if decimals else -1
                         except:
                             # Not a valid weewx schema name - maybe this is
                             # windRose or something?

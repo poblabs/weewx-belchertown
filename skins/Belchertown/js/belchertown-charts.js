@@ -729,13 +729,14 @@ function gauge_chart(options, observation_type) {
             },
         }
     }
+    var gauge_value = options.series[0].rounding >= 0 ? "{y:." + options.series[0].rounding + "f}" : "{y:.#f}";
     if (get_gauge_label(options.series[0].data[1]["y"], options.series[0])) {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
         options.plotOptions.solidgauge.dataLabels.y = 0
     } else if (gauge_unit_label(observation_type, options.series[0]) == null) {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span>"
     } else {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
         options.plotOptions.solidgauge.dataLabels.y = 0
     }
     options.yAxis = {
@@ -976,7 +977,7 @@ function weather_range_chart(options, observation_type, tooltip_date_format) {
             ]
         } else {
             options.plotOptions.series.zones = [
-                {value: -5, color: "#1278c8"},
+                {value: -17.7, color: "#1278c8"},
                 {value: -3.8, color: "#30bfef"},
                 {value: 0, color: "#1fafdd"},
                 {value: 4.4, color: "rgba(0,172,223,1)"},
