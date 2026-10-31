@@ -19,6 +19,7 @@ Unreleased
 * Records: a rain streak across a change to daylight saving time starts on the right day.
 * Rain streaks are no longer cut to a day at UTC+12 (New Zealand in winter, Fiji), where they ended at every record.
 * NOAA reports keep their columns when a sensor is missing, and the yearly report uses the noaa_wind_speed label.
+* The wind rose no longer drops records that fall between two speed bands, 3 to 18% of them depending on the wind unit.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
 
