@@ -91,12 +91,16 @@ def kts(kph):
 
 # ---------------------------------------------------------------------------- Xweather
 
+def xweather_access(extras):
+    """The API's base URL and the credentials as a query string."""
+    return "https://data.api.xweather.com/", "client_id=%s&client_secret=%s" % (extras["forecast_api_id"], extras["forecast_api_secret"])
+
+
 def xweather_download(extras, lat, lon):
     if "forecast_dev_file" in extras:
         # Hidden option: a pre-downloaded raw Xweather file instead of API calls
         return get_json(extras["forecast_dev_file"])
-    base = "https://data.api.xweather.com/"
-    auth = "client_id=%s&client_secret=%s" % (extras["forecast_api_id"], extras["forecast_api_secret"])
+    base, auth = xweather_access(extras)
     metar = "&filter=metar" if extras.get("forecast_aeris_use_metar") == "1" else ""
     raw = {
         "timestamp": int(time.time()),
@@ -112,9 +116,9 @@ def xweather_download(extras, lat, lon):
 
 
 def xweather_alerts_download(extras, lat, lon):
-    return get_json("https://data.api.xweather.com/alerts/%s,%s?format=json&limit=%s&lang=%s&client_id=%s&client_secret=%s" % (
-        lat, lon, extras.get("forecast_alert_limit") or 1, extras.get("forecast_lang", "en").lower(),
-        extras["forecast_api_id"], extras["forecast_api_secret"]))
+    base, auth = xweather_access(extras)
+    return get_json("%salerts/%s,%s?format=json&limit=%s&lang=%s&%s" % (
+        base, lat, lon, extras.get("forecast_alert_limit") or 1, extras.get("forecast_lang", "en").lower(), auth))
 
 
 def xweather_convert(raw, extras, labels, icons):
