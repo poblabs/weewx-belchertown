@@ -154,8 +154,16 @@ function cb_conf(s) {
         out.push("        aggregate_type = " + s.aggregate);
         out.push("        aggregate_interval = " + s.interval);
     }
+    // graphs.conf can't hold the same section twice, so a repeated observation gets its own
+    var used = {};
     s.lines.forEach(function(line) {
-        out.push("        [[[" + line.obs + "]]]");
+        used[line.obs] = (used[line.obs] || 0) + 1;
+        if (used[line.obs] === 1) {
+            out.push("        [[[" + line.obs + "]]]");
+        } else {
+            out.push("        [[[" + line.obs + "_" + used[line.obs] + "]]]");
+            out.push("            observation_type = " + line.obs);
+        }
         var name = line.name || (line.obs === "rainTotal" ? labels.chart_builder_rain_total : "");
         if (name) out.push('            name = "' + name + '"');
         if (line.color_set) out.push('            color = "' + line.color + '"');

@@ -29,6 +29,17 @@ Unreleased
 * The month chart in graphs.conf.example uses calendar days, so its daily values match the records and NOAA pages. They were 24 hour windows that moved with the report time.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
+* A series that can't be read, such as an unknown observation, is skipped and logged. It used to stop the chart groups after it, which froze their json files.
+* timespan_specific works with aggregate_type and start_at_whole_hour.
+* start_at_beginning_of_month no longer shortens the later series of a chart with time_length = all.
+* xAxis_groupby: average_type works with a rolling time_length, and the hour, day, month and year groupings work on MySQL 8 and MariaDB.
+* xAxis_groupby: an hour with no data is a gap, not a 0. A month with no data no longer moves the later values under the wrong xAxis_categories when they are a full year in calendar order, and mirrored_value is applied.
+* legend = True or False in graphs.conf no longer blanks every chart of the chart group, and a chart that fails to draw no longer stops the rest of its group.
+* A chart title or series name that matches a list label, such as "second", no longer stops the chart json files.
+* The Chart Builder writes a section of its own for an observation added twice. Two identical sections stopped the report.
+* The tooltip of a chart with categories shows the category again, not its index.
+* yAxis_softMin and yAxis_softMax keep their decimals, and the weather range chart no longer gets a tick interval of 0 on a cold day.
+* Charts load when a page is opened as /graphs/index.html.
 
 3.0.0 October 8, 2026
 

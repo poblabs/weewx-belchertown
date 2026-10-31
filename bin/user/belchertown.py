@@ -24,6 +24,7 @@ from re import match
 
 import configobj
 
+import weedb
 import weeutil.weeutil
 import weewx
 import weewx.reportengine
@@ -141,7 +142,9 @@ def translate_title(label_dict, title):
     """
     if isinstance(title, list):
         title = ", ".join(title)
-    return label_dict[title]
+    translated = label_dict[title]
+    # A list label, such as "second", isn't a translation of the title
+    return title if isinstance(translated, list) else translated
 
 
 # Print version in syslog for easier troubleshooting
@@ -1868,6 +1871,10 @@ def on_this_day_summary(years, formatter, converter):
 # ======================================================================================
 
 
+# The database going away isn't a mistake in graphs.conf, so no chart is skipped for it
+DATABASE_DOWN = (weedb.CannotConnectError, weedb.DisconnectError, weedb.DatabaseLockedError)
+
+
 class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
     """Class for generating JSON files for the Highcharts.
     Adapted from the ImageGenerator class.
@@ -2108,7 +2115,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Default to true if the option is missing
                     output[chart_group][plotname]["options"]["legend"] = "true"
                 else:
-                    output[chart_group][plotname]["options"]["legend"] = legend
+                    # JS parses this as JSON, so only these two values can reach it
+                    try:
+                        output[chart_group][plotname]["options"]["legend"] = "true" if to_bool(legend) else "false"
+                    except ValueError:
+                        output[chart_group][plotname]["options"]["legend"] = "true"
 
                 # Setup exporting option
                 exporting = plot_options.get("exporting", None)
@@ -2287,10 +2298,23 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp = line_options.get("timespan_start", None)
                         maxstamp = line_options.get("timespan_stop", None)
                         if minstamp is None or maxstamp is None:
-                            raise Warning(
-                                "Error trying to create timespan_specific graph. "
-                                "You are missing either timespan_start or timespan_stop options."
+                            logerr(
+                                "HighchartsJsonGenerator: %s skipped. timespan_specific needs "
+                                "both timespan_start and timespan_stop." % line_name
                             )
+                            del output[chart_group][plotname]["series"][line_name]
+                            continue
+                        # Options from graphs.conf are strings
+                        try:
+                            minstamp = int(float(minstamp))
+                            maxstamp = int(float(maxstamp))
+                        except (TypeError, ValueError):
+                            logerr(
+                                "HighchartsJsonGenerator: %s skipped. timespan_start and "
+                                "timespan_stop have to be timestamps." % line_name
+                            )
+                            del output[chart_group][plotname]["series"][line_name]
+                            continue
                     elif time_length == "all":
                         minstamp = start_ts
                         maxstamp = stop_ts
@@ -2314,8 +2338,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp -= minstamp % 3600
                     
                     if start_at_beginning_of_month:
-                        start_ts, stop_ts = archiveMonthSpan(minstamp)
-                        minstamp = start_ts
+                        minstamp = archiveMonthSpan(minstamp)[0]
 
                     # Find if this chart is using a new database binding.
                     # Default to the binding set in plot_options
@@ -2515,25 +2538,36 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     wind_rose_color[5] = line_options.get("beauford5", "#e4d354")
                     wind_rose_color[6] = line_options.get("beauford6", "#268bd2")
 
-                    # Build series data
-                    series_data = self.get_observation_data(
-                        binding,
-                        archive,
-                        observation_type,
-                        minstamp,
-                        maxstamp,
-                        aggregate_type,
-                        aggregate_interval,
-                        average_type,
-                        time_length,
-                        xAxis_groupby,
-                        xAxis_categories,
-                        mirrored_value,
-                        weatherRange_obs_lookup,
-                        wind_rose_color,
-                        special_target_unit,
-                        obs_round
-                    )
+                    # Build series data. An exception here would freeze all the chart groups after this one.
+                    try:
+                        series_data = self.get_observation_data(
+                            binding,
+                            archive,
+                            observation_type,
+                            minstamp,
+                            maxstamp,
+                            aggregate_type,
+                            aggregate_interval,
+                            average_type,
+                            time_length,
+                            xAxis_groupby,
+                            xAxis_categories,
+                            mirrored_value,
+                            weatherRange_obs_lookup,
+                            wind_rose_color,
+                            special_target_unit,
+                            obs_round
+                        )
+                    except Exception as error:
+                        # get_observation_data wraps most errors in a Warning, with the original as its context
+                        if isinstance(error, DATABASE_DOWN) or isinstance(error.__context__, DATABASE_DOWN):
+                            raise
+                        logerr(
+                            "HighchartsJsonGenerator: [%s] [[%s]] [[[%s]]] skipped: %s"
+                            % (chart_group, plotname, line_name, error)
+                        )
+                        del output[chart_group][plotname]["series"][line_name]
+                        continue
 
                     # Build the final series data JSON
                     if isinstance(series_data, dict):
@@ -3299,10 +3333,14 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if aggregate_type is None:
                 aggregate_type = "sum"
 
-            if isinstance(time_length, int):
-                order_sql = ' ORDER BY dateTime ASC'
+            # A span within one label cycle sorts by time, a longer one by label. MySQL needs MIN() in a GROUP BY.
+            label_cycle = {"hour": 86400, "day": 28 * 86400}.get(xAxis_groupby, 366 * 86400)
+            if isinstance(time_length, int) or end_ts - start_ts <= label_cycle:
+                order_sql = ' ORDER BY MIN(dateTime) ASC'
+                subqry_order_sql = ' ORDER BY MIN(first_dateTime) ASC'
             else:
-                order_sql = ''
+                order_sql = ' ORDER BY %s ASC' % xAxis_groupby
+                subqry_order_sql = order_sql
 
             # Special case for time_length = all, force to use complete days only
             if time_length == "all":
@@ -3325,7 +3363,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         if average_type is not None and average_type == "sum":
                             sql_lookup = 'SELECT dt1 AS {0}, ' \
                                          'AVG(obs1) AS obs ' \
-                                         'FROM (SELECT strftime("{1}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, sum(sum) AS obs1 ' \
+                                         'FROM (SELECT strftime("{1}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, sum(sum) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                                 'FROM archive_day_{2} WHERE dateTime >= {3} AND dateTime < {4} '\
                                                 'GROUP BY strftime({5}, datetime(dateTime, "unixepoch", "localtime"))) ' \
                                          'GROUP BY {0}{6};'.format(
@@ -3335,7 +3373,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                 start_ts,
                                 end_ts,
                                 subqry_groupby,
-                                order_sql
+                                subqry_order_sql
                             )
                         # avg cases with an average_type
                         elif average_type is not None:
@@ -3383,7 +3421,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # archive access with no average_type
                     if average_type is None:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
-                                     'IFNULL({2}({3}),0) AS obs, dateTime FROM archive ' \
+                                     '{2}({3}) AS obs FROM archive ' \
                                      'WHERE dateTime >= {4} AND dateTime < {5} GROUP BY {1}{6};'.format(
                             strformat,
                             xAxis_groupby,
@@ -3399,7 +3437,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         sql_lookup = 'SELECT dt1 AS {0}, ' \
                                      '{1}(obs1) AS obs ' \
                                      'FROM (SELECT strftime("{2}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, '\
-                                            'IFNULL({3}({4}),0) AS obs1 ' \
+                                            '{3}({4}) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                             'FROM archive WHERE dateTime >= {5} AND dateTime < {6} '\
                                             'GROUP BY strftime({7}, datetime(dateTime, "unixepoch", "localtime"))) ' \
                                      'GROUP BY {0}{8};'.format(
@@ -3411,7 +3449,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             subqry_groupby,
-                            order_sql
+                            subqry_order_sql
                         )
 
             elif driver == "weedb.mysql":
@@ -3423,17 +3461,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         if average_type is not None and average_type == "sum":
                             sql_lookup = 'SELECT dt1 AS {0}, ' \
                                          'AVG(obs1) AS obs ' \
-                                         'FROM (SELECT FROM_UNIXTIME( dateTime, "%{1}" ) AS dt1, sum(sum) AS obs1 ' \
+                                         'FROM (SELECT FROM_UNIXTIME( dateTime, "%{1}" ) AS dt1, sum(sum) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                                 'FROM archive_day_{2} WHERE dateTime >= {3} AND dateTime < {4} '\
-                                                'GROUP BY strftime({5}, datetime(dateTime, "unixepoch", "localtime"))) ' \
+                                                'GROUP BY FROM_UNIXTIME( dateTime, {5} ), dt1) AS periods ' \
                                          'GROUP BY {0}{6};'.format(
                                 xAxis_groupby,
                                 strformat,
                                 obs_lookup,
                                 start_ts,
                                 end_ts,
-                                subqry_groupby,
-                                order_sql
+                                subqry_groupby.replace("%", "%%"),
+                                subqry_order_sql
                             )
                         # avg cases with an average_type
                         elif average_type is not None:
@@ -3481,7 +3519,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # archive access with no average_type
                     if average_type is None:
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) as {1}, ' \
-                                     'IFNULL({2}({3}),0) AS obs, dateTime FROM archive ' \
+                                     '{2}({3}) AS obs FROM archive ' \
                                      'WHERE dateTime >= {4} AND dateTime < {5} GROUP BY {1}{6};'.format(
                             strformat,
                             xAxis_groupby,
@@ -3497,9 +3535,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         sql_lookup = 'SELECT dt1 AS {0}, ' \
                                      '{1}(obs1) AS obs ' \
                                      'FROM (SELECT FROM_UNIXTIME( dateTime, "%{2}" ) AS dt1, '\
-                                            'IFNULL({3}({4}),0) AS obs1 ' \
+                                            '{3}({4}) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                             'FROM archive WHERE dateTime >= {5} AND dateTime < {6} '\
-                                            'GROUP BY strftime({7}, datetime(dateTime, "unixepoch", "localtime"))) ' \
+                                            'GROUP BY FROM_UNIXTIME( dateTime, {7} ), dt1) AS periods ' \
                                      'GROUP BY {0}{8};'.format(
                             xAxis_groupby,
                             aggregate_type,
@@ -3508,8 +3546,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             obs_lookup,
                             start_ts,
                             end_ts,
-                            subqry_groupby,
-                            order_sql
+                            subqry_groupby.replace("%", "%%"),
+                            subqry_order_sql
                         )
 
             # Setup values for the converter
@@ -3522,19 +3560,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 obs_group = None
                 obs_unit_from_target_unit = None
 
-            # introduce test to catch any sql errors; a try / except sequence 
-            
-            try:
-                query = archive.genSql(sql_lookup)
-            except:
-                raise Warning(
-                    "SQL error in"
-                    "sql_lookup"
-                    "The error is: %s"
-                        % (error)                    
-                )
-                
-            for row in query:
+            for row in archive.genSql(sql_lookup):
                 xAxis_labels.append(row[0])
                 row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
                 if special_target_unit:
@@ -3543,11 +3569,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     row_converted = self.converter.convert(row_tuple)
                 obsvalues.append(row_converted[0])
 
+            # Categories match values by position, so a full calendar cycle needs a gap where there's no data
+            full_cycle = {"hour": 24, "day": 31}.get(xAxis_groupby, 12)
+            if (not isinstance(time_length, int) and xAxis_groupby != "year"
+                    and 0 < len(xAxis_labels) < len(xAxis_categories) == full_cycle):
+                first_label = 0 if xAxis_groupby == "hour" else 1
+                by_position = dict(zip([int(label) - first_label for label in xAxis_labels], obsvalues))
+                obsvalues = [by_position.get(i) for i in range(len(xAxis_categories))]
+
             # If the values are to be mirrored, we need to make them negative
-            if mirrored_value:
-                for i in obsvalues:
-                    if i is not None:
-                        i = -i
+            if mirrored_value and to_bool(mirrored_value):
+                obsvalues = [-i if i is not None else None for i in obsvalues]
 
             # Return a dict which has the value for if we need to add labels
             # from sql or not.
