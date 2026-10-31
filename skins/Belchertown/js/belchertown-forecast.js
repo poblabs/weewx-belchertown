@@ -47,7 +47,7 @@ function show_forcast_alert(data) {
             forecast_alert_modal += "<div class='modal-dialog' role='document'>";
             forecast_alert_modal += "<div class='modal-content'>";
             forecast_alert_modal += "<div class='modal-header'>";
-            forecast_alert_modal += "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>";
+            forecast_alert_modal += "<button type='button' class='close' data-dismiss='modal' aria-label='" + labels.close + "'><span aria-hidden='true'>&times;</span></button>";
             forecast_alert_modal += "<h4 class='modal-title' id='forecast-alert'>" + forecast_alerts[i]["title"] + "</h4>";
             forecast_alert_modal += "</div>";
             forecast_alert_modal += "<div class='modal-body'>";
@@ -105,10 +105,10 @@ function update_forecast_data(data) {
         get_aqi_color(aqi["value"]);
         wx_html(".station-observations .aqi", aqi["value"]);
     } else if (aqi) {
-        wx_html(".wx-aqi", "No Data");
+        wx_html(".wx-aqi", labels.aqi_no_data);
         wx_html(".wx-aqi-category", aqi_category_label(""));
         if (extras.aqi_location_enabled === "1") wx_html(".aqi_location_outer", "");
-        wx_html(".station-observations .aqi", "No Data");
+        wx_html(".station-observations .aqi", labels.aqi_no_data);
     }
 
     // Visibility text in station observation table

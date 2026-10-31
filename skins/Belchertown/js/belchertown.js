@@ -9,6 +9,17 @@ var wx_tz = (function() {
         return "";
     }
 })();
+// "auto" separators come from here because the browser knows every locale; the server only
+// knows the ones installed on it.
+(function() {
+    var parts = new Intl.NumberFormat(config.system_locale_js).formatToParts(1234567.8);
+    function separator(type) {
+        var part = parts.find(function(p) { return p.type === type; });
+        return part ? part.value : "";
+    }
+    if (config.highcharts_decimal === "auto") config.highcharts_decimal = separator("decimal");
+    if (config.highcharts_thousands === "auto") config.highcharts_thousands = separator("group");
+})();
 var extras = belchertown_config.extras;
 // Like $obs.label in a template: an unknown label returns its own name.
 var labels = new Proxy(belchertown_config.labels, {

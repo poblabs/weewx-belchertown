@@ -4,6 +4,7 @@ This extension builds search list extensions as well
 as a crude "cron" to download necessary files.
 
 Pat O'Brien, August 19, 2018
+Copyright (c) 2026 Manuel Hilgert <hilman2@gmail.com>
 """
 
 import calendar
@@ -69,6 +70,73 @@ def loginf(msg):
 
 def logerr(msg):
     log.error(msg)
+
+
+def report_locale(belchertown_locale, lang):
+    """Set the locale of a report and return its name.
+
+    A locale that isn't installed on the server can't be set. Its name is returned all the same:
+    the browser has its own locale data, so dates and live values still come out right. Only the
+    numbers generated on the server stay in the server's format.
+
+    Args:
+        belchertown_locale (str): The belchertown_locale option (e.g., 'de_DE.UTF-8'), or 'auto'.
+        lang (str|None): The lang option of the report (e.g., 'de' or 'de_CH'), if it has one.
+            Only used when belchertown_locale is 'auto'.
+
+    Returns:
+        tuple[str, str]: A two-way tuple (locale_name, encoding), such as ('de_DE', 'UTF-8').
+            The locale_name is always safe to hand to the browser.
+    """
+    try:
+        name, encoding = locale.getlocale()
+    except ValueError:
+        # Python raises this for an LC_CTYPE it can't parse, which is the same as not having one.
+        name, encoding = None, None
+
+    wanted = belchertown_locale
+    if wanted == "auto":
+        # WeeWX sets the locale from lang, but a bare 'de' isn't a locale name, so it falls back
+        # to the server's default. A 'de_CH' server with lang 'de' keeps its own regional format.
+        # The weewx.conf of every new station says lang = en, so that one says nothing about what
+        # the owner wants and the server's locale stands.
+        wanted = ""
+        language = (lang or "en").split(".")[0]
+        if language != "en" and not ((name or "") + "_").startswith(language + "_"):
+            wanted = locale.normalize(language + ".UTF-8")
+
+    if wanted:
+        try:
+            locale.setlocale(locale.LC_ALL, wanted)
+            name, encoding = locale.getlocale()
+        except locale.Error as error:
+            log.debug("Locale %s is not installed. The browser will still use it: %s", wanted, error)
+            name, _, encoding = wanted.partition(".")
+
+    # The browser throws a RangeError on a name it can't parse, such as the server's 'C' or
+    # 'de_DE@euro', and that would stop every live update on the page.
+    name = (name or "").split("@")[0]
+    if name in ("C", "POSIX") or not re.fullmatch(r"[A-Za-z]{2,8}(_[A-Za-z0-9]{2,8})*", name):
+        name = "en_US"
+    return name, encoding or "UTF-8"
+
+
+def translate_title(label_dict, title):
+    """Return the translation of a title from graphs.conf.
+
+    A title is looked up by its own English text, so the titles of a graphs.conf that was copied
+    from graphs.conf.example get translated too, and any other title is shown as written.
+
+    Args:
+        label_dict (weeutil.weeutil.KeyDict): The [Labels][[Generic]] section.
+        title (str|list[str]): The title. An unquoted title with a comma is a list to ConfigObj.
+
+    Returns:
+        str: The translated title.
+    """
+    if isinstance(title, list):
+        title = ", ".join(title)
+    return label_dict[title]
 
 
 # Print version in syslog for easier troubleshooting
@@ -275,6 +343,9 @@ class getData(SearchList):
             d = {}
         label_dict = weeutil.weeutil.KeyDict(d)
 
+        # The text weewx shows for a missing value, which a language file can translate
+        no_value = self.generator.skin_dict["Units"]["StringFormats"].get("NONE", "N/A")
+
         # Setup database manager
         binding = self.generator.config_dict["StdReport"].get(
             "data_binding", "wx_binding"
@@ -318,50 +389,11 @@ class getData(SearchList):
         # https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
 
-        # If theme locale is auto, get the system locale for use with
-        # moment.js, and the system decimal for use with highcharts
-        if self.generator.skin_dict["Extras"]["belchertown_locale"] == "auto":
-            system_locale, locale_encoding = locale.getdefaultlocale()
-        else:
-            try:
-                # Try setting the locale. Locale needs to be in locale.encoding
-                # format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
-                locale.setlocale(
-                    locale.LC_ALL,
-                    self.generator.skin_dict["Extras"]["belchertown_locale"],
-                )
-                system_locale, locale_encoding = locale.getlocale()
-            except Exception as error:
-                # The system can't find the locale requested, so just set the
-                # variables anyways for JavaScript's use.
-                system_locale, locale_encoding = self.generator.skin_dict["Extras"][
-                    "belchertown_locale"
-                ].split(".")
-                if belchertown_debug:
-                    logerr(
-                        "Locale: Error using locale %s. "
-                        "This locale may not be installed on your system and you may see unexpected results. "
-                        "Belchertown skin JavaScript will try to use this locale. Full error: %s"
-                        % (
-                            self.generator.skin_dict["Extras"]["belchertown_locale"],
-                            error,
-                        )
-                    )
-
-        if system_locale is None:
-            # Unable to determine locale. Fallback to en_US
-            system_locale = "en_US"
-
-        if locale_encoding is None:
-            # Unable to determine locale_encoding. Fallback to UTF-8
-            locale_encoding = "UTF-8"
-
-        try:
-            system_locale_js = system_locale.replace(
-                "_", "-"
-            )  # Python's locale is underscore. JS uses dashes.
-        except:
-            system_locale_js = "en-US"  # Error finding locale, set to en-US
+        system_locale, locale_encoding = report_locale(
+            self.generator.skin_dict["Extras"]["belchertown_locale"],
+            self.generator.skin_dict.get("lang"),
+        )
+        system_locale_js = system_locale.replace("_", "-")  # Python's locale is underscore. JS uses dashes.
 
         # Best Day.js locale file for this locale: "pt-BR" -> "pt-br", "de-DE" -> "de", else English
         dayjs_locale = "en"
@@ -370,29 +402,10 @@ class getData(SearchList):
                 dayjs_locale = candidate
                 break
 
-        highcharts_decimal = self.generator.skin_dict["Extras"].get(
-            "highcharts_decimal", None
-        )
-        # Change the Highcharts decimal to the locale if the option is missing
-        # or on auto mode, otherwise use whats defined in Extras
-        if highcharts_decimal is None or highcharts_decimal == "auto":
-            try:
-                highcharts_decimal = locale.localeconv()["decimal_point"]
-            except:
-                # Locale not found, default back to a period
-                highcharts_decimal = "."
-
-        highcharts_thousands = self.generator.skin_dict["Extras"].get(
-            "highcharts_thousands", None
-        )
-        # Change the Highcharts thousands separator to the locale if the option
-        # is missing or on auto mode, otherwise use whats defined in Extras
-        if highcharts_thousands is None or highcharts_thousands == "auto":
-            try:
-                highcharts_thousands = locale.localeconv()["thousands_sep"]
-            except:
-                # Locale not found, default back to a comma
-                highcharts_thousands = ","
+        # "auto" is resolved in the browser, in belchertown.js, because it knows every locale
+        extras = self.generator.skin_dict["Extras"]
+        highcharts_decimal = extras.get("highcharts_decimal", "auto")
+        highcharts_thousands = extras.get("highcharts_thousands", "auto")
 
         # Get the archive interval for the highcharts gapsize
         try:
@@ -443,7 +456,7 @@ class getData(SearchList):
         graphpage_titles = OrderedDict()
         for chartgroup in chart_dict.sections:
             if "title" in chart_dict[chartgroup]:
-                graphpage_titles[chartgroup] = chart_dict[chartgroup]["title"]
+                graphpage_titles[chartgroup] = translate_title(label_dict, chart_dict[chartgroup]["title"])
             else:
                 graphpage_titles[chartgroup] = chartgroup
 
@@ -837,7 +850,7 @@ class getData(SearchList):
                 locale.format_string("%g", float(year_rainiest_month_converted)),
             ]
         else:
-            year_rainiest_month = ["N/A", 0.0]
+            year_rainiest_month = [no_value, 0.0]
 
         # All time rainiest month
         at_rainiest_month_query = wx_manager.getSql(at_rainiest_month_sql)
@@ -1017,7 +1030,7 @@ class getData(SearchList):
 
         current_obs_icon = ""
         current_obs_summary = ""
-        visibility = "N/A"
+        visibility = no_value
         visibility_unit = ""
         cloud_cover = ""
         extras = self.generator.skin_dict["Extras"]
@@ -1230,7 +1243,7 @@ class getData(SearchList):
                             eqdist_km = eqmatched.group("distance")
                             eqdist_miles = round(float(eqdist_km) / 1.609, 1)
                             eqplace = (
-                                str(eqdist_miles) + " miles" + eqmatched.group("rest")
+                                str(eqdist_miles) + eq_distance_label + eqmatched.group("rest")
                             )
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
@@ -1405,7 +1418,7 @@ class getData(SearchList):
                 if "?" in str(obs_output):
                     # Try to catch those invalid observations, like 'uv' needs
                     # to be 'UV'.
-                    obs_output = "Invalid observation"
+                    obs_output = label_dict["invalid_observation"]
 
             # Build the json "current" array for weewx_data.json for JavaScript
             if obs not in station_obs_json:
@@ -1441,7 +1454,7 @@ class getData(SearchList):
                 station_obs_html += (
                     ' <span class="pressure-trend">'  # Maintain leading spacing
                 )
-                if str(obs_trend) == "N/A":
+                if obs_trend.raw is None:
                     pass
                 elif "-" in str(obs_trend):
                     station_obs_html += (
@@ -1563,6 +1576,7 @@ class getData(SearchList):
             "locale_encoding": locale_encoding,
             "highcharts_decimal": highcharts_decimal,
             "highcharts_thousands": highcharts_thousands,
+            "highcharts_lang": json.dumps(dict(self.generator.skin_dict.get("Texts", {}).get("Highcharts", {}))),
             "radar_html": radar_html,
             "radar_html_dark": radar_html_dark,
             "archive_interval_ms": archive_interval_ms,
@@ -1949,7 +1963,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             # chartgroup_title is used on the graphs page
             chartgroup_title = chart_options.get("title", None)
             if chartgroup_title:
-                output[chart_group]["chartgroup_title"] = chartgroup_title
+                output[chart_group]["chartgroup_title"] = translate_title(label_dict, chartgroup_title)
 
             # Define the default tooltip datetime format from the global options
             tooltip_date_format = chart_options.get("tooltip_date_format", "LLLL")
@@ -2053,7 +2067,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     if not plotgen_ts:
                         plotgen_ts = time.time()
 
-                chart_title = plot_options.get("title", "")
+                chart_title = translate_title(label_dict, plot_options.get("title", ""))
                 output[chart_group][plotname]["options"]["title"] = chart_title
 
                 chart_subtitle = plot_options.get("subtitle", "")
@@ -2338,6 +2352,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             name = label_dict[weatherRange_obs_lookup]
                         else:
                             name = label_dict[observation_type]
+                    else:
+                        name = translate_title(label_dict, name)
 
                     # Look for aggregation type:
                     aggregate_type = line_options.get("aggregate_type")

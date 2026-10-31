@@ -29,13 +29,13 @@
 
 ## Setup the header labels, setting a default if not defined
 #if $obs.label.html_title == "" 
-#set $head_title = $station.location + " Weather Conditions"
+#set $head_title = $obs.label.html_title_default.replace("{location}", $station.location)
 #else
 #set $head_title = $obs.label.html_title
 #end if
 
 #if $obs.label.html_description == "" 
-#set $head_desc = "Weather conditions for " + $station.location + " as observed by a personal weather station and the weewx weather software"
+#set $head_desc = $obs.label.html_description_default.replace("{location}", $station.location)
 #else
 #set $head_desc = $obs.label.html_description
 #end if

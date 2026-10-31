@@ -48,7 +48,7 @@
         <div class="compass">
             <div class="direction">
                 <span class="curwinddir">
-                #if $current.windDir.ordinal_compass == "N/A"
+                #if $current.windDir.raw is None
                 --
                 #else
                 $current.windDir.ordinal_compass
@@ -131,7 +131,7 @@
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="$obs.label.close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <h4 class="modal-title" id="almanac-title">$obs.label.almanac_modal_title</h4>

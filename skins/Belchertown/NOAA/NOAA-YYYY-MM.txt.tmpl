@@ -3,29 +3,29 @@
 #set $D=" %d"
 #set $M=" %b"
 #set $Time=" %H:%M"
-#set $NODAY=" N/A"
+#set $NODAY="%4s" % $obs.label.noaa_no_value
 #set $Temp="%6.1f"
 #set $Wind="%6.1f"
 #set $Dir="%6.0f"
 #set $Count="%6d"
-#set $NONE="   N/A"
+#set $NONE="%6s" % $obs.label.noaa_no_value
 #if $unit.unit_type_dict.group_rain == "mm"
 #set $Rain="%6.1f"
 #else
 #set $Rain="%6.2f"
 #end if
-                   MONTHLY CLIMATOLOGICAL SUMMARY for $month_name $year_name
+                   $obs.label.noaa_month_title $month_name $year_name
 
 
-NAME: $station.location                  
-ELEV: $station.altitude    LAT: $station.latitude[0]-$station.latitude[1] $station.latitude[2]    LONG: $station.longitude[0]-$station.longitude[1] $station.longitude[2]
+$obs.label.noaa_name $station.location                  
+$obs.label.noaa_elev $station.altitude    $obs.label.noaa_lat $station.latitude[0]-$station.latitude[1] $station.latitude[2]    $obs.label.noaa_long $station.longitude[0]-$station.longitude[1] $station.longitude[2]
 
 
-                   TEMPERATURE ($unit.label.outTemp.strip()), RAIN ($unit.label.rain.strip()), WIND SPEED ($unit.label.windSpeed.strip())
+                   $obs.label.noaa_temperature ($unit.label.outTemp.strip()), $obs.label.noaa_rain ($unit.label.rain.strip()), $obs.label.noaa_wind_speed ($unit.label.windSpeed.strip())
 
-                                         HEAT   COOL         AVG
-      MEAN                               DEG    DEG          WIND                   DOM
-DAY   TEMP   HIGH   TIME    LOW   TIME   DAYS   DAYS   RAIN  SPEED   HIGH   TIME    DIR
+$obs.label.noaa_month_header_1
+$obs.label.noaa_month_header_2
+$obs.label.noaa_month_header_3
 ---------------------------------------------------------------------------------------
 #for $day in $month.days
 #if $day.outTemp.count.raw or $day.rain.count.raw or $day.wind.count.raw

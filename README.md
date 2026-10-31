@@ -123,12 +123,18 @@ Every piece of text on the site is a "label" you can change or translate. To cha
 | footer_copyright_text | "My Weather Website" | Text after the year in the footer's copyright
 | footer_disclaimer_text | "Never make important decisions from this website." | Disclaimer in the footer
 
-The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`.
+The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`. Text a language file doesn't cover stays in English; German covers everything, and the others leave out some newer text such as the Chart Builder.
+
+`lang` sets the date and number format as well, unless you set `belchertown_locale` yourself. Dates and live values work with any language. For the numbers built on the server, such as the Records page and the NOAA reports, install the matching locale on your server (for example `de_DE.UTF-8`).
+
+Chart titles and series names in `graphs.conf` are labels too: a `Temperature` title is looked up under the label named `Temperature`, and a title with no label shows as written. To translate one of your own, add it to `[[[[Generic]]]]` with the title as the name, in quotes if it has spaces: `"Solar Panels" = Solarmodule`.
+
+Highcharts' own text, such as the chart menu and the reset zoom button, goes in `[[[Texts]]]` → `[[[[Highcharts]]]]` under the name Highcharts gives it in [`lang`](https://api.highcharts.com/highcharts/lang).
 
 <details>
 <summary><b>Dates and times in your language</b></summary>
 
-Dates and times are formatted in the browser by [Day.js](https://day.js.org/docs/en/display/format), using your server's locale and timezone. Day.js uses the same format codes as moment.js, which earlier versions of the skin used, so formats you set before still work. The formats are labels too (look for the moment.js section under `[Labels]` in `skin.conf`). If a date looks wrong for your locale, set the right locale and timezone on your weewx server and restart it, or write the format out yourself. For example, `Wednesday 15 May 20:25` is `dddd DD MMM HH:mm`:
+Dates and times are formatted in the browser by [Day.js](https://day.js.org/docs/en/display/format), using your site's locale (see above) and your server's timezone. Day.js uses the same format codes as moment.js, which earlier versions of the skin used, so formats you set before still work. The formats are labels too (look for the moment.js section under `[Labels]` in `skin.conf`). If a date looks wrong for your locale, set the right locale and timezone on your weewx server and restart it, or write the format out yourself. For example, `Wednesday 15 May 20:25` is `dddd DD MMM HH:mm`:
 
 * `dddd` is the full day name (Saturday); `ddd` is the short one (Sat)
 * `DD` is the day with a leading zero (05); `D` without (5)
@@ -410,7 +416,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | Name | Default | Description
 | ---- | ------- | ----------
 | belchertown_debug | 0 | 1 turns on debug messages in the browser console. See [Debug mode](#debug-mode).
-| belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses your server's setting. The locale must be installed on your server first.
+| belchertown_locale | "auto" | The language and number format, like `"en_US.UTF-8"` or `"de_DE.UTF-8"`. `"auto"` uses `lang` if the report has one, otherwise your server's setting. The browser formats dates and live values in any locale; numbers built on the server need the locale installed there.
 | theme | light | `light`, `dark` or `auto` (light at sunrise, dark at sunset).
 | theme_toggle_enabled | 1 | Shows a moon/sun button so visitors can flip between light and dark.
 | jquery | auto | Loads jQuery only when one of your own `.inc` files uses it. 1 always loads it, 0 never does. See [Your own scripts, jQuery and Bootstrap](#your-own-scripts-jquery-and-bootstrap).
