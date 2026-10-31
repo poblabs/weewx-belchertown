@@ -432,7 +432,7 @@ function get_outTemp_color(unit, outTemp, returnColor = false) {
             var outTemp_color = "rgba(218,113,113,1)";
         }
     } else if (unit == "degree_C") {
-        if (outTemp <= -5) {
+        if (outTemp <= -17.7) {
             var outTemp_color = "#1278c8";
         } else if (outTemp <= -3.8) {
             var outTemp_color = "#30bfef";

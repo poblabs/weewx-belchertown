@@ -972,7 +972,7 @@ function weather_range_chart(options, observation_type, tooltip_date_format) {
             ]
         } else {
             options.plotOptions.series.zones = [
-                {value: -5, color: "#1278c8"},
+                {value: -17.7, color: "#1278c8"},
                 {value: -3.8, color: "#30bfef"},
                 {value: 0, color: "#1fafdd"},
                 {value: 4.4, color: "rgba(0,172,223,1)"},

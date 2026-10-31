@@ -23,7 +23,7 @@ Unreleased
 * An observation in station_observations only takes its own value from a live packet: windGust showed the 185 of windGustDir.
 * After an archive packet the page waits 30 seconds before it loads weewx_data.json, as the charts do. It got the files of the last archive interval.
 * The forecast shows its wind in the forecast_units label, not in the station's.
-* The live temperature color for -5 to 0 C is the same as in the charts.
+* The Celsius temperature colors below 0 follow the Fahrenheit steps, live and in the weather range chart.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
 
 3.0.0 October 8, 2026
