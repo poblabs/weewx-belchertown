@@ -13,6 +13,11 @@ Unreleased
 * The wind table of the yearly NOAA report was fixed English text.
 * The total rain series in charts showed its raw name, rainTotal, in every language.
 * A server with no usable locale ("C") no longer produces lang="C" on every page, which broke the units button and live updates with "Invalid language tag: C". The site falls back to en_US.
+* A forecast.json from an older version no longer stops the report when the first download fails.
+* A failed earthquake download keeps the last earthquake. It used to write an empty file over it and wait out earthquake_stale.
+* The earthquake curl fallback gives up after 15 seconds instead of holding up the report.
+* The first report no longer fails with earthquake_enabled = 1, or loses its forecast, because the json folder doesn't exist yet.
+* forecast_alert_provider = aeris now works with an Open-Meteo or NWS forecast. It returned no alerts.
 * A belchertown_locale with no encoding, such as "nl_NL", no longer stops the report when that locale isn't installed.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.

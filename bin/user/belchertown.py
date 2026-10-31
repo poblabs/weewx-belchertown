@@ -14,6 +14,7 @@ import locale
 import os
 import os.path
 import logging
+import subprocess
 import sys
 import time
 from collections import OrderedDict
@@ -70,6 +71,10 @@ def loginf(msg):
 
 def logerr(msg):
     log.error(msg)
+
+
+EARTHQUAKE_RETRY_HOLD = 600
+_earthquake_failure = {}
 
 
 def report_locale(belchertown_locale, lang):
@@ -198,6 +203,49 @@ class getData(SearchList):
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
+
+    def download_earthquake(self, url):
+        """Fetch url with urllib, or with curl if urllib fails.
+
+        Args:
+            url (str): The earthquake server's query.
+
+        Returns:
+            bytes: The reply.
+
+        Raises:
+            OSError: curl isn't installed.
+            subprocess.SubprocessError: curl failed as well.
+        """
+        try:
+            from urllib.request import Request, urlopen
+
+            user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
+            headers = {"User-Agent": user_agent}
+            req = Request(url, None, headers)
+            response = urlopen(req)
+            page = response.read()
+            response.close()
+            if weewx.debug:
+                logdbg("Downloading earthquake data using urllib was successful")
+            return page
+        except Exception as urllib_error:
+            if weewx.debug:
+                logdbg(
+                    "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
+                    "Full error: %s" % urllib_error
+                )
+        # --fail turns an HTTP error into an exit code instead of printing the error page. Without
+        # --max-time a server that accepts the connection and never answers stops the report.
+        result = subprocess.run(
+            ["curl", "-L", "--silent", "--fail", "--max-time", "15", url],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
+        if weewx.debug:
+            logdbg("Downloading earthquake data with curl was successful.")
+        return result.stdout
 
     def get_gps_distance(self, pointA, pointB, distance_unit):
         """
@@ -1056,13 +1104,7 @@ class getData(SearchList):
                     loginf("New %s forecast downloaded to %s" % (forecast["provider"], forecast_file))
             except Exception as error:
                 logerr("Error updating the forecast, keeping the last one. The error was: %s" % error)
-                try:
-                    with open(forecast_file) as f:
-                        forecast = json.load(f)
-                    if forecast.get("belchertown_forecast") != belchertown_forecast.FORMAT:
-                        forecast = None
-                except (OSError, ValueError, AttributeError):
-                    forecast = None
+                forecast = belchertown_forecast.read_cache(forecast_file)
 
             current = (forecast or {}).get("current") or {}
             if current.get("cloud_cover") is not None:
@@ -1160,73 +1202,36 @@ class getData(SearchList):
                 # File doesn't exist, download a new copy
                 earthquake_is_stale = True
 
-            # File is stale, download a new copy
-            if earthquake_is_stale:
-                # Download new earthquake data
+            # File is stale, download a new copy. A failed download keeps the old file, which leaves
+            # it stale, so every template of the report would try again. Each attempt can wait for
+            # a timeout, hence the pause after a failure.
+            if (earthquake_is_stale
+                    and time.time() - _earthquake_failure.get(earthquake_file, 0) >= EARTHQUAKE_RETRY_HOLD):
                 try:
-                    from urllib.request import Request, urlopen
-
-                    user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
-                    headers = {"User-Agent": user_agent}
-                    req = Request(earthquake_url, None, headers)
-                    response = urlopen(req)
-                    page = response.read()
-                    response.close()
-                    if weewx.debug:
-                        logdbg(
-                            "Downloading earthquake data using urllib was successful"
-                        )
-                except Exception as forecast_error:
-                    if weewx.debug:
-                        logdbg(
-                            "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
-                            "Full error: %s" % forecast_error
-                        )
-                    # Nested try - only execute if the urllib method fails
-                    try:
-                        import subprocess
-
-                        command = 'curl -L --silent "%s"' % earthquake_url
-                        p = subprocess.Popen(
-                            command,
-                            shell=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                        )
-                        page = p.communicate()[0]
-                        if weewx.debug:
-                            logdbg(
-                                "Downloading earthquake data with curl was successful."
-                            )
-                    except Exception as error:
-                        raise Warning(
-                            "Error downloading earthquake data using urllib and subprocess curl. "
-                            "Your software may need to be updated, or the URL is incorrect. "
-                            "You are trying to use URL: %s, and the error is: %s"
-                            % (earthquake_url, error)
-                        )
-
-                # Save earthquake data to file. w+ creates the file if it
-                # doesn't exist, and truncates the file and re-writes it
-                # everytime
-                try:
-                    with open(earthquake_file, "wb+") as file:
+                    page = self.download_earthquake(earthquake_url)
+                    # Only a valid reply may replace the cache: an error page written over it
+                    # would hide the last known earthquake until earthquake_stale runs out. An
+                    # empty reply is valid. USGS sends one, as 204, when nothing has happened.
+                    if page and "features" not in json.loads(page):
+                        raise ValueError("The reply has no features")
+                    os.makedirs(os.path.dirname(earthquake_file), exist_ok=True)
+                    with open(earthquake_file + ".tmp", "wb") as file:
                         # urlopen and the curl fallback both return bytes
                         file.write(page)
-                        if weewx.debug:
-                            logdbg("Earthquake data saved to %s" % earthquake_file)
-                except IOError as e:
-                    raise Warning(
-                        "Error writing earthquake data to %s. Reason: %s"
-                        % (earthquake_file, e)
-                    )
+                    os.replace(earthquake_file + ".tmp", earthquake_file)
+                    _earthquake_failure.pop(earthquake_file, None)
+                    if weewx.debug:
+                        logdbg("Earthquake data saved to %s" % earthquake_file)
+                except (OSError, ValueError, TypeError, subprocess.SubprocessError) as error:
+                    _earthquake_failure[earthquake_file] = time.time()
+                    logerr("Error updating the earthquake data, keeping the last one. The error was: %s" % error)
 
             # Process the earthquake file
-            with open(earthquake_file, "r") as read_file:
-                try:
+            try:
+                with open(earthquake_file, "r") as read_file:
                     eqdata = json.load(read_file)
-                except:
-                    eqdata = ""
+            except (OSError, ValueError):
+                eqdata = ""
 
             try:
                 if self.generator.skin_dict["Extras"]["earthquake_server"] == "USGS":
