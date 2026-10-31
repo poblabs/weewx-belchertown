@@ -697,8 +697,7 @@ function update_weewx_data(data) {
     wx_html(".high", high);
     wx_html(".low", low);
 
-    // The trend needs 3 hours of data, so a new station or one with no barometer has none. This is
-    // the barometer's trend, so the arrows of pressure and altimeter stay as the server wrote them.
+    // A new station has no trend yet, and pressure and altimeter keep the arrow the server wrote
     var barometer_trend = parseFloat(data["current"]["barometer_trend_raw"]);
     if (barometer_trend < 0) {
         wx_html(".barometer ~ .pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
