@@ -180,7 +180,9 @@ def rain_streaks(rows):
     wet = dry = 0
     previous_day = None
     for date_time, rain in rows:
-        day = round(date_time / 86400)
+        # The rows are stamped at local midnight, so dividing by 86400 is only safe if that isn't
+        # half a day away from UTC: at UTC+12, round() alternates between rounding up and down.
+        day = datetime.date.fromtimestamp(date_time).toordinal()
         if previous_day is not None and day - previous_day != 1:
             wet = dry = 0
         previous_day = day
@@ -623,10 +625,10 @@ class getData(SearchList):
             ]
         else:
             year_outTemp_range_max = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # Smallest Daily Temperature Range Conversions
@@ -664,10 +666,10 @@ class getData(SearchList):
             ]
         else:
             year_outTemp_range_min = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # All Time - Largest Daily Temperature Range Conversions
@@ -705,10 +707,10 @@ class getData(SearchList):
             ]
         else:
             at_outTemp_range_max = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # All Time - Smallest Daily Temperature Range Conversions
@@ -746,10 +748,10 @@ class getData(SearchList):
             ]
         else:
             at_outTemp_range_min = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # Rain lookups
