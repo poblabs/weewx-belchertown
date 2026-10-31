@@ -91,10 +91,7 @@ function build_unit_text_regex() {
     return new RegExp("([-\u2212]?\\d+(?:[.,]\\d+)*)(\\s*)(" + escaped.join("|") + ")(?![A-Za-z0-9/])", "g");
 }
 
-// The page holds numbers from two writers: the server, in its own locale, and the browser, which
-// writes live values in the site's locale. They differ when that locale isn't installed on the
-// server, so the last separator is the decimal point if either of them uses it as one. Some
-// locales write a minus as U+2212, which parseFloat doesn't know.
+// Reads numbers from the server and the browser, whose decimal points can differ, and the U+2212 minus
 function parse_number(text) {
     var browser_decimal = (1.5).toLocaleString(config.system_locale_js).charAt(1);
     var last = Math.max(text.lastIndexOf("."), text.lastIndexOf(","));
@@ -178,9 +175,7 @@ function restore_unit_nodes(node) {
     update_unit_labels(node);
 }
 
-// An element holding just a number whose unit is shown elsewhere, such as the big temperature.
-// What we wrote is recognized by its text node, not by its text: a new reading in station units
-// can read the same as the converted old one.
+// A number with its unit elsewhere. Its text node shows what we wrote, as a new reading can match it.
 function convert_bare_number(el) {
     if (unit_done.get(el) === el.firstChild) return;
     unit_orig.set(el, el.textContent);

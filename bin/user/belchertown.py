@@ -1481,9 +1481,7 @@ class getData(SearchList):
                 # Something's wrong. Continue this loop to ignore this group
                 # (like group_dust or something non-standard)
                 continue
-            # Find the number of decimals to round to based on group name. A format with
-            # no decimals, like %d for a count, has to come out as 0: the browser hands this
-            # number to toLocaleString, which throws on anything else.
+            # Find the number of decimals to round to based on group name, 0 for a format like %d
             decimals = re.search(
                 r"\.(\d+)f",
                 self.generator.skin_dict["Units"]["StringFormats"].get(obs_unit, "0"),

@@ -75,8 +75,7 @@ var forecast_last_data = null;
 function update_forecast_data(data) {
     forecast_last_data = data;
     if (units_alt_on()) data = convert_forecast_units(JSON.parse(JSON.stringify(data)));
-    // The wind is in forecast_units, which don't have to be the station's. It only follows the
-    // station with knots and Beaufort, which are worked out below, and with the units button.
+    // The wind is in forecast_units, except for knots and Beaufort, which are worked out below
     var wind_follows_station = units_alt_on() || config.unit_type.windSpeed == "knot" || config.unit_type.windSpeed == "beaufort";
     var forecast_wind_label = wind_follows_station ? display_label("group_speed", config.unit_label.windSpeed) : " " + data["units"]["wind"];
     belchertown_debug("Forecast: Updating data from " + data["provider"]);

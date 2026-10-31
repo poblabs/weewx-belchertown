@@ -139,8 +139,7 @@ function onFailure() {
     }
     wx_html(".updated", labels.mqtt_websockets_failed + " " + labels.header_last_updated + " " + updated);
     console.log("MQTT: " + tzAdjustedMoment(epoch).format() + ": Cannot connect to MQTT broker");
-    // Paho's reconnect option only takes over once a connection was up. A broker that can't be
-    // reached while the page loads would otherwise leave a wall display dead until someone reloads it.
+    // Paho's reconnect option only takes over once a connection was up
     mqtt_retry_timer = setTimeout(connect, mqtt_retry_delay);
     mqtt_retry_delay = Math.min(mqtt_retry_delay * 2, 60000);
 }
@@ -220,8 +219,7 @@ function update_current_wx(data) {
         else {
             setTimeout(showChart, 30000, homepage_graphgroup); // Load updated charts.
         }
-        // weewx publishes this packet before it runs the reports, so the files have to be fetched
-        // later. Fetched right away, they would be the ones of the last archive interval.
+        // weewx publishes this packet before it runs the reports, so give them time
         setTimeout(function() {
             ajaxweewx().then(function(weewx_data) { // This call will make sure json/weewx_data.json is loaded before anything else
                 update_weewx_data(weewx_data); // Initial call to update (date, daily high, low, etc)
@@ -258,12 +256,12 @@ function update_current_wx(data) {
                 thisElementClass = "dayRain";
             }
             if (thisElementClass in units_config.obs) {
-                // Do not group number into thousands,hundreds format. The server doesn't either, and the units button has to read both
+                // Do not group number into thousands,hundreds format, so the units button can read it
                 localeStringUseGrouping = false;
             } else {
                 localeStringUseGrouping = true;
             }
-            // weewx-mqtt names a payload key after the observation and its unit, as in outTemp_C. The whole name has to match: windGust isn't windGustDir.
+            // A payload key is the observation and its unit, as in outTemp_C. windGust isn't windGustDir.
             if (mqttdata === thisElementClass || mqttdata.startsWith(thisElementClass + "_")) {
                 html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
