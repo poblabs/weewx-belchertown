@@ -122,7 +122,7 @@ def report_locale(belchertown_locale, lang):
 
 
 def translate_title(label_dict, title):
-    """Return the translation of a title from graphs.conf.
+    """Return the translation of a title or button text from graphs.conf.
 
     A title is looked up by its own English text, so the titles of a graphs.conf that was copied
     from graphs.conf.example get translated too, and any other title is shown as written.
@@ -479,7 +479,7 @@ class getData(SearchList):
                 graph_page_graphgroup_buttons.append(chartgroup)
         for gg in graph_page_graphgroup_buttons:
             if "button_text" in chart_dict[gg]:
-                button_text = chart_dict[gg]["button_text"]
+                button_text = translate_title(label_dict, chart_dict[gg]["button_text"])
             else:
                 button_text = gg
             graph_page_buttons += (

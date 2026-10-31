@@ -80,10 +80,10 @@ $month.dateTime.format($YM)
         $year.rain.sum.format($Rain,$NONE,add_label=False) $year.rain.maxsum.format($Rain,$NONE,add_label=False)  $year.rain.maxsumtime.format($M,$NODAY) $year.rain.sum_ge($Trace).format($Count,$NONE,add_label=False) $year.rain.sum_ge($SomeRain).format($Count,$NONE,add_label=False) $year.rain.sum_ge($Soak).format($Count,$NONE,add_label=False)
 
 
-           WIND SPEED ($unit.label.windSpeed.strip())
+           $obs.label.noaa_wind_speed ($unit.label.windSpeed.strip())
 
-                                DOM
- YR  MO    AVG     HI   DATE    DIR
+$obs.label.noaa_year_wind_header_1
+$obs.label.noaa_year_wind_header_2
 -----------------------------------
 #for $month in $year.months
 #if $month.wind.count.raw
