@@ -26,8 +26,7 @@
 #silent $items.append({"label": $obs.label.records_low_windchill, "y": ($year.windchill.min, $year.windchill.mintime.raw, $full, "", ""), "a": ($alltime.windchill.min, $alltime.windchill.mintime.raw, $full, "", "")})
 #end if
 #set $t = " " + str($unit.label.outTemp).strip()
-## A range has no date before the first complete day, as on 1 January or on a new station.
-## $t and $date are arguments because a lambda can't see the #set variables of the template.
+## $t and $date are arguments because a lambda can't see #set variables
 #set $range_side = lambda r, unit=$t, date_format=$date: (r[1], None, "", "", "") if r[0] is None else (str(r[1]) + unit, r[0], date_format, "", str(r[2]) + unit + " – " + str(r[3]) + unit)
 #silent $items.append({"label": $obs.label.records_largest_temp_range, "delta": True, "y": $range_side($year_outTemp_range_max), "a": $range_side($at_outTemp_range_max)})
 #silent $items.append({"label": $obs.label.records_smallest_temp_range, "delta": True, "y": $range_side($year_outTemp_range_min), "a": $range_side($at_outTemp_range_min)})
@@ -55,7 +54,7 @@
 #end if
 #silent $items.append({"label": $obs.label.records_month_high_rainfall, "y": (str($year_rainiest_month[1]) + $r, None, "", $year_rainiest_month[0], ""), "a": (str($at_rainiest_month[1]) + $r, None, "", $at_rainiest_month[0], ""), "new": str($this_year) in str($at_rainiest_month[0])})
 #silent $items.append({"label": $obs.label.records_yearly_rainfall, "y": ($year.rain.sum, None, "", str($this_year), ""), "a": (str($at_rain_highest_year[1]) + $r, None, "", $at_rain_highest_year[0], ""), "new": str($at_rain_highest_year[0]) == str($this_year)})
-## The first day of a streak by the calendar: a streak can cross a change to or from daylight saving time
+## By the calendar, as a streak can cross a daylight saving change
 #set $streak_start = lambda streak: int((datetime.datetime.fromtimestamp(streak[1]) - datetime.timedelta(days=streak[0] - 1)).timestamp())
 #set $wet = $at_days_with_rain
 #set $wet_range = "<time data-ts='%s' data-format='time_records_page_rainfall_range_begin'></time> – <time data-ts='%s' data-format='time_records_page_rainfall_range_end'></time>" % ($streak_start($wet), $wet[1]) if $wet[0] > 0 else "---"

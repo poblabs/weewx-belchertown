@@ -180,8 +180,7 @@ def rain_streaks(rows):
     wet = dry = 0
     previous_day = None
     for date_time, rain in rows:
-        # The rows are stamped at local midnight, so dividing by 86400 is only safe if that isn't
-        # half a day away from UTC: at UTC+12, round() alternates between rounding up and down.
+        # Count calendar days: at UTC+12 local midnight is half a day from UTC, so dividing by 86400 fails
         day = datetime.date.fromtimestamp(date_time).toordinal()
         if previous_day is not None and day - previous_day != 1:
             wet = dry = 0
@@ -2737,8 +2736,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_interval,
             )
             windSpeed_vt = self.converter.convert(windSpeed_vt)
-            # The speeds are rounded as the site shows them, so a speed goes to the band its
-            # number on the page belongs to: 3.9 mph is shown as 4, which is in "4-7".
+            # Round as the site shows the speed: 3.9 mph is shown as 4, which is in the "4-7" band
             decimals = re.search(r"\.(\d+)f", self.skin_dict["Units"]["StringFormats"].get(windSpeed_vt[1], ""))
             usage_round = int(decimals.group(1)) if decimals else 2
             windSpeed_round_vt = [
@@ -2774,8 +2772,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 group_6_windDir,
                 group_6_windSpeed,
             ) = ([] for i in range(14))
-            # Speeds aren't whole numbers, so each band has to start where the one before it ends.
-            # With a gap between them, as in "2 to 5" and "6 to 11", a 5.4 km/h record is in no band.
+            # Each band starts where the one before it ends, so no speed falls between two bands
             for windData in merged:
                 if windData[0] is not None and windData[1] is not None:
                     if windSpeed_unit in ("mile_per_hour", "mile_per_hour2"):
@@ -3579,10 +3576,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 }
             return data
 
-        # A direction can't be averaged as a number: 350 and 10 degrees are both a north wind, but
-        # their mean is 180, a south wind. weewx only has the vector mean on its "wind" type, where
-        # it also works on a SQLite without math functions. A graphs.conf that says avg gets it too.
-        # That type reads windSpeed, so a data_binding without that column can only have the plain mean.
+        # A direction can't be averaged as a number. weewx has the vector mean on "wind", which needs windSpeed.
         if obs_lookup == "windDir" and aggregate_type in ("avg", "vecdir"):
             if "windSpeed" in archive.sqlkeys:
                 obs_lookup, aggregate_type = "wind", "vecdir"
