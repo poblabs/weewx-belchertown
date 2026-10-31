@@ -130,8 +130,7 @@ document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") wx_all(".modal.in").forEach(function(m) { wx_modal(m, false); });
 });
 
-// header.html.tmpl links this script with the relative root of the page it's generating. The address
-// bar can't tell: it may end in index.html, and the site itself may sit in a folder named "about".
+// The src of this script holds the relative root of the page. The address bar can't tell.
 function get_relative_url() {
     var relative_url = document.querySelector("script[src*='/js/belchertown.js']").getAttribute("src").split("/js/")[0];
     belchertown_debug("URL: Relative URL is: " + relative_url);

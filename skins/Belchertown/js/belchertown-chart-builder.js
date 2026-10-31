@@ -154,8 +154,7 @@ function cb_conf(s) {
         out.push("        aggregate_type = " + s.aggregate);
         out.push("        aggregate_interval = " + s.interval);
     }
-    // graphs.conf can't hold the same section twice, and weewx stops the report if it does.
-    // A repeated observation gets a section of its own that points back to the observation.
+    // graphs.conf can't hold the same section twice, so a repeated observation gets its own
     var used = {};
     s.lines.forEach(function(line) {
         used[line.obs] = (used[line.obs] || 0) + 1;

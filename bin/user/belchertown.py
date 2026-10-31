@@ -138,8 +138,7 @@ def translate_title(label_dict, title):
     if isinstance(title, list):
         title = ", ".join(title)
     translated = label_dict[title]
-    # Some labels are lists, such as "second" with its singular and plural form. Those aren't
-    # translations of a title that happens to have the same text.
+    # A list label, such as "second", isn't a translation of the title
     return title if isinstance(translated, list) else translated
 
 
@@ -1882,7 +1881,7 @@ def on_this_day_summary(years, formatter, converter):
 # ======================================================================================
 
 
-# The database going away isn't a mistake in graphs.conf, so a chart must not be skipped for it
+# The database going away isn't a mistake in graphs.conf, so no chart is skipped for it
 DATABASE_DOWN = (weedb.CannotConnectError, weedb.DisconnectError, weedb.DatabaseLockedError)
 
 
@@ -2549,9 +2548,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     wind_rose_color[5] = line_options.get("beauford5", "#e4d354")
                     wind_rose_color[6] = line_options.get("beauford6", "#268bd2")
 
-                    # Build series data. A mistake in one series of graphs.conf must not cost the
-                    # station its other charts: the json files are written chart group by chart
-                    # group, so an exception here would freeze all the groups after this one.
+                    # Build series data. An exception here would freeze all the chart groups after this one.
                     try:
                         series_data = self.get_observation_data(
                             binding,
@@ -2572,9 +2569,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             obs_round
                         )
                     except Exception as error:
-                        # get_observation_data wraps most errors in a Warning, which keeps the
-                        # original as its context. Going on would write the chart group's json
-                        # file without this series, and it may not be built again for a long time.
+                        # get_observation_data wraps most errors in a Warning, with the original as its context
                         if isinstance(error, DATABASE_DOWN) or isinstance(error.__context__, DATABASE_DOWN):
                             raise
                         logerr(
@@ -3347,12 +3342,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if aggregate_type is None:
                 aggregate_type = "sum"
 
-            # A span shorter than the cycle of the labels has each label once, and they have to
-            # come out in time order: a week can cross a month end, a rolling year a year end.
-            # MySQL refuses a bare dateTime in a grouped query, so this uses MIN(), and the outer
-            # query of a subquery only has the columns the subquery gives it. A longer span folds
-            # several cycles into one, like 01 to 12 for all the years of a station. That sorts
-            # by its label, which MySQL 8 no longer does by itself.
+            # A span within one label cycle sorts by time, a longer one by label. MySQL needs MIN() in a GROUP BY.
             label_cycle = {"hour": 86400, "day": 28 * 86400}.get(xAxis_groupby, 366 * 86400)
             if isinstance(time_length, int) or end_ts - start_ts <= label_cycle:
                 order_sql = ' ORDER BY MIN(dateTime) ASC'
@@ -3588,11 +3578,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     row_converted = self.converter.convert(row_tuple)
                 obsvalues.append(row_converted[0])
 
-            # The categories are matched to the values by position, so an hour, day or month with
-            # no data has to leave a gap, or every value after it lands under the wrong category.
-            # That only works if the categories are the full cycle in calendar order. A rolling
-            # chart can start them anywhere, and seven categories can be weekdays. Those stay in
-            # query order.
+            # Categories match values by position, so a full calendar cycle needs a gap where there's no data
             full_cycle = {"hour": 24, "day": 31}.get(xAxis_groupby, 12)
             if (not isinstance(time_length, int) and xAxis_groupby != "year"
                     and 0 < len(xAxis_labels) < len(xAxis_categories) == full_cycle):

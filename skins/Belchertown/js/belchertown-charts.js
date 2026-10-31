@@ -920,7 +920,7 @@ function weather_range_chart(options, observation_type, tooltip_date_format) {
     var range_min = Math.min(...minimum_flattened);
     var range_max = Math.max(...maximum_flattened);
 
-    var yAxis_tickInterval = Math.max(5, Math.ceil(Math.round(range_max / 5) / 5) * 5); // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. A cold day would round to 0 or below, which isn't an interval.
+    var yAxis_tickInterval = Math.max(5, Math.ceil(Math.round(range_max / 5) / 5) * 5); // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. A cold day would round to 0.
 
     options.yAxis = {
         showFirstLabel: true,
