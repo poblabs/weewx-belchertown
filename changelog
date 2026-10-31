@@ -16,6 +16,11 @@ Unreleased
 * A belchertown_locale with no encoding, such as "nl_NL", no longer stops the report when that locale isn't installed.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
 * The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
+* A series that can't be read, such as an unknown observation, is skipped and logged. It used to stop the chart groups after it, which froze their json files.
+* timespan_specific works with aggregate_type and start_at_whole_hour.
+* start_at_beginning_of_month no longer shortens the later series of a chart with time_length = all.
+* xAxis_groupby: average_type works with a rolling time_length, and the hour, day, month and year groupings work on MySQL 8 and MariaDB.
+* xAxis_groupby: an hour with no data is a gap, not a 0. A month with no data no longer moves the later values under the wrong xAxis_categories when they are a full year in calendar order, and mirrored_value is applied.
 
 3.0.0 October 8, 2026
 
