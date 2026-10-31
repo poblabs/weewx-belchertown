@@ -123,11 +123,11 @@ Every piece of text on the site is a "label" you can change or translate. To cha
 | footer_copyright_text | "My Weather Website" | Text after the year in the footer's copyright
 | footer_disclaimer_text | "Never make important decisions from this website." | Disclaimer in the footer
 
-The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`. Text a language file doesn't cover stays in English; German covers everything, and the others leave out some newer text such as the Chart Builder.
+The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`. Text a language file doesn't cover stays in English.
 
 `lang` sets the date and number format as well, unless you set `belchertown_locale` yourself. Dates and live values work with any language. For the numbers built on the server, such as the Records page and the NOAA reports, install the matching locale on your server (for example `de_DE.UTF-8`).
 
-Chart titles and series names in `graphs.conf` are labels too: a `Temperature` title is looked up under the label named `Temperature`, and a title with no label shows as written. To translate one of your own, add it to `[[[[Generic]]]]` with the title as the name, in quotes if it has spaces: `"Solar Panels" = Solarmodule`.
+Chart titles, series names and button text in `graphs.conf` are labels too: a `Temperature` title is looked up under the label named `Temperature`, and a title with no label shows as written. To translate one of your own, add it to `[[[[Generic]]]]` with the title as the name, in quotes if it has spaces: `"Solar Panels" = Solarmodule`.
 
 Highcharts' own text, such as the chart menu and the reset zoom button, goes in `[[[Texts]]]` → `[[[[Highcharts]]]]` under the name Highcharts gives it in [`lang`](https://api.highcharts.com/highcharts/lang).
 
