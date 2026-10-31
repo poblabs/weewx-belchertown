@@ -137,7 +137,10 @@ def translate_title(label_dict, title):
     """
     if isinstance(title, list):
         title = ", ".join(title)
-    return label_dict[title]
+    translated = label_dict[title]
+    # Some labels are lists, such as "second" with its singular and plural form. Those aren't
+    # translations of a title that happens to have the same text.
+    return title if isinstance(translated, list) else translated
 
 
 # Print version in syslog for easier troubleshooting
@@ -2123,7 +2126,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Default to true if the option is missing
                     output[chart_group][plotname]["options"]["legend"] = "true"
                 else:
-                    output[chart_group][plotname]["options"]["legend"] = legend
+                    # JS parses this as JSON, so only these two values can reach it
+                    try:
+                        output[chart_group][plotname]["options"]["legend"] = "true" if to_bool(legend) else "false"
+                    except ValueError:
+                        output[chart_group][plotname]["options"]["legend"] = "true"
 
                 # Setup exporting option
                 exporting = plot_options.get("exporting", None)

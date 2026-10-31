@@ -154,8 +154,17 @@ function cb_conf(s) {
         out.push("        aggregate_type = " + s.aggregate);
         out.push("        aggregate_interval = " + s.interval);
     }
+    // graphs.conf can't hold the same section twice, and weewx stops the report if it does.
+    // A repeated observation gets a section of its own that points back to the observation.
+    var used = {};
     s.lines.forEach(function(line) {
-        out.push("        [[[" + line.obs + "]]]");
+        used[line.obs] = (used[line.obs] || 0) + 1;
+        if (used[line.obs] === 1) {
+            out.push("        [[[" + line.obs + "]]]");
+        } else {
+            out.push("        [[[" + line.obs + "_" + used[line.obs] + "]]]");
+            out.push("            observation_type = " + line.obs);
+        }
         var name = line.name || (line.obs === "rainTotal" ? labels.chart_builder_rain_total : "");
         if (name) out.push('            name = "' + name + '"');
         if (line.color_set) out.push('            color = "' + line.color + '"');
