@@ -12,7 +12,8 @@
   #set $moon_altitude = locale.format_string( "%.1f&deg;", $almanac.moon.alt )
   #set $moon_ra = locale.format_string( "%.1f&deg;", $almanac.moon.ra )
   #set $moon_dec = locale.format_string( "%.1f&deg;", $almanac.moon.dec )
-  #set $sun_altitude = $almanac.sun.alt
+  ## The midday sun tells the polar day from the polar night, whatever the time of this report
+  #set $sun_altitude = $almanac(almanac_time=$almanac.sun.transit.raw).sun.alt
   #if $sun_altitude < 0
     #set $sun_None="<i>(%s)</i>" % $obs.label.sun_always_down
     #set $daylight_str = "00:00"
@@ -24,7 +25,8 @@
   #set $sunset_ts = $almanac.sun.set.raw
   #if $sunrise_ts and $sunset_ts
     #set $now = $current.dateTime.raw
-    #set $today_daylight = $sunset_ts -  $sunrise_ts
+    ## Near the polar day the sun can set just after midnight, before that date's sunrise
+    #set $today_daylight = ($sunset_ts - $sunrise_ts) % 86400
     #set $seconds = $today_daylight
     #set $hours = $seconds // 3600
     #set $seconds %= 3600
@@ -32,8 +34,14 @@
     #set $seconds %= 60
     #set $daylight_str = "%d %s, %d %s, %d %s" % ($hours, $obs.label.hour[0] if ( $hours == 1 ) else $obs.label.hour[1], $minutes, $obs.label.minute[0] if ( $minutes == 1 ) else $obs.label.minute[1], $seconds, $obs.label.second[0] if ( $seconds == 1 ) else $obs.label.second[1])
     #set $yesterday = $now - 24*3600
-    #set $yesterday_daylight = $almanac($almanac_time=$yesterday).sun.set.raw - $almanac($almanac_time=$yesterday).sun.rise.raw
-    #set $difference = $today_daylight - $yesterday_daylight
+    #set $yesterday_rise = $almanac($almanac_time=$yesterday).sun.rise.raw
+    #set $yesterday_set = $almanac($almanac_time=$yesterday).sun.set.raw
+    ## Yesterday had no sunrise or sunset if today is the first day after the polar day or night
+    #if $yesterday_rise is None or $yesterday_set is None
+      #set $difference = 0
+    #else
+      #set $difference = $today_daylight - ($yesterday_set - $yesterday_rise) % 86400
+    #end if
     #if $difference
       #set $delta = abs($difference)
       #set $minute_difference = (int($delta) // 60)

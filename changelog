@@ -12,6 +12,12 @@ Unreleased
 ### Fixed
 * The wind table of the yearly NOAA report was fixed English text.
 * The total rain series in charts showed its raw name, rainTotal, in every language.
+* A graphs.conf without the chart group in highcharts_homepage_graphgroup no longer stops the home page from being generated.
+* A double quote or backslash in the station location, an earthquake place or manifest_name no longer breaks weewx_data.json or manifest.json, which left the home page empty.
+* Polar stations: the first day after the polar day or night no longer stops the home page, and a sunset just after midnight no longer gives a negative daylight time. With pyephem the home page shows "Always up" or "Always down" instead of "Invalid Date".
+* The barometer arrow stays empty when there is no trend yet, as in the first 3 hours of a station.
+* A data_binding in station_observations only applies to its own observation. All the observations after it were read from that database too. rainWithRainRate and the pressure trend in the page now use it.
+* reload_hook_images no longer needs MQTT.
 * A server with no usable locale ("C") no longer produces lang="C" on every page, which broke the units button and live updates with "Invalid language tag: C". The site falls back to en_US.
 * A belchertown_locale with no encoding, such as "nl_NL", no longer stops the report when that locale isn't installed.
 * A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.

@@ -697,17 +697,13 @@ function update_weewx_data(data) {
     wx_html(".high", high);
     wx_html(".low", low);
 
-    try {
-        // Barometer trending by finding a negative number
-        count = (data["current"]["barometer_trend"].match(/-/g) || []).length
-    } catch (err) {
-        // Returned "current" data does not have this value
-    }
-
-    if (count >= 1) {
-        wx_html(".pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
-    } else {
-        wx_html(".pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
+    // The trend needs 3 hours of data, so a new station or one with no barometer has none. This is
+    // the barometer's trend, so the arrows of pressure and altimeter stay as the server wrote them.
+    var barometer_trend = parseFloat(data["current"]["barometer_trend_raw"]);
+    if (barometer_trend < 0) {
+        wx_html(".barometer ~ .pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
+    } else if (barometer_trend >= 0) {
+        wx_html(".barometer ~ .pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
     }
 
     // Daily max gust span
@@ -739,8 +735,11 @@ function update_weewx_data(data) {
     wx_html(".monthstatsrainrate", data["month"]["rain"]["max"]);
 
     // Sunrise and Sunset            
-    wx_html(".sunrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
-    wx_html(".sunset-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
+    // The polar day and the polar night have no sunrise or sunset to format
+    var sun_none = data["almanac"]["sun_none"] || "--";
+    var sunrise_epoch = data["almanac"]["sunrise_epoch"], sunset_epoch = data["almanac"]["sunset_epoch"];
+    wx_html(".sunrise-value", sunrise_epoch ? tzAdjustedMoment(parseFloat(sunrise_epoch).toFixed(0)).format(labels.time_sunrise) : sun_none);
+    wx_html(".sunset-value", sunset_epoch ? tzAdjustedMoment(parseFloat(sunset_epoch).toFixed(0)).format(labels.time_sunset) : sun_none);
     wx_html(".moonrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
     wx_html(".moonset-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
 

@@ -1332,7 +1332,6 @@ class getData(SearchList):
         # Get Current Station Observation Data for the table html
         # ==============================================================================
 
-        station_obs_binding = None
         station_obs_json = OrderedDict()
         station_obs_html = ""
         station_observations = self.generator.skin_dict["Extras"][
@@ -1341,18 +1340,21 @@ class getData(SearchList):
         # Check if this is a list. If not then we have 1 item, so force it into a list
         if isinstance(station_observations, list) is False:
             station_observations = station_observations.split()
-        current_stamp = manager.lastGoodStamp()
-        current_record = manager.getRecord(current_stamp)
-        current = weewx.tags.CurrentObj(
+        station_stamp = manager.lastGoodStamp()
+        station_current = weewx.tags.CurrentObj(
             db_lookup,
-            station_obs_binding,
-            current_stamp,
+            None,
+            station_stamp,
             self.generator.formatter,
             self.generator.converter,
             None,
-            current_record
+            manager.getRecord(station_stamp)
         )
         for obs in station_observations:
+            # A data_binding applies to its own observation only, so each one starts from the station
+            station_obs_binding = None
+            current_stamp = station_stamp
+            current = station_current
             if "data_binding" in obs:
                 station_obs_binding = obs[obs.find("(") + 1 : obs.rfind(")")].split(
                     "="
@@ -1390,7 +1392,7 @@ class getData(SearchList):
                     "rain",
                     archiveDaySpan(current_stamp),
                     db_lookup,
-                    None,
+                    station_obs_binding,
                     "day",
                     self.generator.formatter,
                     self.generator.converter,
@@ -1445,7 +1447,7 @@ class getData(SearchList):
                     10800,
                     300,
                     db_lookup,
-                    None,
+                    station_obs_binding,
                     current_stamp,
                     self.generator.formatter,
                     self.generator.converter,
