@@ -1872,7 +1872,7 @@ def on_this_day_summary(years, formatter, converter):
 
 
 # The database going away isn't a mistake in graphs.conf, so no chart is skipped for it
-DATABASE_DOWN = (weedb.CannotConnectError, weedb.DisconnectError, weedb.DatabaseLockedError)
+DATABASE_DOWN = (weedb.CannotConnectError, weedb.DisconnectError) + ((weedb.DatabaseLockedError,) if hasattr(weedb, "DatabaseLockedError") else ())
 
 
 class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
