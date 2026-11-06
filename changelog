@@ -1,3 +1,8 @@
+Unreleased
+
+### Added
+* The forecast shows the wind direction: the wind icon becomes an arrow the way the wind blows, with the compass point as its tooltip. It works with Xweather, Open-Meteo and NWS, and json/forecast.json has a new wind_dir in each period, in degrees (suggested by meteoxylon, #1023).
+
 3.0.1 November 6, 2026
 
 Translations and fixes. German, Catalan, French and Italian are complete, and most of the fixes come from hilman2 (#1013 to #1022). Thanks!
