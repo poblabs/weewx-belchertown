@@ -1,4 +1,6 @@
-Unreleased
+3.0.1 November 6, 2026
+
+Translations and fixes. German, Catalan, French and Italian are complete, and most of the fixes come from hilman2 (#1013 to #1022). Thanks!
 
 ### Changed
 * The lang option now also sets the date and number format, unless belchertown_locale is set. Before, a site with lang = de on an English server had German text with English dates and numbers. lang = en is left alone, because every new weewx.conf has it.
@@ -10,6 +12,7 @@ Unreleased
 * The button_text in graphs.conf is now looked up as a label too, so the Day, Week, Month and Year buttons on the Graphs page follow the language.
 
 ### Fixed
+* The gauge and AQI values sit in the middle of their ring again (#1011, reported by vinceskahan).
 * The wind table of the yearly NOAA report was fixed English text.
 * The total rain series in charts showed its raw name, rainTotal, in every language.
 * A graphs.conf without the chart group in highcharts_homepage_graphgroup no longer stops the home page from being generated.

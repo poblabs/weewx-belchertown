@@ -148,7 +148,7 @@ def translate_title(label_dict, title):
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.
