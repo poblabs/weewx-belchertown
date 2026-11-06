@@ -9,6 +9,17 @@ var wx_tz = (function() {
         return "";
     }
 })();
+// "auto" separators come from here because the browser knows every locale; the server only
+// knows the ones installed on it.
+(function() {
+    var parts = new Intl.NumberFormat(config.system_locale_js).formatToParts(1234567.8);
+    function separator(type) {
+        var part = parts.find(function(p) { return p.type === type; });
+        return part ? part.value : "";
+    }
+    if (config.highcharts_decimal === "auto") config.highcharts_decimal = separator("decimal");
+    if (config.highcharts_thousands === "auto") config.highcharts_thousands = separator("group");
+})();
 var extras = belchertown_config.extras;
 // Like $obs.label in a template: an unknown label returns its own name.
 var labels = new Proxy(belchertown_config.labels, {
@@ -119,17 +130,9 @@ document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") wx_all(".modal.in").forEach(function(m) { wx_modal(m, false); });
 });
 
-var pages = ["graphs", "records", "reports", "about", "chart-builder"];
-var pageName = "";
-// If this page we're on now is listed as a subpage, use ".." to get to the relative root
+// The src of this script holds the relative root of the page. The address bar can't tell.
 function get_relative_url() {
-    var sPath = window.location.pathname.replace(/\/$/, "");
-    pageName = sPath.substring(sPath.lastIndexOf('/') + 1);
-    if (pages.includes(pageName)) {
-        var relative_url = "..";
-    } else {
-        var relative_url = ".";
-    }
+    var relative_url = document.querySelector("script[src*='/js/belchertown.js']").getAttribute("src").split("/js/")[0];
     belchertown_debug("URL: Relative URL is: " + relative_url);
 
     return relative_url;
@@ -387,7 +390,7 @@ function getURLvar(k) {
 
 // Change the color of the outTemp_F variable
 function get_outTemp_color(unit, outTemp, returnColor = false) {
-    outTemp = parseFloat(outTemp).toFixed(0); // Convert back to decimal literal
+    outTemp = parseFloat(String(outTemp).replace("\u2212", "-")).toFixed(0); // Convert back to decimal literal
     if (unit == "degree_F") {
         if (outTemp <= 0) {
             var outTemp_color = "#1278c8";
@@ -421,7 +424,7 @@ function get_outTemp_color(unit, outTemp, returnColor = false) {
             var outTemp_color = "rgba(218,113,113,1)";
         }
     } else if (unit == "degree_C") {
-        if (outTemp <= 0) {
+        if (outTemp <= -17.7) {
             var outTemp_color = "#1278c8";
         } else if (outTemp <= -3.8) {
             var outTemp_color = "#30bfef";
@@ -686,17 +689,12 @@ function update_weewx_data(data) {
     wx_html(".high", high);
     wx_html(".low", low);
 
-    try {
-        // Barometer trending by finding a negative number
-        count = (data["current"]["barometer_trend"].match(/-/g) || []).length
-    } catch (err) {
-        // Returned "current" data does not have this value
-    }
-
-    if (count >= 1) {
-        wx_html(".pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
-    } else {
-        wx_html(".pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
+    // A new station has no trend yet, and pressure and altimeter keep the arrow the server wrote
+    var barometer_trend = parseFloat(data["current"]["barometer_trend_raw"]);
+    if (barometer_trend < 0) {
+        wx_html(".barometer ~ .pressure-trend", '<i class="fa fa-arrow-down barometer-down"></i>');
+    } else if (barometer_trend >= 0) {
+        wx_html(".barometer ~ .pressure-trend", '<i class="fa fa-arrow-up barometer-up"></i>');
     }
 
     // Daily max gust span
@@ -728,8 +726,11 @@ function update_weewx_data(data) {
     wx_html(".monthstatsrainrate", data["month"]["rain"]["max"]);
 
     // Sunrise and Sunset            
-    wx_html(".sunrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunrise_epoch"]).toFixed(0)).format(labels.time_sunrise));
-    wx_html(".sunset-value", tzAdjustedMoment(parseFloat(data["almanac"]["sunset_epoch"]).toFixed(0)).format(labels.time_sunset));
+    // The polar day and the polar night have no sunrise or sunset to format
+    var sun_none = data["almanac"]["sun_none"] || "--";
+    var sunrise_epoch = data["almanac"]["sunrise_epoch"], sunset_epoch = data["almanac"]["sunset_epoch"];
+    wx_html(".sunrise-value", sunrise_epoch ? tzAdjustedMoment(parseFloat(sunrise_epoch).toFixed(0)).format(labels.time_sunrise) : sun_none);
+    wx_html(".sunset-value", sunset_epoch ? tzAdjustedMoment(parseFloat(sunset_epoch).toFixed(0)).format(labels.time_sunset) : sun_none);
     wx_html(".moonrise-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_rise_epoch"]).toFixed(0)).format(labels.time_sunrise));
     wx_html(".moonset-value", tzAdjustedMoment(parseFloat(data["almanac"]["moon"]["moon_set_epoch"]).toFixed(0)).format(labels.time_sunrise));
 

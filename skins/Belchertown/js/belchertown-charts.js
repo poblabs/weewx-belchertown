@@ -113,14 +113,14 @@ Highcharts.setOptions({
     chart: {style: {fontSize: '15px'}},
     // A time zone name follows daylight saving through the year; the fixed offset is the fallback
     time: wx_tz ? {timezone: wx_tz} : {timezoneOffset: config.highcharts_timezoneoffset},
-    lang: {
+    lang: Object.assign({
         months: dayjs.months(),
         shortMonths: dayjs.monthsShort(),
         weekdays: dayjs.weekdays(),
         shortWeekdays: dayjs.weekdaysShort(),
         decimalPoint: config.highcharts_decimal,
         thousandsSep: config.highcharts_thousands
-    }
+    }, config.highcharts_lang)
 });
 
 function showChart(json_file, prepend_renderTo = false) {
@@ -137,7 +137,12 @@ function showChart(json_file, prepend_renderTo = false) {
         Object.keys(data).forEach(function(plotname) {
             var plot = data[plotname];
             if (plot && plot.options) {
-                render_chart(plot, group, json_file, prepend_renderTo);
+                // One bad chart must not take the rest of the chart group with it
+                try {
+                    render_chart(plot, group, json_file, prepend_renderTo);
+                } catch (e) {
+                    console.log("ERROR: Cannot draw chart " + plotname + " of " + json_file + ": " + e.message);
+                }
             }
         });
     }).catch(function(e) {
@@ -192,7 +197,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
             split: true,
             formatter: function() {
                 // The first returned item is the header, subsequent items are the points
-                return [this.x].concat(
+                return [this.points[0].key].concat(
                     this.points.map(function(point) {
                         // If observation_type is in the series array, use that otherwise use the obsType
                         var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
@@ -276,8 +281,8 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
         options.yAxis[this_yAxis].max = s.yAxis_max !== "undefined" ? s.yAxis_max : null;
 
         // Some charts may require a defined soft min/max on the yAxis
-        options.yAxis[this_yAxis].softMin = s.yAxis_softMin !== "undefined" ? parseInt(s.yAxis_softMin) : null;
-        options.yAxis[this_yAxis].softMax = s.yAxis_softMax !== "undefined" ? parseInt(s.yAxis_softMax) : null;
+        options.yAxis[this_yAxis].softMin = s.yAxis_softMin !== "undefined" ? parseFloat(s.yAxis_softMin) : null;
+        options.yAxis[this_yAxis].softMax = s.yAxis_softMax !== "undefined" ? parseFloat(s.yAxis_softMax) : null;
 
         // Set the yAxis tick interval. Mostly used for barometer. 
         if (s.yAxis_tickInterval) {
@@ -724,14 +729,15 @@ function gauge_chart(options, observation_type) {
             },
         }
     }
+    var gauge_value = options.series[0].rounding >= 0 ? "{y:." + options.series[0].rounding + "f}" : "{y:.#f}";
     if (get_gauge_label(options.series[0].data[1]["y"], options.series[0])) {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
-        options.plotOptions.solidgauge.dataLabels.y = -25
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span><br><span style='font-size:14px;text-align:center'>" + get_gauge_label(options.series[0].data[1]["y"], options.series[0]) + '</span>'
+        options.plotOptions.solidgauge.dataLabels.y = 0
     } else if (gauge_unit_label(observation_type, options.series[0]) == null) {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span>"
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span>"
     } else {
-        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>{y:.#f}</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
-        options.plotOptions.solidgauge.dataLabels.y = -25
+        options.plotOptions.solidgauge.dataLabels.format = "<span style='text-align:center'>" + gauge_value + "</span><br><span style='font-size:20px;text-align:center'>" + display_label_for_obs(observation_type, gauge_unit_label(observation_type, options.series[0])) + '</span>'
+        options.plotOptions.solidgauge.dataLabels.y = 0
     }
     options.yAxis = {
         min: 0,
@@ -777,15 +783,18 @@ function aqi_chart(options) {
     }
     options.plotOptions = {
         solidgauge: {
+            // Same ring and label as gauge_chart: a 0.5em line height, or a label lifted above center, puts the number under the ring
+            radius: '100%',
+            innerRadius: '60%',
             dataLabels: {
                 useHTML: true,
                 enabled: true,
-                y: -30,
+                y: 0,
                 borderWidth: 0,
                 format: '<span style="text-align:center">{y}</span><br><span style="font-size:14px;text-align:center">' + options.series[0].data[1]['category'] + '</span>',
                 style: {
                     fontWeight: 'bold',
-                    lineHeight: '0.5em',
+                    lineHeight: '1',
                     textAlign: 'center',
                     fontSize: '50px',
                     color: options.series[0].data[1].color,
@@ -912,7 +921,7 @@ function weather_range_chart(options, observation_type, tooltip_date_format) {
     var range_min = Math.min(...minimum_flattened);
     var range_max = Math.max(...maximum_flattened);
 
-    var yAxis_tickInterval = Math.ceil(Math.round(range_max / 5) / 5) * 5; // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. 
+    var yAxis_tickInterval = Math.max(5, Math.ceil(Math.round(range_max / 5) / 5) * 5); // Divide max outTemp by 5 and round it, then round that value up to the nearest 5th multiple. This gives clean yAxis tick lines. A cold day would round to 0.
 
     options.yAxis = {
         showFirstLabel: true,
@@ -968,7 +977,7 @@ function weather_range_chart(options, observation_type, tooltip_date_format) {
             ]
         } else {
             options.plotOptions.series.zones = [
-                {value: -5, color: "#1278c8"},
+                {value: -17.7, color: "#1278c8"},
                 {value: -3.8, color: "#30bfef"},
                 {value: 0, color: "#1fafdd"},
                 {value: 4.4, color: "rgba(0,172,223,1)"},

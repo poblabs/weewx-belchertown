@@ -40,15 +40,21 @@ def provider_for(extras):
     return provider
 
 
-def is_stale(path, stale_seconds):
-    """Old enough to refresh, or in the first 5 minutes of the hour so the hourly row lines up."""
-    if not os.path.isfile(path):
-        return True
+def read_cache(path):
+    """The forecast in path, or None if it's missing, unreadable or in an older format."""
     try:
         with open(path) as f:
-            if json.load(f).get("belchertown_forecast") != FORMAT:
-                return True
+            cached = json.load(f)
     except (ValueError, OSError):
+        return None
+    if isinstance(cached, dict) and cached.get("belchertown_forecast") == FORMAT:
+        return cached
+    return None
+
+
+def is_stale(path, stale_seconds):
+    """Old enough to refresh, or in the first 5 minutes of the hour so the hourly row lines up."""
+    if read_cache(path) is None:
         return True
     age = time.time() - os.path.getmtime(path)
     return age > int(stale_seconds) or (time.strftime("%M") < "05" and age > 300)
@@ -85,12 +91,16 @@ def kts(kph):
 
 # ---------------------------------------------------------------------------- Xweather
 
+def xweather_access(extras):
+    """The API's base URL and the credentials as a query string."""
+    return "https://data.api.xweather.com/", "client_id=%s&client_secret=%s" % (extras["forecast_api_id"], extras["forecast_api_secret"])
+
+
 def xweather_download(extras, lat, lon):
     if "forecast_dev_file" in extras:
         # Hidden option: a pre-downloaded raw Xweather file instead of API calls
         return get_json(extras["forecast_dev_file"])
-    base = "https://data.api.xweather.com/"
-    auth = "client_id=%s&client_secret=%s" % (extras["forecast_api_id"], extras["forecast_api_secret"])
+    base, auth = xweather_access(extras)
     metar = "&filter=metar" if extras.get("forecast_aeris_use_metar") == "1" else ""
     raw = {
         "timestamp": int(time.time()),
@@ -101,9 +111,14 @@ def xweather_download(extras, lat, lon):
         "aqi": [get_json("%sairquality/closest?p=%s,%s&format=json&radius=50mi&limit=1&%s" % (base, lat, lon, auth))],
     }
     if extras.get("forecast_alert_enabled") == "1":
-        raw["alerts"] = [get_json("%salerts/%s,%s?format=json&limit=%s&lang=%s&%s" % (
-            base, lat, lon, extras.get("forecast_alert_limit") or 1, extras.get("forecast_lang", "en").lower(), auth))]
+        raw["alerts"] = [xweather_alerts_download(extras, lat, lon)]
     return raw
+
+
+def xweather_alerts_download(extras, lat, lon):
+    base, auth = xweather_access(extras)
+    return get_json("%salerts/%s,%s?format=json&limit=%s&lang=%s&%s" % (
+        base, lat, lon, extras.get("forecast_alert_limit") or 1, extras.get("forecast_lang", "en").lower(), auth))
 
 
 def xweather_convert(raw, extras, labels, icons):
@@ -172,8 +187,18 @@ def xweather_convert(raw, extras, labels, icons):
     except (KeyError, IndexError, TypeError):
         pass
 
+    return {
+        "belchertown_forecast": FORMAT, "provider": "xweather", "timestamp": raw.get("timestamp", int(time.time())),
+        "timezone": ((raw["forecast_24hr"][0].get("response") or [{}])[0].get("profile") or {}).get("tz"),
+        "units": units, "current": current, "aqi": aqi,
+        "daily": periods("forecast_24hr"), "three_hourly": periods("forecast_3hr"), "hourly": periods("forecast_1hr"),
+        "alerts": xweather_alerts(raw.get("alerts"), labels),
+    }
+
+
+def xweather_alerts(raw_alerts, labels):
     alerts = []
-    for a in (raw.get("alerts") or [{}])[0].get("response") or []:
+    for a in (raw_alerts or [{}])[0].get("response") or []:
         alert_type = a["details"]["type"]
         key = "forecast_alert_code_" + ("SPS" if alert_type == "SP.S" else alert_type.replace(".", "_"))
         alerts.append({
@@ -182,14 +207,7 @@ def xweather_convert(raw, extras, labels, icons):
             "type": alert_type,
             "expires": a["timestamps"]["expires"],
         })
-
-    return {
-        "belchertown_forecast": FORMAT, "provider": "xweather", "timestamp": raw.get("timestamp", int(time.time())),
-        "timezone": ((raw["forecast_24hr"][0].get("response") or [{}])[0].get("profile") or {}).get("tz"),
-        "units": units, "current": current, "aqi": aqi,
-        "daily": periods("forecast_24hr"), "three_hourly": periods("forecast_3hr"), "hourly": periods("forecast_1hr"),
-        "alerts": alerts,
-    }
+    return alerts
 
 
 # ---------------------------------------------------------------------------- Open-Meteo weather codes
@@ -568,13 +586,7 @@ def update(path, extras, lat, lon, labels, icon_list_path):
     """Refresh forecast.json if it's stale; return the forecast either way.
     After a failed download the next try waits RETRY_HOLD seconds, so a dead network doesn't stall every report."""
     provider = provider_for(extras)
-    cached = None
-    if os.path.isfile(path):
-        try:
-            with open(path) as f:
-                cached = json.load(f)
-        except (ValueError, OSError):
-            cached = None
+    cached = read_cache(path)
     if not is_stale(path, extras.get("forecast_stale", 3540)):
         return cached, False
     if time.time() - _last_failure[0] < RETRY_HOLD:
@@ -610,8 +622,15 @@ def download(path, extras, lat, lon, labels, icon_list_path, provider):
     elif alert_provider == "nws" and (in_us(lat, lon) or extras.get("forecast_alert_provider", "auto").lower() == "nws"):
         forecast["alerts"] = nws_alerts(lat, lon)[:int(extras.get("forecast_alert_limit") or 10)]
         forecast["alert_provider"] = "nws"
+    elif alert_provider == "xweather" and provider != "xweather":
+        try:
+            forecast["alerts"] = xweather_alerts([xweather_alerts_download(extras, lat, lon)], labels)
+        except Exception:
+            forecast["alerts"] = []
 
     forecast["utc_offset"] = utc_offset(forecast.get("timezone"))
+    # The first report of a new install runs before the json folder exists
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(forecast, f)
     _last_failure[0] = 0

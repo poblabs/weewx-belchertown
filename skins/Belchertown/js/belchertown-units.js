@@ -88,14 +88,17 @@ function build_unit_text_regex() {
     if (!labels.length) return null;
     labels.sort(function(a, b) { return b.length - a.length; });
     var escaped = labels.map(function(l) { return l.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&"); });
-    return new RegExp("(-?\\d+(?:[.,]\\d+)*)(\\s*)(" + escaped.join("|") + ")(?![A-Za-z0-9/])", "g");
+    return new RegExp("([-\u2212]?\\d+(?:[.,]\\d+)*)(\\s*)(" + escaped.join("|") + ")(?![A-Za-z0-9/])", "g");
 }
 
+// Reads numbers from the server and the browser, whose decimal points can differ, and the U+2212 minus
 function parse_number(text) {
-    var dec = (1.5).toLocaleString(config.system_locale_js).charAt(1);
-    if (dec === ",") text = text.replace(/\./g, "").replace(",", ".");
-    else text = text.replace(/,/g, "");
-    return parseFloat(text);
+    var browser_decimal = (1.5).toLocaleString(config.system_locale_js).charAt(1);
+    var last = Math.max(text.lastIndexOf("."), text.lastIndexOf(","));
+    var decimal = last >= 0 && [browser_decimal, units_config.decimal_point].indexOf(text.charAt(last)) >= 0;
+    var whole = decimal ? text.slice(0, last) : text;
+    var number = whole.replace(/[.,]/g, "").replace("\u2212", "-");
+    return parseFloat(decimal ? number + "." + text.slice(last + 1) : number);
 }
 
 function ensure_unit_regex() {
@@ -165,21 +168,20 @@ function restore_unit_nodes(node) {
         unit_done.delete(t);
     }
     node.querySelectorAll("[data-unit-group]").forEach(function(el) {
-        if (unit_orig.has(el) && unit_done.get(el) === el.textContent.trim()) el.textContent = unit_orig.get(el);
+        if (unit_orig.has(el) && unit_done.get(el) === el.firstChild) el.textContent = unit_orig.get(el);
         unit_orig.delete(el);
         unit_done.delete(el);
     });
     update_unit_labels(node);
 }
 
-// An element holding just a number whose unit is shown elsewhere, such as the big temperature
+// A number with its unit elsewhere. Its text node shows what we wrote, as a new reading can match it.
 function convert_bare_number(el) {
-    var text = el.textContent.trim();
-    if (unit_done.get(el) === text) return;
+    if (unit_done.get(el) === el.firstChild) return;
     unit_orig.set(el, el.textContent);
-    var from = units_config.groups[el.dataset.unitGroup], to = alt_unit(from), value = parse_number(text);
+    var from = units_config.groups[el.dataset.unitGroup], to = alt_unit(from), value = parse_number(el.textContent.trim());
     if (to && !isNaN(value)) el.textContent = format_unit_value(convert_unit(value, from, to), to);
-    unit_done.set(el, el.textContent.trim());
+    unit_done.set(el, el.firstChild);
 }
 
 // --- Data the scripts draw from ---
@@ -235,6 +237,11 @@ function convert_chart_units(data) {
                 if (s[key] !== undefined && s[key] !== null && s[key] !== "" && s[key] !== "undefined") s[key] = convert_unit(parseFloat(s[key]), from, to);
             });
             if (s.yAxis_tickInterval) s.yAxis_tickInterval = convert_unit(parseFloat(s.yAxis_tickInterval), from, to, true);
+            // The color of a gauge is picked by comparing its value with these
+            [1, 2, 3, 4, 5, 6, 7].forEach(function(n) {
+                var key = "color" + n + "_position";
+                if (s[key] !== undefined) s[key] = convert_unit(parseFloat(s[key]), from, to);
+            });
         });
     });
     return data;

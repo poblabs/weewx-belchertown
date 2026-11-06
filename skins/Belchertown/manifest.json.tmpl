@@ -1,7 +1,8 @@
 #encoding UTF-8
+#import json
 {
-  "name": "$Extras.manifest_name",
-  "short_name": "$Extras.manifest_short_name",
+  "name": $json.dumps(str($Extras.manifest_name)),
+  "short_name": $json.dumps(str($Extras.manifest_short_name)),
   "icons": [
     {
       "src": "images/station48.png",

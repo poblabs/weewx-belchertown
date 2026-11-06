@@ -4,6 +4,7 @@ This extension builds search list extensions as well
 as a crude "cron" to download necessary files.
 
 Pat O'Brien, August 19, 2018
+Copyright (c) 2026 Manuel Hilgert <hilman2@gmail.com>
 """
 
 import calendar
@@ -13,6 +14,7 @@ import locale
 import os
 import os.path
 import logging
+import subprocess
 import sys
 import time
 from collections import OrderedDict
@@ -22,6 +24,7 @@ from re import match
 
 import configobj
 
+import weedb
 import weeutil.weeutil
 import weewx
 import weewx.reportengine
@@ -71,8 +74,81 @@ def logerr(msg):
     log.error(msg)
 
 
+EARTHQUAKE_RETRY_HOLD = 600
+_earthquake_failure = {}
+
+
+def report_locale(belchertown_locale, lang):
+    """Set the locale of a report and return its name.
+
+    A locale that isn't installed on the server can't be set. Its name is returned all the same:
+    the browser has its own locale data, so dates and live values still come out right. Only the
+    numbers generated on the server stay in the server's format.
+
+    Args:
+        belchertown_locale (str): The belchertown_locale option (e.g., 'de_DE.UTF-8'), or 'auto'.
+        lang (str|None): The lang option of the report (e.g., 'de' or 'de_CH'), if it has one.
+            Only used when belchertown_locale is 'auto'.
+
+    Returns:
+        tuple[str, str]: A two-way tuple (locale_name, encoding), such as ('de_DE', 'UTF-8').
+            The locale_name is always safe to hand to the browser.
+    """
+    try:
+        name, encoding = locale.getlocale()
+    except ValueError:
+        # Python raises this for an LC_CTYPE it can't parse, which is the same as not having one.
+        name, encoding = None, None
+
+    wanted = belchertown_locale
+    if wanted == "auto":
+        # WeeWX sets the locale from lang, but a bare 'de' isn't a locale name, so it falls back
+        # to the server's default. A 'de_CH' server with lang 'de' keeps its own regional format.
+        # The weewx.conf of every new station says lang = en, so that one says nothing about what
+        # the owner wants and the server's locale stands.
+        wanted = ""
+        language = (lang or "en").split(".")[0]
+        if language != "en" and not ((name or "") + "_").startswith(language + "_"):
+            wanted = locale.normalize(language + ".UTF-8")
+
+    if wanted:
+        try:
+            locale.setlocale(locale.LC_ALL, wanted)
+            name, encoding = locale.getlocale()
+        except locale.Error as error:
+            log.debug("Locale %s is not installed. The browser will still use it: %s", wanted, error)
+            name, _, encoding = wanted.partition(".")
+
+    # The browser throws a RangeError on a name it can't parse, such as the server's 'C' or
+    # 'de_DE@euro', and that would stop every live update on the page.
+    name = (name or "").split("@")[0]
+    if name in ("C", "POSIX") or not re.fullmatch(r"[A-Za-z]{2,8}(_[A-Za-z0-9]{2,8})*", name):
+        name = "en_US"
+    return name, encoding or "UTF-8"
+
+
+def translate_title(label_dict, title):
+    """Return the translation of a title or button text from graphs.conf.
+
+    A title is looked up by its own English text, so the titles of a graphs.conf that was copied
+    from graphs.conf.example get translated too, and any other title is shown as written.
+
+    Args:
+        label_dict (weeutil.weeutil.KeyDict): The [Labels][[Generic]] section.
+        title (str|list[str]): The title. An unquoted title with a comma is a list to ConfigObj.
+
+    Returns:
+        str: The translated title.
+    """
+    if isinstance(title, list):
+        title = ", ".join(title)
+    translated = label_dict[title]
+    # A list label, such as "second", isn't a translation of the title
+    return title if isinstance(translated, list) else translated
+
+
 # Print version in syslog for easier troubleshooting
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.
@@ -112,7 +188,8 @@ def rain_streaks(rows):
     wet = dry = 0
     previous_day = None
     for date_time, rain in rows:
-        day = round(date_time / 86400)
+        # Count calendar days: at UTC+12 local midnight is half a day from UTC, so dividing by 86400 fails
+        day = datetime.date.fromtimestamp(date_time).toordinal()
         if previous_day is not None and day - previous_day != 1:
             wet = dry = 0
         previous_day = day
@@ -130,6 +207,37 @@ class getData(SearchList):
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
+
+    def download_earthquake(self, url):
+        """Fetch url with urllib, or with curl if urllib fails. Raises OSError or SubprocessError if both do."""
+        try:
+            from urllib.request import Request, urlopen
+
+            user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
+            headers = {"User-Agent": user_agent}
+            req = Request(url, None, headers)
+            response = urlopen(req)
+            page = response.read()
+            response.close()
+            if weewx.debug:
+                logdbg("Downloading earthquake data using urllib was successful")
+            return page
+        except Exception as urllib_error:
+            if weewx.debug:
+                logdbg(
+                    "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
+                    "Full error: %s" % urllib_error
+                )
+        # Treat an HTTP error as a failure, and don't let a silent server stop the report
+        result = subprocess.run(
+            ["curl", "-L", "--silent", "--fail", "--max-time", "15", url],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
+        if weewx.debug:
+            logdbg("Downloading earthquake data with curl was successful.")
+        return result.stdout
 
     def get_gps_distance(self, pointA, pointB, distance_unit):
         """
@@ -275,6 +383,9 @@ class getData(SearchList):
             d = {}
         label_dict = weeutil.weeutil.KeyDict(d)
 
+        # The text weewx shows for a missing value, which a language file can translate
+        no_value = self.generator.skin_dict["Units"]["StringFormats"].get("NONE", "N/A")
+
         # Setup database manager
         binding = self.generator.config_dict["StdReport"].get(
             "data_binding", "wx_binding"
@@ -318,50 +429,11 @@ class getData(SearchList):
         # https://stackoverflow.com/a/14053631/1177153
         highcharts_timezoneoffset = moment_js_utc_offset * -1
 
-        # If theme locale is auto, get the system locale for use with
-        # moment.js, and the system decimal for use with highcharts
-        if self.generator.skin_dict["Extras"]["belchertown_locale"] == "auto":
-            system_locale, locale_encoding = locale.getdefaultlocale()
-        else:
-            try:
-                # Try setting the locale. Locale needs to be in locale.encoding
-                # format. Example: "en_US.UTF-8", or "de_DE.UTF-8"
-                locale.setlocale(
-                    locale.LC_ALL,
-                    self.generator.skin_dict["Extras"]["belchertown_locale"],
-                )
-                system_locale, locale_encoding = locale.getlocale()
-            except Exception as error:
-                # The system can't find the locale requested, so just set the
-                # variables anyways for JavaScript's use.
-                system_locale, locale_encoding = self.generator.skin_dict["Extras"][
-                    "belchertown_locale"
-                ].split(".")
-                if belchertown_debug:
-                    logerr(
-                        "Locale: Error using locale %s. "
-                        "This locale may not be installed on your system and you may see unexpected results. "
-                        "Belchertown skin JavaScript will try to use this locale. Full error: %s"
-                        % (
-                            self.generator.skin_dict["Extras"]["belchertown_locale"],
-                            error,
-                        )
-                    )
-
-        if system_locale is None:
-            # Unable to determine locale. Fallback to en_US
-            system_locale = "en_US"
-
-        if locale_encoding is None:
-            # Unable to determine locale_encoding. Fallback to UTF-8
-            locale_encoding = "UTF-8"
-
-        try:
-            system_locale_js = system_locale.replace(
-                "_", "-"
-            )  # Python's locale is underscore. JS uses dashes.
-        except:
-            system_locale_js = "en-US"  # Error finding locale, set to en-US
+        system_locale, locale_encoding = report_locale(
+            self.generator.skin_dict["Extras"]["belchertown_locale"],
+            self.generator.skin_dict.get("lang"),
+        )
+        system_locale_js = system_locale.replace("_", "-")  # Python's locale is underscore. JS uses dashes.
 
         # Best Day.js locale file for this locale: "pt-BR" -> "pt-br", "de-DE" -> "de", else English
         dayjs_locale = "en"
@@ -370,29 +442,10 @@ class getData(SearchList):
                 dayjs_locale = candidate
                 break
 
-        highcharts_decimal = self.generator.skin_dict["Extras"].get(
-            "highcharts_decimal", None
-        )
-        # Change the Highcharts decimal to the locale if the option is missing
-        # or on auto mode, otherwise use whats defined in Extras
-        if highcharts_decimal is None or highcharts_decimal == "auto":
-            try:
-                highcharts_decimal = locale.localeconv()["decimal_point"]
-            except:
-                # Locale not found, default back to a period
-                highcharts_decimal = "."
-
-        highcharts_thousands = self.generator.skin_dict["Extras"].get(
-            "highcharts_thousands", None
-        )
-        # Change the Highcharts thousands separator to the locale if the option
-        # is missing or on auto mode, otherwise use whats defined in Extras
-        if highcharts_thousands is None or highcharts_thousands == "auto":
-            try:
-                highcharts_thousands = locale.localeconv()["thousands_sep"]
-            except:
-                # Locale not found, default back to a comma
-                highcharts_thousands = ","
+        # "auto" is resolved in the browser, in belchertown.js, because it knows every locale
+        extras = self.generator.skin_dict["Extras"]
+        highcharts_decimal = extras.get("highcharts_decimal", "auto")
+        highcharts_thousands = extras.get("highcharts_thousands", "auto")
 
         # Get the archive interval for the highcharts gapsize
         try:
@@ -443,7 +496,7 @@ class getData(SearchList):
         graphpage_titles = OrderedDict()
         for chartgroup in chart_dict.sections:
             if "title" in chart_dict[chartgroup]:
-                graphpage_titles[chartgroup] = chart_dict[chartgroup]["title"]
+                graphpage_titles[chartgroup] = translate_title(label_dict, chart_dict[chartgroup]["title"])
             else:
                 graphpage_titles[chartgroup] = chartgroup
 
@@ -466,7 +519,7 @@ class getData(SearchList):
                 graph_page_graphgroup_buttons.append(chartgroup)
         for gg in graph_page_graphgroup_buttons:
             if "button_text" in chart_dict[gg]:
-                button_text = chart_dict[gg]["button_text"]
+                button_text = translate_title(label_dict, chart_dict[gg]["button_text"])
             else:
                 button_text = gg
             graph_page_buttons += (
@@ -610,10 +663,10 @@ class getData(SearchList):
             ]
         else:
             year_outTemp_range_max = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # Smallest Daily Temperature Range Conversions
@@ -651,10 +704,10 @@ class getData(SearchList):
             ]
         else:
             year_outTemp_range_min = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # All Time - Largest Daily Temperature Range Conversions
@@ -692,10 +745,10 @@ class getData(SearchList):
             ]
         else:
             at_outTemp_range_max = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # All Time - Smallest Daily Temperature Range Conversions
@@ -733,10 +786,10 @@ class getData(SearchList):
             ]
         else:
             at_outTemp_range_min = [
-                calendar.timegm(time.gmtime()),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
-                locale.format_string("%.1f", 0),
+                None,
+                no_value,
+                no_value,
+                no_value,
             ]
 
         # Rain lookups
@@ -837,7 +890,7 @@ class getData(SearchList):
                 locale.format_string("%g", float(year_rainiest_month_converted)),
             ]
         else:
-            year_rainiest_month = ["N/A", 0.0]
+            year_rainiest_month = [no_value, 0.0]
 
         # All time rainiest month
         at_rainiest_month_query = wx_manager.getSql(at_rainiest_month_sql)
@@ -1017,7 +1070,7 @@ class getData(SearchList):
 
         current_obs_icon = ""
         current_obs_summary = ""
-        visibility = "N/A"
+        visibility = no_value
         visibility_unit = ""
         cloud_cover = ""
         extras = self.generator.skin_dict["Extras"]
@@ -1043,13 +1096,7 @@ class getData(SearchList):
                     loginf("New %s forecast downloaded to %s" % (forecast["provider"], forecast_file))
             except Exception as error:
                 logerr("Error updating the forecast, keeping the last one. The error was: %s" % error)
-                try:
-                    with open(forecast_file) as f:
-                        forecast = json.load(f)
-                    if forecast.get("belchertown_forecast") != belchertown_forecast.FORMAT:
-                        forecast = None
-                except (OSError, ValueError, AttributeError):
-                    forecast = None
+                forecast = belchertown_forecast.read_cache(forecast_file)
 
             current = (forecast or {}).get("current") or {}
             if current.get("cloud_cover") is not None:
@@ -1147,73 +1194,32 @@ class getData(SearchList):
                 # File doesn't exist, download a new copy
                 earthquake_is_stale = True
 
-            # File is stale, download a new copy
-            if earthquake_is_stale:
-                # Download new earthquake data
+            # File is stale, download a new copy. It stays stale after a failure, so every template would retry
+            if (earthquake_is_stale
+                    and time.time() - _earthquake_failure.get(earthquake_file, 0) >= EARTHQUAKE_RETRY_HOLD):
                 try:
-                    from urllib.request import Request, urlopen
-
-                    user_agent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3"
-                    headers = {"User-Agent": user_agent}
-                    req = Request(earthquake_url, None, headers)
-                    response = urlopen(req)
-                    page = response.read()
-                    response.close()
-                    if weewx.debug:
-                        logdbg(
-                            "Downloading earthquake data using urllib was successful"
-                        )
-                except Exception as forecast_error:
-                    if weewx.debug:
-                        logdbg(
-                            "Error downloading earthquake data with urllib, reverting to curl and subprocess. "
-                            "Full error: %s" % forecast_error
-                        )
-                    # Nested try - only execute if the urllib method fails
-                    try:
-                        import subprocess
-
-                        command = 'curl -L --silent "%s"' % earthquake_url
-                        p = subprocess.Popen(
-                            command,
-                            shell=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                        )
-                        page = p.communicate()[0]
-                        if weewx.debug:
-                            logdbg(
-                                "Downloading earthquake data with curl was successful."
-                            )
-                    except Exception as error:
-                        raise Warning(
-                            "Error downloading earthquake data using urllib and subprocess curl. "
-                            "Your software may need to be updated, or the URL is incorrect. "
-                            "You are trying to use URL: %s, and the error is: %s"
-                            % (earthquake_url, error)
-                        )
-
-                # Save earthquake data to file. w+ creates the file if it
-                # doesn't exist, and truncates the file and re-writes it
-                # everytime
-                try:
-                    with open(earthquake_file, "wb+") as file:
+                    page = self.download_earthquake(earthquake_url)
+                    # Only a valid reply may replace the cache. USGS sends an empty 204 when nothing has happened.
+                    if page and "features" not in json.loads(page):
+                        raise ValueError("The reply has no features")
+                    os.makedirs(os.path.dirname(earthquake_file), exist_ok=True)
+                    with open(earthquake_file + ".tmp", "wb") as file:
                         # urlopen and the curl fallback both return bytes
                         file.write(page)
-                        if weewx.debug:
-                            logdbg("Earthquake data saved to %s" % earthquake_file)
-                except IOError as e:
-                    raise Warning(
-                        "Error writing earthquake data to %s. Reason: %s"
-                        % (earthquake_file, e)
-                    )
+                    os.replace(earthquake_file + ".tmp", earthquake_file)
+                    _earthquake_failure.pop(earthquake_file, None)
+                    if weewx.debug:
+                        logdbg("Earthquake data saved to %s" % earthquake_file)
+                except (OSError, ValueError, TypeError, subprocess.SubprocessError) as error:
+                    _earthquake_failure[earthquake_file] = time.time()
+                    logerr("Error updating the earthquake data, keeping the last one. The error was: %s" % error)
 
             # Process the earthquake file
-            with open(earthquake_file, "r") as read_file:
-                try:
+            try:
+                with open(earthquake_file, "r") as read_file:
                     eqdata = json.load(read_file)
-                except:
-                    eqdata = ""
+            except (OSError, ValueError):
+                eqdata = ""
 
             try:
                 if self.generator.skin_dict["Extras"]["earthquake_server"] == "USGS":
@@ -1230,7 +1236,7 @@ class getData(SearchList):
                             eqdist_km = eqmatched.group("distance")
                             eqdist_miles = round(float(eqdist_km) / 1.609, 1)
                             eqplace = (
-                                str(eqdist_miles) + " miles" + eqmatched.group("rest")
+                                str(eqdist_miles) + eq_distance_label + eqmatched.group("rest")
                             )
                         except:
                             eqplace = eqdata["features"][0]["properties"]["place"]
@@ -1319,7 +1325,6 @@ class getData(SearchList):
         # Get Current Station Observation Data for the table html
         # ==============================================================================
 
-        station_obs_binding = None
         station_obs_json = OrderedDict()
         station_obs_html = ""
         station_observations = self.generator.skin_dict["Extras"][
@@ -1328,18 +1333,21 @@ class getData(SearchList):
         # Check if this is a list. If not then we have 1 item, so force it into a list
         if isinstance(station_observations, list) is False:
             station_observations = station_observations.split()
-        current_stamp = manager.lastGoodStamp()
-        current_record = manager.getRecord(current_stamp)
-        current = weewx.tags.CurrentObj(
+        station_stamp = manager.lastGoodStamp()
+        station_current = weewx.tags.CurrentObj(
             db_lookup,
-            station_obs_binding,
-            current_stamp,
+            None,
+            station_stamp,
             self.generator.formatter,
             self.generator.converter,
             None,
-            current_record
+            manager.getRecord(station_stamp)
         )
         for obs in station_observations:
+            # A data_binding applies to its own observation only, so each one starts from the station
+            station_obs_binding = None
+            current_stamp = station_stamp
+            current = station_current
             if "data_binding" in obs:
                 station_obs_binding = obs[obs.find("(") + 1 : obs.rfind(")")].split(
                     "="
@@ -1377,7 +1385,7 @@ class getData(SearchList):
                     "rain",
                     archiveDaySpan(current_stamp),
                     db_lookup,
-                    None,
+                    station_obs_binding,
                     "day",
                     self.generator.formatter,
                     self.generator.converter,
@@ -1405,7 +1413,7 @@ class getData(SearchList):
                 if "?" in str(obs_output):
                     # Try to catch those invalid observations, like 'uv' needs
                     # to be 'UV'.
-                    obs_output = "Invalid observation"
+                    obs_output = label_dict["invalid_observation"]
 
             # Build the json "current" array for weewx_data.json for JavaScript
             if obs not in station_obs_json:
@@ -1432,7 +1440,7 @@ class getData(SearchList):
                     10800,
                     300,
                     db_lookup,
-                    None,
+                    station_obs_binding,
                     current_stamp,
                     self.generator.formatter,
                     self.generator.converter,
@@ -1441,7 +1449,7 @@ class getData(SearchList):
                 station_obs_html += (
                     ' <span class="pressure-trend">'  # Maintain leading spacing
                 )
-                if str(obs_trend) == "N/A":
+                if obs_trend.raw is None:
                     pass
                 elif "-" in str(obs_trend):
                     station_obs_html += (
@@ -1468,15 +1476,12 @@ class getData(SearchList):
                 # Something's wrong. Continue this loop to ignore this group
                 # (like group_dust or something non-standard)
                 continue
-            try:
-                # Find the number of decimals to round to based on group name
-                obs_round = self.generator.skin_dict["Units"]["StringFormats"].get(
-                    obs_unit, "0"
-                )[2]
-            except:
-                obs_round = self.generator.skin_dict["Units"]["StringFormats"].get(
-                    obs_unit, "0"
-                )
+            # Find the number of decimals to round to based on group name, 0 for a format like %d
+            decimals = re.search(
+                r"\.(\d+)f",
+                self.generator.skin_dict["Units"]["StringFormats"].get(obs_unit, "0"),
+            )
+            obs_round = decimals.group(1) if decimals else "0"
             # Add to the rounding array
             if obs not in all_obs_rounding_json:
                 all_obs_rounding_json[obs] = str(obs_round)
@@ -1563,6 +1568,7 @@ class getData(SearchList):
             "locale_encoding": locale_encoding,
             "highcharts_decimal": highcharts_decimal,
             "highcharts_thousands": highcharts_thousands,
+            "highcharts_lang": json.dumps(dict(self.generator.skin_dict.get("Texts", {}).get("Highcharts", {}))),
             "radar_html": radar_html,
             "radar_html_dark": radar_html_dark,
             "archive_interval_ms": archive_interval_ms,
@@ -1764,6 +1770,7 @@ def unit_switch_config(formatter, converter):
         "groups": {g: u for g, u in converter.group_unit_dict.items() if g in UNIT_SWITCH_GROUPS},
         "labels": labels,
         "formats": dict(formatter.unit_format_dict),
+        "decimal_point": locale.localeconv()["decimal_point"],
         "obs": {o: g for o, g in weewx.units.obs_group_dict.items() if g in UNIT_SWITCH_GROUPS},
     })
 
@@ -1864,6 +1871,10 @@ def on_this_day_summary(years, formatter, converter):
 # ======================================================================================
 
 
+# The database going away isn't a mistake in graphs.conf, so no chart is skipped for it
+DATABASE_DOWN = (weedb.CannotConnectError, weedb.DisconnectError) + ((weedb.DatabaseLockedError,) if hasattr(weedb, "DatabaseLockedError") else ())
+
+
 class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
     """Class for generating JSON files for the Highcharts.
     Adapted from the ImageGenerator class.
@@ -1949,7 +1960,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             # chartgroup_title is used on the graphs page
             chartgroup_title = chart_options.get("title", None)
             if chartgroup_title:
-                output[chart_group]["chartgroup_title"] = chartgroup_title
+                output[chart_group]["chartgroup_title"] = translate_title(label_dict, chartgroup_title)
 
             # Define the default tooltip datetime format from the global options
             tooltip_date_format = chart_options.get("tooltip_date_format", "LLLL")
@@ -2053,7 +2064,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     if not plotgen_ts:
                         plotgen_ts = time.time()
 
-                chart_title = plot_options.get("title", "")
+                chart_title = translate_title(label_dict, plot_options.get("title", ""))
                 output[chart_group][plotname]["options"]["title"] = chart_title
 
                 chart_subtitle = plot_options.get("subtitle", "")
@@ -2104,7 +2115,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Default to true if the option is missing
                     output[chart_group][plotname]["options"]["legend"] = "true"
                 else:
-                    output[chart_group][plotname]["options"]["legend"] = legend
+                    # JS parses this as JSON, so only these two values can reach it
+                    try:
+                        output[chart_group][plotname]["options"]["legend"] = "true" if to_bool(legend) else "false"
+                    except ValueError:
+                        output[chart_group][plotname]["options"]["legend"] = "true"
 
                 # Setup exporting option
                 exporting = plot_options.get("exporting", None)
@@ -2283,10 +2298,23 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp = line_options.get("timespan_start", None)
                         maxstamp = line_options.get("timespan_stop", None)
                         if minstamp is None or maxstamp is None:
-                            raise Warning(
-                                "Error trying to create timespan_specific graph. "
-                                "You are missing either timespan_start or timespan_stop options."
+                            logerr(
+                                "HighchartsJsonGenerator: %s skipped. timespan_specific needs "
+                                "both timespan_start and timespan_stop." % line_name
                             )
+                            del output[chart_group][plotname]["series"][line_name]
+                            continue
+                        # Options from graphs.conf are strings
+                        try:
+                            minstamp = int(float(minstamp))
+                            maxstamp = int(float(maxstamp))
+                        except (TypeError, ValueError):
+                            logerr(
+                                "HighchartsJsonGenerator: %s skipped. timespan_start and "
+                                "timespan_stop have to be timestamps." % line_name
+                            )
+                            del output[chart_group][plotname]["series"][line_name]
+                            continue
                     elif time_length == "all":
                         minstamp = start_ts
                         maxstamp = stop_ts
@@ -2310,8 +2338,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         minstamp -= minstamp % 3600
                     
                     if start_at_beginning_of_month:
-                        start_ts, stop_ts = archiveMonthSpan(minstamp)
-                        minstamp = start_ts
+                        minstamp = archiveMonthSpan(minstamp)[0]
 
                     # Find if this chart is using a new database binding.
                     # Default to the binding set in plot_options
@@ -2338,6 +2365,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             name = label_dict[weatherRange_obs_lookup]
                         else:
                             name = label_dict[observation_type]
+                    else:
+                        name = translate_title(label_dict, name)
 
                     # Look for aggregation type:
                     aggregate_type = line_options.get("aggregate_type")
@@ -2487,9 +2516,11 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         try:
                             obs_group = weewx.units.obs_group_dict[rounding_obs_lookup]
                             obs_unit = self.converter.group_unit_dict[obs_group]
-                            obs_round = self.skin_dict["Units"]["StringFormats"].get(
-                                obs_unit, "0"
-                            )[2]
+                            decimals = re.search(
+                                r"\.(\d+)f",
+                                self.skin_dict["Units"]["StringFormats"].get(obs_unit, "0"),
+                            )
+                            obs_round = decimals.group(1) if decimals else -1
                         except:
                             # Not a valid weewx schema name - maybe this is
                             # windRose or something?
@@ -2509,25 +2540,36 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     wind_rose_color[5] = line_options.get("beauford5", "#e4d354")
                     wind_rose_color[6] = line_options.get("beauford6", "#268bd2")
 
-                    # Build series data
-                    series_data = self.get_observation_data(
-                        binding,
-                        archive,
-                        observation_type,
-                        minstamp,
-                        maxstamp,
-                        aggregate_type,
-                        aggregate_interval,
-                        average_type,
-                        time_length,
-                        xAxis_groupby,
-                        xAxis_categories,
-                        mirrored_value,
-                        weatherRange_obs_lookup,
-                        wind_rose_color,
-                        special_target_unit,
-                        obs_round
-                    )
+                    # Build series data. An exception here would freeze all the chart groups after this one.
+                    try:
+                        series_data = self.get_observation_data(
+                            binding,
+                            archive,
+                            observation_type,
+                            minstamp,
+                            maxstamp,
+                            aggregate_type,
+                            aggregate_interval,
+                            average_type,
+                            time_length,
+                            xAxis_groupby,
+                            xAxis_categories,
+                            mirrored_value,
+                            weatherRange_obs_lookup,
+                            wind_rose_color,
+                            special_target_unit,
+                            obs_round
+                        )
+                    except Exception as error:
+                        # get_observation_data wraps most errors in a Warning, with the original as its context
+                        if isinstance(error, DATABASE_DOWN) or isinstance(error.__context__, DATABASE_DOWN):
+                            raise
+                        logerr(
+                            "HighchartsJsonGenerator: [%s] [[%s]] [[[%s]]] skipped: %s"
+                            % (chart_group, plotname, line_name, error)
+                        )
+                        del output[chart_group][plotname]["series"][line_name]
+                        continue
 
                     # Build the final series data JSON
                     if isinstance(series_data, dict):
@@ -2719,9 +2761,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 aggregate_interval,
             )
             windSpeed_vt = self.converter.convert(windSpeed_vt)
-            usage_round = int(
-                self.skin_dict["Units"]["StringFormats"].get(windSpeed_vt[2], "2f")[-2]
-            )
+            # Round as the site shows the speed: 3.9 mph is shown as 4, which is in the "4-7" band
+            decimals = re.search(r"\.(\d+)f", self.skin_dict["Units"]["StringFormats"].get(windSpeed_vt[1], ""))
+            usage_round = int(decimals.group(1)) if decimals else 2
             windSpeed_round_vt = [
                 self.round_none(x, usage_round) for x in windSpeed_vt[0]
             ]
@@ -2755,94 +2797,95 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 group_6_windDir,
                 group_6_windSpeed,
             ) = ([] for i in range(14))
+            # Each band starts where the one before it ends, so no speed falls between two bands
             for windData in merged:
                 if windData[0] is not None and windData[1] is not None:
                     if windSpeed_unit in ("mile_per_hour", "mile_per_hour2"):
                         if windData[1] < 1:
                             group_0_windDir.append(windData[0])
                             group_0_windSpeed.append(windData[1])
-                        elif 1 <= windData[1] <= 3:
+                        elif windData[1] < 4:
                             group_1_windDir.append(windData[0])
                             group_1_windSpeed.append(windData[1])
-                        elif 4 <= windData[1] <= 7:
+                        elif windData[1] < 8:
                             group_2_windDir.append(windData[0])
                             group_2_windSpeed.append(windData[1])
-                        elif 8 <= windData[1] <= 12:
+                        elif windData[1] < 13:
                             group_3_windDir.append(windData[0])
                             group_3_windSpeed.append(windData[1])
-                        elif 13 <= windData[1] <= 18:
+                        elif windData[1] < 19:
                             group_4_windDir.append(windData[0])
                             group_4_windSpeed.append(windData[1])
-                        elif 19 <= windData[1] <= 24:
+                        elif windData[1] < 25:
                             group_5_windDir.append(windData[0])
                             group_5_windSpeed.append(windData[1])
-                        elif windData[1] >= 25:
+                        else:
                             group_6_windDir.append(windData[0])
                             group_6_windSpeed.append(windData[1])
                     elif windSpeed_unit in ("km_per_hour", "km_per_hour2"):
                         if windData[1] < 2:
                             group_0_windDir.append(windData[0])
                             group_0_windSpeed.append(windData[1])
-                        elif 2 <= windData[1] <= 5:
+                        elif windData[1] < 6:
                             group_1_windDir.append(windData[0])
                             group_1_windSpeed.append(windData[1])
-                        elif 6 <= windData[1] <= 11:
+                        elif windData[1] < 12:
                             group_2_windDir.append(windData[0])
                             group_2_windSpeed.append(windData[1])
-                        elif 12 <= windData[1] <= 19:
+                        elif windData[1] < 20:
                             group_3_windDir.append(windData[0])
                             group_3_windSpeed.append(windData[1])
-                        elif 20 <= windData[1] <= 28:
+                        elif windData[1] < 29:
                             group_4_windDir.append(windData[0])
                             group_4_windSpeed.append(windData[1])
-                        elif 29 <= windData[1] <= 38:
+                        elif windData[1] < 39:
                             group_5_windDir.append(windData[0])
                             group_5_windSpeed.append(windData[1])
-                        elif windData[1] >= 39:
+                        else:
                             group_6_windDir.append(windData[0])
                             group_6_windSpeed.append(windData[1])
                     elif windSpeed_unit in ("meter_per_second", "meter_per_second2"):
                         if windData[1] < 0.5:
                             group_0_windDir.append(windData[0])
                             group_0_windSpeed.append(windData[1])
-                        elif 0.5 <= windData[1] <= 1.5:
+                        elif windData[1] < 1.6:
                             group_1_windDir.append(windData[0])
                             group_1_windSpeed.append(windData[1])
-                        elif 1.6 <= windData[1] <= 3.3:
+                        elif windData[1] < 3.4:
                             group_2_windDir.append(windData[0])
                             group_2_windSpeed.append(windData[1])
-                        elif 3.4 <= windData[1] <= 5.5:
+                        elif windData[1] < 5.6:
                             group_3_windDir.append(windData[0])
                             group_3_windSpeed.append(windData[1])
-                        elif 5.6 <= windData[1] <= 7.9:
+                        elif windData[1] < 8:
                             group_4_windDir.append(windData[0])
                             group_4_windSpeed.append(windData[1])
-                        elif 8 <= windData[1] <= 10.7:
+                        elif windData[1] < 10.8:
                             group_5_windDir.append(windData[0])
                             group_5_windSpeed.append(windData[1])
-                        elif windData[1] >= 10.8:
+                        else:
                             group_6_windDir.append(windData[0])
                             group_6_windSpeed.append(windData[1])
                     elif windSpeed_unit in ("knot", "knot2"):
                         if windData[1] < 1:
                             group_0_windDir.append(windData[0])
                             group_0_windSpeed.append(windData[1])
-                        elif 1 <= windData[1] <= 3:
+                        elif windData[1] < 4:
                             group_1_windDir.append(windData[0])
                             group_1_windSpeed.append(windData[1])
-                        elif 4 <= windData[1] <= 6:
+                        elif windData[1] < 7:
                             group_2_windDir.append(windData[0])
                             group_2_windSpeed.append(windData[1])
-                        elif 7 <= windData[1] <= 10:
+                        elif windData[1] < 11:
                             group_3_windDir.append(windData[0])
                             group_3_windSpeed.append(windData[1])
-                        elif 11 <= windData[1] <= 16:
+                        elif windData[1] < 17:
                             group_4_windDir.append(windData[0])
                             group_4_windSpeed.append(windData[1])
-                        elif 17 <= windData[1] <= 21:
+                        elif windData[1] < 22:
                             group_5_windDir.append(windData[0])
                             group_5_windSpeed.append(windData[1])
-                        elif windData[1] >= 22:
+                        else:
                             group_6_windDir.append(windData[0])
                             group_6_windSpeed.append(windData[1])
                     elif windSpeed_unit == "beaufort":
@@ -2967,7 +3010,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 group_1_speedRange = "0.5-1.5"
                 group_2_speedRange = "1.6-3.3"
                 group_3_speedRange = "3.4-5.5"
-                group_4_speedRange = "5.5-7.9"
+                group_4_speedRange = "5.6-7.9"
                 group_5_speedRange = "8-10.7"
                 group_6_speedRange = "10.8+"
             elif windSpeed_unit in ("knot", "knot2"):
@@ -3292,10 +3335,14 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
             if aggregate_type is None:
                 aggregate_type = "sum"
 
-            if isinstance(time_length, int):
-                order_sql = ' ORDER BY dateTime ASC'
+            # A span within one label cycle sorts by time, a longer one by label. MySQL needs MIN() in a GROUP BY.
+            label_cycle = {"hour": 86400, "day": 28 * 86400}.get(xAxis_groupby, 366 * 86400)
+            if isinstance(time_length, int) or end_ts - start_ts <= label_cycle:
+                order_sql = ' ORDER BY MIN(dateTime) ASC'
+                subqry_order_sql = ' ORDER BY MIN(first_dateTime) ASC'
             else:
-                order_sql = ''
+                order_sql = ' ORDER BY %s ASC' % xAxis_groupby
+                subqry_order_sql = order_sql
 
             # Special case for time_length = all, force to use complete days only
             if time_length == "all":
@@ -3318,7 +3365,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         if average_type is not None and average_type == "sum":
                             sql_lookup = 'SELECT dt1 AS {0}, ' \
                                          'AVG(obs1) AS obs ' \
-                                         'FROM (SELECT strftime("{1}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, sum(sum) AS obs1 ' \
+                                         'FROM (SELECT strftime("{1}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, sum(sum) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                                 'FROM archive_day_{2} WHERE dateTime >= {3} AND dateTime < {4} '\
                                                 'GROUP BY strftime({5}, datetime(dateTime, "unixepoch", "localtime"))) ' \
                                          'GROUP BY {0}{6};'.format(
@@ -3328,7 +3375,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                                 start_ts,
                                 end_ts,
                                 subqry_groupby,
-                                order_sql
+                                subqry_order_sql
                             )
                         # avg cases with an average_type
                         elif average_type is not None:
@@ -3376,7 +3423,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # archive access with no average_type
                     if average_type is None:
                         sql_lookup = 'SELECT strftime("{0}", datetime(dateTime, "unixepoch", "localtime")) as {1}, ' \
-                                     'IFNULL({2}({3}),0) AS obs, dateTime FROM archive ' \
+                                     '{2}({3}) AS obs FROM archive ' \
                                      'WHERE dateTime >= {4} AND dateTime < {5} GROUP BY {1}{6};'.format(
                             strformat,
                             xAxis_groupby,
@@ -3392,7 +3439,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         sql_lookup = 'SELECT dt1 AS {0}, ' \
                                      '{1}(obs1) AS obs ' \
                                      'FROM (SELECT strftime("{2}", datetime(dateTime, "unixepoch", "localtime")) AS dt1, '\
-                                            'IFNULL({3}({4}),0) AS obs1 ' \
+                                            '{3}({4}) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                             'FROM archive WHERE dateTime >= {5} AND dateTime < {6} '\
                                             'GROUP BY strftime({7}, datetime(dateTime, "unixepoch", "localtime"))) ' \
                                      'GROUP BY {0}{8};'.format(
@@ -3404,7 +3451,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             start_ts,
                             end_ts,
                             subqry_groupby,
-                            order_sql
+                            subqry_order_sql
                         )
 
             elif driver == "weedb.mysql":
@@ -3416,17 +3463,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         if average_type is not None and average_type == "sum":
                             sql_lookup = 'SELECT dt1 AS {0}, ' \
                                          'AVG(obs1) AS obs ' \
-                                         'FROM (SELECT FROM_UNIXTIME( dateTime, "%{1}" ) AS dt1, sum(sum) AS obs1 ' \
+                                         'FROM (SELECT FROM_UNIXTIME( dateTime, "%{1}" ) AS dt1, sum(sum) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                                 'FROM archive_day_{2} WHERE dateTime >= {3} AND dateTime < {4} '\
-                                                'GROUP BY strftime({5}, datetime(dateTime, "unixepoch", "localtime"))) ' \
+                                                'GROUP BY FROM_UNIXTIME( dateTime, {5} ), dt1) AS periods ' \
                                          'GROUP BY {0}{6};'.format(
                                 xAxis_groupby,
                                 strformat,
                                 obs_lookup,
                                 start_ts,
                                 end_ts,
-                                subqry_groupby,
-                                order_sql
+                                subqry_groupby.replace("%", "%%"),
+                                subqry_order_sql
                             )
                         # avg cases with an average_type
                         elif average_type is not None:
@@ -3474,7 +3521,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # archive access with no average_type
                     if average_type is None:
                         sql_lookup = 'SELECT FROM_UNIXTIME( dateTime, "%{0}" ) as {1}, ' \
-                                     'IFNULL({2}({3}),0) AS obs, dateTime FROM archive ' \
+                                     '{2}({3}) AS obs FROM archive ' \
                                      'WHERE dateTime >= {4} AND dateTime < {5} GROUP BY {1}{6};'.format(
                             strformat,
                             xAxis_groupby,
@@ -3490,9 +3537,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         sql_lookup = 'SELECT dt1 AS {0}, ' \
                                      '{1}(obs1) AS obs ' \
                                      'FROM (SELECT FROM_UNIXTIME( dateTime, "%{2}" ) AS dt1, '\
-                                            'IFNULL({3}({4}),0) AS obs1 ' \
+                                            '{3}({4}) AS obs1, MIN(dateTime) AS first_dateTime ' \
                                             'FROM archive WHERE dateTime >= {5} AND dateTime < {6} '\
-                                            'GROUP BY strftime({7}, datetime(dateTime, "unixepoch", "localtime"))) ' \
+                                            'GROUP BY FROM_UNIXTIME( dateTime, {7} ), dt1) AS periods ' \
                                      'GROUP BY {0}{8};'.format(
                             xAxis_groupby,
                             aggregate_type,
@@ -3501,8 +3548,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                             obs_lookup,
                             start_ts,
                             end_ts,
-                            subqry_groupby,
-                            order_sql
+                            subqry_groupby.replace("%", "%%"),
+                            subqry_order_sql
                         )
 
             # Setup values for the converter
@@ -3515,19 +3562,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 obs_group = None
                 obs_unit_from_target_unit = None
 
-            # introduce test to catch any sql errors; a try / except sequence 
-            
-            try:
-                query = archive.genSql(sql_lookup)
-            except:
-                raise Warning(
-                    "SQL error in"
-                    "sql_lookup"
-                    "The error is: %s"
-                        % (error)                    
-                )
-                
-            for row in query:
+            for row in archive.genSql(sql_lookup):
                 xAxis_labels.append(row[0])
                 row_tuple = (row[1], obs_unit_from_target_unit, obs_group)
                 if special_target_unit:
@@ -3536,11 +3571,17 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     row_converted = self.converter.convert(row_tuple)
                 obsvalues.append(row_converted[0])
 
+            # Categories match values by position, so a full calendar cycle needs a gap where there's no data
+            full_cycle = {"hour": 24, "day": 31}.get(xAxis_groupby, 12)
+            if (not isinstance(time_length, int) and xAxis_groupby != "year"
+                    and 0 < len(xAxis_labels) < len(xAxis_categories) == full_cycle):
+                first_label = 0 if xAxis_groupby == "hour" else 1
+                by_position = dict(zip([int(label) - first_label for label in xAxis_labels], obsvalues))
+                obsvalues = [by_position.get(i) for i in range(len(xAxis_categories))]
+
             # If the values are to be mirrored, we need to make them negative
-            if mirrored_value:
-                for i in obsvalues:
-                    if i is not None:
-                        i = -i
+            if mirrored_value and to_bool(mirrored_value):
+                obsvalues = [-i if i is not None else None for i in obsvalues]
 
             # Return a dict which has the value for if we need to add labels
             # from sql or not.
@@ -3557,6 +3598,13 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     "obsdata": obsvalues,
                 }
             return data
+
+        # A direction can't be averaged as a number. weewx has the vector mean on "wind", which needs windSpeed.
+        if obs_lookup == "windDir" and aggregate_type in ("avg", "vecdir"):
+            if "windSpeed" in archive.sqlkeys:
+                obs_lookup, aggregate_type = "wind", "vecdir"
+            else:
+                aggregate_type = "avg"
 
         # Begin standard observation lookups
         try:

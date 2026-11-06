@@ -166,7 +166,7 @@ tooltip_date_format = "LLL"
             yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
-            aggregate_type = avg
+            aggregate_type = vecdir
             [[[[marker]]]]
                 enabled = true
             [[[[states]]]]
@@ -197,6 +197,7 @@ tooltip_date_format = "LLL"
     button_text = "Month"
     type = spline
     time_length = 2592000 # Last 30 days
+    start_at_midnight = 1 # The daily aggregates below are then calendar days
     tooltip_date_format = "dddd LL"
     aggregate_type = max
     aggregate_interval = 86400 # 1 day
@@ -224,7 +225,7 @@ tooltip_date_format = "LLL"
             yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
-            aggregate_type = avg
+            aggregate_type = vecdir
             [[[[marker]]]]
                 enabled = true
             [[[[states]]]]
@@ -282,7 +283,7 @@ tooltip_date_format = "LLL"
             yAxis_max = 360
             lineWidth = 0
             # Here we can override the timespan default aggregate type with our own specific to this chart
-            aggregate_type = avg
+            aggregate_type = vecdir
             [[[[marker]]]]
                 enabled = true
             [[[[states]]]]

@@ -19,6 +19,7 @@ var belchertown_config = {
     "highcharts_timezoneoffset": $highcharts_timezoneoffset,
     "highcharts_decimal": $json.dumps(str($highcharts_decimal)),
     "highcharts_thousands": $json.dumps(str($highcharts_thousands)),
+    "highcharts_lang": $highcharts_lang,
     "hemisphere": $json.dumps("southern-hemisphere" if "-" in str($station.stn_info.latitude_f) else "northern-hemisphere"),
     "current_datetime_raw": $json.dumps(str($current.dateTime.raw)),
     "almanac_times": $json.dumps($almanac_times),

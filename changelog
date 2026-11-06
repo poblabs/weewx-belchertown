@@ -1,3 +1,64 @@
+3.0.1 November 6, 2026
+
+Translations and fixes. German, Catalan, French and Italian are complete, and most of the fixes come from hilman2 (#1013 to #1022). Thanks!
+
+### Changed
+* The lang option now also sets the date and number format, unless belchertown_locale is set. Before, a site with lang = de on an English server had German text with English dates and numbers. lang = en is left alone, because every new weewx.conf has it.
+* Charts work out the "auto" highcharts_decimal and highcharts_thousands in the browser, so they match the rest of the page when the locale isn't installed on the server.
+* The [Texts] [[Highcharts]] section of the language files is now used, so the chart menu and the reset zoom button follow the language.
+* Chart titles and series names in graphs.conf can be translated: the title is looked up as a label by its own text. This also covers a graphs.conf copied from graphs.conf.example.
+* New labels for the default page title and description, the footer, the missing air quality index, an invalid observation name and the NOAA reports, which were fixed English text.
+* German, Catalan, French and Italian are complete, including the Chart Builder, the alerts and the NOAA reports.
+* The button_text in graphs.conf is now looked up as a label too, so the Day, Week, Month and Year buttons on the Graphs page follow the language.
+
+### Fixed
+* The gauge and AQI values sit in the middle of their ring again (#1011, reported by vinceskahan).
+* The wind table of the yearly NOAA report was fixed English text.
+* The total rain series in charts showed its raw name, rainTotal, in every language.
+* A graphs.conf without the chart group in highcharts_homepage_graphgroup no longer stops the home page from being generated.
+* A double quote or backslash in the station location, an earthquake place or manifest_name no longer breaks weewx_data.json or manifest.json, which left the home page empty.
+* Polar stations: the first day after the polar day or night no longer stops the home page, and a sunset just after midnight no longer gives a negative daylight time. With pyephem the home page shows "Always up" or "Always down" instead of "Invalid Date".
+* The barometer arrow stays empty when there is no trend yet, as in the first 3 hours of a station.
+* A data_binding in station_observations only applies to its own observation. All the observations after it were read from that database too. rainWithRainRate and the pressure trend in the page now use it.
+* reload_hook_images no longer needs MQTT.
+* A server with no usable locale ("C") no longer produces lang="C" on every page, which broke the units button and live updates with "Invalid language tag: C". The site falls back to en_US.
+* A forecast.json from an older version no longer stops the report when the first download fails.
+* A failed earthquake download keeps the last earthquake. It used to write an empty file over it and wait out earthquake_stale.
+* The earthquake curl fallback gives up after 15 seconds instead of holding up the report.
+* The first report no longer fails with earthquake_enabled = 1, or loses its forecast, because the json folder doesn't exist yet.
+* forecast_alert_provider = aeris now works with an Open-Meteo or NWS forecast. It returned no alerts.
+* A belchertown_locale with no encoding, such as "nl_NL", no longer stops the report when that locale isn't installed.
+* Records: the units button converts the daily temperature range in the "records set this year" block as a difference. 10.6 C became 51.1 F instead of 19.1 F.
+* Records: a temperature range with no complete day yet shows the no-value text instead of 0.0, and doesn't count as a new record. A station with no rain yet no longer shows a rain streak as a new record, or a date range that runs backwards.
+* Records: a rain streak across a change to daylight saving time starts on the right day.
+* Rain streaks are no longer cut to a day at UTC+12 (New Zealand in winter, Fiji), where they ended at every record.
+* NOAA reports keep their columns when a sensor is missing.
+* The wind rose no longer drops records that fall between two speed bands, 3 to 18% of them depending on the wind unit.
+* The wind direction in the week, month and year charts is a vector mean. A wind around north showed as 180, a south wind. A time chart in graphs.conf that says aggregate_type = avg on windDir gets it too. xAxis_groupby charts and the Chart Builder preview still average the numbers.
+* The month chart in graphs.conf.example uses calendar days, so its daily values match the records and NOAA pages. They were 24 hour windows that moved with the report time.
+* A translated "no value" text no longer shows the barometer arrow or the compass text for a missing reading.
+* The units button reads the server's numbers correctly when the locale isn't installed on the server. With lang = fr on a "C" server, 7.4 C became 165.2 F. It also understands the minus sign some languages use.
+* The units button no longer leaves a value unconverted when a new reading has the same text as the converted old one.
+* Gauges: the units button converts the color positions, and the value follows the rounding.
+* Live updates survive a packet with a %d observation such as lightning_strike_count, which dropped the connection and lost the packet.
+* Live updates retry when the broker can't be reached while the page loads. A wall display stayed dead until it was reloaded.
+* An observation in station_observations only takes its own value from a live packet: windGust showed the 185 of windGustDir.
+* After an archive packet the page waits 30 seconds before it loads weewx_data.json, as the charts do. It got the files of the last archive interval.
+* The forecast shows its wind in the forecast_units label, not in the station's.
+* The Celsius temperature colors below 0 follow the Fahrenheit steps, live and in the weather range chart.
+* The skin no longer uses locale.getdefaultlocale(), which Python plans to remove in 3.15.
+* A series that can't be read, such as an unknown observation, is skipped and logged. It used to stop the chart groups after it, which froze their json files.
+* timespan_specific works with aggregate_type and start_at_whole_hour.
+* start_at_beginning_of_month no longer shortens the later series of a chart with time_length = all.
+* xAxis_groupby: average_type works with a rolling time_length, and the hour, day, month and year groupings work on MySQL 8 and MariaDB.
+* xAxis_groupby: an hour with no data is a gap, not a 0. A month with no data no longer moves the later values under the wrong xAxis_categories when they are a full year in calendar order, and mirrored_value is applied.
+* legend = True or False in graphs.conf no longer blanks every chart of the chart group, and a chart that fails to draw no longer stops the rest of its group.
+* A chart title or series name that matches a list label, such as "second", no longer stops the chart json files.
+* The Chart Builder writes a section of its own for an observation added twice. Two identical sections stopped the report.
+* The tooltip of a chart with categories shows the category again, not its index.
+* yAxis_softMin and yAxis_softMax keep their decimals, and the weather range chart no longer gets a tick interval of 0 on a cold day.
+* Charts load when a page is opened as /graphs/index.html.
+
 3.0.0 October 8, 2026
 
 The original Belchertown, rebuilt. 3.0 is a refactor of the original skin from the ground up for weewx 5: a chart builder that writes your graphs.conf for you, lighter and faster pages, new home and records pages, forecasts and alerts with no setup, a units button, and years of old code removed.
