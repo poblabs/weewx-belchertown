@@ -1,7 +1,7 @@
 Unreleased
 
 ### Added
-* chart_library = echarts draws the charts with Apache ECharts instead of Highcharts. ECharts is free for any website, while Highcharts' free license covers personal and school sites only (asked for by gdt, #481, and aorovitz, #1024). graphs.conf stays the same and every chart type works. Highcharts stays the default. See "Highcharts or ECharts" in the readme for what's different.
+* chart_library = echarts draws the charts with Apache ECharts instead of Highcharts. ECharts is free for any website, while Highcharts' free license covers personal and school sites only (asked for by gdt, #481, and aorovitz, #1024). graphs.conf stays the same and every chart type works. Highcharts stays the default. ECharts adds a few touches of its own: temperature-colored lines, today's high and low marked on the chart, a "Now" line, a strip for sliding through charts that cover months, and zoom by dragging or pinching with no buttons. See "Highcharts or ECharts" in the readme for what's different.
 * The forecast shows the wind direction: the wind icon becomes an arrow the way the wind blows, with the compass point as its tooltip. It works with Xweather, Open-Meteo and NWS, and json/forecast.json has a new wind_dir in each period, in degrees (suggested by meteoxylon, #1023).
 
 3.0.1 November 6, 2026

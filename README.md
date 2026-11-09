@@ -424,8 +424,8 @@ Your `graphs.conf` stays the same, and every chart works: lines, areas, columns,
 <details>
 <summary>What's different with ECharts</summary>
 
-* **Look:** the same colors and layout, with a few modern touches: rounded column tops, a lighter dashed grid, and the time shown on the bottom axis as you move across a chart.
-* **Zoom:** on a computer, drag across a chart. On a phone or tablet, tap the zoom button at the top right of the chart first. The button next to it undoes the zoom.
+* **Look:** the same colors and layout, with a few modern touches: the outside temperature line takes the skin's temperature colors (add `temperature_colors = false` to a line in `graphs.conf` to keep its own color), today's high and low and the top gust are marked on the day charts, a "Now" line shows on charts that run to midnight, charts that cover months get a strip underneath for sliding through them, lines draw in when the page opens, pointing at a legend item fades the other lines, columns have rounded tops, the grid is lighter, and the time shows on the bottom axis as you move across a chart.
+* **Zoom:** on a computer, drag across a chart. On a phone or tablet, pinch. "Reset zoom" appears in the corner while you're zoomed in, and a double click resets too.
 * **Download:** `exporting = true` gives a button that saves the chart as a picture (PNG). Highcharts also offers JPEG, SVG, PDF and printing.
 * **Highcharts options added by hand:** `graphs.conf` passes any Highcharts setting on a line straight to Highcharts. With ECharts the common ones carry over: `color`, `zIndex`, `lineWidth`, `marker`, `visible`, `dashStyle`, `step`, `zones` and `stacking`. Others are ignored.
 * **type = bar** draws upright columns, the same as `column`. In Highcharts it draws sideways bars.
