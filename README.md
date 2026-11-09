@@ -424,6 +424,7 @@ Your `graphs.conf` stays the same, and every chart works: lines, areas, columns,
 <details>
 <summary>What's different with ECharts</summary>
 
+* **Look:** the same colors and layout, with a few modern touches: rounded column tops, a lighter dashed grid, and the time shown on the bottom axis as you move across a chart.
 * **Zoom:** on a computer, drag across a chart. On a phone or tablet, tap the zoom button at the top right of the chart first. The button next to it undoes the zoom.
 * **Download:** `exporting = true` gives a button that saves the chart as a picture (PNG). Highcharts also offers JPEG, SVG, PDF and printing.
 * **Highcharts options added by hand:** `graphs.conf` passes any Highcharts setting on a line straight to Highcharts. With ECharts the common ones carry over: `color`, `zIndex`, `lineWidth`, `marker`, `visible`, `dashStyle`, `step`, `zones` and `stacking`. Others are ignored.

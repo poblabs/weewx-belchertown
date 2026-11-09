@@ -24,6 +24,7 @@ function echarts_theme() {
         title: echarts_link_color(),
         text: dark ? "#e0e0e3" : "#666666",
         grid: dark ? "#707073" : "#e6e6e6",
+        grid_soft: dark ? "rgba(112,112,115,0.55)" : "#ececec",
         axis: dark ? "#707073" : "#555555",
         pane: dark ? "#505053" : "#e6e6e6",
         tooltip: dark ? "rgba(48,48,50,0.92)" : "rgba(247,247,247,0.92)",
@@ -202,12 +203,13 @@ function echarts_cartesian(hc, info, theme) {
             z: 2 + (echarts_num(s.zIndex) || 0),
             itemStyle: {color: color},
             connectNulls: connect_nulls,
-            emphasis: {focus: "none"}
+            emphasis: {focus: "none", scale: 1.6}
         };
         if (type === "column" || type === "bar") {
             out.type = "bar";
             out.barMaxWidth = 40;
             out.barCategoryGap = "40%";
+            out.itemStyle.borderRadius = [4, 4, 0, 0];
             extents[axis].bars = true;
         } else if (type === "scatter") {
             out.type = "scatter";
@@ -255,7 +257,7 @@ function echarts_cartesian(hc, info, theme) {
             nameTextStyle: {color: theme.text, fontSize: 13},
             axisLabel: echarts_axis_label(a.labels, theme),
             axisLine: {show: false},
-            splitLine: {show: n === 0, lineStyle: {color: theme.grid}},
+            splitLine: {show: n === 0, lineStyle: {color: theme.grid_soft, type: "dashed"}},
             minorTick: {show: !!a.minorTicks},
             alignTicks: false
         };
@@ -285,7 +287,9 @@ function echarts_cartesian(hc, info, theme) {
         axisLabel: {color: theme.text, fontSize: 12, hideOverlap: true, formatter: echarts_time_label(x_max - x_min)},
         axisLine: {onZero: false, lineStyle: {color: theme.axis}},
         splitLine: {show: false},
-        minInterval: 900000
+        minInterval: 900000,
+        axisPointer: {label: {show: true, backgroundColor: theme.axis, color: "#ffffff", fontSize: 12, padding: [3, 6],
+            formatter: function(p) { return dayjs.utc(p.value).format(x_max - x_min > 2 * 86400000 ? "D MMM LT" : "LT"); }}}
     };
 
     var tooltip = Object.assign(echarts_tooltip_base(theme), {
