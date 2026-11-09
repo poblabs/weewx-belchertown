@@ -362,7 +362,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     chart_parent = chart_parent && chart_parent.parentElement;
     if (opt.css_height != "" && chart_parent) {
         chart_parent.style.height = opt.css_height;
-        chart_parent.style.padding = '0px 15px';
+        if (config.chart_library !== "echarts") chart_parent.style.padding = '0px 15px';
         chart_parent.style.marginBottom = '20px';
     }
     if (opt.css_width != "" && chart_parent) {

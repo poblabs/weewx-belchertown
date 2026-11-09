@@ -582,6 +582,21 @@ function echarts_range(hc, info, theme) {
         toolbox: echarts_toolbox(hc, !polar, theme),
         series: [series]
     };
+    // The highest high and lowest low of the span, on the weather range drawn on a time axis
+    if (!hays && !polar && highs.length) {
+        var top = null, bottom = null;
+        rows.forEach(function(r) {
+            if (r.high !== null && r.high !== undefined && (!top || r.high > top.high)) top = r;
+            if (r.low !== null && r.low !== undefined && (!bottom || r.low < bottom.low)) bottom = r;
+        });
+        var pill = function(r, value, below) {
+            var c = get_outTemp_color(s.obsUnit, value, true);
+            return {value: [r.x, value], symbol: "circle", symbolSize: 7, itemStyle: {color: c, borderColor: theme.background, borderWidth: 2},
+                    label: {show: true, position: below ? "right" : "top", distance: 6, formatter: echarts_value_text(value, meta) + "  " + tzAdjustedMoment(r.x_raw / 1000).format("ll"),
+                            backgroundColor: theme.tooltip, borderColor: c, borderWidth: 1, borderRadius: 10, padding: [3, 8], color: theme.tooltip_text, fontSize: 11}};
+        };
+        option.series.push({type: "scatter", silent: true, tooltip: {show: false}, z: 10, animation: false, data: [pill(top, top.high, false), pill(bottom, bottom.low, true)]});
+    }
     if (polar) {
         option.polar = {radius: "75%", center: ["50%", "55%"]};
         option.angleAxis = Object.assign(time_axis, {startAngle: 90, clockwise: true});
@@ -654,6 +669,15 @@ function echarts_gauge(hc, info, theme) {
 // A legend that wraps on a narrow chart needs room under the axis, and a polar chart's outer labels need room inside it
 function echarts_fit(option, width, height) {
     var legend = option.legend;
+    // The same margins on every chart, so plot areas line up down the page whatever their axis labels
+    if (option.grid) {
+        var side = width < 500 ? 58 : 72;
+        option.grid.left = side;
+        option.grid.right = side;
+        option.grid.outerBoundsMode = "none";
+        if (option.xAxis) option.grid.bottom += 24;
+        [].concat(option.yAxis || []).forEach(function(a) { if (a.nameGap) a.nameGap = side - 18; });
+    }
     if (legend && legend.show && legend.orient !== "vertical" && option.grid) {
         var names = (option.series || []).map(function(s) { return s.name || ""; });
         var row = 0, rows = 1;
@@ -708,7 +732,9 @@ function echarts_draw(hc, info, redraw) {
     if (!el) return null;
     var old = echarts.getInstanceByDom(el);
     if (old) old.dispose();
-    if (el.clientHeight < 100) el.style.height = "400px";
+    // A fixed height unless graphs.conf gave the card one, or a chart in a grid row grows to its neighbor's height
+    var card = el.parentElement;
+    if (!(card && card.style.height) || el.clientHeight < 100) el.style.height = "400px";
     echarts_dark_on = document.body.classList.contains("dark");
     var chart = echarts.init(el);
     var built = echarts_build(hc, info || {}, el.clientWidth, el.clientHeight);
