@@ -319,8 +319,9 @@ function echarts_cartesian(hc, info, theme) {
         axisTick: {alignWithLabel: true}
     } : {
         type: "time",
-        min: echarts_local(x_min),
-        max: echarts_local(x_max),
+        // A series with no readings yet (a new station) leaves no range to pin the axis to
+        min: isFinite(x_min) ? echarts_local(x_min) : undefined,
+        max: isFinite(x_max) ? echarts_local(x_max) : undefined,
         axisLabel: {color: theme.text, fontSize: 12, hideOverlap: true, formatter: echarts_time_label(x_max - x_min)},
         axisLine: {onZero: false, lineStyle: {color: theme.axis}},
         splitLine: {show: false},
@@ -367,7 +368,7 @@ function echarts_cartesian(hc, info, theme) {
     if (short_span && series.length && now > x_min && now < x_max - 600000 && now - last_data < 3600000) {
         series[0].markLine = {silent: true, symbol: "none", animation: false, data: [{xAxis: echarts_local(now)}],
             lineStyle: {color: theme.title, type: "dashed", width: 1, opacity: 0.8},
-            label: {show: true, position: "end", formatter: labels.graphs_now || "Now", color: theme.title, fontSize: 11},
+            label: {show: true, position: "end", formatter: labels.graphs_now !== "graphs_now" ? labels.graphs_now : "Now", color: theme.title, fontSize: 11},
             blur: {lineStyle: {opacity: 0.8}, label: {opacity: 1}}};
     }
     // An overview strip under charts that cover months, to slide through them
@@ -530,11 +531,12 @@ function echarts_range(hc, info, theme) {
     var interval = echarts_num(y.tickInterval);
     var y_min = echarts_num(y.min) !== null ? echarts_num(y.min) : Math.min.apply(null, lows);
     var y_max = echarts_num(y.max) !== null ? echarts_num(y.max) : Math.max(Math.max.apply(null, highs), echarts_num(y.softMax) || -Infinity);
-    if (interval) {
+    if (!isFinite(y_min) || !isFinite(y_max)) y_min = y_max = undefined;
+    if (interval && y_min !== undefined) {
         y_min = Math.floor(y_min / interval) * interval;
         y_max = Math.ceil(y_max / interval) * interval;
     }
-    var x_min = rows.length ? rows[0].x : 0, x_max = rows.length ? rows[rows.length - 1].x : 0;
+    var x_min = rows.length ? rows[0].x : undefined, x_max = rows.length ? rows[rows.length - 1].x : undefined;
     var color = s.color || hc.colors[0];
     var meta = {obsType: hays ? "haysChart" : "weatherRange", rounding: s.rounding, mirrored: s.mirrored_value, numberFormat: s.numberFormat || ""};
     var series = echarts_range_series(rows, polar, mode, mode === "band" && !hays ? zones : null, color, y_min, y_max, hays ? 1 : 0.75);
