@@ -263,7 +263,7 @@ function echarts_cartesian(hc, info, theme) {
             visual_maps.push({type: "piecewise", show: false, seriesIndex: i, dimension: 1, pieces: echarts_temperature_pieces(s.unit, lo.y, hi.y)});
         }
         var obs = s.observation_type || s.obsType;
-        if (hi && out.type === "line" && line_width !== 0 && (obs === "outTemp" || obs === "windGust")) {
+        if (hi && out.type === "line" && line_width !== 0 && (obs === "outTemp" || /gust/i.test(obs))) {
             peaks.push({series: out, hi: hi, lo: obs === "outTemp" ? lo : null, temperature: temperature, unit: s.unit});
         }
         if (Array.isArray(s.zones) && s.zones.length) {
@@ -721,10 +721,10 @@ function echarts_draw(hc, info, redraw) {
     chart.setOption(built.option);
     if (built.zoom) {
         echarts_reset_zoom(chart, echarts_theme());
-        if (window.matchMedia("(pointer: fine)").matches) echarts_drag_zoom(chart, echarts_theme());
+        echarts_drag_zoom(el);
     }
     if (!echarts_store[el.id] && window.ResizeObserver) new ResizeObserver(function() { echarts_resize(el.id); }).observe(el);
-    echarts_store[el.id] = {hc: hc, info: info || {}, width: el.clientWidth};
+    echarts_store[el.id] = {hc: hc, info: info || {}, width: el.clientWidth, zoom: !!built.zoom};
     echarts_seen[el.id] = true;
     return chart;
 }
@@ -737,36 +737,87 @@ function echarts_resize(id) {
     else chart.resize();
 }
 
-// Drag across a chart to zoom into that stretch of time, as with Highcharts
-function echarts_drag_zoom(chart, theme) {
-    var zr = chart.getZr(), start = null, box = null;
-    var plot = function() {
-        try { return chart.getModel().getComponent("grid", 0).coordinateSystem.getRect(); } catch (e) { return null; }
+// Zoom with the mouse: drag across a chart to zoom into that stretch of time, or click to zoom in around that spot.
+// Set up once per chart element; redraws replace the chart, so it is looked up on each event.
+function echarts_drag_zoom(el) {
+    if (el.wx_zoom) return;
+    el.wx_zoom = true;
+    var start = null, box = null, box_zr = null, pending = null;
+    var chart = function() { return echarts.getInstanceByDom(el); };
+    var plot = function(c) {
+        try { return c.getModel().getComponent("grid", 0).coordinateSystem.getRect(); } catch (e) { return null; }
     };
-    zr.on("mousedown", function(e) {
-        if ((e.event && e.event.button) || !chart.containPixel({gridIndex: 0}, [e.offsetX, e.offsetY])) return;
-        start = e.offsetX;
+    var local = function(e) {
+        var r = el.getBoundingClientRect();
+        return [e.clientX - r.left, e.clientY - r.top];
+    };
+    // The Reset zoom button sits inside the plot; a press on it is the button's, not a zoom
+    var on_button = function(c, p) {
+        var hit = false;
+        c.getZr().storage.getDisplayList().forEach(function(d) {
+            if (d.invisible || (d.name !== "wx-reset-zoom" && !(d.parent && d.parent.name === "wx-reset-zoom"))) return;
+            var b = d.getBoundingRect().clone();
+            if (d.transform) b.applyTransform(d.transform);
+            if (p[0] >= b.x - 10 && p[0] <= b.x + b.width + 10 && p[1] >= b.y - 6 && p[1] <= b.y + b.height + 6) hit = true;
+        });
+        return hit;
+    };
+    var clear = function() {
+        if (box && box_zr) box_zr.remove(box);
+        box = box_zr = null;
+    };
+    el.addEventListener("pointerdown", function(e) {
+        var c = chart();
+        if (!c || e.pointerType === "touch" || e.button !== 0 || !(echarts_store[el.id] || {}).zoom) return;
+        var p = local(e);
+        if (!c.containPixel({gridIndex: 0}, p) || on_button(c, p)) return;
+        start = p[0];
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
+        e.preventDefault();
     });
-    zr.on("mousemove", function(e) {
-        if (start === null) return;
-        var r = plot(), x = Math.max(r ? r.x : 0, Math.min(e.offsetX, r ? r.x + r.width : e.offsetX));
+    el.addEventListener("pointermove", function(e) {
+        var c = chart();
+        if (start === null || !c) return;
+        var r = plot(c), x = local(e)[0];
+        if (r) x = Math.max(r.x, Math.min(x, r.x + r.width));
+        if (Math.abs(x - start) < 8 && !box) return;
         if (!box) {
+            var theme = echarts_theme();
             box = new echarts.graphic.Rect({z: 1000, silent: true, style: {fill: echarts.color.modifyAlpha(theme.title, 0.12), stroke: echarts.color.modifyAlpha(theme.title, 0.5)}});
-            zr.add(box);
+            box_zr = c.getZr();
+            box_zr.add(box);
         }
-        box.setShape({x: Math.min(start, x), y: r ? r.y : 0, width: Math.abs(x - start), height: r ? r.height : zr.getHeight()});
+        box.setShape({x: Math.min(start, x), y: r ? r.y : 0, width: Math.abs(x - start), height: r ? r.height : el.clientHeight});
     });
-    var finish = function(e) {
-        if (start === null) return;
-        var from = start, to = e && e.offsetX !== undefined ? e.offsetX : from;
+    el.addEventListener("pointerup", function(e) {
+        var c = chart();
+        if (start === null || !c) return;
+        var from = start, r = plot(c), to = local(e)[0];
+        if (r) to = Math.max(r.x, Math.min(to, r.x + r.width));
         start = null;
-        if (box) { zr.remove(box); box = null; }
-        if (Math.abs(to - from) < 8) return;
-        var a = chart.convertFromPixel({xAxisIndex: 0}, Math.min(from, to)), b = chart.convertFromPixel({xAxisIndex: 0}, Math.max(from, to));
-        chart.dispatchAction({type: "dataZoom", startValue: a, endValue: b});
-    };
-    zr.on("mouseup", finish);
-    zr.on("globalout", function() { finish(); });
+        clear();
+        var value = function(x) { return c.convertFromPixel({xAxisIndex: 0}, x); };
+        if (Math.abs(to - from) >= 8) {
+            c.dispatchAction({type: "dataZoom", startValue: value(Math.min(from, to)), endValue: value(Math.max(from, to))});
+        } else if (r) {
+            // A click shows a third of what's on screen now, centered where it was clicked. It waits a moment
+            // so that a double click can reset instead.
+            var left = value(r.x), right = value(r.x + r.width), span = (right - left) / 3, center = value(from);
+            if (span < 1800000) return;
+            var b = Math.min(right, Math.max(left, center - span / 2) + span);
+            clearTimeout(pending);
+            pending = setTimeout(function() {
+                var now = chart();
+                if (now) now.dispatchAction({type: "dataZoom", startValue: b - span, endValue: b});
+            }, 260);
+        }
+    });
+    el.addEventListener("dblclick", function() {
+        clearTimeout(pending);
+        var c = chart();
+        if (c && (echarts_store[el.id] || {}).zoom) c.dispatchAction({type: "dataZoom", start: 0, end: 100});
+    });
+    el.addEventListener("pointercancel", function() { start = null; clear(); });
 }
 
 // "Reset zoom" shows only while a chart is zoomed in; a double click resets too
@@ -774,7 +825,7 @@ function echarts_reset_zoom(chart, theme) {
     var text = (config.highcharts_lang || {}).resetZoom || "Reset zoom";
     var reset = function() { chart.dispatchAction({type: "dataZoom", start: 0, end: 100}); };
     var show = function(visible) {
-        chart.setOption({graphic: [{id: "wx-reset-zoom", type: "text", right: 18, top: 44, z: 100, invisible: !visible, silent: !visible, cursor: "pointer",
+        chart.setOption({graphic: [{id: "wx-reset-zoom", name: "wx-reset-zoom", type: "text", right: 18, top: 44, z: 100, invisible: !visible, silent: !visible, cursor: "pointer",
             style: {text: text, fill: theme.tooltip_text, backgroundColor: theme.tooltip, borderColor: theme.grid, borderWidth: 1, borderRadius: 4, padding: [5, 9], fontSize: 12},
             onclick: reset}]});
     };
@@ -783,7 +834,6 @@ function echarts_reset_zoom(chart, theme) {
         var zooms = chart.getOption().dataZoom || [];
         show(zooms.some(function(z) { return z.start > 0.01 || z.end < 99.99; }));
     });
-    chart.getZr().on("dblclick", reset);
 }
 
 function echarts_reflow() {
