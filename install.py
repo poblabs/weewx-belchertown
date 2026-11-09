@@ -73,6 +73,7 @@ extension_config = """
            # radar_marker = 0
            # almanac_extras = 1
            # highcharts_enabled = 1
+           # chart_library = highcharts
            # graph_page_show_all_button = 1
            # graph_page_default_graphgroup = "day"
            # highcharts_homepage_graphgroup = "day"
@@ -207,6 +208,7 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
        ('skins/Belchertown/js', ['skins/Belchertown/js/belchertown-config.js.tmpl',
                                  'skins/Belchertown/js/belchertown.js',
                                  'skins/Belchertown/js/belchertown-charts.js',
+                                 'skins/Belchertown/js/belchertown-echarts.js',
                                  'skins/Belchertown/js/belchertown-forecast.js',
                                  'skins/Belchertown/js/belchertown-live.js',
                                  'skins/Belchertown/js/belchertown-units.js',

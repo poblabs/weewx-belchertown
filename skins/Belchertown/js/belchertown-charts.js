@@ -108,7 +108,7 @@ function get_gauge_label(value, options) {
     return label
 }
 
-Highcharts.setOptions({
+if (window.Highcharts) Highcharts.setOptions({
     // Highcharts sizes text relative to the page's root font (10px under Bootstrap 3); 15px gives an 18px title
     chart: {style: {fontSize: '15px'}},
     // A time zone name follows daylight saving through the year; the fixed offset is the fallback
@@ -336,7 +336,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
         // Lastly, apply any numberFormat label overrides
         if (typeof s.numberFormat !== "undefined" && Object.keys(s.numberFormat).length >= 1) {
             var {decimals, decimalPoint, thousandsSep} = s.numberFormat
-            options.yAxis[this_yAxis].labels = {formatter: function() {return Highcharts.numberFormat(this.value, decimals, decimalPoint, thousandsSep);}}
+            options.yAxis[this_yAxis].labels = {formatter: function() {return wx_number_format(this.value, decimals, decimalPoint, thousandsSep);}}
         }
 
     });
@@ -384,11 +384,27 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     }
 
     // Finally all options are done, now show the chart
-    var chart = Highcharts.chart(options);
+    draw_chart(options, {tooltip_date_format: tooltip_date_format});
 
     // If using debug, show a copy paste debug for use with jsfiddle
     belchertown_debug(options);
     belchertown_debug("Highcharts.chart('container', " + JSON.stringify(options) + ");");
+}
+
+// The library chart_library picks draws the finished options
+function draw_chart(options, info) {
+    if (config.chart_library === "echarts") return echarts_draw(options, info);
+    return Highcharts.chart(options);
+}
+
+function charts_reflow() {
+    if (config.chart_library === "echarts") return echarts_reflow();
+    if (window.Highcharts) Highcharts.charts.forEach(function(chart) { if (chart) chart.reflow(); });
+}
+
+function charts_destroy() {
+    if (config.chart_library === "echarts") return echarts_destroy();
+    if (window.Highcharts) Highcharts.charts.forEach(function(chart) { if (chart) chart.destroy(); });
 }
 
 function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_format) {
@@ -606,7 +622,7 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
                         return tzAdjustedMoment(this.x / 1000).format(tooltip_date_format) + '<br><b>' + highcharts_tooltip_factory(this.point.y, point_obsType, true, rounding, mirrored);
                     } else if (this.series.userOptions.type == "scatter") {
                         // Catch anything else that might be a scatter plot. Scatter plots will just show x,y coordinates without this.
-                        return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + Highcharts.numberFormat(this.y);
+                        return "<span style='color:" + this.series.color + "'>\u25CF</span> " + this.series.name + ': ' + wx_number_format(this.y);
                     } else {
                         return tooltip.defaultFormatter.call(this, tooltip);
                     }

@@ -153,6 +153,7 @@ VERSION = "3.0.1"
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.
 DAYJS_VERSION = "1.11.23"
+ECHARTS_VERSION = "6.1.0"
 DAYJS_LOCALES = frozenset([
     'af', 'am', 'ar', 'ar-dz', 'ar-iq', 'ar-kw', 'ar-ly', 'ar-ma', 'ar-sa', 'ar-tn', 'az', 'be',
     'bg', 'bi', 'bm', 'bn', 'bn-bd', 'bo', 'br', 'bs', 'ca', 'cs', 'cv', 'cy', 'da', 'de',
@@ -446,6 +447,7 @@ class getData(SearchList):
         extras = self.generator.skin_dict["Extras"]
         highcharts_decimal = extras.get("highcharts_decimal", "auto")
         highcharts_thousands = extras.get("highcharts_thousands", "auto")
+        chart_library = "echarts" if str(extras.get("chart_library", "highcharts")).strip().lower() == "echarts" else "highcharts"
 
         # Get the archive interval for the highcharts gapsize
         try:
@@ -1565,6 +1567,8 @@ class getData(SearchList):
             "system_locale_js": system_locale_js,
             "dayjs_locale": dayjs_locale,
             "dayjs_version": DAYJS_VERSION,
+            "echarts_version": ECHARTS_VERSION,
+            "chart_library": chart_library,
             "locale_encoding": locale_encoding,
             "highcharts_decimal": highcharts_decimal,
             "highcharts_thousands": highcharts_thousands,

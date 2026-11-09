@@ -32,7 +32,7 @@ This is the original Belchertown skin, back in active development and refactored
 * [Make it yours](#make-it-yours): site title and text, metric units, logo, theme, what's on the home page, your own pages and content
 * [Forecasts](#forecasts)
 * [Live updates (MQTT)](#live-updates-mqtt)
-* [Charts](#charts)
+* [Charts](#charts): the chart builder, and Highcharts or ECharts
 * [All skin options](#all-skin-options)
 * [Wall display (kiosk view)](#wall-display-kiosk-view)
 * [Troubleshooting and FAQ](#troubleshooting-and-faq)
@@ -406,6 +406,33 @@ The easiest way to add a chart is the chart builder: a page on your own site whe
 
 The page only reads your data and can't change anything on your server, so it needs no password. Search engines are asked not to list it. The data behind it (`json/chart_builder.json`) is written by the first report and refreshed once an hour. To turn it off, set `chart_builder_enabled = 0`.
 
+### Highcharts or ECharts
+
+The charts are drawn by [Highcharts](https://www.highcharts.com/) unless you choose otherwise. Highcharts is free only for personal and school websites. A business, non-profit, club or government website needs a paid [Highcharts license](https://shop.highcharts.com/).
+
+If that's you, switch to [Apache ECharts](https://echarts.apache.org/), which is free for any website. Add this to `weewx.conf` and the charts change at the next report:
+
+```
+[StdReport]
+    [[Belchertown]]
+        [[[Extras]]]
+            chart_library = echarts
+```
+
+Your `graphs.conf` stays the same, and every chart works: lines, areas, columns, the wind rose, gauges, Hays charts and temperature ranges, with the same tooltips, dark mode and °F/°C button. A few things are different with ECharts:
+
+<details>
+<summary>What's different with ECharts</summary>
+
+* **Zoom:** on a computer, drag across a chart. On a phone or tablet, tap the zoom button at the top right of the chart first. The button next to it undoes the zoom.
+* **Download:** `exporting = true` gives a button that saves the chart as a picture (PNG). Highcharts also offers JPEG, SVG, PDF and printing.
+* **Highcharts options added by hand:** `graphs.conf` passes any Highcharts setting on a line straight to Highcharts. With ECharts the common ones carry over: `color`, `zIndex`, `lineWidth`, `marker`, `visible`, `dashStyle`, `step`, `zones` and `stacking`. Others are ignored.
+* **type = bar** draws upright columns, the same as `column`. In Highcharts it draws sideways bars.
+* **Your own pages:** if an `.inc` file of yours draws its own chart with Highcharts, it stops working, because Highcharts is no longer loaded.
+* **Credits:** the "Highcharts.com" credit under each chart goes away. Your own `credits` text in `graphs.conf` is still shown.
+
+</details>
+
 ## All skin options
 
 These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#make-it-yours)). Click a group to open it.
@@ -443,6 +470,7 @@ These go in `weewx.conf` under `[[Belchertown]]` → `[[[Extras]]]` ([example](#
 | radar_overlay | radar | What the windy.com map shows: `radar`, `wind`, `gust`, `rain`, `temp`, `clouds`, `satellite`, `pressure`, `rh`, `snowcover`, `thunder` and the other layer names windy.com offers.
 | almanac_extras | 1 | Shows extra sun and moon details. Requires the `ephem` Python package on your server.
 | highcharts_enabled | 1 | 0 hides the charts.
+| chart_library | highcharts | `echarts` draws the charts with Apache ECharts, which is free for any site. See [Highcharts or ECharts](#highcharts-or-echarts).
 | home_sections | conditions, forecast, onthisday, snapshot, charts | The blocks on the home page, in order. Leave one out to hide it, or add your own. See [Choose what's on the home page](#choose-whats-on-the-home-page-and-in-what-order).
 | home_view | dashboard | The home page layout visitors see first: `dashboard`, `forecast`, `radar` or `charts`. See [Home page layouts](#home-page-layouts).
 | storm_view | 1 | Storm mode: shows the radar first while it's raining or a storm alert is in effect. 0 turns it off. See [Home page layouts](#home-page-layouts).
@@ -672,6 +700,7 @@ This project took a lot of coffee to create. If you enjoy this skin and find som
 * Windy.com for the embedded radar.
 * Bootswatch Darkly for the Bootstrap dark mode.
 * Highcharts Dark Unica for the chart dark mode.
+* Apache ECharts for the charts with `chart_library = echarts` (asked for by gdt, #481, and aorovitz, #1024).
 * Gary, for help with the charts from version 0.1 through 0.9.1.
 * Brian at weather34.com for the weather icons from the Simplicity 2015 theme, used with agreement.
 * Some icons remixed by michaelundwd. Thanks!
