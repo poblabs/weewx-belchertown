@@ -877,12 +877,11 @@ function echarts_destroy() {
 }
 
 // The skin's light/dark switch recolors Highcharts with CSS; ECharts draws its own colors, so draw again
-new MutationObserver(function() {
-    if (!document.body || echarts_dark_on === null) return;
+document.addEventListener("wx-theme", function() {
     var dark = document.body.classList.contains("dark");
     if (dark === echarts_dark_on) return;
     Object.keys(echarts_store).forEach(function(id) {
         var entry = echarts_store[id];
         if (document.getElementById(id)) echarts_draw(entry.hc, entry.info, true);
     });
-}).observe(document.documentElement, {attributes: true, subtree: true, attributeFilter: ["class"]});
+});
