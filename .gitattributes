@@ -1,0 +1,4 @@
+# Left out of the release tarball: the docs site and its build files
+docs/ export-ignore
+mkdocs.yml export-ignore
+.github/ export-ignore

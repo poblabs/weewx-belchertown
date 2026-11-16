@@ -1,3 +1,12 @@
+Unreleased
+
+### Added
+* A documentation site, https://poblabs.github.io/weewx-belchertown/, built from the docs folder and updated with each release. The readme and the wiki are in one place there, with search, plus a chart gallery that shows every chart type drawn by both Highcharts and ECharts with its graphs.conf settings, and a page on putting charts on your own pages that works with both. The readme is now a short introduction.
+
+### Fixed
+* ECharts: rounded = 1 on a gauge now gives it round ends, as with Highcharts.
+* ECharts: a chart drawn with draw_chart() from your own code, with no colors of its own, no longer fails to draw.
+
 3.1.0 November 16, 2026
 
 A second chart library: Apache ECharts, free for any website, as an option next to Highcharts. Also the wind direction in the forecast.
