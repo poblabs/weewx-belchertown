@@ -108,6 +108,7 @@ Use your weewx computer's own name or address in place of `raspberrypi.local`. *
 
 * [How do I...?](how-do-i.md): the everyday changes, such as your site's name, your logo, metric units and dark mode.
 * [Make it yours](customize.md): everything you can change about the site.
+* [Chart builder](charts/chart-builder.md): open `chart-builder/` on your new site and make your first chart by pointing and clicking.
 * [Charts](charts/index.md): pick your own charts, and choose between Highcharts and the free ECharts.
 
 ## If it didn't work

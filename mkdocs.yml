@@ -70,9 +70,9 @@ nav:
       - How do I...?: how-do-i.md
       - Make it yours: customize.md
       - All skin options: options.md
+  - Chart builder: charts/chart-builder.md
   - Charts:
       - Charts: charts/index.md
-      - Chart builder: charts/chart-builder.md
       - Chart gallery: charts/gallery.md
       - Your own pages and charts: charts/custom-pages.md
       - graphs.conf reference: charts/graphs-conf.md
