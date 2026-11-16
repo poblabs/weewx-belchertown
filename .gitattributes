@@ -1,4 +1,5 @@
-# Left out of the release tarball: the docs site and its build files
+# Left out of the release tarball: the docs site, its build files and the tests
 docs/ export-ignore
 mkdocs.yml export-ignore
 .github/ export-ignore
+tests/ export-ignore
