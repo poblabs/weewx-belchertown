@@ -37,6 +37,12 @@ theme:
     logo: material/weather-partly-cloudy
     repo: fontawesome/brands/github
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/poblabs/weewx-belchertown
+      name: Belchertown on GitHub
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -50,6 +56,9 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
 
 nav:
   - Home: index.md
@@ -74,7 +83,14 @@ nav:
       - Wall display (kiosk): kiosk.md
       - Translations: translations.md
       - Adding a new observation: new-observations.md
+  - Examples:
+      - Two-column About page: examples/about-page.md
+      - Chart gallery: charts/gallery.md
   - Help:
       - Troubleshooting and FAQ: troubleshooting.md
       - Credits and thanks: about.md
       - Changelog: https://github.com/poblabs/weewx-belchertown/blob/master/changelog
+      - GitHub repository: https://github.com/poblabs/weewx-belchertown
+      - Downloads (releases): https://github.com/poblabs/weewx-belchertown/releases
+      - Questions (Discussions): https://github.com/poblabs/weewx-belchertown/discussions
+      - Report a bug: https://github.com/poblabs/weewx-belchertown/issues/new/choose
