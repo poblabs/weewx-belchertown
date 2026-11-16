@@ -634,6 +634,8 @@ function echarts_gauge(hc, info, theme) {
     var parts = text.split(/<br\s*\/?>/i).map(echarts_plain);
     var size = /font-size:\s*(\d+)px/.exec(text.split(/<br\s*\/?>/i)[1] || "");
     var color = point.color || s.color || hc.colors[0];
+    // rounded = 1 in graphs.conf arrives on the series; the AQI gauge sets it in plotOptions
+    var rounded = !!(s.rounded || (hc.plotOptions.solidgauge || {}).rounded);
     return {
         option: {
             title: echarts_title(hc, theme),
@@ -645,8 +647,8 @@ function echarts_gauge(hc, info, theme) {
                 max: echarts_num(y.max) || 100,
                 radius: "88%",
                 center: ["50%", "58%"],
-                progress: {show: true, width: 70, roundCap: !!(hc.plotOptions.solidgauge || {}).rounded, itemStyle: {color: color}},
-                axisLine: {roundCap: !!(hc.plotOptions.solidgauge || {}).rounded, lineStyle: {width: 70, color: [[1, theme.pane]]}},
+                progress: {show: true, width: 70, roundCap: rounded, itemStyle: {color: color}},
+                axisLine: {roundCap: rounded, lineStyle: {width: 70, color: [[1, theme.pane]]}},
                 pointer: {show: false},
                 axisTick: {show: false},
                 splitLine: {show: false},
@@ -715,6 +717,8 @@ function echarts_fit(option, width, height) {
 
 function echarts_build(hc, info, width, height) {
     var theme = echarts_theme(), built;
+    // A chart written by hand has no colors of its own; Highcharts would use its default list
+    if (!hc.colors || !hc.colors.length) hc.colors = ["#7cb5ec", "#b2df8a", "#f7a35c", "#8c6bb1", "#dd3497", "#e4d354", "#268bd2", "#f45b5b", "#6a3d9a", "#33a02c"];
     var first = hc.series && hc.series[0] || {};
     if (hc.chart.type === "solidgauge") built = echarts_gauge(hc, info, theme);
     else if (String(hc.chart.className || "").indexOf("highcharts-windRose") >= 0) built = echarts_windrose(hc, info, theme);
