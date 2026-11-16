@@ -751,6 +751,7 @@ function echarts_draw(hc, info, redraw) {
         built.option.animationDurationUpdate = 0;
     }
     chart.setOption(built.option);
+    echarts_fit_labels(chart, built.option);
     if (built.zoom) {
         echarts_reset_zoom(chart, echarts_theme());
         echarts_drag_zoom(el);
@@ -759,6 +760,40 @@ function echarts_draw(hc, info, redraw) {
     echarts_store[el.id] = {hc: hc, info: info || {}, width: el.clientWidth, zoom: !!built.zoom};
     echarts_seen[el.id] = true;
     return chart;
+}
+
+// Wide tick labels (30.500 on a narrow chart) would run into the axis name and push it off the edge:
+// measure the labels ECharts chose and widen that side of this chart only, so the rest keep the shared margins
+function echarts_fit_labels(chart, option) {
+    if (!option.grid || !option.yAxis) return;
+    var ctx = echarts_fit_labels.ctx || (echarts_fit_labels.ctx = document.createElement("canvas").getContext("2d"));
+    ctx.font = "12px " + ((option.textStyle && option.textStyle.fontFamily) || "sans-serif");
+    var grid = {}, axes = [], changed = false;
+    [].concat(option.yAxis).forEach(function(a, i) {
+        var widest = 0;
+        try {
+            chart.getModel().getComponent("yAxis", i).axis.getViewLabels().forEach(function(label) {
+                widest = Math.max(widest, ctx.measureText(String(label.formattedLabel)).width);
+            });
+        } catch (e) {
+            axes.push({});
+            return;
+        }
+        var side = a.position === "right" ? "right" : "left";
+        var gap = Math.ceil(widest + 17);
+        if (a.name && a.nameGap && gap > a.nameGap + 2) {
+            axes.push({nameGap: gap});
+            grid[side] = Math.max(grid[side] || 0, gap + 18);
+            changed = true;
+        } else if (!a.name && widest + 12 > option.grid[side] + 2) {
+            axes.push({});
+            grid[side] = Math.max(grid[side] || 0, Math.ceil(widest + 12));
+            changed = true;
+        } else {
+            axes.push({});
+        }
+    });
+    if (changed) chart.setOption({grid: grid, yAxis: axes});
 }
 
 // Legends and polar charts are laid out for a width, so a real width change draws the chart again
