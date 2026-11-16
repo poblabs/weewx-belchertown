@@ -7,6 +7,8 @@ Unreleased
 * The About page sample points to the docs and names the chart library in use.
 
 ### Fixed
+* Daily temperature range records are ranked using unrounded ranges, and their displayed difference is calculated before rounding the endpoints. Days whose ranges round to the same tenth no longer produce contradictory year and all-time records; true ties choose the earliest day.
+* A series configured with visible = false in graphs.conf is written as a JSON boolean instead of a string, so Highcharts hides it initially while keeping its legend toggle.
 * ECharts: rounded = 1 on a gauge now gives it round ends, as with Highcharts.
 * ECharts: a chart drawn with draw_chart() from your own code, with no colors of its own, no longer fails to draw.
 
