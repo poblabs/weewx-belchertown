@@ -156,9 +156,7 @@ function set_home_view(view, save) {
     HOME_VIEWS.forEach(function(v) { root.classList.remove("view-" + v); });
     root.classList.add("view-" + view);
     mark_home_view();
-    if (window.Highcharts) {
-        Highcharts.charts.forEach(function(chart) { if (chart) chart.reflow(); });
-    }
+    if (window.charts_reflow) charts_reflow();
 }
 
 function mark_home_view() {
@@ -553,6 +551,46 @@ function beaufort_cat(beaufort) {
     }
 }
 
+// Highcharts 13's numberFormat, so both chart libraries print numbers the same way
+function wx_number_format(number, decimals, decimalPoint, thousandsSep) {
+    var is_number = function(n) { return typeof n === "number" && !isNaN(n) && n < Infinity && n > -Infinity; };
+    number = +number || 0;
+    decimals = +decimals;
+    var parts = number.toString().split("e").map(Number), mantissa = parts[0], exp = parts[1];
+    var orig_dec = (number.toString().split(".")[1] || "").split("e")[0].length, first_decimals = decimals, options = {};
+    if (decimalPoint === undefined || decimalPoint === null) decimalPoint = config.highcharts_decimal;
+    if (thousandsSep === undefined || thousandsSep === null) thousandsSep = config.highcharts_thousands;
+    if (decimals === -1) {
+        decimals = Math.min(orig_dec, 20);
+    } else if (!is_number(decimals)) {
+        decimals = 2;
+    } else if (decimals && exp < 0) {
+        var fraction_digits = decimals + exp;
+        if (fraction_digits >= 0) {
+            mantissa = +mantissa.toExponential(fraction_digits).split("e")[0];
+            decimals = fraction_digits;
+        } else {
+            mantissa = Math.floor(mantissa);
+            number = decimals < 20 ? +(mantissa * Math.pow(10, exp)).toFixed(decimals) : 0;
+            exp = 0;
+        }
+    }
+    if (exp) number = mantissa;
+    if (is_number(decimals) && decimals >= 0) {
+        options.minimumFractionDigits = decimals;
+        options.maximumFractionDigits = decimals;
+    }
+    if (thousandsSep === "") options.useGrouping = false;
+    var has_separators = thousandsSep || decimalPoint;
+    var ret = new Intl.NumberFormat(has_separators ? "en" : (document.documentElement.lang || undefined), options).format(number);
+    if (has_separators) {
+        ret = ret.replace(/([,\.])/g, "_$1").replace(/_\,/g, thousandsSep !== undefined && thousandsSep !== null ? thousandsSep : ",").replace("_.", decimalPoint !== undefined && decimalPoint !== null ? decimalPoint : ".");
+    }
+    if ((!decimals && +ret === 0) || (exp < 0 && !first_decimals)) ret = "0";
+    if (exp && +ret !== 0) ret += "e" + (exp < 0 ? "" : "+") + exp;
+    return ret;
+}
+
 function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = false, rounding, mirrored = false, numberFormat) {
     // Mirrored values have the negative sign removed
     if (mirrored) {
@@ -610,7 +648,7 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = 
             // Try to apply the highcharts numberFormat for locale awareness. Use rounding from weewx.conf StringFormats.
             // -1 is set from Python to notate no rounding data available and decimals from graphs.conf is undefined.
             if (rounding == "-1" && typeof decimals === "undefined") {
-                output = Highcharts.numberFormat(obsvalue);
+                output = wx_number_format(obsvalue);
             } else {
                 // If the amount of decimal is defined, use that instead since rounding is provided to the function.
                 if (typeof decimals !== "undefined") {
@@ -625,11 +663,11 @@ function highcharts_tooltip_factory(obsvalue, point_obsType, highchartsReturn = 
                     thousandsSep = config.highcharts_thousands;
                 }
 
-                output = Highcharts.numberFormat(obsvalue, rounding, decimalPoint, thousandsSep);
+                output = wx_number_format(obsvalue, rounding, decimalPoint, thousandsSep);
             }
         } catch (err) {
             // Fall back to just returning the highcharts point number value, which is a best guess.
-            output = Highcharts.numberFormat(obsvalue);
+            output = wx_number_format(obsvalue);
         }
     }
 

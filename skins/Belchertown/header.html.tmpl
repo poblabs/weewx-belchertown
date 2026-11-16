@@ -138,12 +138,16 @@
         #if $page == "home" and "mqtt_websockets_enabled" in $Extras and $Extras.mqtt_websockets_enabled == '1'
         <script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
         #end if
+        #if $chart_library == "echarts"
+        <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/echarts@$echarts_version/dist/echarts.min.js'></script>
+        #else
         #set $highcharts = "https://cdn.jsdelivr.net/npm/highcharts@13"
         <script type='text/javascript' src='$highcharts/highstock.js'></script>
         <script type='text/javascript' src='$highcharts/highcharts-more.js'></script>
         <script type='text/javascript' src='$highcharts/modules/solid-gauge.js'></script>
         <script type='text/javascript' src='$highcharts/modules/exporting.js'></script>
         <script type='text/javascript' src='$highcharts/modules/accessibility.js'></script>
+        #end if
         #set global $js_version = int(time.time())
         <script type='text/javascript' src='$relative_url/js/belchertown-config.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown.js?$js_version'></script>
@@ -152,6 +156,9 @@
         <script type='text/javascript' src='$relative_url/js/belchertown-forecast.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-live.js?$js_version'></script>
         <script type='text/javascript' src='$relative_url/js/belchertown-charts.js?$js_version'></script>
+        #if $chart_library == "echarts"
+        <script type='text/javascript' src='$relative_url/js/belchertown-echarts.js?$js_version'></script>
+        #end if
         <script>
             // Set the session variables for the theme
             if ( sessionStorage.getItem('theme') === null ) {

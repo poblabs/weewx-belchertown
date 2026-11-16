@@ -89,4 +89,6 @@ function changeTheme(themeName, toggleOverride = false) {
         }
         sessionStorage.setItem('currentTheme', 'light');
     }
+    // Anything drawn in the theme's colors (the ECharts charts) listens for this, as the units button has wx-units
+    document.dispatchEvent(new Event("wx-theme"));
 }

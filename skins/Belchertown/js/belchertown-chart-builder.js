@@ -115,7 +115,7 @@ function cb_preview(s) {
                           legend: "true", exporting: "false"},
                 series: series};
     if (units_alt_on()) convert_chart_units({preview: plot});
-    Highcharts.charts.forEach(function(c) { if (c) c.destroy(); });
+    charts_destroy();
     render_chart(plot, {colors: CB_COLORS, credits: "highcharts_default", credits_url: "", credits_position: "{}"}, "chart_builder", false);
 }
 

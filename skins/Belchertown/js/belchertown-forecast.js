@@ -17,6 +17,13 @@ function aqi_category_label(category) {
     }[category] || labels.aqi_unknown;
 }
 
+// An arrow the way the forecast wind blows, its compass point as the tooltip; the plain wind icon when calm or unknown
+function forecast_wind_icon(degrees, speed) {
+    if (degrees === null || degrees === undefined || !(Math.round(speed) > 0)) return '<i class="wi wi-strong-wind"></i>';
+    var ordinal = config.ordinate_names[Math.round(degrees / 22.5) % 16];
+    return '<i class="wi wi-direction-down forecast-wind-dir" style="transform: rotate(' + Math.round(degrees) + 'deg)" title="' + ordinal + '" aria-label="' + ordinal + '"></i>';
+}
+
 function show_forcast_alert(data) {
     var i, forecast_alert_modal = "", forecast_alerts = [];
 
@@ -184,6 +191,7 @@ function update_forecast_data(data) {
                 "maxTemp": maxTemp,
                 "windSpeed": windSpeed,
                 "windGust": windGust,
+                "windIcon": forecast_wind_icon(p["wind_dir"], windSpeed),
                 "snow_depth": snow_depth,
                 "snow_unit": snow_unit,
                 "precip": precip,
@@ -249,7 +257,7 @@ function update_forecast_data(data) {
                     }
                     output_html += '</div>';
                     output_html += '<div class="forecast-wind">';
-                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span>';
+                    output_html += forecast_row[i]["windIcon"] + ' <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span>';
                     //  output_html += '<i class="wi wi-strong-wind"></i> <span>'+ parseFloat( forecast_row[i]["windSpeed"] ).toFixed(0) +'</span> | <span> '+ parseFloat( forecast_row[i]["windGust"] ).toFixed(0) +'$unit.label.windSpeed';        
                     output_html += '</div>';
                     if (extras.forecast_show_daily_forecast_link === '1') {
@@ -300,7 +308,7 @@ function update_forecast_data(data) {
                     }
                     output_html += '</div>';
                     output_html += '<div class="forecast-wind">';
-                    output_html += '<i class="wi wi-strong-wind"></i> <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + forecast_wind_label;
+                    output_html += forecast_row[i]["windIcon"] + ' <span>' + parseFloat(forecast_row[i]["windSpeed"]).toFixed(0) + '</span> | <span> ' + parseFloat(forecast_row[i]["windGust"]).toFixed(0) + forecast_wind_label;
                     output_html += '</div>';
                     if (extras.forecast_show_daily_forecast_link === '1') {
                     output_html += forecast_row[i]["forecast_link"];

@@ -3,6 +3,7 @@
 Each provider is downloaded and converted to one format, written to json/forecast.json and
 drawn by belchertown-forecast.js. Values are already in the units forecast_units asks for;
 wind is also given in knots for stations that show knots or Beaufort.
+wind_dir is the direction the wind comes from in degrees, or null.
 
     {"belchertown_forecast": 3, "provider": "openmeteo", "timestamp": 1791306900,
      "timezone": "America/New_York", "utc_offset": -14400,
@@ -10,10 +11,11 @@ wind is also given in knots for stations that show knots or Beaufort.
      "current": {"icon": "clear-day", "text": "Clear", "visibility": 10.0, "cloud_cover": 0} or null,
      "aqi": {"value": 34, "category": "good", "place": ""} or null,
      "daily" / "three_hourly" / "hourly": [{"time", "icon", "text", "temp_avg", "temp_min",
-         "temp_max", "dewpoint", "humidity", "pop", "wind", "gust", "wind_kts", "gust_kts", "snow"}],
+         "temp_max", "dewpoint", "humidity", "pop", "wind", "gust", "wind_kts", "gust_kts", "wind_dir", "snow"}],
      "alerts": [{"title", "body", "type", "expires"}]}
 """
 import json
+import math
 import os
 import time
 from urllib.request import Request, urlopen
@@ -161,6 +163,7 @@ def xweather_convert(raw, extras, labels, icons):
                 "gust": wind(p, "windGust"),
                 "wind_kts": p["windSpeedKTS"],
                 "gust_kts": p["windGustKTS"],
+                "wind_dir": p.get("windDirDEG"),
                 "snow": p["snowCM" if units["snow"] == "cm" else "snowIN"] or 0,
             })
         return out
@@ -277,7 +280,7 @@ def mean(values):
     return sum(values) / len(values) if values else None
 
 
-def period(show, when, icon, text, temps, dewpoints, humidities, pops, winds, gusts, snows, avg=None):
+def period(show, when, icon, text, temps, dewpoints, humidities, pops, winds, gusts, snows, avg=None, dirs=None):
     """One forecast period from lists of hourly metric values (or single daily values)."""
     temps = [t for t in temps if t is not None]
     return {
@@ -292,6 +295,7 @@ def period(show, when, icon, text, temps, dewpoints, humidities, pops, winds, gu
         "gust": show.wind(max([g or 0 for g in gusts] or [0])),
         "wind_kts": kts(winds[0] if winds else None),
         "gust_kts": kts(max([g or 0 for g in gusts] or [0])),
+        "wind_dir": dirs[0] if dirs else None,
         "snow": show.snow(sum(s or 0 for s in snows)),
     }
 
@@ -302,8 +306,17 @@ def hour_periods(show, h, start, span, count):
     for i in range(start, min(start + span * count, len(h["time"])), span):
         w = slice(i, min(i + span, len(h["time"])))
         out.append(period(show, h["time"][i], h["icon"][i], h["text"][i], h["temp"][w], h["dewpoint"][i:i + 1],
-                          h["humidity"][i:i + 1], h["pop"][w], h["wind"][i:i + 1], h["gust"][w], h["snow"][w]))
+                          h["humidity"][i:i + 1], h["pop"][w], h["wind"][i:i + 1], h["gust"][w], h["snow"][w],
+                          dirs=h["wind_dir"][i:i + 1]))
     return out
+
+
+def wind_dir_mean(dirs, speeds):
+    """Speed-weighted vector mean of wind directions in degrees, None when calm or unknown."""
+    pairs = [(d, s or 0) for d, s in zip(dirs, speeds) if d is not None]
+    x = sum(s * math.sin(math.radians(d)) for d, s in pairs)
+    y = sum(s * math.cos(math.radians(d)) for d, s in pairs)
+    return None if math.hypot(x, y) < 1e-6 else round(math.degrees(math.atan2(x, y))) % 360
 
 
 def first_hour(times):
@@ -321,9 +334,9 @@ def openmeteo_aqi(lat, lon):
 # ---------------------------------------------------------------------------- Open-Meteo
 
 def openmeteo_download(extras, lat, lon):
-    hourly = "temperature_2m,dew_point_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,snowfall,is_day"
+    hourly = "temperature_2m,dew_point_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,snowfall,is_day"
     daily = ("weather_code,temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_probability_max,"
-             "wind_speed_10m_max,wind_gusts_10m_max,snowfall_sum,relative_humidity_2m_mean,dew_point_2m_mean")
+             "wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,snowfall_sum,relative_humidity_2m_mean,dew_point_2m_mean")
     return {
         "timestamp": int(time.time()),
         "forecast": get_json(
@@ -348,6 +361,7 @@ def openmeteo_convert(raw, extras, labels):
         "time": h["time"], "icon": [l[0] for l in looks], "text": [l[1] for l in looks],
         "temp": h["temperature_2m"], "dewpoint": h["dew_point_2m"], "humidity": h["relative_humidity_2m"],
         "pop": h["precipitation_probability"], "wind": h["wind_speed_10m"], "gust": h["wind_gusts_10m"], "snow": h["snowfall"],
+        "wind_dir": h["wind_direction_10m"],
     }
     start = first_hour(h["time"])
 
@@ -359,7 +373,7 @@ def openmeteo_convert(raw, extras, labels):
                             [d["temperature_2m_min"][i], d["temperature_2m_max"][i]], [d["dew_point_2m_mean"][i]],
                             [d["relative_humidity_2m_mean"][i]], [d["precipitation_probability_max"][i]],
                             [d["wind_speed_10m_max"][i]], [d["wind_gusts_10m_max"][i]], [d["snowfall_sum"][i]],
-                            avg=d["temperature_2m_mean"][i]))
+                            avg=d["temperature_2m_mean"][i], dirs=[d["wind_direction_10m_dominant"][i]]))
 
     c = f.get("current") or {}
     current = None
@@ -462,7 +476,7 @@ def nws_convert(raw, extras, labels):
     grid = raw["grid"]["properties"]
     layers = {name: nws_series(grid.get(name, {})) for name in (
         "temperature", "dewpoint", "relativeHumidity", "probabilityOfPrecipitation", "windSpeed", "windGust",
-        "snowfallAmount")}
+        "windDirection", "snowfallAmount")}
 
     hourly_periods = raw["hourly"]["properties"]["periods"]
     times = [iso_epoch(p["startTime"]) for p in hourly_periods]
@@ -476,6 +490,7 @@ def nws_convert(raw, extras, labels):
         "pop": [layers["probabilityOfPrecipitation"].get(t) for t in times],
         "wind": [layers["windSpeed"].get(t) for t in times],
         "gust": [layers["windGust"].get(t) for t in times],
+        "wind_dir": [layers["windDirection"].get(t) for t in times],
         "snow": [(layers["snowfallAmount"].get(t) or 0) / 10 for t in times],
     }
     start = first_hour(times)
@@ -518,7 +533,9 @@ def nws_convert(raw, extras, labels):
                             [max([layers["windSpeed"].get(t) or 0 for t in hours] or [0])],
                             [layers["windGust"].get(t) for t in hours],
                             [(layers["snowfallAmount"].get(t) or 0) / 10 for t in hours],
-                            avg=mean(layers["temperature"].get(t) for t in hours)))
+                            avg=mean(layers["temperature"].get(t) for t in hours),
+                            dirs=[wind_dir_mean([layers["windDirection"].get(t) for t in hours],
+                                                [layers["windSpeed"].get(t) for t in hours])]))
 
     current = None
     ob = ((raw.get("observation") or {}).get("properties")) or {}
