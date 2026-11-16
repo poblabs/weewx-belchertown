@@ -1681,7 +1681,7 @@ def jquery_users(skin_dir, setting):
     for name in users:
         if name not in _jquery_logged:
             _jquery_logged.add(name)
-            loginf("%s uses jQuery, so jQuery is loaded for it. See 'jQuery' in the Belchertown README to update it." % name)
+            loginf("%s uses jQuery, so jQuery is loaded for it. See https://poblabs.github.io/weewx-belchertown/customize/#your-own-scripts-jquery-and-bootstrap to update it." % name)
     return users
 
 
@@ -1756,8 +1756,8 @@ def bootstrap_users(skin_dir, setting):
             users.append(name)
             if ("bootstrap", name) not in _jquery_logged:
                 _jquery_logged.add(("bootstrap", name))
-                loginf("%s uses Bootstrap classes (%s), so Bootstrap's stylesheet is loaded for it. See 'Bootstrap' in the "
-                       "Belchertown README." % (name, ", ".join(missing[:5])))
+                loginf("%s uses Bootstrap classes (%s), so Bootstrap's stylesheet is loaded for it. See "
+                       "https://poblabs.github.io/weewx-belchertown/customize/#your-own-scripts-jquery-and-bootstrap" % (name, ", ".join(missing[:5])))
     return users
 
 

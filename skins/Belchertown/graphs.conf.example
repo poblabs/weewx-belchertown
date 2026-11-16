@@ -1,7 +1,8 @@
 # This is the Belchertown skin charting system which utilizes Highcharts to display the chart data.
 #
-# PLEASE READ THE CHARTS WIKI! A lot of information is there and it will help you! 
-# It is located here: https://github.com/poblabs/weewx-belchertown/wiki/Belchertown-Charts-Documentation
+# PLEASE READ THE CHARTS DOCS! A lot of information is there and it will help you! 
+# Every chart type with its settings: https://poblabs.github.io/weewx-belchertown/charts/gallery/
+# Every setting: https://poblabs.github.io/weewx-belchertown/charts/graphs-conf/
 #   
 # Caution!
 # The more charts you have, the slower things can become. This is especially true at the YEAR level. These are interactive charts which have to build plot points from the database on every archive interval. This could result in large file sizes to generate, and for your website visitors to download. You're welcome to customize as many charts as you want, but be warned things could slow down if you do too much!
@@ -19,7 +20,6 @@
 # If that doesn't work, undo ALL changes and go back to the default graphs.conf.example configuration.
 # There is no guarantee that every customization option will work. 
 #
-# Detailed settings overview can be found in the wiki under Detailed Configuration Settings Overview
 #
 ###############################################################################
 

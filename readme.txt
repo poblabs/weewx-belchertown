@@ -1,7 +1,7 @@
 This is the Belchertown skin for the weewx weather system.
 Copyright 2018 Pat O'Brien
 
-Please view the README.md on GitHub for full configuration instructions. https://github.com/poblabs/weewx-belchertown
+Full documentation: https://poblabs.github.io/weewx-belchertown/
 
 Installation instructions:
 

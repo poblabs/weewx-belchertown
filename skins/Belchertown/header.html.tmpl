@@ -231,6 +231,10 @@
                                         <li class="menu-item menu-item-2"><a href="$relative_url/records/" itemprop="url"><span itemprop="name">$obs.label.nav_records</span></a></li>
                                         <li class="menu-item menu-item-3"><a href="$relative_url/reports/" itemprop="url"><span itemprop="name">$obs.label.nav_reports</span></a></li>
                                         <li class="menu-item menu-item-4"><a href="$relative_url/about/" itemprop="url"><span itemprop="name">$obs.label.nav_about</span></a></li>
+                                        ## Your own menu items, kept across upgrades
+                                        #if os.path.exists("menu.inc")
+                                        #include "menu.inc"
+                                        #end if
                                     </ul>
                                 </nav>
                                 <div class="header-toggles">

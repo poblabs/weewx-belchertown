@@ -19,6 +19,8 @@
         <h1>$obs.label.about_page_header</h1>
         #else if $page == "chartbuilder"
         <h1>$obs.label.chart_builder_page_header</h1>
+        #else if $varExists("page_header")
+        <h1>$page_header</h1>
         #end if
     </div>
     <div class="wx-page-header-info">

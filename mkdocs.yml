@@ -1,0 +1,80 @@
+site_name: Belchertown weewx skin
+site_description: A modern weather website for weewx, with live updates, forecasts, records and interactive charts.
+site_url: https://poblabs.github.io/weewx-belchertown/
+repo_url: https://github.com/poblabs/weewx-belchertown
+repo_name: poblabs/weewx-belchertown
+edit_uri: edit/master/docs/
+copyright: Belchertown is free software under the GNU GPL v3.
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.tabs.link
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  icon:
+    logo: material/weather-partly-cloudy
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Get started:
+      - Before you start: before-you-start.md
+      - Install: install.md
+      - Upgrade: upgrade.md
+      - Upgrading from 1.x: upgrading.md
+      - How do I...?: how-do-i.md
+      - Make it yours: customize.md
+      - All skin options: options.md
+  - Charts:
+      - Charts: charts/index.md
+      - Chart builder: charts/chart-builder.md
+      - Chart gallery: charts/gallery.md
+      - Your own pages and charts: charts/custom-pages.md
+      - graphs.conf reference: charts/graphs-conf.md
+  - Features:
+      - Forecasts: forecasts.md
+      - Live updates (MQTT): live-updates.md
+      - MQTT brokers: brokers.md
+      - Wall display (kiosk): kiosk.md
+      - Translations: translations.md
+      - Adding a new observation: new-observations.md
+  - Help:
+      - Troubleshooting and FAQ: troubleshooting.md
+      - Credits and thanks: about.md
+      - Changelog: https://github.com/poblabs/weewx-belchertown/blob/master/changelog
