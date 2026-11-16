@@ -52,7 +52,7 @@ extension_config = """
 
         [[[Extras]]]
 
-           # For help refer to the docs at https://github.com/poblabs/weewx-belchertown
+           # For help refer to the docs at https://poblabs.github.io/weewx-belchertown/
            # and consult skin.conf for the configurable elements and their hierarchy
 
            #--- General Options ---

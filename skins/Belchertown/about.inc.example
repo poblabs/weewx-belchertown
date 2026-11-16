@@ -1,23 +1,18 @@
 #encoding UTF-8
 <div class="entry-content about-outer" itemprop="text">
     <br>
-    <h2>Welcome to your new about page!</h2>
-    <p>Thank you for installing the <a href="https://github.com/poblabs/weewx-belchertown" target="_blank">Belchertown weewx skin</a>!</p>
-    <p>This is your default about page. To change this text:
-    <ul>
-        <li>Create a new file at <code>skins/Belchertown/about.inc</code>, or rename the <code>skins/Belchertown/about.inc.example</code> file to <code>about.inc</code></li>
-        <li>Use the example text within <code>skins/Belchertown/about.inc.example</code> to create your about page description!</li>
-        <li>Full HTML, and weewx variables are accepted.</li>
-    </ul>
-    </p>
-    <p>To show built in weewx variables (like station battery status (if supported), temperature, weewx version, etc.), just add them to this file. For example:</p>
+    <h2>Welcome to your new About page!</h2>
+    <p>Thank you for installing the <a href="https://poblabs.github.io/weewx-belchertown/" target="_blank">Belchertown weewx skin</a>!</p>
+    <p>This is the default About page. To write your own, copy <code>about.inc.example</code> to <code>about.inc</code> in the Belchertown skin folder and edit it. Plain text, HTML and weewx tags all work, and upgrades never overwrite it. <a href="https://poblabs.github.io/weewx-belchertown/customize/#about-and-records-pages" target="_blank">How to write your About page</a>, with an example to copy.</p>
+    <p>weewx tags show live facts about your station. For example:</p>
     <ul>
         <li>Station hardware: $station.hardware</li>
         <li>Server uptime: $station.os_uptime.long_form</li>
-        <li>WeeWX uptime: $station.uptime.long_form</li>
-        <li>WeeWX version: $station.version</li>
-        <li>Belchertown Skin Version: $belchertown_version</li>
+        <li>weewx uptime: $station.uptime.long_form</li>
+        <li>weewx version: $station.version</li>
+        <li>Belchertown skin version: $belchertown_version</li>
+        <li>Charts drawn by: #if $chart_library == "echarts"#<a href="https://echarts.apache.org/" target="_blank">Apache ECharts</a>#else#<a href="https://www.highcharts.com/" target="_blank">Highcharts</a>#end if#</li>
     </ul>
-    <p>For an example of what this page could say, please see <a href="https://belchertownweather.com/about" target="_blank">https://belchertownweather.com/about</a>. If you need more help, refer to <a href="https://github.com/poblabs/weewx-belchertown#creating-about-page-and-records-page" target="_blank">this link.</a></p>
+    <p>For an example of a finished About page, see <a href="https://belchertownweather.com/about" target="_blank">belchertownweather.com/about</a>.</p>
     <p>Enjoy your new weewx skin!</p>
 </div>

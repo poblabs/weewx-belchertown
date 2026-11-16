@@ -9,7 +9,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 [![The home page in light and dark mode](assets/hero.jpg)](assets/light_dark_modes.jpg)
 
-[Install it](install.md){ .md-button .md-button--primary } [See the chart gallery](charts/gallery.md){ .md-button } [Download the latest release](https://github.com/poblabs/weewx-belchertown/releases/latest){ .md-button }
+[Install it](install.md){ .md-button .md-button--primary } [New to this? Start here](before-you-start.md){ .md-button } [See the chart gallery](charts/gallery.md){ .md-button } [Download the latest release](https://github.com/poblabs/weewx-belchertown/releases/latest){ .md-button }
 
 !!! info "Belchertown 3 needs weewx 5.0 or newer"
     On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1). Coming from 1.3.1? See [Upgrading from 1.x](upgrading.md).
@@ -80,4 +80,5 @@ This is the original Belchertown skin, back in active development and refactored
 
 * Questions: ask in [GitHub Discussions](https://github.com/poblabs/weewx-belchertown/discussions).
 * Found a bug? [Open an issue](https://github.com/poblabs/weewx-belchertown/issues/new/choose).
+* Already installed? [How do I...?](how-do-i.md) answers the everyday questions, and [Upgrade](upgrade.md) covers new versions.
 * Something not working? Start with [Troubleshooting](troubleshooting.md).

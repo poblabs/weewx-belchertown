@@ -20,16 +20,20 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 ## Quick start
 
-1. Download the latest `weewx-belchertown-x.x.x.tar.gz` from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
-2. Install it: `weectl extension install weewx-belchertown-x.x.x.tar.gz`
-3. In `weewx.conf`, check that `[Station]` has your `latitude` and `longitude`, and set `HTML_ROOT` in the `[[Belchertown]]` section to a folder your web server shows, for example `/var/www/html/weewx/belchertown`.
-4. Restart weewx (`sudo systemctl restart weewx`) and wait for the next report, or run `weectl report run`.
+1. Install it (leave out `sudo` on a pip install, and answer `y`):
 
-The [install guide](https://poblabs.github.io/weewx-belchertown/install/) has the details, including where `weewx.conf` is and how to make Belchertown your main website. Then [make it yours](https://poblabs.github.io/weewx-belchertown/customize/).
+    ```
+    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.1.0/weewx-belchertown-3.1.0.tar.gz
+    ```
+
+2. In `weewx.conf`, set `HTML_ROOT` in the `[[Belchertown]]` section to a folder your web server shows, for example `/var/www/html/weewx/belchertown`, and check that `[Station]` has your `latitude` and `longitude`.
+3. Restart weewx (`sudo systemctl restart weewx`) and open your site after the next report.
+
+New to this? The [install guide](https://poblabs.github.io/weewx-belchertown/install/) goes one step at a time, and [Before you start](https://poblabs.github.io/weewx-belchertown/before-you-start/) explains the terminal and `weewx.conf`. Already running Belchertown? See [Upgrade](https://poblabs.github.io/weewx-belchertown/upgrade/).
 
 ## Help
 
-* [Troubleshooting and FAQ](https://poblabs.github.io/weewx-belchertown/troubleshooting/)
+* [How do I...?](https://poblabs.github.io/weewx-belchertown/how-do-i/) and [Troubleshooting and FAQ](https://poblabs.github.io/weewx-belchertown/troubleshooting/)
 * Questions: [GitHub Discussions](https://github.com/poblabs/weewx-belchertown/discussions)
 * Found a bug? [Open an issue](https://github.com/poblabs/weewx-belchertown/issues/new/choose)
 

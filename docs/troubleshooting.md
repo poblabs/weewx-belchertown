@@ -26,7 +26,7 @@ Set `belchertown_debug = 0` again when you are done.
 
 1. The lines from the weewx log that mention `belchertown`, from around the time of the problem.
 2. Any red lines from the browser console.
-3. Your weewx version (`weectl --version`) and Belchertown version (in the footer of your site).
+3. Your weewx version (`weectl --version`) and Belchertown version (`weectl extension list`).
 4. The `[[Belchertown]]` section of your `weewx.conf`, with passwords and API keys removed.
 
 ## The skin is slow after upgrading to weewx 5

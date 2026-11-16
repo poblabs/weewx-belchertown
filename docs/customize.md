@@ -92,7 +92,56 @@ Visitors can flip between light and dark with the switch next to the menu. That 
 
 ## About and Records pages
 
-Your About and Records pages can contain your own text (HTML is fine). In the Belchertown files folder ([where is it?](install.md)), copy `about.inc.example` to `about.inc` and `records.inc.example` to `records.inc`, edit them, and wait for the next archive period. Upgrades don't overwrite these files, but keep a backup anyway.
+The About page is yours to fill: your station, where it is, who runs it, where else its data goes. Until you write one, it shows the skin's welcome text. The Records page can have your own text above the records too.
+
+**To write your About page** (package install shown; on a pip install the folder is `~/weewx-data/skins/Belchertown` and you leave out `sudo`):
+
+```
+cd /etc/weewx/skins/Belchertown
+sudo cp about.inc.example about.inc
+sudo nano about.inc
+```
+
+Replace the welcome text with your own, save, and the page changes at the next report. There's no need to restart weewx. For the Records page, do the same with `records.inc.example` and `records.inc`. Upgrades never overwrite these files.
+
+Plain text works, but a little HTML makes it look right: `<p>` around each paragraph, `<h2>` for a heading, `<ul>` and `<li>` for a list, `<a href="...">` for a link and `<img src="...">` for a picture. **weewx tags** fill in live facts about your station each time the page is built, such as `$station.hardware`, `$station.location`, `$station.altitude` or `$station.uptime.long_form`.
+
+??? example "An About page to start from"
+
+    Copy this into `about.inc` and change the parts in capitals. The chart credit follows your [chart library](charts/index.md#highcharts-or-echarts) by itself.
+
+    ```html
+    #encoding UTF-8
+    <div class="entry-content about-outer" itemprop="text">
+        <h2>About this station</h2>
+        <p>This weather station is in YOUR TOWN, at $station.altitude above sea level.
+        It has been running since YEAR, and is run by YOUR NAME.</p>
+
+        <h3>Equipment</h3>
+        <ul>
+            <li>Weather station: $station.hardware</li>
+            <li>Computer: A RASPBERRY PI 4, running for $station.os_uptime.long_form</li>
+            <li>Software: <a href="https://weewx.com/">weewx</a> $station.version, running for $station.uptime.long_form</li>
+        </ul>
+
+        <h3>Where else to find this station</h3>
+        <ul>
+            <li><a href="https://www.wunderground.com/dashboard/pws/YOURID">YOURID</a> on Weather Underground</li>
+            <li><a href="https://www.pwsweather.com/station/pws/YOURID">YOURID</a> on PWSweather</li>
+        </ul>
+
+        <h3>This website</h3>
+        <ul>
+            <li>The <a href="https://poblabs.github.io/weewx-belchertown/">Belchertown skin</a> $belchertown_version for weewx</li>
+            <li>Charts by #if $chart_library == "echarts"#<a href="https://echarts.apache.org/">Apache ECharts</a>#else#<a href="https://www.highcharts.com/">Highcharts</a>#end if#</li>
+            <li>Forecast from <a href="https://open-meteo.com/">Open-Meteo</a> and alerts from the <a href="https://www.weather.gov/">National Weather Service</a></li>
+        </ul>
+    </div>
+    ```
+
+    Keep the `#encoding UTF-8` line at the top, so accents and symbols such as ° show correctly. A line that starts with `#` is read by weewx as an instruction, so don't start your own lines with `#`.
+
+For a finished example, see the [About page of BelchertownWeather.com](https://belchertownweather.com/about).
 
 ## Choose what's on the home page, and in what order
 
@@ -150,9 +199,19 @@ There are also four fixed places for your own content (HTML is fine). Create any
 
 ![Where the custom content goes](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
+## Your own pages and menu links
+
+You can add whole pages of your own (a webcam page, a page about your garden's rain gauge) and links in the menu at the top. See [Your own pages and charts](charts/custom-pages.md).
+
 ## Custom CSS
 
-To change the look and keep your changes across upgrades, create a `custom.css` file in your website folder. It's loaded after the skin's own styles.
+To change the look and keep your changes across upgrades, create a file called `custom.css` in the Belchertown skin folder ([where is it?](before-you-start.md#which-kind-of-weewx-you-have)). It's copied to your website at each report and loaded after the skin's own styles, so its rules win. For example, to make the page headings green:
+
+```css
+h1 { color: #2e7d32; }
+```
+
+Rules that start with `.dark` apply only in dark mode, for example `.dark h1 { color: #81c784; }`. Your browser's developer tools (F12, then the arrow at the top left) show which class names to use: point at a part of the page and they show its name.
 
 ## Your own scripts, jQuery and Bootstrap
 

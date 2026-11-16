@@ -2,6 +2,9 @@ Unreleased
 
 ### Added
 * A documentation site, https://poblabs.github.io/weewx-belchertown/, built from the docs folder and updated with each release. The readme and the wiki are in one place there, with search, plus a chart gallery that shows every chart type drawn by both Highcharts and ECharts with its graphs.conf settings, and a page on putting charts on your own pages that works with both. The readme is now a short introduction.
+* menu.inc in the skin folder adds your own links to the menu, after About, on every page and in the phone menu. Together with a page added in the [[Belchertown]] section of weewx.conf (see "Your own pages and charts" in the docs), your own pages get a place in the menu that upgrades keep.
+* A page of your own can set $page_header to give it a heading like the skin's pages.
+* The About page sample points to the docs and names the chart library in use.
 
 ### Fixed
 * ECharts: rounded = 1 on a gauge now gives it round ends, as with Highcharts.

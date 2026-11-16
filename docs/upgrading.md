@@ -49,32 +49,32 @@ These are the files in the skin folder that are yours, if you have them. Note wh
 * any `home_<name>.inc` file
 * `records-table.inc`, if you made one
 
-`custom.css` is not in the skin folder. It lives in your website folder (the `HTML_ROOT` of `[[Belchertown]]`), and upgrades don't touch it. Copy it anyway.
+* `custom.css` (your own styles), if you keep it in the skin folder. It can also be in your website folder (the `HTML_ROOT` of `[[Belchertown]]`). Upgrades touch neither, but copy it anyway.
 
-## Install 3.0
+## Install 3
 
-You install 3.0 over the top of 1.3.1. There is no need to uninstall first, and you shouldn't: uninstalling removes your `[[Belchertown]]` settings from `weewx.conf`. Installing keeps them.
+You install 3 over the top of 1.3.1. There is no need to uninstall first, and you shouldn't: uninstalling removes your `[[Belchertown]]` settings from `weewx.conf`. Installing keeps them.
 
-1. Download `weewx-belchertown-3.0.0.tar.gz` from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
+1. Download the newest `weewx-belchertown-3.x.x.tar.gz` (3.1.0 at the time of writing) from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
 2. Install it. The command depends on how weewx was installed:
 
    **Package install:**
 
    ```
-   sudo weectl extension install weewx-belchertown-3.0.0.tar.gz
+   sudo weectl extension install weewx-belchertown-3.1.0.tar.gz
    ```
 
    **pip install:** first turn on the Python environment weewx runs in (usually `~/weewx-venv`), then install:
 
    ```
    source ~/weewx-venv/bin/activate
-   weectl extension install weewx-belchertown-3.0.0.tar.gz
+   weectl extension install weewx-belchertown-3.1.0.tar.gz
    ```
 
    **git install:** run weectl from your weewx source folder (usually `~/weewx`):
 
    ```
-   python3 ~/weewx/src/weectl.py extension install weewx-belchertown-3.0.0.tar.gz
+   python3 ~/weewx/src/weectl.py extension install weewx-belchertown-3.1.0.tar.gz
    ```
 
    Answer `y` when it asks whether to install.
