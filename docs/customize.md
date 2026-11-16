@@ -141,7 +141,7 @@ Plain text works, but a little HTML makes it look right: `<p>` around each parag
 
     Keep the `#encoding UTF-8` line at the top, so accents and symbols such as ° show correctly. A line that starts with `#` is read by weewx as an instruction, so don't start your own lines with `#`.
 
-For a finished example, see the [About page of BelchertownWeather.com](https://belchertownweather.com/about).
+Want photos, a table of station facts and charts beside your text? The [two-column About page](examples/about-page.md) example is ready to copy.
 
 ## Choose what's on the home page, and in what order
 
