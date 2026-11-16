@@ -9,6 +9,7 @@ Unreleased
 ### Fixed
 * ECharts: rounded = 1 on a gauge now gives it round ends, as with Highcharts.
 * ECharts: a chart drawn with draw_chart() from your own code, with no colors of its own, no longer fails to draw.
+* ECharts: on narrow charts, such as on a phone, wide axis numbers (30.450 on the barometer) no longer push the axis title off the edge. Only the charts that need it get a wider margin, so the others still line up.
 
 3.1.0 November 16, 2026
 

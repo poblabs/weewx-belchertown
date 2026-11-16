@@ -9,7 +9,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 [![The home page in light and dark mode](assets/hero.jpg)](assets/light_dark_modes.jpg)
 
-[Install it](install.md){ .md-button .md-button--primary } [New to this? Start here](before-you-start.md){ .md-button } [See the chart gallery](charts/gallery.md){ .md-button } [Download the latest release](https://github.com/poblabs/weewx-belchertown/releases/latest){ .md-button }
+[Install it](install.md){ .md-button .md-button--primary } [New to this? Start here](before-you-start.md){ .md-button } [The chart builder](charts/chart-builder.md){ .md-button } [See the chart gallery](charts/gallery.md){ .md-button } [Download the latest release](https://github.com/poblabs/weewx-belchertown/releases/latest){ .md-button }
 
 !!! info "Belchertown 3 needs weewx 5.0 or newer"
     On weewx 3 or 4, use [Belchertown 1.3.1](https://github.com/poblabs/weewx-belchertown/releases/tag/weewx-belchertown-1.3.1). Coming from 1.3.1? See [Upgrading from 1.x](upgrading.md).
@@ -18,11 +18,17 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
 <div class="grid cards" markdown>
 
+-   **A chart builder**
+
+    ---
+
+    Make a chart by pointing and clicking: pick what to plot and watch it draw from your own data, then copy the text it gives you. No chart settings to write by hand. [See how](charts/chart-builder.md), or [try it on BelchertownWeather.com](https://belchertownweather.com/chart-builder/).
+
 -   **Charts you design**
 
     ---
 
-    Lines, columns, wind roses, Hays charts, temperature radials and gauges, from any reading in your database over any time range. Build them by pointing and clicking in the [chart builder](charts/chart-builder.md), or copy one from the [gallery](charts/gallery.md).
+    Lines, columns, wind roses, Hays charts, temperature radials and gauges, from any reading in your database over any time range. Start in the chart builder, or copy one from the [gallery](charts/gallery.md).
 
 -   **Highcharts or ECharts**
 
