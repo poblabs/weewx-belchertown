@@ -147,6 +147,29 @@ def translate_title(label_dict, title):
     return title if isinstance(translated, list) else translated
 
 
+def _get_daily_temperature_range(manager, start_ts, stop_ts, min_day_count, maximum=False):
+    """Rank ranges at six decimals to suppress subtraction noise in ties."""
+    query = (
+        "SELECT dateTime, (max - min) AS total, min, max "
+        "FROM archive_day_outTemp WHERE dateTime < ? "
+        "AND min IS NOT NULL AND max IS NOT NULL AND count >= ?"
+    )
+    parameters = [stop_ts, min_day_count]
+    if start_ts is not None:
+        query += " AND dateTime >= ?"
+        parameters.append(start_ts)
+    # Ignore floating-point subtraction noise; prefer the earliest tied day.
+    query += " ORDER BY ROUND(max - min, 6) %s, dateTime ASC LIMIT 1;" % (
+        "DESC" if maximum else "ASC"
+    )
+    return manager.getSql(query, tuple(parameters))
+
+
+def _temperature_range_total(maximum, minimum, converter, number_format):
+    """Subtract converted, unrounded endpoints before formatting the difference."""
+    return number_format % (converter.convert(maximum)[0] - converter.convert(minimum)[0])
+
+
 # Print version in syslog for easier troubleshooting
 VERSION = "3.1.0"
 
@@ -593,28 +616,24 @@ class getData(SearchList):
 
         # Temperature Range Lookups
 
-        # 1. The database query finds the result based off the total column.
+        # 1. The database query ranks unrounded ranges; display rounding can create false ties.
         # 2. We need to convert the min, max to the site's requested unit.
         # 3. We need to recalculate the min/max range because the unit may have changed.
         # Days the station recorded for less than half of are left out: a few readings make a false "smallest range".
         # Measured against the longest archive interval ever used, so old days from a slower interval still count.
         min_day_count = int(43200 / (max_archive_interval(wx_manager) * 60))
 
-        year_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total DESC LIMIT 1;"
-            % (year_start_epoch, today_start_epoch, min_day_count)
+        year_outTemp_max_range_query = _get_daily_temperature_range(
+            wx_manager, year_start_epoch, today_start_epoch, min_day_count, maximum=True
         )
-        year_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime >= %s AND dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total ASC LIMIT 1;"
-            % (year_start_epoch, today_start_epoch, min_day_count)
+        year_outTemp_min_range_query = _get_daily_temperature_range(
+            wx_manager, year_start_epoch, today_start_epoch, min_day_count
         )
-        at_outTemp_max_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total DESC LIMIT 1;"
-            % (today_start_epoch, min_day_count)
+        at_outTemp_max_range_query = _get_daily_temperature_range(
+            wx_manager, None, today_start_epoch, min_day_count, maximum=True
         )
-        at_outTemp_min_range_query = wx_manager.getSql(
-            "SELECT dateTime, ROUND( (max - min), 1 ) as total, ROUND( min, 1 ) as min, ROUND( max, 1 ) as max FROM archive_day_outTemp WHERE dateTime < %s AND min IS NOT NULL AND max IS NOT NULL AND count >= %s ORDER BY total ASC LIMIT 1;"
-            % (today_start_epoch, min_day_count)
+        at_outTemp_min_range_query = _get_daily_temperature_range(
+            wx_manager, None, today_start_epoch, min_day_count
         )
 
         # Find the group_name for outTemp in database
@@ -653,8 +672,9 @@ class getData(SearchList):
                 % self.generator.converter.convert(year_outTemp_max_range_min_tuple)[0]
             )
             # Largest Daily Temperature Range total
-            year_outTemp_max_range_total = outTemp_round % (
-                float(year_outTemp_max_range_max) - float(year_outTemp_max_range_min)
+            year_outTemp_max_range_total = _temperature_range_total(
+                year_outTemp_max_range_max_tuple, year_outTemp_max_range_min_tuple,
+                self.generator.converter, outTemp_round
             )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_max = [
@@ -694,8 +714,9 @@ class getData(SearchList):
                 % self.generator.converter.convert(year_outTemp_min_range_min_tuple)[0]
             )
             # Smallest Daily Temperature Range total
-            year_outTemp_min_range_total = outTemp_round % (
-                float(year_outTemp_min_range_max) - float(year_outTemp_min_range_min)
+            year_outTemp_min_range_total = _temperature_range_total(
+                year_outTemp_min_range_max_tuple, year_outTemp_min_range_min_tuple,
+                self.generator.converter, outTemp_round
             )
             # Replace the SQL Query output with the converted values
             year_outTemp_range_min = [
@@ -735,8 +756,9 @@ class getData(SearchList):
                 % self.generator.converter.convert(at_outTemp_max_range_min_tuple)[0]
             )
             # Largest Daily Temperature Range total
-            at_outTemp_max_range_total = outTemp_round % (
-                float(at_outTemp_max_range_max) - float(at_outTemp_max_range_min)
+            at_outTemp_max_range_total = _temperature_range_total(
+                at_outTemp_max_range_max_tuple, at_outTemp_max_range_min_tuple,
+                self.generator.converter, outTemp_round
             )
             # Replace the SQL Query output with the converted values
             at_outTemp_range_max = [
@@ -776,8 +798,9 @@ class getData(SearchList):
                 % self.generator.converter.convert(at_outTemp_min_range_min_tuple)[0]
             )
             # Smallest Daily Temperature Range total
-            at_outTemp_min_range_total = outTemp_round % (
-                float(at_outTemp_min_range_max) - float(at_outTemp_min_range_min)
+            at_outTemp_min_range_total = _temperature_range_total(
+                at_outTemp_min_range_max_tuple, at_outTemp_min_range_min_tuple,
+                self.generator.converter, outTemp_round
             )
             # Replace the SQL Query output with the converted values
             at_outTemp_range_min = [
@@ -3826,7 +3849,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
     def highcharts_series_options_to_float(self, d):
         """
         Recurse through all the series options and set any strings that
-        should be numbers to float.
+        should be numbers to float, and visibility to a JSON boolean.
         https://stackoverflow.com/a/54565277/1177153
         """
 
@@ -3837,7 +3860,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     self.highcharts_series_options_to_float(v)
                 else:
                     try:
-                        v = to_float(v)
+                        v = to_bool(v) if k == "visible" else to_float(v)
                         d.update({k: v})
                     except:
                         pass
