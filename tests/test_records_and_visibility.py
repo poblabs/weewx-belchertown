@@ -97,6 +97,19 @@ def test_true_ties_choose_the_earliest_day(summaries, maximum):
     )[0] == 100
 
 
+@pytest.mark.parametrize("maximum", [False, True])
+def test_tenths_based_ranges_ignore_floating_point_noise(summaries, maximum):
+    # Real Fahrenheit readings: both days have a 2.9-degree range.
+    older, newer = 1577750400, 1758672000  # 2019-12-31 and 2025-09-24 UTC.
+    summaries.add((newer, 63.6, 66.5, 288), (older, 30.7, 33.6, 288))
+    assert 33.6 - 30.7 != 66.5 - 63.6
+    result = belchertown._get_daily_temperature_range(
+        summaries, None, newer + 86400, 144, maximum=maximum
+    )
+    assert result[0] == older
+    assert result[1] == pytest.approx(2.9)
+
+
 def test_no_eligible_record(summaries):
     assert belchertown._get_daily_temperature_range(
         summaries, None, 400, 144
