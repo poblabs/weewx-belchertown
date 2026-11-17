@@ -148,7 +148,7 @@ def translate_title(label_dict, title):
 
 
 def _get_daily_temperature_range(manager, start_ts, stop_ts, min_day_count, maximum=False):
-    """Select by the actual range, rounding only when the record is displayed."""
+    """Rank ranges at six decimals to suppress subtraction noise in ties."""
     query = (
         "SELECT dateTime, (max - min) AS total, min, max "
         "FROM archive_day_outTemp WHERE dateTime < ? "
@@ -158,8 +158,8 @@ def _get_daily_temperature_range(manager, start_ts, stop_ts, min_day_count, maxi
     if start_ts is not None:
         query += " AND dateTime >= ?"
         parameters.append(start_ts)
-    # Only genuinely equal ranges are ties; prefer the earliest such day.
-    query += " ORDER BY total %s, dateTime ASC LIMIT 1;" % (
+    # Ignore floating-point subtraction noise; prefer the earliest tied day.
+    query += " ORDER BY ROUND(max - min, 6) %s, dateTime ASC LIMIT 1;" % (
         "DESC" if maximum else "ASC"
     )
     return manager.getSql(query, tuple(parameters))
