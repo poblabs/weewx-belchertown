@@ -90,7 +90,8 @@ function echarts_temperature_pieces(unit, low, high) {
         if (last && last.color === color) last.lt = v + step;
         else pieces.push({gte: v, lt: v + step, color: color});
     }
-    if (pieces.length) {
+    // Open ends only with a closed piece between them: ECharts draws no line from open ends alone
+    if (pieces.length > 2) {
         delete pieces[0].gte;
         delete pieces[pieces.length - 1].lt;
     }
