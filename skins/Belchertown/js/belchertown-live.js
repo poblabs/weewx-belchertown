@@ -196,6 +196,21 @@ function refreshHooks() {
 }
 
 // Handle MQTT message
+// weewx-mqtt shortens these unit names in its payload keys (outTemp_C, windSpeed_kph)
+var MQTT_UNITS = {C: "degree_C", F: "degree_F", in: "inch", mph: "mile_per_hour", kph: "km_per_hour", mps: "meter_per_second"};
+
+// A payload value in the skin's units: dayRain_cm becomes mm on a station that shows mm
+function mqtt_value(value, suffix, obs) {
+    value = parseFloat(value);
+    var from = MQTT_UNITS[suffix] || suffix;
+    var to = units_config.groups[units_config.obs[obs]];
+    var temps = ["degree_C", "degree_F"];
+    if (from && to && ((from in UNIT_FACTOR && to in UNIT_FACTOR) || (temps.indexOf(from) >= 0 && temps.indexOf(to) >= 0))) {
+        return convert_unit(value, from, to);
+    }
+    return value;
+}
+
 function update_current_wx(data) {
     data = JSON.parse(data);
 
@@ -263,7 +278,7 @@ function update_current_wx(data) {
             }
             // A payload key is the observation and its unit, as in outTemp_C. windGust isn't windGustDir.
             if (mqttdata === thisElementClass || mqttdata.startsWith(thisElementClass + "_")) {
-                html_output = parseFloat(parseFloat(data[mqttdata])).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
+                html_output = mqtt_value(data[mqttdata], mqttdata.slice(thisElementClass.length + 1), thisElementClass).toLocaleString(config.system_locale_js, {minimumFractionDigits: unit_rounding_array[thisElementClass], maximumFractionDigits: unit_rounding_array[thisElementClass], useGrouping: localeStringUseGrouping}) + unit_label_array[thisElementClass];
 
                 // Finally update the element class
                 wx_html("." + thisElementClass, html_output);
