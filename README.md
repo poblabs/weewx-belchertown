@@ -32,7 +32,7 @@ Every Belchertown site has a chart builder at `chart-builder/`. Pick what to plo
 1. Install it (leave out `sudo` on a pip install, and answer `y`):
 
     ```
-    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.1/weewx-belchertown-3.2.1.tar.gz
+    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.2/weewx-belchertown-3.2.2.tar.gz
     ```
 
 2. In `weewx.conf`, set `HTML_ROOT` in the `[[Belchertown]]` section to a folder your web server shows, for example `/var/www/html/weewx/belchertown`, and check that `[Station]` has your `latitude` and `longitude`.

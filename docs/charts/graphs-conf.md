@@ -1034,38 +1034,34 @@ Grouped charts read the database directly and work with SQLite and MySQL databas
 
 ## y axis labels
 
-Each scale (left and right) gets a label, normally the observation's name with its unit, like "Dew Point (°F)".
+Each scale (left and right) gets a label, normally the observation's name with its unit, like "Outside Temperature (°F)".
 
-When several observations share a scale, **the last observation on that scale sets the label**. In this chart the left label comes from `dewpoint`, the last one:
+When several observations share the left scale, **the one drawn on top sets the label**: the one with the highest [zIndex](#zindex), or the first if none has one. An observation that sets its own [yAxis_label](#yaxis_label) comes before both. In this chart the label is "Outside Temperature (°F)", from `outTemp`:
 
 ```
     [[chart1]]
         title = Temperature
         [[[outTemp]]]
-            name = Temperature
             zIndex = 1
         [[[windchill]]]
         [[[heatindex]]]
         [[[dewpoint]]]
 ```
 
-![label from the last observation](https://user-images.githubusercontent.com/3484775/58375972-8c8fc900-7f2d-11e9-9388-2227d1a9a3a3.png)
-
-To choose the label, set [yAxis_label](#yaxis_label) on the chart. It then applies to every observation, so the last one carries it too:
+To choose the words, set `yAxis_label` on the chart, so it applies to every observation:
 
 ```
     [[chart1]]
         title = Temperature
         yAxis_label = "Temperature"
         [[[outTemp]]]
-            name = Temperature
             zIndex = 1
         [[[windchill]]]
         [[[heatindex]]]
         [[[dewpoint]]]
 ```
 
-This gives "Temperature (°F)". If you set `yAxis_label` on single observations instead, only the one on the last observation of each scale is shown.
+This gives "Temperature (°F)". Or set it on one observation, which then wins over the others on its scale. Before 3.2.2 the *last* observation set the label, so a chart without `yAxis_label` could show "Dew Point (°F)" on a temperature chart.
 
 To remove the label, set it to nothing on the chart:
 

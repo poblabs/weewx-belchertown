@@ -227,6 +227,7 @@ function convert_chart_units(data) {
             });
             if (s.yAxis_label) s.yAxis_label = swap_axis_unit(s.yAxis_label, from_label, to_label);
             if (plot.options && plot.options.yAxis_label) plot.options.yAxis_label = swap_axis_unit(plot.options.yAxis_label, from_label, to_label);
+            if (plot.options && plot.options.yAxis_title) plot.options.yAxis_title = swap_axis_unit(plot.options.yAxis_title, from_label, to_label);
             if (s.rounding !== undefined && s.rounding >= 0) s.rounding = unit_decimals(to);
             if (s.range_unit) {
                 s.range_unit = to;

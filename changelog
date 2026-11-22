@@ -1,3 +1,16 @@
+3.2.2 November 22, 2026
+
+Chart labels: the whole time at the ends of the time axis, and axis titles from the right line.
+
+### Changed
+* When several lines share a chart's left scale, its title comes from a line that sets yAxis_label, else from the line drawn on top (the highest zIndex), else the first, instead of always the last. A temperature chart was titled "Dew Point (°F)"; a graphs.conf copied from the example now shows "Outside Temperature (°F)", and its wind charts keep "Wind Speed".
+* graphs.conf.example: the temperature charts set yAxis_label = Temperature.
+
+### Fixed
+* Highcharts: the time at either end of the bottom axis shows in full ("12:00 PM", not "12:00…"), moved just inside the chart. It had been cut short since 3.0.0 whenever the data ended on a labeled hour.
+* Highcharts: the Hays chart's circle is smaller on narrow charts, so the times around it fit on a phone instead of being cut short.
+* yAxis_label is translated like a chart title, so "Temperature" becomes "Temperatur" with lang = de.
+
 3.2.1 November 22, 2026
 
 Fixes for the Highcharts wind rose: its compass points in dark mode and its legend.
