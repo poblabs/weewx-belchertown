@@ -257,16 +257,11 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
 
             // We may have already passed through array 0 in the series without setting the "multi axis label", go back and explicitly define it.
             if (yAxis_index >= 1) {
-                options.yAxis[0].title.text = options.series[0].yAxis_label;
+                options.yAxis[0].title.text = opt.yAxis_title !== undefined ? opt.yAxis_title : options.series[0].yAxis_label;
             }
         } else {
-            if (yAxis1_active) {
-                // This yAxis is first in the data series, so we can set labels without needing to double back
-                options.yAxis[0].title.text = s.yAxis_label;
-            } else {
-                // Apply the normal yAxis 0's label without observation name
-                options.yAxis[0].title.text = s.yAxis_label;
-            }
+            // The chart's own axis title when the JSON has one; a chart file from before 3.2.2 takes the last series'
+            options.yAxis[0].title.text = opt.yAxis_title !== undefined ? opt.yAxis_title : s.yAxis_label;
             // Associate this series to yAxis 1
             s.yAxis = 0;
         }
@@ -407,13 +402,31 @@ function charts_destroy() {
     if (window.Highcharts) Highcharts.charts.forEach(function(chart) { if (chart) chart.destroy(); });
 }
 
+// Highcharts shortens a time label at the end of the axis ("12:00…"); the labels overflow instead, and this moves one back inside the chart
+function chart_edge_labels_inside() {
+    var chart = this;
+    chart.xAxis.forEach(function(axis) {
+        if (!axis.horiz || axis.isRadial) return;
+        Object.keys(axis.ticks).forEach(function(pos) {
+            var label = axis.ticks[pos].label;
+            if (!label || !label.element) return;
+            label.attr({translateX: 0});
+            var box = label.getBBox(), left = (label.attr("x") || 0) + box.x, dx = 0;
+            if (left + box.width > chart.chartWidth - 2) dx = chart.chartWidth - 2 - left - box.width;
+            else if (left < 2) dx = 2 - left;
+            if (dx) label.attr({translateX: dx});
+        });
+    });
+}
+
 function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_format) {
     var options = {
         chart: {
             renderTo: '',
             spacing: [5, 10, 10, 0],
             type: '',
-            zoomType: 'x'
+            zoomType: 'x',
+            events: {render: chart_edge_labels_inside}
         },
 
         exporting: {
@@ -499,6 +512,8 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
                 month: '%b %y',
             },
             labels: {
+                // Show the whole time at the axis ends instead of "12:00…"
+                overflow: 'allow',
                 formatter: function() {
                     var hourly = this.tickPositionInfo && ["minute", "hour"].indexOf(this.tickPositionInfo.unitName) >= 0;
                     if (hourly && this.chart.time.dateFormat('%H:%M', this.value) === '00:00') {
@@ -855,6 +870,8 @@ function hays_chart(options, observation_type, tooltip_date_format) {
     options.legend = {"enabled": false}
     // Two-hour spokes; newer Highcharts would label every hour around the circle
     options.xAxis.tickInterval = 2 * 3600 * 1000;
+    // A smaller circle on narrow charts leaves room for the times around it
+    options.responsive = {rules: [{condition: {maxWidth: 500}, chartOptions: {pane: {size: "62%"}}}]};
     options.yAxis = {
         showFirstLabel: false,
         tickInterval: 2,

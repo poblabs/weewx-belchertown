@@ -42,6 +42,7 @@ tooltip_date_format = "LLL"
 
     [[chart1]]
         title = Temperature
+        yAxis_label = Temperature
         [[[outTemp]]]
             zIndex = 1
 #            name = Temperature
@@ -94,6 +95,7 @@ tooltip_date_format = "LLL"
 
     [[chart1]]
         title = Temperature
+        yAxis_label = Temperature
         [[[outTemp]]]
             zIndex = 1
 #            name = Temperature
@@ -147,6 +149,7 @@ tooltip_date_format = "LLL"
 
     [[chart1]]
         title = Temperature
+        yAxis_label = Temperature
         [[[outTemp]]]
             zIndex = 1
 #            name = Temperature
@@ -205,6 +208,7 @@ tooltip_date_format = "LLL"
 
     [[chart1]]
         title = Temperature
+        yAxis_label = Temperature
         [[[outTemp]]]
             zIndex = 1
             name = Max Temperature
@@ -263,6 +267,7 @@ tooltip_date_format = "LLL"
 
     [[chart1]]
         title = Temperature
+        yAxis_label = Temperature
         [[[outTemp]]]
             zIndex = 1
             name = Max Temperature

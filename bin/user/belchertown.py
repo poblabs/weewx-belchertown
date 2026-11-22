@@ -171,7 +171,7 @@ def _temperature_range_total(maximum, minimum, converter, number_format):
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "3.2.1"
+VERSION = "3.2.2"
 
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.
@@ -2156,6 +2156,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 else:
                     output[chart_group][plotname]["options"]["exporting"] = "false"
 
+                # The left scale's title: a series that sets yAxis_label, else the line drawn on top (zIndex), else the first
+                axis_title_rank = None
                 # Loop through each [[[observation]]] within the chart_group.
                 for line_name in self.chart_dict[chart_group][plotname].sections:
                     output[chart_group][plotname]["series"][line_name] = {}
@@ -2441,6 +2443,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     # Set the yAxis label. Place into series for custom
                     # JavaScript. Highcharts will ignore these by default
                     yAxisLabel_config = line_options.get("yAxis_label", None)
+                    if yAxisLabel_config:
+                        yAxisLabel_config = translate_title(label_dict, yAxisLabel_config)
                     # Set a default yAxis label if graphs.conf yAxis_label is
                     # none and there's a unit_label - e.g. Temperature (F)
                     if yAxisLabel_config is None and unit_label:
@@ -2454,9 +2458,16 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     else:
                         # Unknown observation, set the default label to ""
                         yAxis_label = ""
-                    output[chart_group][plotname]["options"][
-                        "yAxis_label"
-                    ] = yAxis_label
+                    if str(line_options.get("yAxis", "0")).strip() not in ("1", "1.0"):
+                        try:
+                            z_index = float(line_options.get("zIndex", 0))
+                        except (TypeError, ValueError):
+                            z_index = 0
+                        rank = (yAxisLabel_config is not None, z_index)
+                        if axis_title_rank is None or rank > axis_title_rank:
+                            axis_title_rank = rank
+                            output[chart_group][plotname]["options"]["yAxis_title"] = yAxis_label
+                    output[chart_group][plotname]["options"]["yAxis_label"] = yAxis_label
                     output[chart_group][plotname]["series"][line_name][
                         "yAxis_label"
                     ] = yAxis_label
