@@ -4337,6 +4337,11 @@ textarea:focus {
     fill: #e0e0e3 !important;
 }
 
+.dark .highcharts-axis-labels div,
+.dark .highcharts-axis-labels span {
+    color: #e0e0e3 !important;
+}
+
 .dark .highcharts-contextbutton .highcharts-button-symbol {
     stroke: #ddd !important;
 }

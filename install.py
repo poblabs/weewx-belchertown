@@ -10,7 +10,7 @@ from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
-VERSION      = "3.2.0"
+VERSION      = "3.2.1"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
