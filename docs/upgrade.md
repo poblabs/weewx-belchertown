@@ -52,18 +52,18 @@ If you keep `custom.css` in your website folder rather than the skin folder, cop
 
 ## 2. Install the new version
 
-The same command as a [new install](install.md#2-install-the-skin), with the new version number in both places. For 3.2.0:
+The same command as a [new install](install.md#2-install-the-skin), with the new version number in both places. For 3.2.1:
 
 === "Package install"
 
     ```
-    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.0/weewx-belchertown-3.2.0.tar.gz
+    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.1/weewx-belchertown-3.2.1.tar.gz
     ```
 
 === "pip install"
 
     ```
-    weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.0/weewx-belchertown-3.2.0.tar.gz
+    weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.1/weewx-belchertown-3.2.1.tar.gz
     ```
 
 Type `y` when it asks. **You should see** `Finished installing extension Belchertown`. There's no need to uninstall the old version first, and you shouldn't: uninstalling removes your `[[Belchertown]]` settings from `weewx.conf`.
@@ -82,10 +82,10 @@ The [changelog](https://github.com/poblabs/weewx-belchertown/blob/master/changel
 
 ## Going back to an older version
 
-If a new version gives you trouble, install the old one again the same way as step 2, with its version number (every version is on the [releases page](https://github.com/poblabs/weewx-belchertown/releases)). For example, to go back to 3.1.0:
+If a new version gives you trouble, install the old one again the same way as step 2, with its version number (every version is on the [releases page](https://github.com/poblabs/weewx-belchertown/releases)). For example, to go back to 3.2.0:
 
 ```
-sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.1.0/weewx-belchertown-3.1.0.tar.gz
+sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.0/weewx-belchertown-3.2.0.tar.gz
 ```
 
 Restart weewx. Then please [tell us what went wrong](https://github.com/poblabs/weewx-belchertown/issues/new/choose), so it can be fixed.

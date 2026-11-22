@@ -20,13 +20,13 @@ This downloads Belchertown 3.1.0 and installs it in one go. Pick your kind of we
 === "Package install"
 
     ```
-    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.0/weewx-belchertown-3.2.0.tar.gz
+    sudo weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.1/weewx-belchertown-3.2.1.tar.gz
     ```
 
 === "pip install"
 
     ```
-    weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.0/weewx-belchertown-3.2.0.tar.gz
+    weectl extension install https://github.com/poblabs/weewx-belchertown/releases/download/weewx-belchertown-3.2.1/weewx-belchertown-3.2.1.tar.gz
     ```
 
     (Turn on weewx's Python first with `source ~/weewx-venv/bin/activate`, as in [Before you start](before-you-start.md#which-kind-of-weewx-you-have).)
@@ -36,7 +36,7 @@ When it asks `Install extension ... (y/n)?`, type `y` and press Enter.
 **You should see** `Finished installing extension Belchertown` at the end. It also says `Saved copy of configuration as ...`: weewx keeps a dated copy of your `weewx.conf` before changing it, so you can always go back.
 
 ??? note "No internet on the weewx computer, or want a different version?"
-    Download the `.tar.gz` file from the [releases page](https://github.com/poblabs/weewx-belchertown/releases) on any computer, copy it to the weewx computer, and install it by its file name instead of the web address, for example `sudo weectl extension install weewx-belchertown-3.2.0.tar.gz`.
+    Download the `.tar.gz` file from the [releases page](https://github.com/poblabs/weewx-belchertown/releases) on any computer, copy it to the weewx computer, and install it by its file name instead of the web address, for example `sudo weectl extension install weewx-belchertown-3.2.1.tar.gz`.
 
 ## 3. Tell it where to put the website
 
