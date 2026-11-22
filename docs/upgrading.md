@@ -55,26 +55,26 @@ These are the files in the skin folder that are yours, if you have them. Note wh
 
 You install 3 over the top of 1.3.1. There is no need to uninstall first, and you shouldn't: uninstalling removes your `[[Belchertown]]` settings from `weewx.conf`. Installing keeps them.
 
-1. Download the newest `weewx-belchertown-3.x.x.tar.gz` (3.1.0 at the time of writing) from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
+1. Download the newest `weewx-belchertown-3.x.x.tar.gz` (3.2.0 at the time of writing) from the [releases page](https://github.com/poblabs/weewx-belchertown/releases).
 2. Install it. The command depends on how weewx was installed:
 
    **Package install:**
 
    ```
-   sudo weectl extension install weewx-belchertown-3.1.0.tar.gz
+   sudo weectl extension install weewx-belchertown-3.2.0.tar.gz
    ```
 
    **pip install:** first turn on the Python environment weewx runs in (usually `~/weewx-venv`), then install:
 
    ```
    source ~/weewx-venv/bin/activate
-   weectl extension install weewx-belchertown-3.1.0.tar.gz
+   weectl extension install weewx-belchertown-3.2.0.tar.gz
    ```
 
    **git install:** run weectl from your weewx source folder (usually `~/weewx`):
 
    ```
-   python3 ~/weewx/src/weectl.py extension install weewx-belchertown-3.1.0.tar.gz
+   python3 ~/weewx/src/weectl.py extension install weewx-belchertown-3.2.0.tar.gz
    ```
 
    Answer `y` when it asks whether to install.

@@ -1,4 +1,6 @@
-Unreleased
+3.2.0 November 22, 2026
+
+A documentation site, your own links in the menu, and fixes, including an ECharts temperature line that could fail to draw.
 
 ### Added
 * A documentation site, https://poblabs.github.io/weewx-belchertown/, built from the docs folder and updated with each release. The readme and the wiki are in one place there, with search, plus a chart gallery that shows every chart type drawn by both Highcharts and ECharts with its graphs.conf settings, and a page on putting charts on your own pages that works with both. The readme is now a short introduction.
