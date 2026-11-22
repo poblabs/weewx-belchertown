@@ -1,9 +1,10 @@
 3.2.1 November 22, 2026
 
-A dark mode fix for the Highcharts wind rose.
+Fixes for the Highcharts wind rose: its compass points in dark mode and its legend.
 
 ### Fixed
 * Highcharts: the compass points on the wind rose (N, NNE, NE...) show in dark mode. They had been dark gray on the dark background since 3.0.0. Thanks @ms372591 (#1028).
+* Highcharts: the wind rose legend sits beside the rose (below it on a phone) instead of over the east compass points, and compass points such as WNW are no longer cut short on narrow charts.
 
 3.2.0 November 22, 2026
 

@@ -654,13 +654,13 @@ function windrose_chart(options) {
     options.xAxis.crosshair = true;
     options.xAxis.categories = categories;
     options.xAxis.tickmarkPlacement = 'on';
-    options.xAxis.labels = {useHTML: true}
-    //options.legend.align = "right";
-    options.legend.verticalAlign = "top";
-    options.legend.x = 210;
-    options.legend.y = 119;
+    options.xAxis.labels = {useHTML: true, style: {textOverflow: "none"}}
+    // Legend beside the rose, below it on narrow charts, never over the compass points
+    options.legend.align = "right";
+    options.legend.verticalAlign = "middle";
     options.legend.layout = "vertical";
-    options.legend.floating = true;
+    options.legend.floating = false;
+    options.responsive = {rules: [{condition: {maxWidth: 500}, chartOptions: {legend: {align: "center", verticalAlign: "bottom", layout: "horizontal"}}}]};
     options.yAxis[0].min = 0;
     options.yAxis[0].endOnTick = false;
     options.yAxis[0].reversedStacks = false;
