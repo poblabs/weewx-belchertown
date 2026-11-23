@@ -29,6 +29,29 @@ The simplest chart: one or more observations as lines. The first observation pic
 
 With ECharts, the outside temperature line takes the skin's temperature colors (blue when cold, red when hot), and the day's high and low are marked with a label. Add `temperature_colors = false` under `[[[outTemp]]]` to keep a single color.
 
+## Daylight shading { #daylight-shading }
+
+The same lines with the daylight hours shaded behind them. The shading follows the sun: it rises at first light, covers the chart through the day, and fades after sunset.
+
+=== "Highcharts"
+
+    ![Daylight shading, drawn by Highcharts](../assets/charts/daylight-highcharts.webp)
+
+=== "ECharts"
+
+    ![Daylight shading, drawn by ECharts](../assets/charts/daylight-echarts.webp)
+
+```
+    [[daylight]]
+        title = Temperature
+        daylight_shading = true
+        [[[outTemp]]]
+        [[[dewpoint]]]
+            color = purple
+```
+
+Put `daylight_shading = true` under a group such as `[day]` to shade all its charts. Week charts shade the nights as bands. See [daylight_shading](graphs-conf.md#daylight_shading).
+
 ## Wind speed and direction { #wind-speed-and-direction }
 
 Three observations on one chart: wind speed as a shaded area, gusts as a line over it, and the direction as dots on the right-hand scale.
