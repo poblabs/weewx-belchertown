@@ -1935,7 +1935,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         obs.pressure = 0
         sun, out = ephem.Sun(), []
         for ts in range(int(start) - int(start) % 300, int(stop) + 1, 300):
-            obs.date = ephem.Date(datetime.datetime.utcfromtimestamp(ts))
+            obs.date = ephem.Date(datetime.datetime.fromtimestamp(ts, datetime.timezone.utc).replace(tzinfo=None))
             sun.compute(obs)
             x = min(1.0, max(0.0, (math.degrees(sun.alt) + 18) / 26.0))
             out.append([ts * 1000, round(x * x * (3 - 2 * x), 3)])
@@ -2410,7 +2410,10 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     chart_opts = output[chart_group][plotname]["options"]
                     if to_bool(line_options.get("daylight_shading", False)) and "nights" not in chart_opts and "daylight" not in chart_opts:
                         chart_opts["nights"] = self.night_spans(minstamp, maxstamp)
-                        curve = self.daylight_curve(minstamp, maxstamp) if maxstamp - minstamp <= 2 * 86400 else None
+                        cache = self.__dict__.setdefault("_daylight_cache", {})
+                        if (minstamp, maxstamp) not in cache:
+                            cache[(minstamp, maxstamp)] = self.daylight_curve(minstamp, maxstamp) if maxstamp - minstamp <= 2 * 86400 else None
+                        curve = cache[(minstamp, maxstamp)]
                         if curve:
                             chart_opts["daylight"] = curve
 
