@@ -82,6 +82,18 @@ function echarts_value_text(y, meta) {
     return highcharts_tooltip_factory(y, meta.obsType, true, meta.rounding, meta.mirrored, meta.numberFormat);
 }
 
+// A tickInterval sized for one unit (0.01 inHg) is hundreds of ticks in another (hPa); Highcharts thins them out,
+// so step up the configured interval (x2, x5, x10...) until about eight ticks fit and no two labels read the same
+function echarts_tick_interval(interval, low, high, rounding) {
+    if (!interval || !isFinite(low) || !isFinite(high)) return interval;
+    var finest = rounding !== undefined && rounding !== null && rounding >= 0 ? Math.pow(10, -rounding) : 0;
+    var factors = [1, 2, 5], out = interval;
+    for (var n = 0; n < 30 && ((high - low) / out > 8 || out < finest - 1e-9); n++) {
+        out = interval * factors[(n + 1) % 3] * Math.pow(10, Math.floor((n + 1) / 3));
+    }
+    return parseFloat(out.toPrecision(12));
+}
+
 // The skin's temperature colors as value bands, for coloring a temperature line by its value
 function echarts_temperature_pieces(unit, low, high) {
     var pieces = [], step = 0.5, start = Math.floor(low) - 1, end = Math.ceil(high) + 1;
@@ -215,6 +227,7 @@ function echarts_cartesian(hc, info, theme) {
                 if (p.x > x_max) x_max = p.x;
             }
             if (y !== null && !isNaN(y)) {
+                if (s.rounding !== undefined && s.rounding !== null && s.rounding >= 0) extents[axis].rounding = Math.max(extents[axis].rounding || 0, s.rounding);
                 extents[axis].min = Math.min(extents[axis].min, y);
                 extents[axis].max = Math.max(extents[axis].max, y);
                 if (!categories) {
@@ -306,7 +319,7 @@ function echarts_cartesian(hc, info, theme) {
         if (a.minRange && (min !== null ? min : ext.min) + a.minRange > ext.max && max === null) max = (min !== null ? min : ext.min) + a.minRange;
         if (min !== null) axis.min = min;
         if (max !== null) axis.max = max;
-        var interval = echarts_num(a.tickInterval);
+        var interval = echarts_tick_interval(echarts_num(a.tickInterval), min !== null ? min : ext.min, max !== null ? max : ext.max, ext.rounding);
         if (interval) axis.interval = interval;
         axis.alignTicks = n > 0 && min === null && max === null && !interval;
         return axis;
@@ -529,10 +542,10 @@ function echarts_range(hc, info, theme) {
     var y = hc.yAxis || {};
     var lows = rows.map(function(r) { return r.low; }).filter(function(v) { return v !== null && v !== undefined; });
     var highs = rows.map(function(r) { return r.high; }).filter(function(v) { return v !== null && v !== undefined; });
-    var interval = echarts_num(y.tickInterval);
     var y_min = echarts_num(y.min) !== null ? echarts_num(y.min) : Math.min.apply(null, lows);
     var y_max = echarts_num(y.max) !== null ? echarts_num(y.max) : Math.max(Math.max.apply(null, highs), echarts_num(y.softMax) || -Infinity);
     if (!isFinite(y_min) || !isFinite(y_max)) y_min = y_max = undefined;
+    var interval = echarts_tick_interval(echarts_num(y.tickInterval), y_min, y_max, s.rounding);
     if (interval && y_min !== undefined) {
         y_min = Math.floor(y_min / interval) * interval;
         y_max = Math.ceil(y_max / interval) * interval;
