@@ -1921,6 +1921,24 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                           data should be extracted
     """
 
+    def night_spans(self, start, stop):
+        """Sunset to sunrise for each night that touches start..stop, in milliseconds."""
+        if stop - start > 8 * 86400:
+            return []
+        import weewx.almanac
+        st = self.config_dict["Station"]
+        alt = weewx.units.convert(self.stn_info.altitude_vt, "meter")[0] or 0
+        days, day = [], startOfDay(start) - 86400
+        while day <= stop + 86400:
+            a = weewx.almanac.Almanac(day + 43200, float(st["latitude"]), float(st["longitude"]), alt)
+            days.append((a.sunrise.raw, a.sunset.raw))
+            day = startOfDay(day + 86400 + 7200)
+        nights = []
+        for (_, dusk), (dawn, _) in zip(days, days[1:]):
+            if dusk and dawn and dawn > start and dusk < stop:
+                nights.append([max(dusk, start) * 1000, min(dawn, stop) * 1000])
+        return nights
+
     def run(self):
         """Main entry point for file generation."""
 
@@ -2368,6 +2386,9 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     
                     if start_at_beginning_of_month:
                         minstamp = archiveMonthSpan(minstamp)[0]
+
+                    if to_bool(line_options.get("daylight_shading", False)) and "nights" not in output[chart_group][plotname]["options"]:
+                        output[chart_group][plotname]["options"]["nights"] = self.night_spans(minstamp, maxstamp)
 
                     # Find if this chart is using a new database binding.
                     # Default to the binding set in plot_options

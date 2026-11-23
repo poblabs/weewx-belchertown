@@ -376,6 +376,13 @@ function echarts_cartesian(hc, info, theme) {
             peak.series.markPoint = {silent: true, animation: false, data: points};
         });
     }
+    // Night shading (daylight_shading), carried over from Highcharts' xAxis.plotBands
+    var bands = (hc.xAxis && !Array.isArray(hc.xAxis) && hc.xAxis.plotBands) || [];
+    if (!categories && bands.length && series.length) {
+        series[0].markArea = {silent: true, animation: false, data: bands.map(function(b) {
+            return [{xAxis: echarts_local(b.from), itemStyle: {color: b.color}}, {xAxis: echarts_local(b.to)}];
+        })};
+    }
     // A "now" line on charts that run past the present, such as today since midnight
     var now = Date.now(), last_data = -Infinity;
     series.forEach(function(sr) { sr.data.forEach(function(d) { if (d && d[1] !== null && d[2] > last_data) last_data = d[2]; }); });

@@ -180,6 +180,10 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     options.plotOptions.line.gapSize = opt.gapsize;
     options.plotOptions.spline.gapSize = opt.gapsize;
     options.plotOptions.scatter.gapSize = opt.gapsize;
+    if (opt.nights && opt.nights.length) {
+        var night_color = document.body.classList.contains("dark") ? "rgba(0,0,0,0.28)" : "rgba(60,80,130,0.08)";
+        options.xAxis.plotBands = opt.nights.map(function(n) { return {from: n[0], to: n[1], color: night_color, zIndex: 0}; });
+    }
     if (opt.connectNulls == "true") {
         options.plotOptions.series = {connectNulls: opt.connectNulls};
     }
