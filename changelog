@@ -1,5 +1,8 @@
 Unreleased
 
+### Added
+* Swedish language file (lang = sv). Thanks @jorgbj (#1029).
+
 ### Fixed
 * ECharts: a tick interval too fine for the station's units (the example's yAxis_tickInterval = 0.01 on the barometer, sized for inHg, means a label every 0.01 hPa) is stepped up until about eight ticks fit, as Highcharts does. The labels had piled up and run off the edge of narrow charts. Thanks @jorgbj (#1027).
 

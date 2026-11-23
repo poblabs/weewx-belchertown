@@ -71,7 +71,7 @@ That's a weewx setting, not a Belchertown one: see [Use metric units](customize.
         lang = de
 ```
 
-German (`de`), French (`fr`), Italian (`it`) and Catalan (`ca`) are complete. See [Translations](translations.md).
+German (`de`), French (`fr`), Italian (`it`), Catalan (`ca`) and Swedish (`sv`) are complete. See [Translations](translations.md).
 
 ### Change the About page
 

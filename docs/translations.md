@@ -6,7 +6,7 @@ Dates, numbers and units have their own settings, covered at the end.
 
 ## Languages that come with the skin
 
-Belchertown 3.0 includes four language files, in the `lang` folder of the skin:
+Belchertown includes five language files, in the `lang` folder of the skin:
 
 | Language | Setting | File | Written by
 | -------- | ------- | ---- | ----------
@@ -14,6 +14,7 @@ Belchertown 3.0 includes four language files, in the `lang` folder of the skin:
 | German | `lang = de` | `lang/de.conf` | Johanna Roedenbeck
 | French | `lang = fr` | `lang/fr.conf` | trollix
 | Italian | `lang = it` | `lang/it.conf` | Daniele Putti
+| Swedish | `lang = sv` | `lang/sv.conf` | jorgbj (since 3.2.3)
 
 Without a `lang` setting the site is in English.
 
@@ -37,7 +38,7 @@ Without a `lang` setting the site is in English.
 
 The pages change language at the next report.
 
-A language file can also set a few options. The German, French and Catalan files set `forecast_units = si` (metric forecasts) and `forecast_lang` (the language of Xweather alert text); the Italian file sets `forecast_units = ca`. Anything you set yourself under `[[[Extras]]]` in `weewx.conf` wins over the language file.
+A language file can also set a few options. The German, French, Catalan and Swedish files set `forecast_units = si` (metric forecasts) and `forecast_lang` (the language of Xweather alert text); the Italian file sets `forecast_units = ca`. Anything you set yourself under `[[[Extras]]]` in `weewx.conf` wins over the language file.
 
 ### Dates and numbers
 

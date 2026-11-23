@@ -39,7 +39,7 @@ Every piece of text on the site is a "label" you can change or translate. To cha
 | footer_copyright_text | "My Weather Website" | Text after the year in the footer's copyright
 | footer_disclaimer_text | "Never make important decisions from this website." | Disclaimer in the footer
 
-The skin also ships in Catalan, German, French and Italian: add `lang = ca`, `lang = de`, `lang = fr` or `lang = it` under `[[Belchertown]]`. Text a language file doesn't cover stays in English.
+The skin also ships in Catalan, German, French, Italian and Swedish: add `lang = ca`, `lang = de`, `lang = fr`, `lang = it` or `lang = sv` under `[[Belchertown]]`. Text a language file doesn't cover stays in English.
 
 `lang` sets the date and number format as well, unless you set `belchertown_locale` yourself. Dates and live values work with any language. For the numbers built on the server, such as the Records page and the NOAA reports, install the matching locale on your server (for example `de_DE.UTF-8`).
 
