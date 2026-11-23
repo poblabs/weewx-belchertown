@@ -348,6 +348,7 @@ function echarts_cartesian(hc, info, theme) {
         trigger: "axis",
         axisPointer: {type: "line", lineStyle: {color: theme.axis}},
         formatter: function(params) {
+            params = params.filter(function(p) { return metas[p.seriesIndex]; });
             if (!params.length) return "";
             var head = categories ? params[0].name : tzAdjustedMoment(params[0].value[2] / 1000).format(info.tooltip_date_format);
             var lines = params.map(function(p) {
@@ -375,6 +376,21 @@ function echarts_cartesian(hc, info, theme) {
             if (peak.lo && peak.lo.x !== peak.hi.x) points.push(pill(peak.lo, true));
             peak.series.markPoint = {silent: true, animation: false, data: points};
         });
+    }
+    // Night shading (daylight_shading), carried over from Highcharts' xAxis.plotBands
+    var bands = (hc.xAxis && !Array.isArray(hc.xAxis) && hc.xAxis.plotBands) || [];
+    if (!categories && !hc.daylight && bands.length && series.length) {
+        series[0].markArea = {silent: true, animation: false, data: bands.map(function(b) {
+            return [{xAxis: echarts_local(b.from), itemStyle: {color: b.color}}, {xAxis: echarts_local(b.to)}];
+        })};
+    }
+    // Daylight (daylight_shading on a day chart): a full-height area that rises through dawn and falls through dusk
+    var daylight = !categories && hc.daylight && series.length;
+    if (daylight) {
+        y_out.push({type: "value", show: false, min: 0, max: 1});
+        series.push({type: "line", silent: true, yAxisIndex: y_axes.length, showSymbol: false, lineStyle: {width: 0}, z: 0, animation: false,
+                     areaStyle: {color: hc.daylight.color, opacity: 1}, tooltip: {show: false},
+                     data: hc.daylight.data.map(function(d) { return [echarts_local(d[0]), d[1]]; })});
     }
     // A "now" line on charts that run past the present, such as today since midnight
     var now = Date.now(), last_data = -Infinity;
