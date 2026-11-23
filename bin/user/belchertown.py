@@ -1923,7 +1923,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
     """
 
     def daylight_curve(self, start, stop):
-        """[ms, 0..1] every 5 minutes: 0 at night, rising through twilight (sun 12 degrees down) to 1 at sunrise."""
+        """[ms, 0..1] every 5 minutes: 0 at night, rising from first light (sun 18 degrees down) to 1 once the sun is 8 degrees up."""
         try:
             import ephem
         except ImportError:
@@ -1937,7 +1937,7 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
         for ts in range(int(start) - int(start) % 300, int(stop) + 1, 300):
             obs.date = ephem.Date(datetime.datetime.utcfromtimestamp(ts))
             sun.compute(obs)
-            x = min(1.0, max(0.0, (math.degrees(sun.alt) + 12) / 11.17))  # 1 at sunrise (-0.83 degrees)
+            x = min(1.0, max(0.0, (math.degrees(sun.alt) + 18) / 26.0))
             out.append([ts * 1000, round(x * x * (3 - 2 * x), 3)])
         return out
 
