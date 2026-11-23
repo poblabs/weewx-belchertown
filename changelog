@@ -6,6 +6,9 @@ Unreleased
 
 ### Fixed
 * ECharts: a tick interval too fine for the station's units (the example's yAxis_tickInterval = 0.01 on the barometer, sized for inHg, means a label every 0.01 hPa) is stepped up until about eight ticks fit, as Highcharts does. The labels had piled up and run off the edge of narrow charts. Thanks @jorgbj (#1027).
+* ECharts: gauge numbers are drawn in the text color instead of the gauge color, which was hard to read on a white page.
+* ECharts: a high or low label at the top or bottom of the plot moves under (or over) its point, and one at either end moves in from the edge, so it no longer sits on the axis numbers.
+* ECharts: a line that is flat, or nearly so (the first minutes of the day), gets a small range around its value. The axis had no numbers, or ran from 400 to 1,600 on a barometer.
 
 3.2.2 November 22, 2026
 
