@@ -11,6 +11,7 @@ import calendar
 import datetime
 import json
 import locale
+import math
 import os
 import os.path
 import logging
@@ -1921,6 +1922,25 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                           data should be extracted
     """
 
+    def daylight_curve(self, start, stop):
+        """[ms, 0..1] every 5 minutes: 0 at night, rising through twilight (sun 12 degrees down) to 1 at sunrise."""
+        try:
+            import ephem
+        except ImportError:
+            return None
+        st = self.config_dict["Station"]
+        obs = ephem.Observer()
+        obs.lat, obs.lon = str(float(st["latitude"])), str(float(st["longitude"]))
+        obs.elevation = weewx.units.convert(self.stn_info.altitude_vt, "meter")[0] or 0
+        obs.pressure = 0
+        sun, out = ephem.Sun(), []
+        for ts in range(int(start) - int(start) % 300, int(stop) + 1, 300):
+            obs.date = ephem.Date(datetime.datetime.utcfromtimestamp(ts))
+            sun.compute(obs)
+            x = min(1.0, max(0.0, (math.degrees(sun.alt) + 12) / 11.17))  # 1 at sunrise (-0.83 degrees)
+            out.append([ts * 1000, round(x * x * (3 - 2 * x), 3)])
+        return out
+
     def night_spans(self, start, stop):
         """Sunset to sunrise for each night that touches start..stop, in milliseconds."""
         if stop - start > 8 * 86400:
@@ -2387,8 +2407,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                     if start_at_beginning_of_month:
                         minstamp = archiveMonthSpan(minstamp)[0]
 
-                    if to_bool(line_options.get("daylight_shading", False)) and "nights" not in output[chart_group][plotname]["options"]:
-                        output[chart_group][plotname]["options"]["nights"] = self.night_spans(minstamp, maxstamp)
+                    chart_opts = output[chart_group][plotname]["options"]
+                    if to_bool(line_options.get("daylight_shading", False)) and "nights" not in chart_opts and "daylight" not in chart_opts:
+                        chart_opts["nights"] = self.night_spans(minstamp, maxstamp)
+                        curve = self.daylight_curve(minstamp, maxstamp) if maxstamp - minstamp <= 2 * 86400 else None
+                        if curve:
+                            chart_opts["daylight"] = curve
 
                     # Find if this chart is using a new database binding.
                     # Default to the binding set in plot_options

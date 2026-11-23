@@ -184,6 +184,9 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
         var night_color = document.body.classList.contains("dark") ? "rgba(0,0,0,0.28)" : "rgba(60,80,130,0.08)";
         options.xAxis.plotBands = opt.nights.map(function(n) { return {from: n[0], to: n[1], color: night_color, zIndex: 0}; });
     }
+    if (opt.daylight && opt.daylight.length) {
+        options.daylight = {data: opt.daylight, color: document.body.classList.contains("dark") ? "rgba(255,255,255,0.07)" : "rgba(255,200,80,0.16)"};
+    }
     if (opt.connectNulls == "true") {
         options.plotOptions.series = {connectNulls: opt.connectNulls};
     }
@@ -393,6 +396,14 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
 // The library chart_library picks draws the finished options
 function draw_chart(options, info) {
     if (config.chart_library === "echarts") return echarts_draw(options, info);
+    var real_axes = Array.isArray(options.yAxis) ? options.yAxis.filter(function(a, n) { return options.series.some(function(s) { return (parseInt(s.yAxis, 10) || 0) === n; }); }).length : 0;
+    if (options.daylight && real_axes === 1 && !options.chart.polar && !(options.xAxis && options.xAxis.categories)) {
+        options.chart.alignTicks = false;
+        options.xAxis.plotBands = [];
+        options.yAxis.push({visible: false, min: 0, max: 1, tickPositions: [0, 1], startOnTick: false, endOnTick: false});
+        options.series.push({type: "area", name: "daylight", data: options.daylight.data, yAxis: options.yAxis.length - 1, color: options.daylight.color,
+                             fillOpacity: 1, lineWidth: 0, marker: {enabled: false}, enableMouseTracking: false, showInLegend: false, zIndex: -1, states: {inactive: {opacity: 1}}});
+    }
     return Highcharts.chart(options);
 }
 
