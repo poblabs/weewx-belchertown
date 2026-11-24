@@ -2559,6 +2559,8 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                         output[chart_group][plotname]["series"][line_name][
                             highcharts_config
                         ] = highcharts_value
+                    # A line's own yAxis_label has its unit and translation added above
+                    output[chart_group][plotname]["series"][line_name]["yAxis_label"] = yAxis_label
 
                     # Override any highcharts series configs with standardized
                     # data, then generate the data output

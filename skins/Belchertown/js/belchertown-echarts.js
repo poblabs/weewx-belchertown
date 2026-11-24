@@ -292,7 +292,7 @@ function echarts_cartesian(hc, info, theme) {
             visual_maps.push({type: "piecewise", show: false, seriesIndex: i, dimension: 1, pieces: pieces});
         }
         series.push(out);
-        metas.push({obsType: s.observation_type || s.obsType, rounding: s.rounding, mirrored: s.mirrored_value, numberFormat: s.numberFormat || "", color: color, name: s.name,
+        metas.push({obsType: s.unit === "degree_compass" ? "windDir" : s.observation_type || s.obsType, rounding: s.rounding, mirrored: s.mirrored_value, numberFormat: s.numberFormat || "", color: color, name: s.name,
                     temperature: temperature ? s.unit : null});
     });
 

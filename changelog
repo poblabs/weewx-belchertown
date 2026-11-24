@@ -1,3 +1,9 @@
+Unreleased
+
+### Fixed
+* A direction other than windDir, such as a second anemometer's (any observation in compass degrees), gets compass points (N, E, S, W) on its axis and in the tooltip, like windDir.
+* A yAxis_label set on a single line keeps its unit and translation, "Wind Direction (°)" instead of "Wind Direction".
+
 3.2.3 November 24, 2026
 
 Day and night shading on the charts, Swedish, and ECharts fixes for tick labels, gauge numbers, high/low labels and flat lines.

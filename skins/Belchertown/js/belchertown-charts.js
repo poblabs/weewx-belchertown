@@ -313,7 +313,7 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
             options.yAxis[this_yAxis].minorGridLineWidth = 1;
         }
 
-        if (s.obsType == "windDir") {
+        if (s.obsType == "windDir" || s.unit == "degree_compass") {
             options.yAxis[this_yAxis].tickInterval = 90;
             options.yAxis[this_yAxis].labels = {
                 useHTML: true,
@@ -650,6 +650,7 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
                         this.points.map(function(point) {
                             // If observation_type is in the series array, use that otherwise use the obsType
                             var point_obsType = point.series.userOptions.observation_type ? point.series.userOptions.observation_type : point.series.userOptions.obsType;
+                            if (point.series.userOptions.unit == "degree_compass") point_obsType = "windDir";
                             var rounding = point.series.userOptions.rounding;
                             var mirrored = point.series.userOptions.mirrored_value;
                             var numberFormat = point.series.userOptions.numberFormat ? point.series.userOptions.numberFormat : "";
@@ -658,9 +659,9 @@ function chart_base_options(exporting_enabled, legend_enabled, tooltip_date_form
                     );
                 } catch (e) {
                     // There's an error so check if it's windDir to apply wind direction label, or if it's a scatter. If none of those revert back to default tooltip.
-                    if (this.series.userOptions.obsType == "windDir" || this.series.userOptions.observation_type == "windDir") {
+                    if (this.series.userOptions.obsType == "windDir" || this.series.userOptions.observation_type == "windDir" || this.series.userOptions.unit == "degree_compass") {
                         // If observation_type is in the series array, use that otherwise use the obsType
-                        var point_obsType = this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
+                        var point_obsType = this.series.userOptions.unit == "degree_compass" ? "windDir" : this.series.userOptions.observation_type ? this.series.userOptions.observation_type : this.series.userOptions.obsType;
                         var rounding = this.series.userOptions.rounding;
                         var mirrored = this.series.userOptions.mirrored_value;
                         return tzAdjustedMoment(this.x / 1000).format(tooltip_date_format) + '<br><b>' + highcharts_tooltip_factory(this.point.y, point_obsType, true, rounding, mirrored);
