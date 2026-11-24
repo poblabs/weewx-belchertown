@@ -71,7 +71,7 @@ That's a weewx setting, not a Belchertown one: see [Use metric units](customize.
         lang = de
 ```
 
-German (`de`), French (`fr`), Italian (`it`) and Catalan (`ca`) are complete. See [Translations](translations.md).
+German (`de`), French (`fr`), Italian (`it`), Catalan (`ca`) and Swedish (`sv`) are complete. See [Translations](translations.md).
 
 ### Change the About page
 
@@ -168,6 +168,10 @@ Chart changes show up at the next report. No restart needed.
 ### Remove a chart, or change the home page charts
 
 Open `graphs.conf` and delete the chart's section: the line with its name in double brackets (`[[chart3]]`) and everything indented under it. The home page shows the charts in the `[homepage]` group; to show the Today charts there instead, set `highcharts_homepage_graphgroup = day`.
+
+### Shade day and night on the charts
+
+Add `daylight_shading = true` under `[day]` and `[week]` in `graphs.conf`. Day charts shade the daylight hours, rising at dawn and fading at dusk; week charts shade the nights. See [daylight_shading](charts/graphs-conf.md#daylight_shading).
 
 ### Use the free chart library (ECharts)
 

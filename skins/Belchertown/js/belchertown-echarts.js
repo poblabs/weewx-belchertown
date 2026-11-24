@@ -82,6 +82,18 @@ function echarts_value_text(y, meta) {
     return highcharts_tooltip_factory(y, meta.obsType, true, meta.rounding, meta.mirrored, meta.numberFormat);
 }
 
+// A tickInterval sized for one unit (0.01 inHg) is hundreds of ticks in another (hPa); Highcharts thins them out,
+// so step up the configured interval (x2, x5, x10...) until about eight ticks fit and no two labels read the same
+function echarts_tick_interval(interval, low, high, rounding) {
+    if (!interval || !isFinite(low) || !isFinite(high)) return interval;
+    var finest = rounding !== undefined && rounding !== null && rounding >= 0 ? Math.pow(10, -rounding) : 0;
+    var factors = [1, 2, 5], out = interval;
+    for (var n = 0; n < 30 && ((high - low) / out > 8 || out < finest - 1e-9); n++) {
+        out = interval * factors[(n + 1) % 3] * Math.pow(10, Math.floor((n + 1) / 3));
+    }
+    return parseFloat(out.toPrecision(12));
+}
+
 // The skin's temperature colors as value bands, for coloring a temperature line by its value
 function echarts_temperature_pieces(unit, low, high) {
     var pieces = [], step = 0.5, start = Math.floor(low) - 1, end = Math.ceil(high) + 1;
@@ -215,6 +227,7 @@ function echarts_cartesian(hc, info, theme) {
                 if (p.x > x_max) x_max = p.x;
             }
             if (y !== null && !isNaN(y)) {
+                if (s.rounding !== undefined && s.rounding !== null && s.rounding >= 0) extents[axis].rounding = Math.max(extents[axis].rounding || 0, s.rounding);
                 extents[axis].min = Math.min(extents[axis].min, y);
                 extents[axis].max = Math.max(extents[axis].max, y);
                 if (!categories) {
@@ -304,9 +317,17 @@ function echarts_cartesian(hc, info, theme) {
         if (min === null && soft_min !== null && ext.min > soft_min) min = soft_min;
         if (max === null && soft_max !== null && ext.max < soft_max) max = soft_max;
         if (a.minRange && (min !== null ? min : ext.min) + a.minRange > ext.max && max === null) max = (min !== null ? min : ext.min) + a.minRange;
+        if (min === null && max === null && isFinite(ext.min) && !ext.bars) {
+            var mid = (ext.min + ext.max) / 2, d = mid ? Math.pow(10, Math.floor(Math.log10(Math.abs(mid))) - 2) : 1;
+            if (ext.max - ext.min < d) {
+                min = Math.floor((mid - d) / d) * d;
+                max = Math.ceil((mid + d) / d) * d;
+                if (ext.min >= 0 && min < 0) min = 0;
+            }
+        }
         if (min !== null) axis.min = min;
         if (max !== null) axis.max = max;
-        var interval = echarts_num(a.tickInterval);
+        var interval = echarts_tick_interval(echarts_num(a.tickInterval), min !== null ? min : ext.min, max !== null ? max : ext.max, ext.rounding);
         if (interval) axis.interval = interval;
         axis.alignTicks = n > 0 && min === null && max === null && !interval;
         return axis;
@@ -335,6 +356,7 @@ function echarts_cartesian(hc, info, theme) {
         trigger: "axis",
         axisPointer: {type: "line", lineStyle: {color: theme.axis}},
         formatter: function(params) {
+            params = params.filter(function(p) { return metas[p.seriesIndex]; });
             if (!params.length) return "";
             var head = categories ? params[0].name : tzAdjustedMoment(params[0].value[2] / 1000).format(info.tooltip_date_format);
             var lines = params.map(function(p) {
@@ -354,7 +376,7 @@ function echarts_cartesian(hc, info, theme) {
             var pill = function(pt, below) {
                 var meta = metas[series.indexOf(peak.series)];
                 var color = peak.temperature ? get_outTemp_color(peak.unit, pt.y, true) : meta.color;
-                return {coord: [echarts_local(pt.x), pt.y], value: pt.y, symbol: "circle", symbolSize: 7, itemStyle: {color: color, borderColor: theme.background, borderWidth: 2},
+                return {pill: below ? "low" : "high", coord: [echarts_local(pt.x), pt.y], value: pt.y, symbol: "circle", symbolSize: 7, itemStyle: {color: color, borderColor: theme.background, borderWidth: 2},
                         label: {show: true, position: below ? "bottom" : "top", distance: 6, formatter: echarts_value_text(pt.y, meta) + "  " + tzAdjustedMoment(pt.x / 1000).format("LT"),
                                 backgroundColor: theme.tooltip, borderColor: color, borderWidth: 1, borderRadius: 10, padding: [3, 8], color: theme.tooltip_text, fontSize: 11}};
             };
@@ -362,6 +384,21 @@ function echarts_cartesian(hc, info, theme) {
             if (peak.lo && peak.lo.x !== peak.hi.x) points.push(pill(peak.lo, true));
             peak.series.markPoint = {silent: true, animation: false, data: points};
         });
+    }
+    // Night shading (daylight_shading), carried over from Highcharts' xAxis.plotBands
+    var bands = (hc.xAxis && !Array.isArray(hc.xAxis) && hc.xAxis.plotBands) || [];
+    if (!categories && !hc.daylight && bands.length && series.length) {
+        series[0].markArea = {silent: true, animation: false, data: bands.map(function(b) {
+            return [{xAxis: echarts_local(b.from), itemStyle: {color: b.color}}, {xAxis: echarts_local(b.to)}];
+        })};
+    }
+    // Daylight (daylight_shading on a day chart): a full-height area that rises through dawn and falls through dusk
+    var daylight = !categories && hc.daylight && series.length;
+    if (daylight) {
+        y_out.push({type: "value", show: false, min: 0, max: 1});
+        series.push({type: "line", silent: true, yAxisIndex: y_axes.length, showSymbol: false, lineStyle: {width: 0}, z: 0, animation: false,
+                     areaStyle: {color: hc.daylight.color, opacity: 1}, tooltip: {show: false},
+                     data: hc.daylight.data.map(function(d) { return [echarts_local(d[0]), d[1]]; })});
     }
     // A "now" line on charts that run past the present, such as today since midnight
     var now = Date.now(), last_data = -Infinity;
@@ -529,10 +566,10 @@ function echarts_range(hc, info, theme) {
     var y = hc.yAxis || {};
     var lows = rows.map(function(r) { return r.low; }).filter(function(v) { return v !== null && v !== undefined; });
     var highs = rows.map(function(r) { return r.high; }).filter(function(v) { return v !== null && v !== undefined; });
-    var interval = echarts_num(y.tickInterval);
     var y_min = echarts_num(y.min) !== null ? echarts_num(y.min) : Math.min.apply(null, lows);
     var y_max = echarts_num(y.max) !== null ? echarts_num(y.max) : Math.max(Math.max.apply(null, highs), echarts_num(y.softMax) || -Infinity);
     if (!isFinite(y_min) || !isFinite(y_max)) y_min = y_max = undefined;
+    var interval = echarts_tick_interval(echarts_num(y.tickInterval), y_min, y_max, s.rounding);
     if (interval && y_min !== undefined) {
         y_min = Math.floor(y_min / interval) * interval;
         y_max = Math.ceil(y_max / interval) * interval;
@@ -594,7 +631,7 @@ function echarts_range(hc, info, theme) {
         });
         var pill = function(r, value, below) {
             var c = get_outTemp_color(s.obsUnit, value, true);
-            return {value: [r.x, value], symbol: "circle", symbolSize: 7, itemStyle: {color: c, borderColor: theme.background, borderWidth: 2},
+            return {pill: below ? "low" : "high", value: [r.x, value], symbol: "circle", symbolSize: 7, itemStyle: {color: c, borderColor: theme.background, borderWidth: 2},
                     label: {show: true, position: below ? "right" : "top", distance: 6, formatter: echarts_value_text(value, meta) + "  " + tzAdjustedMoment(r.x_raw / 1000).format("ll"),
                             backgroundColor: theme.tooltip, borderColor: c, borderWidth: 1, borderRadius: 10, padding: [3, 8], color: theme.tooltip_text, fontSize: 11}};
         };
@@ -661,8 +698,8 @@ function echarts_gauge(hc, info, theme) {
                     offsetCenter: [0, 0],
                     formatter: function() { return "{v|" + parts[0] + "}" + (parts[1] ? "\n{l|" + parts[1] + "}" : ""); },
                     rich: {
-                        v: {fontSize: 50, fontWeight: "bold", color: color, lineHeight: 56},
-                        l: {fontSize: size ? parseInt(size[1], 10) : 14, fontWeight: "bold", color: color, lineHeight: 24}
+                        v: {fontSize: 50, fontWeight: "bold", color: theme.text, lineHeight: 56},
+                        l: {fontSize: size ? parseInt(size[1], 10) : 14, fontWeight: "bold", color: theme.text, lineHeight: 24}
                     }
                 },
                 data: [{value: value}]
@@ -753,6 +790,7 @@ function echarts_draw(hc, info, redraw) {
     }
     chart.setOption(built.option);
     echarts_fit_labels(chart, built.option);
+    echarts_fit_pills(chart, built.option);
     if (built.zoom) {
         echarts_reset_zoom(chart, echarts_theme());
         echarts_drag_zoom(el);
@@ -795,6 +833,35 @@ function echarts_fit_labels(chart, option) {
         }
     });
     if (changed) chart.setOption({grid: grid, yAxis: axes});
+}
+
+// A high/low bubble at the top of the plot sits on the axis numbers: move it under its point, a low one at the bottom above it,
+// and one at either end in from the edge
+function echarts_fit_pills(chart, option) {
+    var rect;
+    try { rect = chart.getModel().getComponent("grid", 0).coordinateSystem.getRect(); } catch (e) { return; }
+    var ctx = echarts_fit_labels.ctx || (echarts_fit_labels.ctx = document.createElement("canvas").getContext("2d"));
+    var changed = false;
+    var update = (option.series || []).map(function(s, i) {
+        var items = s.markPoint ? s.markPoint.data : (s.type === "scatter" ? s.data : null);
+        if (!items || !items.some(function(d) { return d && d.pill; })) return {};
+        items.forEach(function(d) {
+            if (!d || !d.pill || !d.label) return;
+            var px = chart.convertToPixel({seriesIndex: i}, d.coord || d.value);
+            if (!px) return;
+            ctx.font = "11px sans-serif";
+            var half = ctx.measureText(String(d.label.formatter)).width / 2 + 10;
+            var room = 34;
+            if (d.pill === "high" && px[1] - rect.y < room) { d.label.position = "bottom"; changed = true; }
+            if (d.pill === "low" && rect.y + rect.height - px[1] < room) { d.label.position = "top"; changed = true; }
+            if (d.label.position === "top" || d.label.position === "bottom") {
+                if (px[0] - half < rect.x) { d.label.align = "left"; d.label.offset = [-10, 0]; changed = true; }
+                else if (px[0] + half > rect.x + rect.width) { d.label.align = "right"; d.label.offset = [10, 0]; changed = true; }
+            }
+        });
+        return s.markPoint ? {markPoint: {data: items}} : {data: items};
+    });
+    if (changed) chart.setOption({series: update});
 }
 
 // Legends and polar charts are laid out for a width, so a real width change draws the chart again

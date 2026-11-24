@@ -10,7 +10,7 @@ from setup import ExtensionInstaller
 
 #-------- extension info -----------
 
-VERSION      = "3.2.2"
+VERSION      = "3.2.3"
 NAME         = 'Belchertown'
 DESCRIPTION  = 'A clean modern skin with real time streaming updates and interactive charts. Modeled after BelchertownWeather.com'
 AUTHOR       = "Pat OBrien"
@@ -194,7 +194,8 @@ files=[('bin/user', ['bin/user/belchertown.py', 'bin/user/belchertown_forecast.p
        ('skins/Belchertown/lang', ['skins/Belchertown/lang/ca.conf',
                                    'skins/Belchertown/lang/de.conf',
                                    'skins/Belchertown/lang/fr.conf',
-                                   'skins/Belchertown/lang/it.conf'
+                                   'skins/Belchertown/lang/it.conf',
+                                   'skins/Belchertown/lang/sv.conf'
                                   ]
         ),
        ('skins/Belchertown/graphs', ['skins/Belchertown/graphs/index.html.tmpl']),

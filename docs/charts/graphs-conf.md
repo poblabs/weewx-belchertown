@@ -491,6 +491,17 @@ The height of the chart, in pixels or as a percentage.
 
 Adds one or more CSS class names (separated by spaces) to the chart's box, so you can style it in `custom.css`.
 
+### daylight_shading
+
+```
+[day]
+    daylight_shading = true
+```
+
+Shades the daylight hours behind the chart. On a chart of two days or less, the shading rises from first light (the sun 18° below the horizon), covers the whole chart once the sun is 8° up, and fades the same way in the evening. On a longer chart, up to 8 days, the nights are shaded as bands instead. Month and year charts get no shading. Default `false`.
+
+Put it under a chart group, like `[day]` or `[week]`, to shade every chart in it, or under one chart. The times come from your station's latitude and longitude in `weewx.conf`. The rising and fading shading needs pyephem, which weewx normally installs; without it, day charts get the night bands too. Charts that aren't drawn along a timeline (wind rose, gauges, `xAxis_groupby`) are not shaded.
+
 ### xAxis_groupby
 
 ```

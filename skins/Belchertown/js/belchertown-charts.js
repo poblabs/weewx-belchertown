@@ -180,6 +180,13 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
     options.plotOptions.line.gapSize = opt.gapsize;
     options.plotOptions.spline.gapSize = opt.gapsize;
     options.plotOptions.scatter.gapSize = opt.gapsize;
+    if (opt.nights && opt.nights.length) {
+        var night_color = document.body.classList.contains("dark") ? "rgba(0,0,0,0.28)" : "rgba(60,80,130,0.08)";
+        options.xAxis.plotBands = opt.nights.map(function(n) { return {from: n[0], to: n[1], color: night_color, zIndex: 0}; });
+    }
+    if (opt.daylight && opt.daylight.length) {
+        options.daylight = {data: opt.daylight, color: document.body.classList.contains("dark") ? "rgba(255,255,255,0.07)" : "rgba(255,200,80,0.16)"};
+    }
     if (opt.connectNulls == "true") {
         options.plotOptions.series = {connectNulls: opt.connectNulls};
     }
@@ -389,7 +396,29 @@ function render_chart(plot, group, json_file, prepend_renderTo) {
 // The library chart_library picks draws the finished options
 function draw_chart(options, info) {
     if (config.chart_library === "echarts") return echarts_draw(options, info);
+    if (options.daylight && !options.chart.polar && !(options.xAxis && options.xAxis.categories)) {
+        var daylight = options.daylight, on_render = options.chart.events && options.chart.events.render;
+        options.xAxis.plotBands = [];
+        options.chart.events = Object.assign({}, options.chart.events, {render: function() {
+            chart_daylight(this, daylight);
+            if (on_render) on_render.call(this);
+        }});
+    }
     return Highcharts.chart(options);
+}
+
+// The daylight ramp as a shape behind the plot, so it needs no axis of its own
+function chart_daylight(chart, daylight) {
+    var axis = chart.xAxis[0], bottom = chart.plotTop + chart.plotHeight;
+    var pts = daylight.data.filter(function(d) { return d[0] >= axis.min - 300000 && d[0] <= axis.max + 300000; });
+    if (pts.length < 2) return;
+    var path = [["M", axis.toPixels(pts[0][0]), bottom]];
+    pts.forEach(function(d) { path.push(["L", axis.toPixels(d[0]), bottom - d[1] * chart.plotHeight]); });
+    path.push(["L", axis.toPixels(pts[pts.length - 1][0]), bottom], ["Z"]);
+    if (!chart.daylight_clip) chart.daylight_clip = chart.renderer.clipRect(0, 0, 0, 0);
+    chart.daylight_clip.attr({x: chart.plotLeft, y: chart.plotTop, width: chart.plotWidth, height: chart.plotHeight});
+    if (!chart.daylight_shape) chart.daylight_shape = chart.renderer.path().attr({fill: daylight.color, zIndex: 0}).clip(chart.daylight_clip).add();
+    chart.daylight_shape.attr({d: path});
 }
 
 function charts_reflow() {

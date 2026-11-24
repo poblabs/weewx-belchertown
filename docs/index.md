@@ -28,7 +28,7 @@ A skin (website theme) for the [weewx weather software](https://weewx.com), mode
 
     ---
 
-    Lines, columns, wind roses, Hays charts, temperature radials and gauges, from any reading in your database over any time range. Start in the chart builder, or copy one from the [gallery](charts/gallery.md).
+    Lines, columns, wind roses, Hays charts, temperature radials and gauges, from any reading in your database over any time range, with the daylight hours shaded behind them if you like. Start in the chart builder, or copy one from the [gallery](charts/gallery.md).
 
 -   **Highcharts or ECharts**
 
