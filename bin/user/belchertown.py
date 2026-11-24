@@ -172,7 +172,7 @@ def _temperature_range_total(maximum, minimum, converter, number_format):
 
 
 # Print version in syslog for easier troubleshooting
-VERSION = "3.2.2"
+VERSION = "3.2.3"
 
 # Day.js formats dates in the browser. These are the locale files cdnjs has for this version;
 # English is built in.

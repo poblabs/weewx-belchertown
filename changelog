@@ -1,4 +1,6 @@
-Unreleased
+3.2.3 November 24, 2026
+
+Day and night shading on the charts, Swedish, and ECharts fixes for tick labels, gauge numbers, high/low labels and flat lines.
 
 ### Added
 * Swedish language file (lang = sv). Thanks @jorgbj (#1029).
