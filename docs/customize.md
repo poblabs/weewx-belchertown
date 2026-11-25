@@ -199,6 +199,20 @@ There are also four fixed places for your own content (HTML is fine). Create any
 
 ![Where the custom content goes](https://user-images.githubusercontent.com/3484775/49245323-fba5be00-f3df-11e8-982e-dc6363e9f1d1.png)
 
+These files, like all your `.inc` files, are weewx templates, so two things in a `<script>` need care:
+
+* **Dollar signs:** weewx reads `$name` as one of its tags, so jQuery's `$(...)` or a JavaScript template literal (`` `${value} mm` ``) breaks the page or comes out wrong. Put the script between `#raw` and `#end raw` and weewx leaves everything inside alone. A single one can also be written `\$`.
+* **Accents and symbols:** the home page is written with HTML entities, so a character such as ° becomes `&#176;`. That shows correctly in HTML text but appears as is inside a script. In JavaScript, write it as a `\u` escape instead, such as `"\u00B0C"` for °C.
+
+```html
+<div id="my-rain"></div>
+<script>
+#raw
+document.getElementById("my-rain").textContent = `${(3.6).toFixed(1)} mm, 20\u00B0C`;
+#end raw
+</script>
+```
+
 ## Your own pages and menu links
 
 You can add whole pages of your own (a webcam page, a page about your garden's rain gauge) and links in the menu at the top. See [Your own pages and charts](charts/custom-pages.md).
