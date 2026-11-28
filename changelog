@@ -1,6 +1,7 @@
 Unreleased
 
 ### Fixed
+* A chart with an aggregate_interval under an hour puts each point at the end of its interval, as weewx stamps its archive records, so a 5-minute chart reads 10:00, 10:05 instead of 10:02, 10:07. Thanks @pdxvr (#1032).
 * A direction other than windDir, such as a second anemometer's (any observation in compass degrees), gets compass points (N, E, S, W) on its axis and in the tooltip, like windDir.
 * A yAxis_label set on a single line keeps its unit and translation, "Wind Direction (°)" instead of "Wind Direction".
 

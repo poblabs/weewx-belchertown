@@ -3767,13 +3767,12 @@ class HighchartsJsonGenerator(weewx.reportengine.ReportGenerator):
                 else:
                     obs_round_vt = [self.round_none(x, usage_round) for x in obs_vt[0]]
 
-        # "Today" charts, "timespan_specific" charts and floating timespan
-        # charts have the point timestamp on the stop time so we don't see the
-        # previous minute in the tooltip. (e.g. 4:59 instead of 5:00)
-        # Everything else has it on the start time so we don't see the next day
-        # in the tooltip (e.g. Jan 2 instead of Jan 1)
+        # Raw records and intervals under an hour sit on the stop time, as weewx
+        # stamps its archive records (10:00-10:05 shows as 10:05). Hours and
+        # months sit on the start time, so the tooltip doesn't show the next one.
+        # Anything else (days) sits in the middle of its interval.
         try:
-            if not aggregate_type:
+            if not aggregate_type or (aggregate_interval and aggregate_interval < 3600):
                 point_timestamp = time_stop_vt
             elif aggregate_interval and (
                       aggregate_interval == 3600 or aggregate_interval==2629800):
